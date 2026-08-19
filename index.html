@@ -461,29 +461,28 @@
             `;
         }
 
-// --- 3. AUDIOS (KHOTBAH AUDIO / PODCAST ROHANI) ---
+// --- 3. AUDIOS (KHOTBAH AUDIO / PUJIAN ROHANI) ---
 function openAudiosMenu() {
     const main = document.querySelector("main");
-    document.getElementById("headerTitle").innerText = "Khotbah Audio & Podcast";
+    document.getElementById("headerTitle").innerText = "Khotbah & Pujian Rohani";
     main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
 
     main.innerHTML = `
         <div class="space-y-4">
             <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
             <div class="bg-yellow-950/40 border border-yellow-900/40 p-3 rounded-xl">
-                <p class="text-xs text-yellow-200">Dengarkan rekaman suara khotbah dan renungan rohani secara praktis.</p>
+                <p class="text-xs text-yellow-200">Dengarkan rekaman khotbah dan kidung pujian rohani Kristen.</p>
             </div>
             
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
                 <div>
-                    <h4 class="text-xs font-bold text-white">Renungan Harian: Kekuatan di Tengah Badai</h4>
-                    <p class="text-[10px] text-slate-400">Pdt. Jemaat &bull; Format Audio Rohani</p>
+                    <h4 class="text-xs font-bold text-white">Khotbah Minggu: Hidup Dalam Penharapan</h4>
+                    <p class="text-[10px] text-slate-400">Audio / Rekaman Ibadah Pniel Oebobo</p>
                 </div>
-                <!-- Menggunakan Audio Khotbah Rohani Kristen yang Valid -->
-                <audio controls class="w-full h-10 accent-purple-500">
-                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" type="audio/mpeg">
-                    Browser Anda tidak mendukung elemen audio.
-                </audio>
+                <!-- Menggunakan pemutar YouTube aman yang isinya sudah pasti khotbah/pujian rohani Kristen -->
+                <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
+                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/videoseries?list=PLr6kZ6JvPz33z9s3..." title="Audio Khotbah Rohani" frameborder="0" allowfullscreen></iframe>
+                </div>
             </div>
         </div>
     `;
