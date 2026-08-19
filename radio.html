@@ -8,43 +8,57 @@
 <body style="background: #0f172a; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
 
     <!-- Tombol Kembali ke Beranda Aplikasi -->
-    <div style="width: 100%; max-width: 300px; margin-bottom: 10px;">
+    <div style="width: 100%; max-width: 300px; margin-bottom: 12px;">
         <a href="index.html" style="color: #c084fc; font-size: 12px; text-decoration: none; font-family: Arial, sans-serif; font-weight: bold;">← Kembali ke Beranda</a>
     </div>
 
-    <div style="font-family: Arial, sans-serif; background: #1e3c72; padding: 20px; border-radius: 12px; max-width: 300px; width: 100%; text-align: center; color: white; box-sizing: border-box;">
-        <h4>Radio Rohani Kristen</h4>
-        <p style="font-size: 12px; color: #ced6e0;">Streaming Nonstop 24 Jam</p>
+    <div style="font-family: Arial, sans-serif; background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #334155; padding: 24px; border-radius: 16px; max-width: 300px; width: 100%; text-align: center; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.3); box-sizing: border-box;">
         
-        <!-- MENGGUNAKAN SERVER STREAM DIRECT MP3 -->
-        <audio id="audioRadio" src="https://radio.co" preload="none" crossorigin="anonymous"></audio>
+        <div style="font-size: 40px; margin-bottom: 10px;">📻</div>
+        <h4 style="margin: 0 0 5px 0; font-size: 16px;">Radio Rohani Kristen</h4>
+        <p style="font-size: 11px; color: #94a3b8; margin: 0 0 20px 0;">Streaming Pujian 24 Jam Nonstop</p>
+        
+        <!-- MENGGUNAKAN STREAM AUDIO HTTPS YANG STABIL -->
+        <audio id="audioRadio" preload="none">
+            <!-- Contoh Direct Stream MP3 Aman (HTTPS) -->
+            <source src="https://phila.streamguys1.com/live" type="audio/mpeg">
+            Browser Anda tidak mendukung pemutar audio ini.
+        </audio>
 
-        <button id="btnKontrol" style="background-color: white; color: #1e3c72; border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px;">
-            PUTAR SIARAN
+        <button id="btnKontrol" style="background-color: #9333ea; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-size: 12px; font-weight: bold; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(147,51,234,0.4); transition: 0.2s;">
+            ▶ PUTAR SIARAN
         </button>
+        
+        <p id="statusText" style="font-size: 10px; color: #64748b; margin-top: 15px;"></p>
     </div>
 
 <script>
     const audio = document.getElementById('audioRadio');
     const btn = document.getElementById('btnKontrol');
+    const statusText = document.getElementById('statusText');
 
     btn.addEventListener('click', () => {
         if (audio.paused) {
-            btn.innerText = "MEMUAT...";
-            audio.load(); 
+            btn.innerText = "MEMUAT SIARAN...";
+            statusText.innerText = "Menghubungkan ke server...";
             
             audio.play()
                 .then(() => { 
-                    btn.innerText = "BERHENTI"; 
+                    btn.innerText = "⏸ HENTIKAN SIARAN";
+                    btn.style.backgroundColor = "#e11d48";
+                    statusText.innerText = "Sedang Memutar Live Streaming";
                 })
                 .catch(err => {
                     console.error(err);
-                    alert("Akses diblokir oleh peramban. Coba nonaktifkan AdBlock atau gunakan Google Chrome.");
-                    btn.innerText = "PUTAR SIARAN";
+                    statusText.innerText = "";
+                    alert("Gagal memuat siaran. Pastikan koneksi internet Anda stabil.");
+                    btn.innerText = "▶ PUTAR SIARAN";
                 });
         } else {
             audio.pause();
-            btn.innerText = "PUTAR SIARAN";
+            btn.innerText = "▶ PUTAR SIARAN";
+            btn.style.backgroundColor = "#9333ea";
+            statusText.innerText = "Siaran dijeda.";
         }
     });
 </script>
