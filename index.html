@@ -278,10 +278,10 @@
     <div class="w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📅</div>
     <span class="text-[11px] text-slate-300 font-medium">Kegiatan</span>
 </div>
-                            <div onclick="showToast('Menu Inbox')" class="cursor-pointer flex flex-col items-center">
-                                <div class="w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">✉️</div>
-                                <span class="text-[11px] text-slate-300 font-medium">Inbox</span>
-                            </div>
+<div onclick="openChatRoom()" class="cursor-pointer flex flex-col items-center">
+    <div class="w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">💬</div>
+    <span class="text-[11px] text-slate-300 font-medium">Komunitas</span>
+</div>
                             <div onclick="showToast('Menu Devotionals')" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📑</div>
                                 <span class="text-[11px] text-slate-300 font-medium">Devotionals</span>
@@ -727,6 +727,28 @@ async function openEventsList() {
     } catch (err) {
         document.getElementById("eventsContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data kegiatan.</p>`;
     }
+}
+        // --- HALAMAN CHAT ROOM KOMUNITAS ---
+function openChatRoom() {
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Ruang Persekutuan & Chat";
+    main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
+
+    main.innerHTML = `
+        <div class="space-y-4">
+            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+            <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
+                <p class="text-xs text-purple-200">Selamat datang di ruang obrolan jemaat. Mari saling menguatkan dalam kasih.</p>
+            </div>
+            
+            <!-- Container Embed Minnit Chat -->
+            <div class="bg-slate-900 border border-slate-800 p-2 rounded-2xl flex flex-col items-center justify-center shadow-inner overflow-hidden">
+                <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
+                <span style="display: none;" class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/880184913737266/c/Main?embed" data-style="width:100%; height:450px; max-height:80vh;" data-version="1.55">Chat</span>
+                <p class="powered-by-minnit text-[10px] pt-2 text-slate-500"><a href="https://minnit.chat" target="_blank" class="hover:underline">Powered by Minnit Chat</a></p>
+            </div>
+        </div>
+    `;
 }
     </script>
 </body>
