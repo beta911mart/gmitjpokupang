@@ -29,7 +29,7 @@
         <!-- HEADER -->
         <header class="bg-gradient-to-b from-purple-950 to-slate-950 text-white p-4 pt-6 flex justify-between items-center border-b border-purple-900/40">
             <button onclick="showToast('Menu navigasi samping')" class="text-xl">☰</button>
-            <h1 id="headerTitle" class="font-bold text-lg tracking-wide">Syalom Warga PNIEL Oebobo 🕌</h1>
+            <h1 id="headerTitle" class="font-bold text-lg tracking-wide">Syalom Warga PNIEL Oebobo ⛪</h1>
             <button onclick="showToast('Status sinkronisasi online')" class="text-xl">☁️</button>
         </header>
 
@@ -248,23 +248,17 @@
         function switchTab(tab) {
             const main = document.querySelector("main");
             const user = window.currentUser;
-            document.getElementById("headerTitle").innerText = "Syalom Warga PNIEL Oebobo 🕌";
+            document.getElementById("headerTitle").innerText = "Syalom Warga PNIEL Oebobo ⛪";
             main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
 
             if (tab === 'home') {
                 main.innerHTML = `
-                    <div class="space-y-6">
-                        <!-- Search Bar -->
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">🔍</span>
-                            <input type="text" placeholder="Cari warta, kegiatan, atau dokumen..." class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-full text-xs text-white placeholder-slate-500 outline-none focus:border-purple-500 shadow-inner">
-                        </div>
-
-                        <!-- Grid Ikon Bulat -->
+                    <div class="space-y-6 pt-2">
+                        <!-- Grid Ikon Bulat (Tanpa Search Bar agar Lebih Ramping) -->
                         <div class="grid grid-cols-4 gap-4 text-center">
-                            <div onclick="switchTab('profil')" class="cursor-pointer flex flex-col items-center">
-                                <div class="w-14 h-14 bg-gradient-to-tr from-lime-500 to-green-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">👤</div>
-                                <span class="text-[11px] text-slate-300 font-medium">Profile</span>
+                            <div onclick="openAboutPage()" class="cursor-pointer flex flex-col items-center">
+                                <div class="w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">ℹ️</div>
+                                <span class="text-[11px] text-slate-300 font-medium">Tentang</span>
                             </div>
                             <div onclick="openDownloadCenter()" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📥</div>
@@ -417,6 +411,76 @@
                     `;
                 }
             }
+        }
+
+        // --- HALAMAN TENTANG (ABOUT) GEREJA ---
+        function openAboutPage() {
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Tentang Gereja";
+            main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
+
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    
+                    <!-- Informasi Utama Gereja -->
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
+                        <div class="text-center pb-2 border-b border-slate-800">
+                            <h3 class="font-bold text-sm text-purple-300">GMIT Jemaat Pniel Oebobo</h3>
+                            <p class="text-slate-400 text-[11px] mt-1">📍 Jl. WJ Lalamentik, Oebobo, Kota Kupang, NTT</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pb-2 border-b border-slate-800">
+                            <div>
+                                <span class="text-slate-400 text-[10px] block">No. Telepon</span>
+                                <span class="font-medium text-slate-200">(0380) 123456</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-[10px] block">Email Resmi</span>
+                                <span class="font-medium text-slate-200">pniel.oebobo@gmit.or.id</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profil Pendeta -->
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
+                        <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Majelis Jemaat / Pendeta</h4>
+                        <div class="flex items-center gap-3">
+                            <div class="w-14 h-14 bg-purple-950 border border-purple-800 rounded-full flex items-center justify-center text-xl font-bold text-purple-200">
+                                ⛪
+                            </div>
+                            <div>
+                                <p class="font-bold text-white text-sm">Pdt. Contoh Nama, M.Th.</p>
+                                <p class="text-[11px] text-slate-400">Ketua Majelis Jemaat Pniel Oebobo</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Jadwal Kebaktian Minggu -->
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 text-xs">
+                        <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Jadwal & Jam Kebaktian Minggu</h4>
+                        <ul class="space-y-1.5 text-slate-300 text-[11px] pt-1">
+                            <li class="flex justify-between"><span>Ibadah I (Pagi):</span> <strong class="text-white">07:00 WITA</strong></li>
+                            <li class="flex justify-between"><span>Ibadah II (Utama):</span> <strong class="text-white">09:00 WITA</strong></li>
+                            <li class="flex justify-between"><span>Ibadah Sore / Pemuda:</span> <strong class="text-white">17:00 WITA</strong></li>
+                        </ul>
+                    </div>
+
+                    <!-- Ketua Lingkungan & Rayon -->
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
+                        <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Daftar Ketua Lingkungan & Rayon</h4>
+                        <div class="space-y-2 text-[11px]">
+                            <div>
+                                <span class="text-slate-400 font-semibold block">Lingkungan 1</span>
+                                <p class="text-slate-200">Rayon 1: Bpk. J. Atau &bull; Rayon 2: Ibu M. Manafe</p>
+                            </div>
+                            <div class="pt-1 border-t border-slate-800/60">
+                                <span class="text-slate-400 font-semibold block">Lingkungan 2</span>
+                                <p class="text-slate-200">Rayon 3: Bpk. D. Lomi &bull; Rayon 4: Ibu S. Nalle</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         // --- HALAMAN PUSAT DOWNLOAD (GOOGLE DRIVE) ---
@@ -947,7 +1011,7 @@
             }
         }
 
-        // --- HALAMAN PERSEMBAHAN / DONASI (TRANSPARANSI DENGAN APPROVAL ADMIN & MAKSIMAL 6 HARI) ---
+        // --- HALAMAN PERSEMBAHAN / DONASI ---
         async function openDonationList() {
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Persembahan / Donasi";
@@ -957,7 +1021,6 @@
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                     
-                    <!-- Informasi Rekening & Penjelasan -->
                     <div class="bg-blue-950/40 border border-blue-900/40 p-4 rounded-xl space-y-3">
                         <p class="text-xs text-blue-200 leading-relaxed">Pencatatan persembahan kasih, diakonia, sumbangan atau donasi pembangunan jemaat dapat disalurkan melalui platform ini atau langsung ke sekretariat.</p>
                         <div class="bg-slate-900/80 p-2.5 rounded-lg border border-blue-900/50">
@@ -1008,7 +1071,6 @@
             }
         }
 
-        // Form Input Donasi dari Sisi Jemaat
         function openFormDonation() {
             const main = document.querySelector("main");
             const user = window.currentUser || {};
@@ -1023,7 +1085,7 @@
                     <form onsubmit="handleSendDonation(event)" class="space-y-3">
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Opsi Tampilkan Nama</label>
-                            <select id="donNameOption" onchange="previewDonationName()" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                            <select id="donNameOption" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                                 <option value="full">Tampilkan Nama Lengkap (${user.nama_lengkap})</option>
                                 <option value="initial">Inisial Depan saja diikuti "*" (Cth: B***)</option>
                             </select>
