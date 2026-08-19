@@ -3,39 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webapp Gereja</title>
-    <!-- Tailwind CSS untuk styling cepat dan modern -->
+    <title>Gereja PNIEL Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes slideIn {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
+        .animate-fade-in { animation: fadeIn 0.25s ease-out forwards; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center">
 
-    <!-- Container Utama Mobile -->
-    <div id="app" class="max-w-md w-full mx-auto bg-white min-h-screen flex flex-col shadow-lg relative">
+    <!-- TOAST NOTIFICATION -->
+    <div id="toastContainer" class="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none"></div>
+
+    <!-- Container Utama ala Mobile App (Latar Ungu/Gelap Khas Referensi) -->
+    <div id="app" class="max-w-md w-full mx-auto bg-slate-950 min-h-screen flex flex-col shadow-2xl relative overflow-hidden">
         
         <!-- HEADER -->
-        <header class="bg-indigo-600 text-white p-4 text-center font-bold text-lg shadow-md">
-            Gereja Digital
+        <header class="bg-gradient-to-b from-purple-950 to-slate-950 text-white p-4 pt-6 flex justify-between items-center border-b border-purple-900/40">
+            <button onclick="showToast('Menu navigasi samping')" class="text-xl">☰</button>
+            <h1 id="headerTitle" class="font-bold text-lg tracking-wide">MyChurch App</h1>
+            <button onclick="showToast('Status sinkronisasi offline/online')" class="text-xl">☁️</button>
         </header>
 
-        <!-- KONTEN UTAMA (Dinamis via JavaScript) -->
-        <main class="flex-1 p-4 overflow-y-auto pb-20">
-            <!-- Konten akan dimuat di sini -->
+        <!-- KONTEN UTAMA -->
+        <main class="flex-1 p-4 overflow-y-auto pb-24 animate-fade-in">
+            <!-- Konten dimuat dinamis di sini -->
         </main>
 
-        <!-- NAVIGATION BAR BAWAH (Untuk User yang sudah login) -->
-        <nav id="bottomNav" class="hidden absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-3 text-xs text-slate-600">
-            <button onclick="switchTab('home')" class="flex flex-col items-center focus:text-indigo-600">🏠 Beranda</button>
-            <button onclick="switchTab('doa')" class="flex flex-col items-center focus:text-indigo-600">🙏 Kotak Doa</button>
-            <button onclick="switchTab('profil')" class="flex flex-col items-center focus:text-indigo-600">👤 Profil</button>
+        <!-- NAVIGATION BAR BAWAH -->
+        <nav id="bottomNav" class="hidden absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 flex justify-around p-3 text-xs font-medium text-slate-400 shadow-lg">
+            <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1">🏠 Beranda</button>
+            <button onclick="switchTab('doa')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1">🙏 Kotak Doa</button>
+            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1">👤 Profil</button>
         </nav>
-
     </div>
 
     <script>
-        // --- GANTI DENGAN URL WEB APP GOOGLE SCRIPT ANDA ---
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
 
-        // Cek LocalStorage saat halaman pertama kali dibuka
+        function showToast(message, type = "success") {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            const bgColor = type === "success" ? "bg-emerald-600" : "bg-rose-600";
+            
+            toast.className = `${bgColor} text-white px-4 py-3 rounded-xl shadow-lg text-xs font-medium pointer-events-auto animate-slide-in flex items-center gap-2 max-w-sm w-full`;
+            toast.innerHTML = `<span>${type === 'success' ? '✅' : '⚠️'}</span> <span class="flex-1">${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                toast.style.transform = "translateY(-20px)";
+                toast.style.transition = "all 0.3s ease";
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const savedUser = localStorage.getItem("user_gereja");
             if (savedUser) {
@@ -45,86 +75,80 @@
             }
         });
 
-        // --- 1. HALAMAN AUTH (LOGIN & REGISTRASI) ---
+        // --- HALAMAN LOGIN / REGISTER ---
         function renderAuthPage() {
             document.getElementById("bottomNav").classList.add("hidden");
+            document.getElementById("headerTitle").innerText = "Masuk Sensus";
             const main = document.querySelector("main");
             
             main.innerHTML = `
-                <div class="space-y-6 pt-4">
+                <div class="space-y-6 pt-6 animate-fade-in">
                     <div class="text-center">
-                        <h2 class="text-xl font-bold text-indigo-600">Selamat Datang, Jemaat</h2>
-                        <p class="text-xs text-slate-500 mt-1">Silakan masuk atau daftar akun sensus gereja.</p>
+                        <h2 class="text-xl font-bold text-purple-400">Selamat Datang</h2>
+                        <p class="text-xs text-slate-400 mt-1">Silakan masuk menggunakan Nama & 4 digit akhir No. WA.</p>
                     </div>
 
-                    <!-- Pilihan Tab Login / Register -->
-                    <div class="flex border-b border-slate-200">
-                        <button id="tabLoginBtn" onclick="toggleAuthTab('login')" class="flex-1 pb-2 font-semibold text-indigo-600 border-b-2 border-indigo-600">Masuk</button>
-                        <button id="tabRegBtn" onclick="toggleAuthTab('register')" class="flex-1 pb-2 text-slate-400">Daftar Baru</button>
+                    <div class="flex border-b border-slate-800">
+                        <button id="tabLoginBtn" onclick="toggleAuthTab('login')" class="flex-1 pb-2 font-semibold text-purple-400 border-b-2 border-purple-400">Masuk</button>
+                        <button id="tabRegBtn" onclick="toggleAuthTab('register')" class="flex-1 pb-2 text-slate-500">Daftar Baru</button>
                     </div>
 
-                    <!-- FORM LOGIN -->
                     <form id="formLogin" onsubmit="handleLogin(event)" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap</label>
-                            <input type="text" id="loginNama" required placeholder="Contoh: Budi Santoso" class="w-full p-3 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
+                            <input type="text" id="loginNama" required placeholder="Contoh: Budi Santoso" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none focus:border-purple-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">4 Digit Terakhir No. WhatsApp</label>
-                            <input type="password" maxlength="4" id="loginPin" required placeholder="Cth: 7899" class="w-full p-3 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">4 Digit Terakhir No. WhatsApp</label>
+                            <input type="password" maxlength="4" id="loginPin" required placeholder="Cth: 7899" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none focus:border-purple-500">
                         </div>
-                        <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold text-sm shadow-md hover:bg-indigo-700 transition">Masuk Aplikasi</button>
+                        <button type="submit" id="btnLoginSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition">Masuk Aplikasi</button>
                     </form>
 
-                    <!-- FORM REGISTRASI -->
                     <form id="formRegister" onsubmit="handleRegister(event)" class="space-y-3 hidden">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap</label>
-                            <input type="text" id="regNama" required class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
+                            <input type="text" id="regNama" required class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                         </div>
                         <div class="flex gap-2">
                             <div class="flex-1">
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tempat Lahir</label>
-                                <input type="text" id="regTempatLahir" required class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Tempat Lahir</label>
+                                <input type="text" id="regTempatLahir" required class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                             </div>
                             <div class="flex-1">
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Lahir</label>
-                                <input type="date" id="regTglLahir" required class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Tanggal Lahir</label>
+                                <input type="date" id="regTglLahir" required class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Status Pelayanan</label>
-                            <select id="regStatus" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none bg-white">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Status Pelayanan</label>
+                            <select id="regStatus" class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                                 <option value="Jemaat">Jemaat</option>
                                 <option value="Pendeta">Pendeta</option>
                                 <option value="Majelis">Majelis</option>
-                                <option value="Penatua">Penatua</option>
-                                <option value="Pegawai">Pegawai</option>
-                                <option value="Pengurus">Pengurus</option>
                             </select>
                         </div>
                         <div class="flex gap-2">
                             <div class="flex-1">
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Lingkungan</label>
-                                <input type="text" id="regLingkungan" required placeholder="Cth: 1" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Lingkungan</label>
+                                <input type="text" id="regLingkungan" required placeholder="Cth: 1" class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                             </div>
                             <div class="flex-1">
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Rayon</label>
-                                <input type="text" id="regRayon" required placeholder="Cth: 2" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Rayon</label>
+                                <input type="text" id="regRayon" required placeholder="Cth: 2" class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor WhatsApp (Aktif)</label>
-                            <input type="tel" id="regWa" required placeholder="081234567899" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
-                            <p class="text-[10px] text-slate-400 mt-1">*4 digit terakhir otomatis jadi PIN login Anda.</p>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nomor WhatsApp</label>
+                            <input type="tel" id="regWa" required placeholder="081234567899" class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                            <p class="text-[10px] text-slate-500 mt-1">*4 digit terakhir otomatis jadi PIN login.</p>
                         </div>
-                        <button type="submit" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold text-sm shadow-md hover:bg-emerald-700 transition mt-2">Daftar Sensus</button>
+                        <button type="submit" id="btnRegSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition mt-2">Daftar Sensus</button>
                     </form>
                 </div>
             `;
         }
 
-        // Toggle Tab Login / Register
         function toggleAuthTab(type) {
             const loginForm = document.getElementById("formLogin");
             const regForm = document.getElementById("formRegister");
@@ -134,23 +158,24 @@
             if (type === 'login') {
                 loginForm.classList.remove("hidden");
                 regForm.classList.add("hidden");
-                loginBtn.className = "flex-1 pb-2 font-semibold text-indigo-600 border-b-2 border-indigo-600";
-                regBtn.className = "flex-1 pb-2 text-slate-400";
+                loginBtn.className = "flex-1 pb-2 font-semibold text-purple-400 border-b-2 border-purple-400";
+                regBtn.className = "flex-1 pb-2 text-slate-500";
             } else {
                 loginForm.classList.add("hidden");
                 regForm.classList.remove("hidden");
-                regBtn.className = "flex-1 pb-2 font-semibold text-indigo-600 border-b-2 border-indigo-600";
-                loginBtn.className = "flex-1 pb-2 text-slate-400";
+                regBtn.className = "flex-1 pb-2 font-semibold text-purple-400 border-b-2 border-purple-400";
+                loginBtn.className = "flex-1 pb-2 text-slate-500";
             }
         }
 
-        // --- 2. LOGIKA PROSES LOGIN ---
         async function handleLogin(e) {
             e.preventDefault();
+            const btn = document.getElementById("btnLoginSubmit");
             const nama = document.getElementById("loginNama").value;
             const pin = document.getElementById("loginPin").value;
 
-            alert("Memproses login...");
+            btn.disabled = true;
+            btn.innerHTML = "Memproses...";
 
             try {
                 const response = await fetch(SCRIPT_URL, {
@@ -160,19 +185,24 @@
                 const result = await response.json();
 
                 if (result.status === "success") {
+                    showToast("Login Berhasil!");
                     localStorage.setItem("user_gereja", JSON.stringify(result.user));
-                    renderDashboard(result.user);
+                    setTimeout(() => renderDashboard(result.user), 500);
                 } else {
-                    alert(result.message);
+                    showToast(result.message, "error");
+                    btn.disabled = false;
+                    btn.innerHTML = "Masuk Aplikasi";
                 }
             } catch (err) {
-                alert("Terjadi kesalahan koneksi: " + err);
+                showToast("Kesalahan koneksi.", "error");
+                btn.disabled = false;
+                btn.innerHTML = "Masuk Aplikasi";
             }
         }
 
-        // --- 3. LOGIKA PROSES REGISTRASI ---
         async function handleRegister(e) {
             e.preventDefault();
+            const btn = document.getElementById("btnRegSubmit");
             const data = {
                 action: "register",
                 nama_lengkap: document.getElementById("regNama").value,
@@ -184,7 +214,8 @@
                 no_whatsapp: document.getElementById("regWa").value
             };
 
-            alert("Mengirim data pendaftaran...");
+            btn.disabled = true;
+            btn.innerHTML = "Mendaftarkan...";
 
             try {
                 const response = await fetch(SCRIPT_URL, {
@@ -194,95 +225,168 @@
                 const result = await response.json();
 
                 if (result.status === "success") {
-                    alert("Registrasi Berhasil! 4 digit terakhir No WA Anda kini menjadi PIN login.");
+                    showToast("Registrasi Berhasil!");
                     localStorage.setItem("user_gereja", JSON.stringify(result.user));
-                    renderDashboard(result.user);
+                    setTimeout(() => renderDashboard(result.user), 500);
                 } else {
-                    alert(result.message);
+                    showToast(result.message, "error");
+                    btn.disabled = false;
+                    btn.innerHTML = "Daftar Sensus";
                 }
             } catch (err) {
-                alert("Terjadi kesalahan koneksi: " + err);
+                showToast("Kesalahan koneksi.", "error");
+                btn.disabled = false;
+                btn.innerHTML = "Daftar Sensus";
             }
         }
 
-        // --- 4. DASHBOARD UTAMA SETELAH LOGIN ---
         function renderDashboard(user) {
             document.getElementById("bottomNav").classList.remove("hidden");
             window.currentUser = user;
             switchTab('home');
         }
 
-        // Pengganti Tab di Navigasi Bawah
+        // --- DASHBOARD UTAMA ALA GAMBAR REFERENSI ---
         function switchTab(tab) {
             const main = document.querySelector("main");
             const user = window.currentUser;
+            document.getElementById("headerTitle").innerText = "MyChurch App";
+            main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
 
             if (tab === 'home') {
                 main.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                            <h3 class="text-sm font-bold text-indigo-900">Syalom, ${user.nama_lengkap}!</h3>
-                            <p class="text-xs text-indigo-700 mt-1">Lingkungan ${user.lingkungan} | Rayon ${user.rayon}</p>
+                    <div class="space-y-6">
+                        <!-- Search Bar -->
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">🔍</span>
+                            <input type="text" placeholder="Search Audio & Video Messages" class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-full text-xs text-white placeholder-slate-500 outline-none focus:border-purple-500 shadow-inner">
                         </div>
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <h4 class="font-bold text-sm mb-2">📢 Warta & Berita Terbaru</h4>
-                            <p class="text-xs text-slate-500">Ibadah Minggu Raya akan disiarkan secara live streaming pukul 09.00 WITA.</p>
+
+                        <!-- Grid Ikon Bulat (8 Menu Utama) -->
+                        <div class="grid grid-cols-4 gap-4 text-center">
+                            <div onclick="showToast('Menu Website')" class="cursor-pointer flex flex-col items-center">
+                                <div class="w-14 h-14 bg-gradient-to-tr from-lime-500 to-green-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">🌐</div>
+                                <span class="text-[11px] text-slate-300 font-medium">Website</span>
+                            </div>
+                            <div onclick="showToast('Menu Branches')" class="cursor-pointer flex flex-col items-center">
+                                <div class="w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">🏛️</div>
+                                <span class="text-[11px] text-slate-300 font-medium">Branches</span>
+                            </div>
+                            <div onclick="showToast('Menu Hymns')" class="cursor-pointer flex flex-col items-center">
+                                <div class="w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📖</div>
+                                <span class="text-[11px] text-slate-300 font-medium">Hymns</span>
+                            </div>
+                            <div onclick="showToast('Menu Events')" class="cursor-pointer flex flex-col items-center">
+                                <div class="w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📅</div>
+                                <span class="text-[11px] text-slate-300 font-medium">Events</span>
+                            </div>
+                            <div onclick="showToast('Menu Inbox')" class="cursor-pointer flex flex-col items-center">
+                                <div class="w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">✉️</div>
+                                <span class="text-[11px] text-slate-300 font-medium">Inbox</span>
+                            </div>
+                            <div onclick="showToast('Menu Devotionals')" class="cursor-pointer flex flex-col items-center">
+                                <div class="w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📑</div>
+                                <span class="text-[11px] text-slate-300 font-medium">Devotionals</span>
+                            </div>
+                            <div onclick="showToast('Menu Notes')" class="cursor-pointer flex flex-col items-center">
+                                <div class="w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📔</div>
+                                <span class="text-[11px] text-slate-300 font-medium">Notes</span>
+                            </div>
+                            <div onclick="showToast('Menu Donate')" class="cursor-pointer flex flex-col items-center">
+                                <div class="w-14 h-14 bg-gradient-to-tr from-blue-400 to-indigo-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">💲</div>
+                                <span class="text-[11px] text-slate-300 font-medium">Donate</span>
+                            </div>
                         </div>
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <h4 class="font-bold text-sm mb-2">📅 Jadwal Kegiatan</h4>
-                            <p class="text-xs text-slate-500">- Doa Lingkungan: Rabu, 19.00 WITA<br>- Pemuda: Sabtu, 17.00 WITA</p>
+
+                        <!-- Grid Kartu Konten Media (3x2) -->
+                        <div class="grid grid-cols-3 gap-3 pt-2">
+                            <div onclick="showToast('Kategori')" class="bg-slate-900 border border-amber-200/40 rounded-xl p-2 text-center cursor-pointer hover:border-amber-400 transition">
+                                <div class="h-20 bg-amber-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📂</div>
+                                <span class="text-xs font-semibold text-slate-200">Categories</span>
+                            </div>
+                            <div onclick="showToast('Videos')" class="bg-slate-900 border border-sky-200/40 rounded-xl p-2 text-center cursor-pointer hover:border-sky-400 transition">
+                                <div class="h-20 bg-sky-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">▶️</div>
+                                <span class="text-xs font-semibold text-slate-200">Videos</span>
+                            </div>
+                            <div onclick="showToast('Audios')" class="bg-slate-900 border border-yellow-200/40 rounded-xl p-2 text-center cursor-pointer hover:border-yellow-400 transition">
+                                <div class="h-20 bg-yellow-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">🎧</div>
+                                <span class="text-[11px] font-semibold text-slate-200">Audios</span>
+                            </div>
+                            <div onclick="showToast('Bible')" class="bg-slate-900 border border-emerald-200/40 rounded-xl p-2 text-center cursor-pointer hover:border-emerald-400 transition">
+                                <div class="h-20 bg-emerald-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">✝️</div>
+                                <span class="text-xs font-semibold text-slate-200">Bible</span>
+                            </div>
+                            <div onclick="showToast('Livestreams')" class="bg-slate-900 border border-orange-200/40 rounded-xl p-2 text-center cursor-pointer hover:border-orange-400 transition">
+                                <div class="h-20 bg-orange-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📺</div>
+                                <span class="text-[11px] font-semibold text-slate-200">Livestreams</span>
+                            </div>
+                            <div onclick="showToast('Radio')" class="bg-slate-900 border border-pink-200/40 rounded-xl p-2 text-center cursor-pointer hover:border-pink-400 transition">
+                                <div class="h-20 bg-pink-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📻</div>
+                                <span class="text-xs font-semibold text-slate-200">Radio</span>
+                            </div>
+                        </div>
+
+                        <!-- Footer Follow Us -->
+                        <div class="text-center pt-4 pb-2">
+                            <p class="text-xs text-slate-400 font-serif mb-3">Follow us on</p>
+                            <div class="flex justify-center gap-4">
+                                <span class="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold cursor-pointer">f</span>
+                                <span class="w-9 h-9 bg-rose-600 rounded-full flex items-center justify-center text-white text-xs font-bold cursor-pointer">▶</span>
+                                <span class="w-9 h-9 bg-sky-400 rounded-full flex items-center justify-center text-white text-xs font-bold cursor-pointer">t</span>
+                                <span class="w-9 h-9 bg-pink-600 rounded-full flex items-center justify-center text-white text-xs font-bold cursor-pointer">in</span>
+                            </div>
                         </div>
                     </div>
                 `;
             } else if (tab === 'doa') {
                 main.innerHTML = `
                     <div class="space-y-4">
-                        <h3 class="font-bold text-base text-indigo-900">Kirim Kotak Doa</h3>
+                        <h3 class="font-bold text-base text-purple-400">Kirim Kotak Doa</h3>
                         <form onsubmit="handleSendPrayer(event)" class="space-y-3">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Doa</label>
-                                <select id="prayerCategory" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none bg-white">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Kategori Doa</label>
+                                <select id="prayerCategory" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                                     <option value="Doa Syukur">Doa Syukur</option>
                                     <option value="Doa Pergumulan">Doa Pergumulan</option>
                                     <option value="Doa Khusus">Doa Khusus</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Pokok Doa / Curahan Hati</label>
-                                <textarea id="prayerContent" rows="4" required placeholder="Tuliskan pokok doa Anda di sini..." class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none"></textarea>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Pokok Doa</label>
+                                <textarea id="prayerContent" rows="4" required placeholder="Tuliskan pokok doa..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none"></textarea>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Privasi Doa</label>
-                                <select id="prayerPrivacy" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none bg-white">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Privasi Doa</label>
+                                <select id="prayerPrivacy" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                                     <option value="Rahasia">Rahasia (Hanya Pendeta/Admin)</option>
                                     <option value="Publik">Publik (Untuk Pendoa Syafaat)</option>
                                 </select>
                             </div>
-                            <button type="submit" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-semibold text-sm shadow-md hover:bg-indigo-700 transition">Kirim Doa</button>
+                            <button type="submit" id="btnPrayerSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition">Kirim Doa</button>
                         </form>
                     </div>
                 `;
             } else if (tab === 'profil') {
                 main.innerHTML = `
-                    <div class="space-y-4 text-center pt-6">
-                        <div class="w-20 h-20 bg-indigo-100 text-indigo-600 font-bold text-2xl flex items-center justify-center rounded-full mx-auto">
+                    <div class="space-y-6 text-center pt-6">
+                        <div class="w-20 h-20 bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full mx-auto shadow-inner">
                             ${user.nama_lengkap.charAt(0)}
                         </div>
                         <div>
-                            <h3 class="font-bold text-lg">${user.nama_lengkap}</h3>
-                            <p class="text-xs text-slate-500">Lingkungan ${user.lingkungan} - Rayon ${user.rayon}</p>
+                            <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
+                            <p class="text-xs text-slate-400">Lingkungan ${user.lingkungan} - Rayon ${user.rayon}</p>
                         </div>
-                        <div class="pt-6">
-                            <button onclick="logout()" class="w-full bg-rose-50 text-rose-600 border border-rose-200 py-2.5 rounded-lg font-semibold text-sm hover:bg-rose-100 transition">Keluar (Logout)</button>
+                        <div class="pt-4">
+                            <button onclick="logout()" class="w-full bg-rose-950/50 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-sm hover:bg-rose-900/50 transition">Keluar (Logout)</button>
                         </div>
                     </div>
                 `;
             }
         }
 
-        // --- 5. KIRIM DOA KE SCRIPT ---
         async function handleSendPrayer(e) {
             e.preventDefault();
+            const btn = document.getElementById("btnPrayerSubmit");
             const data = {
                 action: "addPrayer",
                 user_id: window.currentUser.id,
@@ -291,7 +395,8 @@
                 status_privasi: document.getElementById("prayerPrivacy").value
             };
 
-            alert("Mengirim pokok doa...");
+            btn.disabled = true;
+            btn.innerHTML = "Mengirim...";
 
             try {
                 const response = await fetch(SCRIPT_URL, {
@@ -299,19 +404,24 @@
                     body: JSON.stringify(data)
                 });
                 const result = await response.json();
-                alert(result.message);
+                showToast(result.message);
                 if (result.status === "success") {
                     switchTab('home');
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = "Kirim Doa";
                 }
             } catch (err) {
-                alert("Gagal mengirim doa: " + err);
+                showToast("Gagal mengirim doa.", "error");
+                btn.disabled = false;
+                btn.innerHTML = "Kirim Doa";
             }
         }
 
-        // --- 6. LOGOUT ---
         function logout() {
             localStorage.removeItem("user_gereja");
-            window.location.reload();
+            showToast("Anda telah keluar.");
+            setTimeout(() => window.location.reload(), 500);
         }
     </script>
 </body>
