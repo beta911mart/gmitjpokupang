@@ -262,7 +262,7 @@
 
                         <!-- Grid Ikon Bulat -->
                         <div class="grid grid-cols-4 gap-4 text-center">
-                            <div onclick="openExtendedProfile()" class="cursor-pointer flex flex-col items-center">
+                            <div onclick="switchTab('profil')" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-lime-500 to-green-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">👤</div>
                                 <span class="text-[11px] text-slate-300 font-medium">Profile</span>
                             </div>
@@ -336,7 +336,7 @@
                             <div>
                                 <label class="block text-xs font-semibold text-slate-400 mb-1">Identitas Pengirim</label>
                                 <select id="prayerSenderOption" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                    <option value="name">Tampilkan Nama Saya (${window.currentUser.nama_lengkap})</option>
+                                    <option value="name">Tampilkan Nama Saya (${user.nama_lengkap})</option>
                                     <option value="anonymous">Kirim sebagai Anonim (Hamba Tuhan)</option>
                                 </select>
                             </div>
@@ -364,28 +364,61 @@
                     </div>
                 `;
             } else if (tab === 'profil') {
-                main.innerHTML = `
-                    <div class="space-y-6 text-center pt-6">
-                        <div class="w-20 h-20 bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full mx-auto shadow-inner">
-                            ${user.nama_lengkap.charAt(0)}
+                // Cek apakah data lanjutan (alamat/pekerjaan/dll) sudah pernah diisi
+                const isExtendedFilled = user.alamat && user.alamat.trim() !== "";
+
+                if (!isExtendedFilled) {
+                    // Jika BELUM LENGKAP, tampilkan Form Pengisian Data Lanjutan
+                    openExtendedProfileForm(false);
+                } else {
+                    // Jika SUDAH LENGKAP, tampilkan Biodata User & Tombol Perbarui
+                    main.innerHTML = `
+                        <div class="space-y-6 pt-4 animate-fade-in">
+                            <div class="text-center space-y-2">
+                                <div class="w-20 h-20 bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full mx-auto shadow-inner">
+                                    ${user.nama_lengkap.charAt(0)}
+                                </div>
+                                <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
+                                <p class="text-xs text-purple-400 font-medium">${user.status_pelayanan || 'Jemaat'}</p>
+                            </div>
+
+                            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs">
+                                <div class="border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400 block text-[10px]">Lingkungan / Rayon</span>
+                                    <span class="text-slate-200 font-medium">Lingkungan ${user.lingkungan || '-'} - Rayon ${user.rayon || '-'}</span>
+                                </div>
+                                <div class="border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400 block text-[10px]">No. WhatsApp</span>
+                                    <span class="text-slate-200 font-medium">${user.no_whatsapp || '-'}</span>
+                                </div>
+                                <div class="border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400 block text-[10px]">Alamat Domisili</span>
+                                    <span class="text-slate-200 font-medium">${user.alamat || '-'}</span>
+                                </div>
+                                <div class="border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400 block text-[10px]">Pekerjaan</span>
+                                    <span class="text-slate-200 font-medium">${user.pekerjaan || '-'}</span>
+                                </div>
+                                <div class="border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400 block text-[10px]">Golongan Darah</span>
+                                    <span class="text-slate-200 font-medium">${user.golongan_darah || '-'}</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block text-[10px]">Minat Pelayanan / Komisi</span>
+                                    <span class="text-slate-200 font-medium">${user.minat_pelayanan || '-'}</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-xs shadow-md hover:bg-purple-700 transition">Perbarui Data Diri ✏️</button>
+                                <button onclick="logout()" class="w-full bg-rose-950/50 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs hover:bg-rose-900/50 transition">Keluar (Logout)</button>
+                                <a href="admin.html" class="block text-center text-[11px] text-slate-500 hover:text-purple-400 pt-2 transition">
+                                    🔒 Masuk ke Panel Pengurus Gereja
+                                </a>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
-                            <p class="text-xs text-slate-400">Lingkungan ${user.lingkungan} - Rayon ${user.rayon}</p>
-                        </div>
-                        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-left space-y-2">
-                            <p class="text-xs font-semibold text-purple-400">Biodata:</p>
-                            <p class="text-xs text-slate-300">Jabatan: ${user.status_pelayanan || 'Jemaat'}</p>
-                            <button onclick="openExtendedProfile()" class="w-full mt-2 bg-slate-800 text-purple-300 py-2 rounded-xl text-xs font-semibold hover:bg-slate-700 transition">Lengkapi/Perbarui Data Diri Lanjutan ➔</button>
-                        </div>
-                        <div class="pt-2 space-y-2">
-                            <button onclick="logout()" class="w-full bg-rose-950/50 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-sm hover:bg-rose-900/50 transition">Keluar (Logout)</button>
-                            <a href="admin.html" class="block text-center text-[11px] text-slate-500 hover:text-purple-400 pt-2 transition">
-                                🔒 Masuk ke Panel Pengurus Gereja
-                            </a>
-                        </div>
-                    </div>
-                `;
+                    `;
+                }
             }
         }
 
@@ -415,45 +448,46 @@
             `;
         }
 
-        // --- HALAMAN FORM DATA DIRI LANJUTAN ---
-        function openExtendedProfile() {
+        // --- HALAMAN / FORM DATA DIRI LANJUTAN ---
+        function openExtendedProfileForm(isEditing = false) {
             const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Lengkapi / Perbarui Data Diri";
+            const user = window.currentUser || {};
+            document.getElementById("headerTitle").innerText = isEditing ? "Perbarui Data Diri" : "Lengkapi Data Diri";
             main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
 
             main.innerHTML = `
                 <div class="space-y-4">
-                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    ${isEditing ? '<button onclick="switchTab(\'profil\')" class="text-xs text-purple-400 font-semibold mb-2">← Batal / Kembali ke Profil</button>' : ''}
                     <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
-                        <p class="text-xs text-purple-200">Silakan lengkapi informasi tambahan di bawah ini untuk pendataan sensus gereja yang lebih akurat.</p>
+                        <p class="text-xs text-purple-200">Silakan ${isEditing ? 'perbarui' : 'lengkapi'} informasi tambahan di bawah ini untuk pendataan sensus gereja yang lebih akurat.</p>
                     </div>
                     <form onsubmit="handleSaveExtendedProfile(event)" class="space-y-3">
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Alamat Domisili Lengkap</label>
-                            <textarea id="extAlamat" rows="2" placeholder="Nama Jalan, No. Rumah, RT/RW..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none"></textarea>
+                            <textarea id="extAlamat" rows="2" required placeholder="Nama Jalan, No. Rumah, RT/RW..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">${user.alamat || ''}</textarea>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Pekerjaan / Bidang Usaha</label>
-                            <input type="text" id="extPekerjaan" placeholder="Cth: Pegawai Swasta / Wirausaha" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                            <input type="text" id="extPekerjaan" required value="${user.pekerjaan || ''}" placeholder="Cth: Pegawai Swasta / Wirausaha" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Golongan Darah</label>
                             <select id="extGoldar" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                <option value="-">Pilih Golongan Darah</option>
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="AB">AB</option>
-                                <option value="O">O</option>
+                                <option value="-" ${user.golongan_darah === '-' ? 'selected' : ''}>Pilih Golongan Darah</option>
+                                <option value="A" ${user.golongan_darah === 'A' ? 'selected' : ''}>A</option>
+                                <option value="B" ${user.golongan_darah === 'B' ? 'selected' : ''}>B</option>
+                                <option value="AB" ${user.golongan_darah === 'AB' ? 'selected' : ''}>AB</option>
+                                <option value="O" ${user.golongan_darah === 'O' ? 'selected' : ''}>O</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Minat Pelayanan / Komisi</label>
                             <select id="extKomisi" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                <option value="Umum">Jemaat Umum</option>
-                                <option value="PW">Perempuan / Wanita (PW)</option>
-                                <option value="PKB">Kaum Bapak (PKB)</option>
-                                <option value="Pemuda/Remaja">Pemuda & Remaja</option>
-                                <option value="Sekolah Minggu">Sekolah Minggu</option>
+                                <option value="Umum" ${user.minat_pelayanan === 'Umum' ? 'selected' : ''}>Jemaat Umum</option>
+                                <option value="PW" ${user.minat_pelayanan === 'PW' ? 'selected' : ''}>Perempuan / Wanita (PW)</option>
+                                <option value="PKB" ${user.minat_pelayanan === 'PKB' ? 'selected' : ''}>Kaum Bapak (PKB)</option>
+                                <option value="Pemuda/Remaja" ${user.minat_pelayanan === 'Pemuda/Remaja' ? 'selected' : ''}>Pemuda & Remaja</option>
+                                <option value="Sekolah Minggu" ${user.minat_pelayanan === 'Sekolah Minggu' ? 'selected' : ''}>Sekolah Minggu</option>
                             </select>
                         </div>
                         <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition mt-2">Simpan Data Lanjutan</button>
@@ -462,10 +496,49 @@
             `;
         }
 
-        function handleSaveExtendedProfile(e) {
+        async function handleSaveExtendedProfile(e) {
             e.preventDefault();
-            showToast("Data diri lanjutan berhasil disimpan!");
-            setTimeout(() => switchTab('profil'), 1000);
+            const btn = e.target.querySelector("button[type='submit']");
+            btn.disabled = true;
+            btn.innerHTML = "Menyimpan...";
+
+            const updatedData = {
+                action: "updateExtendedProfile",
+                user_id: window.currentUser.id,
+                alamat: document.getElementById("extAlamat").value,
+                pekerjaan: document.getElementById("extPekerjaan").value,
+                golongan_darah: document.getElementById("extGoldar").value,
+                minat_pelayanan: document.getElementById("extKomisi").value
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(updatedData)
+                });
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    // Update data di session/local storage dan object global user
+                    window.currentUser.alamat = updatedData.alamat;
+                    window.currentUser.pekerjaan = updatedData.pekerjaan;
+                    window.currentUser.golongan_darah = updatedData.golongan_darah;
+                    window.currentUser.minat_pelayanan = updatedData.minat_pelayanan;
+
+                    localStorage.setItem("user_gereja", JSON.stringify(window.currentUser));
+
+                    showToast("Data diri berhasil disimpan!");
+                    setTimeout(() => switchTab('profil'), 800);
+                } else {
+                    showToast(result.message, "error");
+                    btn.disabled = false;
+                    btn.innerHTML = "Simpan Data Lanjutan";
+                }
+            } catch (err) {
+                showToast("Kesalahan koneksi saat menyimpan data.", "error");
+                btn.disabled = false;
+                btn.innerHTML = "Simpan Data Lanjutan";
+            }
         }
 
         async function handleSendPrayer(e) {
