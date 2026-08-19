@@ -728,12 +728,13 @@ async function openEventsList() {
         document.getElementById("eventsContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data kegiatan.</p>`;
     }
 }
-        // --- HALAMAN CHAT ROOM KOMUNITAS ---
+// --- HALAMAN CHAT ROOM KOMUNITAS ---
 function openChatRoom() {
     const main = document.querySelector("main");
     document.getElementById("headerTitle").innerText = "Ruang Persekutuan & Chat";
     main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
 
+    // 1. Render kerangka HTML terlebih dahulu tanpa tag <script> di dalam innerHTML
     main.innerHTML = `
         <div class="space-y-4">
             <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
@@ -742,13 +743,26 @@ function openChatRoom() {
             </div>
             
             <!-- Container Embed Minnit Chat -->
-            <div class="bg-slate-900 border border-slate-800 p-2 rounded-2xl flex flex-col items-center justify-center shadow-inner overflow-hidden">
-                <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
-                <span style="display: none;" class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/880184913737266/c/Main?embed" data-style="width:100%; height:450px; max-height:80vh;" data-version="1.55">Chat</span>
+            <div id="chatEmbedWrapper" class="bg-slate-900 border border-slate-800 p-2 rounded-2xl flex flex-col items-center justify-center shadow-inner overflow-hidden min-h-[450px]">
+                <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/880184913737266/c/Main?embed" data-style="width:100%; height:450px; max-height:80vh;" data-version="1.55">Chat</span>
                 <p class="powered-by-minnit text-[10px] pt-2 text-slate-500"><a href="https://minnit.chat" target="_blank" class="hover:underline">Powered by Minnit Chat</a></p>
             </div>
         </div>
     `;
+
+    // 2. Suntikkan skrip Minnit Chat secara aman melalui DOM dinamis setelah elemen HTML siap
+    if (!document.getElementById("minnitScript")) {
+        const script = document.createElement("script");
+        script.id = "minnitScript";
+        script.src = "https://minnit.chat/js/embed.js?c=1772345192";
+        script.defer = true;
+        document.body.appendChild(script);
+    } else {
+        // Jika skrip sudah ada, picu ulang inisialisasi minnit jika fungsi globalnya tersedia
+        if (typeof minnit_chat !== "undefined" && typeof minnit_chat.init === "function") {
+            minnit_chat.init();
+        }
+    }
 }
     </script>
 </body>
