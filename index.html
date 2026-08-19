@@ -525,43 +525,53 @@
         }
 
         // 6. Radio (Radio Streaming Rohani 24 Jam)
-        function openRadioMenu() {
-            const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Radio Rohani 24 Jam";
-            main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
+// --- HALAMAN RADIO (RADIO STREAMING ROHANI 24 JAM) ---
+function openRadioMenu() {
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Radio Rohani 24 Jam";
+    main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
 
-            main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <div class="bg-pink-950/40 border border-pink-900/40 p-3 rounded-xl">
-                        <p class="text-xs text-pink-200">Nikmati saluran pujian rohani dan siaran rohani kristen non-stop 24 jam.</p>
-                    </div>
-                    
-                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center space-y-4 shadow-sm">
-                        <div class="w-20 h-20 bg-pink-950 border border-pink-800 text-pink-300 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner">
-                            📻
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-sm text-white">Pniel Radio Streaming</h4>
-                            <p class="text-[11px] text-slate-400 mt-1">Saluran Musik & Pujian Rohani Kristen</p>
-                        </div>
-                        <!-- Radio.co Player Script Embed -->
-                        <div class="py-2 flex justify-center">
-                            <div id="radioPlayerWrapper"></div>
-                        </div>
-                    </div>
+    main.innerHTML = `
+        <div class="space-y-4">
+            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+            <div class="bg-pink-950/40 border border-pink-900/40 p-3 rounded-xl">
+                <p class="text-xs text-pink-200">Nikmati saluran pujian rohani dan siaran rohani kristen non-stop 24 jam.</p>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center space-y-4 shadow-sm">
+                <div class="w-20 h-20 bg-pink-950 border border-pink-800 text-pink-300 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner">
+                    📻
                 </div>
-            `;
+                <div>
+                    <h4 class="font-bold text-sm text-white">Pniel Radio Streaming</h4>
+                    <p class="text-[11px] text-slate-400 mt-1">Saluran Musik & Pujian Rohani Kristen</p>
+                </div>
+                
+                <!-- Wadah Pemutar Radio -->
+                <div class="py-2 flex justify-center w-full">
+                    <div id="radioco-player-container" class="w-full flex justify-center"></div>
+                </div>
+            </div>
+        </div>
+    `;
 
-            // Inject script pemutar radio.co
-            if (!document.getElementById("radioScript")) {
-                const script = document.createElement("script");
-                script.id = "radioScript";
-                script.src = "https://embed.radio.co/player/95d069c.js";
-                script.defer = true;
-                document.body.appendChild(script);
-            }
+    // Memuat skrip Radio.co secara aman setelah elemen selesai dirender
+    setTimeout(() => {
+        // Hapus skrip lama jika ada agar tidak terjadi duplikasi
+        const existingScript = document.getElementById("radioScript");
+        if (existingScript) {
+            existingScript.remove();
         }
+
+        const script = document.createElement("script");
+        script.id = "radioScript";
+        script.src = "https://embed.radio.co/player/95d069c.js";
+        script.async = true;
+        
+        // Masukkan skrip ke dalam body agar dieksekusi oleh browser
+        document.body.appendChild(script);
+    }, 200);
+}
 
         // --- HALAMAN TENTANG (ABOUT) GEREJA ---
         function openAboutPage() {
