@@ -292,7 +292,7 @@
                             </div>
                             <div onclick="openDonationList()" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-blue-400 to-indigo-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">🎁</div>
-                                <span class="text-[11px] text-slate-300 font-medium">Donasi</span>
+                                <span class="text-[11px] text-slate-300 font-medium">Persembahan</span>
                             </div>
                         </div>
 
@@ -364,14 +364,11 @@
                     </div>
                 `;
             } else if (tab === 'profil') {
-                // Cek apakah data lanjutan (alamat/pekerjaan/dll) sudah pernah diisi
                 const isExtendedFilled = user.alamat && user.alamat.trim() !== "";
 
                 if (!isExtendedFilled) {
-                    // Jika BELUM LENGKAP, tampilkan Form Pengisian Data Lanjutan
                     openExtendedProfileForm(false);
                 } else {
-                    // Jika SUDAH LENGKAP, tampilkan Biodata User & Tombol Perbarui
                     main.innerHTML = `
                         <div class="space-y-6 pt-4 animate-fade-in">
                             <div class="text-center space-y-2">
@@ -519,7 +516,6 @@
                 const result = await response.json();
 
                 if (result.status === "success") {
-                    // Update data di session/local storage dan object global user
                     window.currentUser.alamat = updatedData.alamat;
                     window.currentUser.pekerjaan = updatedData.pekerjaan;
                     window.currentUser.golongan_darah = updatedData.golongan_darah;
@@ -951,21 +947,30 @@
             }
         }
 
-        // --- HALAMAN DAFTAR TRANSPARANSI DONASI ---
+        // --- HALAMAN PERSEMBAHAN / DONASI (TRANSPARANSI DENGAN APPROVAL ADMIN & MAKSIMAL 6 HARI) ---
         async function openDonationList() {
             const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Transparansi Donasi";
+            document.getElementById("headerTitle").innerText = "Persembahan / Donasi";
             main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
 
             main.innerHTML = `
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <div class="bg-blue-950/40 border border-blue-900/40 p-3 rounded-xl">
-                        <p class="text-xs text-blue-200">Pencatatan persembahan kasih, diakonia, dan donasi pembangunan jemaat secara transparan.</p>
+                    
+                    <!-- Informasi Rekening & Penjelasan -->
+                    <div class="bg-blue-950/40 border border-blue-900/40 p-4 rounded-xl space-y-3">
+                        <p class="text-xs text-blue-200 leading-relaxed">Pencatatan persembahan kasih, diakonia, sumbangan atau donasi pembangunan jemaat dapat disalurkan melalui platform ini atau langsung ke sekretariat.</p>
+                        <div class="bg-slate-900/80 p-2.5 rounded-lg border border-blue-900/50">
+                            <p class="text-[11px] text-blue-300"><strong>No.rek sekretariat : BCA / 1234567890</strong></p>
+                        </div>
+                        <button onclick="openFormDonation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md transition">➕ Konfirmasi / Catat Donasi Baru</button>
                     </div>
                     
-                    <div id="donationContainer" class="space-y-3">
-                        <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat data donasi...</p>
+                    <div class="pt-2">
+                        <h4 class="text-xs font-bold text-slate-300 mb-2">Riwayat Persembahan / Donasi Disetujui (Tayang 6 Hari)</h4>
+                        <div id="donationContainer" class="space-y-3">
+                            <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat data donasi...</p>
+                        </div>
                     </div>
                 </div>
             `;
@@ -978,25 +983,116 @@
                 const list = result.donations || [];
 
                 if (list.length === 0) {
-                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada riwayat pencatatan donasi.</p>`;
+                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada riwayat pencatatan donasi yang disetujui.</p>`;
                     return;
                 }
 
                 container.innerHTML = list.map(d => `
                     <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
                         <div class="space-y-1">
-                            <h4 class="text-xs font-bold text-white">${d.nama_donatur}</h4>
-                            <p class="text-[11px] text-slate-400">${d.keterangan || 'Donasi Umum'}</p>
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-xs font-bold text-white">${d.nama_donatur}</h4>
+                                <span class="bg-slate-800 text-slate-300 text-[9px] px-2 py-0.5 rounded">${d.jenis_donasi || 'Transfer'}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400">Peruntukan: <span class="text-slate-300 font-medium">${d.keterangan || 'Umum'}</span></p>
                             <span class="text-[10px] text-slate-500">${new Date(d.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</span>
                         </div>
                         <div class="text-right">
-                            <span class="text-xs font-bold text-emerald-400">Rp ${Number(d.nominal).toLocaleString('id-ID')}</span>
+                            <span class="text-xs font-bold text-emerald-400">${isNaN(d.nominal) ? d.nominal : 'Rp ' + Number(d.nominal).toLocaleString('id-ID')}</span>
                         </div>
                     </div>
                 `).join('');
 
             } catch (err) {
                 document.getElementById("donationContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data donasi.</p>`;
+            }
+        }
+
+        // Form Input Donasi dari Sisi Jemaat
+        function openFormDonation() {
+            const main = document.querySelector("main");
+            const user = window.currentUser || {};
+            document.getElementById("headerTitle").innerText = "Form Kirim Donasi";
+
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="openDonationList()" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Daftar Donasi</button>
+                    <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
+                        <p class="text-xs text-purple-200">Isi formulir di bawah ini. Data akan ditampilkan setelah mendapat persetujuan (approval) admin dan tayang selama 6 hari.</p>
+                    </div>
+                    <form onsubmit="handleSendDonation(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Opsi Tampilkan Nama</label>
+                            <select id="donNameOption" onchange="previewDonationName()" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                                <option value="full">Tampilkan Nama Lengkap (${user.nama_lengkap})</option>
+                                <option value="initial">Inisial Depan saja diikuti "*" (Cth: B***)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Jenis Donasi</label>
+                            <select id="donJenis" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                                <option value="Transfer">Transfer</option>
+                                <option value="Setor Tunai">Setor Tunai</option>
+                                <option value="Sumbangan Barang">Sumbangan Barang</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Peruntukan</label>
+                            <input type="text" id="donKet" required placeholder="Cth: Pembangunan Gedung / Diakonia" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Jumlah / Nominal (Angka atau Deskripsi Barang)</label>
+                            <input type="text" id="donNominal" required placeholder="Cth: 250000 atau 5 Sak Semen" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                        </div>
+                        <button type="submit" id="btnDonationSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition">Kirim Konfirmasi Donasi</button>
+                    </form>
+                </div>
+            `;
+        }
+
+        async function handleSendDonation(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnDonationSubmit");
+            const user = window.currentUser;
+            const nameOption = document.getElementById("donNameOption").value;
+            
+            let finalName = user.nama_lengkap;
+            if (nameOption === 'initial') {
+                const parts = user.nama_lengkap.trim().split(' ');
+                const firstName = parts[0];
+                finalName = firstName.charAt(0) + '***';
+            }
+
+            const data = {
+                action: "addDonation",
+                user_id: user.id,
+                nama_donatur: finalName,
+                jenis_donasi: document.getElementById("donJenis").value,
+                keterangan: document.getElementById("donKet").value,
+                nominal: document.getElementById("donNominal").value,
+                tanggal: new Date()
+            };
+
+            btn.disabled = true;
+            btn.innerHTML = "Mengirim...";
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showToast(result.message);
+                if (result.status === "success") {
+                    openDonationList();
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = "Kirim Konfirmasi Donasi";
+                }
+            } catch (err) {
+                showToast("Gagal mengirim konfirmasi donasi.", "error");
+                btn.disabled = false;
+                btn.innerHTML = "Kirim Konfirmasi Donasi";
             }
         }
     </script>
