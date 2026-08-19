@@ -526,6 +526,7 @@
 
         // 6. Radio (Radio Streaming Rohani 24 Jam)
 // --- HALAMAN RADIO (GRACE ALONE RADIO SURABAYA) ---
+// --- HALAMAN RADIO (GRACE ALONE RADIO SURABAYA) ---
 function openRadioMenu() {
     const main = document.querySelector("main");
     document.getElementById("headerTitle").innerText = "Grace Alone Radio Surabaya";
@@ -544,48 +545,19 @@ function openRadioMenu() {
                 </div>
                 <div>
                     <h4 class="font-bold text-sm text-white">Grace Alone Radio Surabaya</h4>
-                    <p class="text-[11px] text-slate-400 mt-1">Kelolaan GRAMI (Online Streaming)</p>
+                    <p class="text-[11px] text-slate-400 mt-1">Dikelola oleh GRAMI (Online Streaming)</p>
                 </div>
 
-                <!-- Pemutar Audio HTML5 Resmi untuk Streaming -->
-                <div class="pt-3 flex flex-col items-center space-y-3">
-                    <audio id="graceRadioPlayer" preload="none" class="w-full">
-                        <!-- Tautan stream langsung atau bisa disesuaikan dengan direct stream link Grace Alone Radio -->
-                        <source src="https://radiokristen.net/station_detail/13-Grace-Alone-Radio-Surabaya" type="audio/mpeg">
-                        Browser Anda tidak mendukung pemutar audio streaming.
-                    </audio>
-
-                    <div class="flex gap-2 w-full">
-                        <button onclick="toggleGraceRadio()" id="btnPlayRadio" class="flex-1 bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2">
-                            ▶ Putar Radio
-                        </button>
-                    </div>
-                    <p class="text-[10px] text-slate-500 italic">Tekan tombol putar untuk mendengarkan siaran langsung.</p>
+                <!-- Tombol Buka Pemutar Resmi -->
+                <div class="pt-3">
+                    <a href="https://radiokristen.net/station_detail/13-Grace-Alone-Radio-Surabaya" target="_blank" class="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 px-4 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2">
+                        ▶ Buka & Dengarkan Siaran Radio
+                    </a>
+                    <p class="text-[10px] text-slate-500 italic mt-3">Tautan akan membuka pemutar resmi Grace Alone Radio di browser Anda.</p>
                 </div>
             </div>
         </div>
     `;
-}
-
-// Fungsi Kontrol Play/Pause Radio
-function toggleGraceRadio() {
-    const audio = document.getElementById("graceRadioPlayer");
-    const btn = document.getElementById("btnPlayRadio");
-
-    if (audio.paused) {
-        audio.play().then(() => {
-            btn.innerHTML = "⏸ Hentikan Radio";
-            btn.className = "flex-1 bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2";
-            showToast("Memutar Grace Alone Radio...");
-        }).catch(err => {
-            showToast("Gagal memutar streaming radio.", "error");
-        });
-    } else {
-        audio.pause();
-        btn.innerHTML = "▶ Putar Radio";
-        btn.className = "flex-1 bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2";
-        showToast("Radio dihentikan.");
-    }
 }
 
         // --- HALAMAN TENTANG (ABOUT) GEREJA ---
