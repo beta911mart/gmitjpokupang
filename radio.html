@@ -5,19 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Radio Rohani Nonstop</title>
 </head>
-<body>
+<body style="background: #0f172a; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
 
-<div style="font-family: Arial, sans-serif; background: #1e3c72; padding: 20px; border-radius: 12px; max-width: 300px; text-align: center; color: white; margin: 20px auto;">
-    <h4>Radio Rohani Kristen</h4>
-    <p style="font-size: 12px; color: #ced6e0;">Streaming Nonstop 24 Jam</p>
-    
-    <!-- MENGGUNAKAN SERVER STREAM DIRECT MP3 YANG ANTI-BLOKIR -->
-    <audio id="audioRadio" src="https://heartline.co.id" preload="none" crossorigin="anonymous"></audio>
-    
-    <button id="btnKontrol" style="background-color: white; color: #1e3c72; border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.2s;">
-        PUTAR SIARAN
-    </button>
-</div>
+    <!-- Tombol Kembali ke Beranda Aplikasi -->
+    <div style="width: 100%; max-width: 300px; margin-bottom: 10px;">
+        <a href="index.html" style="color: #c084fc; font-size: 12px; text-decoration: none; font-family: Arial, sans-serif; font-weight: bold;">← Kembali ke Beranda</a>
+    </div>
+
+    <div style="font-family: Arial, sans-serif; background: #1e3c72; padding: 20px; border-radius: 12px; max-width: 300px; width: 100%; text-align: center; color: white; box-sizing: border-box;">
+        <h4>Radio Rohani Kristen</h4>
+        <p style="font-size: 12px; color: #ced6e0;">Streaming Nonstop 24 Jam</p>
+        
+        <!-- MENGGUNAKAN SERVER STREAM DIRECT MP3 -->
+        <audio id="audioRadio" src="https://radio.co" preload="none" crossorigin="anonymous"></audio>
+
+        <button id="btnKontrol" style="background-color: white; color: #1e3c72; border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px;">
+            PUTAR SIARAN
+        </button>
+    </div>
 
 <script>
     const audio = document.getElementById('audioRadio');
