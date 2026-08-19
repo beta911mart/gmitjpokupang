@@ -282,10 +282,10 @@
     <div class="w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">💬</div>
     <span class="text-[11px] text-slate-300 font-medium">Komunitas</span>
 </div>
-                            <div onclick="showToast('Menu Devotionals')" class="cursor-pointer flex flex-col items-center">
-                                <div class="w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📑</div>
-                                <span class="text-[11px] text-slate-300 font-medium">Devotionals</span>
-                            </div>
+<div onclick="openBirthdayList()" class="cursor-pointer flex flex-col items-center">
+    <div class="w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">🎂</div>
+    <span class="text-[11px] text-slate-300 font-medium">Ulang Tahun</span>
+</div>
                             <div onclick="showToast('Menu Notes')" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📔</div>
                                 <span class="text-[11px] text-slate-300 font-medium">Notes</span>
@@ -762,6 +762,63 @@ function openChatRoom() {
         if (typeof minnit_chat !== "undefined" && typeof minnit_chat.init === "function") {
             minnit_chat.init();
         }
+    }
+}
+        // --- HALAMAN JEMAAT BERULANG TAHUN HARI INI ---
+async function openBirthdayList() {
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Ulang Tahun Hari Ini";
+    main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
+
+    main.innerHTML = `
+        <div class="space-y-4">
+            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+            <div class="bg-gradient-to-r from-teal-900/60 to-emerald-900/60 border border-emerald-500/30 p-3 rounded-xl text-center">
+                <p class="text-xs font-bold text-emerald-300">🎉 Selamat Ulang Tahun!</p>
+                <p class="text-[11px] text-slate-300 mt-1">Kiranya Tuhan memberkati pertumbuhan iman dan memberkati setiap langkah hidup jemaat yang berulang tahun hari ini.</p>
+            </div>
+            
+            <div id="birthdayContainer" class="space-y-3">
+                <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat data jemaat...</p>
+            </div>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=getBirthdayUsers`);
+        const result = await response.json();
+        
+        const container = document.getElementById("birthdayContainer");
+        const list = result.birthdays || [];
+
+        if (list.length === 0) {
+            container.innerHTML = `
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center space-y-2">
+                    <div class="text-3xl">🌿</div>
+                    <p class="text-xs text-slate-300 font-medium">Tidak ada jemaat yang berulang tahun hari ini.</p>
+                    <p class="text-[10px] text-slate-500">Mari tetap doakan seluruh jemaat yang lain dalam pelayanan.</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = list.map(b => `
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <h4 class="text-xs font-bold text-white">${b.nama_lengkap}</h4>
+                        <span class="bg-emerald-950 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-semibold">${b.usia !== '-' ? b.usia + ' Tahun' : ''}</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400">Lingkungan ${b.lingkungan} &bull; Rayon ${b.rayon}</p>
+                </div>
+                <a href="https://api.whatsapp.com/send?phone=${b.no_whatsapp}&text=Syalom%20${encodeURIComponent(b.nama_lengkap)},%20kami%20segenap%20pengurus%20dan%20jemaat%20mengucapkan%20Selamat%20Ulang%20Tahun!%20Tuhan%20Yesus%20memberkati." target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1 shadow-md">
+                    💬 Ucapan
+                </a>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        document.getElementById("birthdayContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data ulang tahun.</p>`;
     }
 }
     </script>
