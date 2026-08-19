@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gereja PNIEL Digital</title>
+    <title>Gereja Digital App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes slideIn {
@@ -23,14 +23,14 @@
     <!-- TOAST NOTIFICATION -->
     <div id="toastContainer" class="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none"></div>
 
-    <!-- Container Utama ala Mobile App (Latar Ungu/Gelap Khas Referensi) -->
+    <!-- Container Utama Mobile -->
     <div id="app" class="max-w-md w-full mx-auto bg-slate-950 min-h-screen flex flex-col shadow-2xl relative overflow-hidden">
         
         <!-- HEADER -->
         <header class="bg-gradient-to-b from-purple-950 to-slate-950 text-white p-4 pt-6 flex justify-between items-center border-b border-purple-900/40">
             <button onclick="showToast('Menu navigasi samping')" class="text-xl">☰</button>
             <h1 id="headerTitle" class="font-bold text-lg tracking-wide">MyChurch App</h1>
-            <button onclick="showToast('Status sinkronisasi offline/online')" class="text-xl">☁️</button>
+            <button onclick="showToast('Status sinkronisasi online')" class="text-xl">☁️</button>
         </header>
 
         <!-- KONTEN UTAMA -->
@@ -42,7 +42,7 @@
         <nav id="bottomNav" class="hidden absolute bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 flex justify-around p-3 text-xs font-medium text-slate-400 shadow-lg">
             <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1">🏠 Beranda</button>
             <button onclick="switchTab('doa')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1">🙏 Kotak Doa</button>
-            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1">👤 Profil</button>
+            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1">👤 Akun</button>
         </nav>
     </div>
 
@@ -75,7 +75,6 @@
             }
         });
 
-        // --- HALAMAN LOGIN / REGISTER ---
         function renderAuthPage() {
             document.getElementById("bottomNav").classList.add("hidden");
             document.getElementById("headerTitle").innerText = "Masuk Sensus";
@@ -246,7 +245,6 @@
             switchTab('home');
         }
 
-        // --- DASHBOARD UTAMA ALA GAMBAR REFERENSI ---
         function switchTab(tab) {
             const main = document.querySelector("main");
             const user = window.currentUser;
@@ -259,14 +257,14 @@
                         <!-- Search Bar -->
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">🔍</span>
-                            <input type="text" placeholder="Search Audio & Video Messages" class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-full text-xs text-white placeholder-slate-500 outline-none focus:border-purple-500 shadow-inner">
+                            <input type="text" placeholder="Cari warta, kegiatan, atau informasi..." class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-full text-xs text-white placeholder-slate-500 outline-none focus:border-purple-500 shadow-inner">
                         </div>
 
-                        <!-- Grid Ikon Bulat (8 Menu Utama) -->
+                        <!-- Grid Ikon Bulat (Menu Utama: Website diganti Profile Lanjutan) -->
                         <div class="grid grid-cols-4 gap-4 text-center">
-                            <div onclick="showToast('Menu Website')" class="cursor-pointer flex flex-col items-center">
-                                <div class="w-14 h-14 bg-gradient-to-tr from-lime-500 to-green-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">🌐</div>
-                                <span class="text-[11px] text-slate-300 font-medium">Website</span>
+                            <div onclick="openExtendedProfile()" class="cursor-pointer flex flex-col items-center">
+                                <div class="w-14 h-14 bg-gradient-to-tr from-lime-500 to-green-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">👤</div>
+                                <span class="text-[11px] text-slate-300 font-medium">Profile</span>
                             </div>
                             <div onclick="showToast('Menu Branches')" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">🏛️</div>
@@ -325,17 +323,6 @@
                                 <span class="text-xs font-semibold text-slate-200">Radio</span>
                             </div>
                         </div>
-
-                        <!-- Footer Follow Us -->
-                        <div class="text-center pt-4 pb-2">
-                            <p class="text-xs text-slate-400 font-serif mb-3">Follow us on</p>
-                            <div class="flex justify-center gap-4">
-                                <span class="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold cursor-pointer">f</span>
-                                <span class="w-9 h-9 bg-rose-600 rounded-full flex items-center justify-center text-white text-xs font-bold cursor-pointer">▶</span>
-                                <span class="w-9 h-9 bg-sky-400 rounded-full flex items-center justify-center text-white text-xs font-bold cursor-pointer">t</span>
-                                <span class="w-9 h-9 bg-pink-600 rounded-full flex items-center justify-center text-white text-xs font-bold cursor-pointer">in</span>
-                            </div>
-                        </div>
                     </div>
                 `;
             } else if (tab === 'doa') {
@@ -376,12 +363,71 @@
                             <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
                             <p class="text-xs text-slate-400">Lingkungan ${user.lingkungan} - Rayon ${user.rayon}</p>
                         </div>
-                        <div class="pt-4">
+                        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-left space-y-2">
+                            <p class="text-xs font-semibold text-purple-400">Status Sensus:</p>
+                            <p class="text-xs text-slate-300">Jabatan: ${user.status_pelayanan || 'Jemaat'}</p>
+                            <button onclick="openExtendedProfile()" class="w-full mt-2 bg-slate-800 text-purple-300 py-2 rounded-xl text-xs font-semibold hover:bg-slate-700 transition">Lengkapi Data Diri Lanjutan ➔</button>
+                        </div>
+                        <div class="pt-2">
                             <button onclick="logout()" class="w-full bg-rose-950/50 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-sm hover:bg-rose-900/50 transition">Keluar (Logout)</button>
                         </div>
                     </div>
                 `;
             }
+        }
+
+        // --- HALAMAN FORM DATA DIRI LANJUTAN ---
+        function openExtendedProfile() {
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Lengkapi Data Diri";
+            main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
+
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
+                        <p class="text-xs text-purple-200">Silakan lengkapi informasi tambahan di bawah ini untuk pendataan sensus gereja yang lebih akurat.</p>
+                    </div>
+                    <form onsubmit="handleSaveExtendedProfile(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Alamat Domisili Lengkap</label>
+                            <textarea id="extAlamat" rows="2" placeholder="Nama Jalan, No. Rumah, RT/RW..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Pekerjaan / Bidang Usaha</label>
+                            <input type="text" id="extPekerjaan" placeholder="Cth: Pegawai Swasta / Wirausaha" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Golongan Darah</label>
+                            <select id="extGoldar" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                                <option value="-">Pilih Golongan Darah</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="AB">AB</option>
+                                <option value="O">O</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Minat Pelayanan / Komisi</label>
+                            <select id="extKomisi" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                                <option value="Umum">Jemaat Umum</option>
+                                <option value="PW">Perempuan / Wanita (PW)</option>
+                                <option value="PKB">Kaum Bapak (PKB)</option>
+                                <option value="Pemuda/Remaja">Pemuda & Remaja</option>
+                                <option value="Sekolah Minggu">Sekolah Minggu</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition mt-2">Simpan Data Lanjutan</button>
+                    </form>
+                </div>
+            `;
+        }
+
+        function handleSaveExtendedProfile(e) {
+            e.preventDefault();
+            // Disini nanti bisa dihubungkan ke backend Google Apps Script untuk menyimpan data lanjutan
+            showToast("Data diri lanjutan berhasil disimpan!");
+            setTimeout(() => switchTab('profil'), 1000);
         }
 
         async function handleSendPrayer(e) {
