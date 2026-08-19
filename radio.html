@@ -28,27 +28,39 @@
             margin-bottom: 20px;
             letter-spacing: 1px;
         }
-        /* Mengatur ukuran widget iframe resmi */
-        .box-radio iframe {
-            border: none;
-            width: 100%;
-            height: 140px; /* Tinggi pas untuk menampilkan tombol play & judul lagu */
-            border-radius: 8px;
-            background: transparent;
-        }
     </style>
 </head>
 <body>
 
-<div class="box-radio">
-    <div class="info-title">Grace Alone Radio</div>
-    <div class="info-sub">LIVE STREAMING NONSTOP</div>
+<div style="font-family: Arial, sans-serif; background: #1e3c72; padding: 20px; border-radius: 12px; max-width: 300px; text-align: center; color: white; margin: 20px auto;">
+    <h4>Grace Alone Radio</h4>
     
-    <!-- IFRAME PLAYER RESMI DARI SERVER RADIO.CO -->
-    <iframe src="https://radio.co" 
-            allow="autoplay">
-    </iframe>
+    <!-- PERBAIKAN: Menggunakan URL IP stream murni berformat MP3 yang langsung mengeluarkan suara -->
+    <audio id="audioRadio" src="https://radio.co" preload="none"></audio>
+    
+    <button id="btnKontrol" style="background-color: white; color: #1e3c72; border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer;">
+        PUTAR SIARAN
+    </button>
 </div>
+
+<script>
+    const audio = document.getElementById('audioRadio');
+    const btn = document.getElementById('btnKontrol');
+
+    // Menghindari blokir pemutaran otomatis dengan interaksi klik pengguna
+    btn.addEventListener('click', () => {
+        if (audio.paused) {
+            // Muat ulang source agar mendapatkan pasokan stream audio terbaru (realtime)
+            audio.load(); 
+            audio.play()
+                .then(() => { btn.innerText = "BERHENTI"; })
+                .catch(err => alert("Gagal memuat suara, periksa jaringan Anda atau coba peramban lain."));
+        } else {
+            audio.pause();
+            btn.innerText = "PUTAR SIARAN";
+        }
+    });
+</script>
 
 </body>
 </html>
