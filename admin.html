@@ -112,6 +112,11 @@
                             <h3 class="font-bold text-sm text-slate-900">📅 Kelola Kegiatan</h3>
                             <p class="text-xs text-slate-500 mt-1">Tambah jadwal acara.</p>
                         </button>
+                        <!-- Tambahkan di Grid Menu Admin (admin.html) -->
+                        <button onclick="loadDonationForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                            <h3 class="font-bold text-sm text-slate-900">🎁 Catat Donasi</h3>
+                            <p class="text-xs text-slate-500 mt-1">Input persembahan/donasi jemaat.</p>
+                        </button>
                     </div>
 
                     <div id="adminContentArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm min-h-[300px]">
@@ -216,6 +221,57 @@
             sessionStorage.removeItem("admin_gereja");
             window.location.reload();
         }
+        function loadDonationForm() {
+    const area = document.getElementById("adminContentArea");
+    area.innerHTML = `
+        <h3 class="font-bold text-sm mb-4 text-slate-900">Pencatatan Donasi / Persembahan</h3>
+        <form onsubmit="handleSaveDonation(event)" class="space-y-3 max-w-lg">
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Donatur (Bisa ditulis Anonim)</label>
+                <input type="text" id="donNama" required placeholder="Cth: Bpk. Budi / Anonim" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Nominal (Rp)</label>
+                <input type="number" id="donNominal" required placeholder="Cth: 250000" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan / Peruntukan</label>
+                <input type="text" id="donKet" placeholder="Cth: Diakonia / Pembangunan Gedung" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
+                <input type="date" id="donTanggal" required class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+            </div>
+            <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan Data Donasi</button>
+        </form>
+    `;
+}
+
+async function handleSaveDonation(e) {
+    e.preventDefault();
+    const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+    const data = {
+        action: "addDonation",
+        admin_id: admin.id,
+        nama_donatur: document.getElementById("donNama").value,
+        nominal: document.getElementById("donNominal").value,
+        keterangan: document.getElementById("donKet").value,
+        tanggal: document.getElementById("donTanggal").value
+    };
+
+    alert("Menyimpan data donasi...");
+    try {
+        const res = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        alert(result.message);
+        loadDonationForm();
+    } catch (err) {
+        alert("Gagal menyimpan data donasi: " + err);
+    }
+}
     </script>
 </body>
 </html>
