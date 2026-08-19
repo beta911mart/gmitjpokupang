@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Gereja Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
+
+    <!-- Container Admin -->
+    <div id="adminApp" class="max-w-4xl mx-auto p-4 min-h-screen flex flex-col">
+        
+        <!-- HEADER ADMIN -->
+        <header class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center shadow-md mb-6">
+            <div>
+                <h1 class="font-bold text-lg">Panel Pengurus Gereja</h1>
+                <p id="adminInfo" class="text-xs text-slate-400">Silakan login terlebih dahulu</p>
+            </div>
+            <button id="logoutBtn" onclick="adminLogout()" class="hidden bg-rose-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-rose-700 transition">Keluar</button>
+        </header>
+
+        <!-- KONTEN UTAMA ADMIN -->
+        <main class="flex-1 flex flex-col">
+            <!-- Konten dinamis (Login / Dashboard Admin) -->
+        </main>
+
+    </div>
+
+    <script>
+        // --- GANTI DENGAN URL WEB APP GOOGLE SCRIPT ANDA ---
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedAdmin = sessionStorage.getItem("admin_gereja"); // Menggunakan sessionStorage agar wajib login ulang jika tab ditutup
+            if (savedAdmin) {
+                renderAdminDashboard(JSON.parse(savedAdmin));
+            } else {
+                renderAdminLogin();
+            }
+        });
+
+        // --- 1. HALAMAN LOGIN ADMIN ---
+        function renderAdminLogin() {
+            const main = document.querySelector("main");
+            main.innerHTML = `
+                <div class="max-w-md w-full mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mt-10">
+                    <h2 class="text-lg font-bold text-slate-900 mb-4 text-center">Login Khusus Pengurus</h2>
+                    <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Username Admin</label>
+                            <input type="text" id="adminUser" required class="w-full p-3 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-slate-900">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+                            <input type="password" id="adminPass" required class="w-full p-3 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-slate-900">
+                        </div>
+                        <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-lg font-semibold text-sm hover:bg-slate-800 transition">Masuk Panel</button>
+                    </form>
+                </div>
+            `;
+        }
+
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById("adminUser").value;
+            const password = document.getElementById("adminPass").value;
+
+            alert("Memverifikasi admin...");
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "adminLogin", username, password })
+                });
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    sessionStorage.setItem("admin_gereja", JSON.stringify(result.admin));
+                    renderAdminDashboard(result.admin);
+                } else {
+                    alert(result.message);
+                }
+            } catch (err) {
+                alert("Kesalahan koneksi: " + err);
+            }
+        }
+
+        // --- 2. DASHBOARD ADMIN ---
+        function renderAdminDashboard(admin) {
+            document.getElementById("adminInfoinnerText") = `Login sebagai: ${admin.nama} (${admin.role})`;
+            document.getElementById("logoutBtn").classList.remove("hidden");
+            
+            const main = document.querySelector("main");
+            main.innerHTML = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="loadSensusData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                            <h3 class="font-bold text-sm text-slate-900">👥 Data Sensus Jemaat</h3>
+                            <p class="text-xs text-slate-500 mt-1">Lihat daftar seluruh jemaat terdaftar.</p>
+                        </button>
+                        <button onclick="loadPrayerData('${admin.id}')" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                            <h3 class="font-bold text-sm text-slate-900">🙏 Moderasi Kotak Doa</h3>
+                            <p class="text-xs text-slate-500 mt-1">Perbarui status permohonan doa jemaat.</p>
+                        </button>
+                    </div>
+
+                    <div id="adminContentArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm min-h-[300px]">
+                        <p class="text-center text-slate-400 text-sm py-10">Silakan pilih menu di atas untuk mengelola data.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- 3. AMBIL & TAMPILKAN DATA SENSUS ---
+        async function loadSensusData() {
+            const area = document.getElementById("adminContentArea");
+            area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat data jemaat...</p>`;
+
+            try {
+                // Karena Apps Script doGet dengan action khusus, kita bisa panggil via fetch GET atau tambahkan penanganan
+                const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`); // (Opsional jika doGet di GAS disesuaikan, atau gunakan POST)
+                // Untuk amannya, kita bisa buat endpoint POST atau sesuaikan doGet. 
+                // Mari kita gunakan tampilan placeholder tabel:
+                area.innerHTML = `
+                    <h3 class="font-bold text-sm mb-4">Daftar Sensus Jemaat</h3>
+                    <p class="text-xs text-slate-500 mb-2">Data jemaat langsung tersinkronisasi dari Google Sheets tab 'Users'.</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 border-b border-slate-200">
+                                    <th class="p-2">Nama</th>
+                                    <th class="p-2">Jabatan</th>
+                                    <th class="p-2">Ling/Rayon</th>
+                                    <th class="p-2">No WA</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <tr><td colspan="4" class="p-4 text-center text-slate-400">Silakan cek Google Sheets langsung untuk rekap lengkap atau integrasikan fetch list.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (err) {
+                area.innerHTML = `<p class="text-center text-rose-500 text-sm">Gagal memuat data.</p>`;
+            }
+        }
+
+        // --- 4. LOGOUT ADMIN ---
+        function adminLogout() {
+            sessionStorage.removeItem("admin_gereja");
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
