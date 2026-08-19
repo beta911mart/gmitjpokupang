@@ -3,42 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grace Alone Radio Surabaya - Player</title>
-    <style>
-        /* Desain wadah agar pemutar bawaan tampak rapi di webapp Anda */
-        .box-radio {
-            font-family: Arial, sans-serif;
-            background: #1e272e;
-            padding: 20px;
-            border-radius: 12px;
-            max-width: 360px;
-            margin: 40px auto;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        .info-title {
-            color: #ffffff;
-            font-size: 18px;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .info-sub {
-            color: #0be881;
-            font-size: 12px;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
-        }
-    </style>
+    <title>Radio Rohani Nonstop</title>
 </head>
 <body>
 
 <div style="font-family: Arial, sans-serif; background: #1e3c72; padding: 20px; border-radius: 12px; max-width: 300px; text-align: center; color: white; margin: 20px auto;">
-    <h4>Grace Alone Radio</h4>
+    <h4>Radio Rohani Kristen</h4>
+    <p style="font-size: 12px; color: #ced6e0;">Streaming Nonstop 24 Jam</p>
     
-    <!-- PERBAIKAN: Menggunakan URL IP stream murni berformat MP3 yang langsung mengeluarkan suara -->
-    <audio id="audioRadio" src="https://radio.co" preload="none"></audio>
+    <!-- MENGGUNAKAN SERVER STREAM DIRECT MP3 YANG ANTI-BLOKIR -->
+    <audio id="audioRadio" src="https://heartline.co.id" preload="none" crossorigin="anonymous"></audio>
     
-    <button id="btnKontrol" style="background-color: white; color: #1e3c72; border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer;">
+    <button id="btnKontrol" style="background-color: white; color: #1e3c72; border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.2s;">
         PUTAR SIARAN
     </button>
 </div>
@@ -47,14 +23,20 @@
     const audio = document.getElementById('audioRadio');
     const btn = document.getElementById('btnKontrol');
 
-    // Menghindari blokir pemutaran otomatis dengan interaksi klik pengguna
     btn.addEventListener('click', () => {
         if (audio.paused) {
-            // Muat ulang source agar mendapatkan pasokan stream audio terbaru (realtime)
+            btn.innerText = "MEMUAT...";
             audio.load(); 
+            
             audio.play()
-                .then(() => { btn.innerText = "BERHENTI"; })
-                .catch(err => alert("Gagal memuat suara, periksa jaringan Anda atau coba peramban lain."));
+                .then(() => { 
+                    btn.innerText = "BERHENTI"; 
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Akses diblokir oleh peramban. Coba nonaktifkan AdBlock atau gunakan Google Chrome.");
+                    btn.innerText = "PUTAR SIARAN";
+                });
         } else {
             audio.pause();
             btn.innerText = "PUTAR SIARAN";
