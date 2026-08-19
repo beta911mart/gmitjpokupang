@@ -270,9 +270,9 @@
                                 <div class="w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📥</div>
                                 <span class="text-[11px] text-slate-300 font-medium">Download</span>
                             </div>
-                            <div onclick="showToast('Menu Hymns')" class="cursor-pointer flex flex-col items-center">
+                            <div onclick="openLibraryMenu()" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📖</div>
-                                <span class="text-[11px] text-slate-300 font-medium">Hymns</span>
+                                <span class="text-[11px] text-slate-300 font-medium">Alkitab & KJ</span>
                             </div>
                             <div onclick="showToast('Menu Events')" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📅</div>
@@ -511,6 +511,139 @@
             showToast("Anda telah keluar.");
             setTimeout(() => window.location.reload(), 500);
         }
+        // --- HALAMAN UTAMA PUSTAKA (ALKITAB & KIDUNG JEMAAT) ---
+function openLibraryMenu() {
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Alkitab & Kidung Jemaat";
+    main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
+
+    main.innerHTML = `
+        <div class="space-y-4">
+            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <div onclick="openBibleSearch()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition shadow-sm">
+                    <div class="text-3xl mb-2">✝️</div>
+                    <h4 class="font-bold text-xs text-white">Pustaka Alkitab</h4>
+                    <p class="text-[10px] text-slate-400 mt-1">Baca Perjanjian Lama & Baru</p>
+                </div>
+                <div onclick="openHymnsList()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition shadow-sm">
+                    <div class="text-3xl mb-2">📖</div>
+                    <h4 class="font-bold text-xs text-white">Kidung Jemaat</h4>
+                    <p class="text-[10px] text-slate-400 mt-1">Cari lirik lagu pujian</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// --- SUB-MENU PUSTAKA ALKITAB ---
+function openBibleSearch() {
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Alkitab Digital";
+    
+    main.innerHTML = `
+        <div class="space-y-4">
+            <button onclick="openLibraryMenu()" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Pustaka</button>
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
+                <h4 class="text-xs font-bold text-white">Pilih Kitab & Pasal</h4>
+                <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">Nama Kitab</label>
+                    <select id="bibleBook" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                        <option value="Kejadian">Kejadian</option>
+                        <option value="Mazmur">Mazmur</option>
+                        <option value="Yohanes">Yohanes</option>
+                        <option value="Roma">Roma</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">Pasal</label>
+                    <input type="number" id="bibleChapter" value="1" min="1" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                </div>
+                <button onclick="fetchBibleVerse()" class="w-full bg-purple-600 text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-purple-700 transition">Muat Ayat Alkitab</button>
+            </div>
+            <div id="bibleResult" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-xs text-slate-300 leading-relaxed min-h-[150px]">
+                Silakan pilih kitab dan pasal lalu tekan tombol muat.
+            </div>
+        </div>
+    `;
+}
+
+// Contoh Integrasi API Alkitab Publik (API SABDA / Alkitab API Terbuka)
+async function fetchBibleVerse() {
+    const book = document.getElementById("bibleBook").value;
+    const chapter = document.getElementById("bibleChapter").value;
+    const resultArea = document.getElementById("bibleResult");
+    
+    resultArea.innerHTML = "Memuat ayat...";
+    
+    try {
+        // Menggunakan API Alkitab publik open-source
+        const response = await fetch(`https://beeceptor.com/api-bible...` /* atau endpoint API Alkitab publik */);
+        // Untuk amannya, kita sediakan fallback data atau gunakan API Alkitab yang stabil:
+        resultArea.innerHTML = `<b>Menampilkan ${book} Pasal ${chapter}:</b><br><br>1. Pada mulanya Allah menciptakan langit dan bumi.<br>2. Bumi belum berbentuk dan kosong... (Data contoh API siap dikoneksikan).`;
+    } catch (err) {
+        resultArea.innerHTML = "Gagal memuat ayat Alkitab.";
+    }
+}
+
+// --- SUB-MENU KIDUNG JEMAAT ---
+async function openHymnsList() {
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Kidung Jemaat";
+    
+    main.innerHTML = `
+        <div class="space-y-4">
+            <button onclick="openLibraryMenu()" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Pustaka</button>
+            
+            <div class="relative">
+                <input type="text" id="hymnSearchInput" oninput="filterHymns()" placeholder="Cari nomor atau judul lagu..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-purple-500">
+            </div>
+
+            <div id="hymnsContainer" class="space-y-2">
+                <p class="text-xs text-slate-400 text-center py-6">Memuat daftar kidung...</p>
+            </div>
+        </div>
+    `;
+
+    // Ambil data dari Google Sheets tab Hymns
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=getHymns`);
+        const result = await response.json();
+        
+        window.allHymns = result.hymns || [];
+        renderHymnsList(window.allHymns);
+    } catch (err) {
+        document.getElementById("hymnsContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data kidung.</p>`;
+    }
+}
+
+function renderHymnsList(hymns) {
+    const container = document.getElementById("hymnsContainer");
+    if (hymns.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Lagu tidak ditemukan.</p>`;
+        return;
+    }
+
+    container.innerHTML = hymns.map(h => `
+        <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl">
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-bold text-purple-400">KJ No. ${hymns.nomor || h.nomor}</span>
+                <span class="text-[10px] text-slate-500">Kidung Jemaat</span>
+            </div>
+            <h5 class="text-xs font-semibold text-white mb-1">${h.judul}</h5>
+            <p class="text-[11px] text-slate-400 whitespace-pre-line bg-slate-950 p-3 rounded-lg mt-2">${h.lirik}</p>
+        </div>
+    `).join('');
+}
+
+function filterHymns() {
+    const keyword = document.getElementById("hymnSearchInput").value.toLowerCase();
+    const filtered = window.allHymns.filter(h => 
+        String(h.nomor).toLowerCase().includes(keyword) || h.judul.toLowerCase().includes(keyword)
+    );
+    renderHymnsList(filtered);
+}
     </script>
 </body>
 </html>
