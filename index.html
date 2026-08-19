@@ -525,52 +525,67 @@
         }
 
         // 6. Radio (Radio Streaming Rohani 24 Jam)
-// --- HALAMAN RADIO (RADIO STREAMING ROHANI 24 JAM) ---
+// --- HALAMAN RADIO (GRACE ALONE RADIO SURABAYA) ---
 function openRadioMenu() {
     const main = document.querySelector("main");
-    document.getElementById("headerTitle").innerText = "Radio Rohani 24 Jam";
+    document.getElementById("headerTitle").innerText = "Grace Alone Radio Surabaya";
     main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
 
     main.innerHTML = `
         <div class="space-y-4">
             <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
             <div class="bg-pink-950/40 border border-pink-900/40 p-3 rounded-xl">
-                <p class="text-xs text-pink-200">Nikmati saluran pujian rohani dan siaran rohani kristen non-stop 24 jam.</p>
+                <p class="text-xs text-pink-200">Menyiarkan kebenaran firman Tuhan dan kidung pujian rohani dari Surabaya.</p>
             </div>
             
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center space-y-4 shadow-sm">
-                <div class="w-20 h-20 bg-pink-950 border border-pink-800 text-pink-300 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner">
+                <div class="w-20 h-20 bg-pink-950 border border-pink-800 text-pink-300 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner animate-pulse">
                     📻
                 </div>
                 <div>
-                    <h4 class="font-bold text-sm text-white">Pniel Radio Streaming</h4>
-                    <p class="text-[11px] text-slate-400 mt-1">Saluran Musik & Pujian Rohani Kristen</p>
+                    <h4 class="font-bold text-sm text-white">Grace Alone Radio Surabaya</h4>
+                    <p class="text-[11px] text-slate-400 mt-1">Kelolaan GRAMI (Online Streaming)</p>
                 </div>
-                
-                <!-- Wadah Pemutar Radio -->
-                <div class="py-2 flex justify-center w-full">
-                    <div id="radioco-player-container" class="w-full flex justify-center"></div>
+
+                <!-- Pemutar Audio HTML5 Resmi untuk Streaming -->
+                <div class="pt-3 flex flex-col items-center space-y-3">
+                    <audio id="graceRadioPlayer" preload="none" class="w-full">
+                        <!-- Tautan stream langsung atau bisa disesuaikan dengan direct stream link Grace Alone Radio -->
+                        <source src="https://radiokristen.net/station_detail/13-Grace-Alone-Radio-Surabaya" type="audio/mpeg">
+                        Browser Anda tidak mendukung pemutar audio streaming.
+                    </audio>
+
+                    <div class="flex gap-2 w-full">
+                        <button onclick="toggleGraceRadio()" id="btnPlayRadio" class="flex-1 bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2">
+                            ▶ Putar Radio
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-500 italic">Tekan tombol putar untuk mendengarkan siaran langsung.</p>
                 </div>
             </div>
         </div>
     `;
+}
 
-    // Memuat skrip Radio.co secara aman setelah elemen selesai dirender
-    setTimeout(() => {
-        // Hapus skrip lama jika ada agar tidak terjadi duplikasi
-        const existingScript = document.getElementById("radioScript");
-        if (existingScript) {
-            existingScript.remove();
-        }
+// Fungsi Kontrol Play/Pause Radio
+function toggleGraceRadio() {
+    const audio = document.getElementById("graceRadioPlayer");
+    const btn = document.getElementById("btnPlayRadio");
 
-        const script = document.createElement("script");
-        script.id = "radioScript";
-        script.src = "https://embed.radio.co/player/95d069c.js";
-        script.async = true;
-        
-        // Masukkan skrip ke dalam body agar dieksekusi oleh browser
-        document.body.appendChild(script);
-    }, 200);
+    if (audio.paused) {
+        audio.play().then(() => {
+            btn.innerHTML = "⏸ Hentikan Radio";
+            btn.className = "flex-1 bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2";
+            showToast("Memutar Grace Alone Radio...");
+        }).catch(err => {
+            showToast("Gagal memutar streaming radio.", "error");
+        });
+    } else {
+        audio.pause();
+        btn.innerHTML = "▶ Putar Radio";
+        btn.className = "flex-1 bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2";
+        showToast("Radio dihentikan.");
+    }
 }
 
         // --- HALAMAN TENTANG (ABOUT) GEREJA ---
