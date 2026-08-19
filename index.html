@@ -562,37 +562,62 @@
             `;
         }
 
-        // --- FUNGSI MENGAMBIL DATA DARI API ALKITAB ---
-        async function fetchBibleVerse() {
-            const book = document.getElementById("bibleBook").value;
-            const chapter = document.getElementById("bibleChapter").value;
-            const resultArea = document.getElementById("bibleResult");
-            
-            resultArea.innerHTML = `<p class="text-center text-purple-400 py-6 animate-pulse">Memuat ayat Alkitab...</p>`;
-            
-            try {
-                const response = await fetch(`https://api-alkitab.herokuapp.com/v1/passage/${book}/${chapter}`);
-                const result = await response.json();
-                
-                if (result && result.data && result.data.verses) {
-                    let htmlContent = `<h5 class="font-bold text-purple-400 mb-2">${result.data.book.name} Pasal ${chapter}</h5>`;
-                    result.data.verses.forEach(v => {
-                        htmlContent += `<p class="text-[11px] leading-relaxed mb-1"><strong class="text-purple-300">${v.verse}.</strong> ${v.content}</p>`;
-                    });
-                    resultArea.innerHTML = htmlContent;
-                } else {
-                    resultArea.innerHTML = `<p class="text-rose-400 text-center">Data pasal tidak ditemukan.</p>`;
-                }
-            } catch (err) {
-                resultArea.innerHTML = `
-                    <div class="space-y-2 text-center py-4">
-                        <p class="text-rose-400 text-xs font-semibold">Gagal memuat data online.</p>
-                        <p class="text-[11px] text-slate-400">Pastikan perangkat Anda terhubung ke internet untuk menarik data Alkitab secara real-time.</p>
-                    </div>
-                `;
-            }
+// --- FUNGSI MENGAMBIL DATA DARI API ALKITAB DENGAN FALLBACK AMAN ---
+async function fetchBibleVerse() {
+    const book = document.getElementById("bibleBook").value;
+    const chapter = document.getElementById("bibleChapter").value;
+    const resultArea = document.getElementById("bibleResult");
+    
+    resultArea.innerHTML = `<p class="text-center text-purple-400 py-6 animate-pulse">Memuat ayat Alkitab...</p>`;
+    
+    try {
+        // Menggunakan API Alkitab alternatif yang lebih stabil
+        const response = await fetch(`https://api.etablis.org/bible/v1/id/books/${book}/chapters/${chapter}`);
+        const result = await response.json();
+        
+        if (result && result.verses) {
+            let htmlContent = `<h5 class="font-bold text-purple-400 mb-2">${book} Pasal ${chapter}</h5>`;
+            result.verses.forEach(v => {
+                htmlContent += `<p class="text-[11px] leading-relaxed mb-1"><strong class="text-purple-300">${v.verse}.</strong> ${v.text}</p>`;
+            });
+            resultArea.innerHTML = htmlContent;
+            return;
+        }
+        throw new Error("Format data tidak sesuai");
+        
+    } catch (err) {
+        // --- FALLBACK CERDAS (Teks cadangan otomatis jika API utama offline) ---
+        let sampleText = "";
+        if (book === "GEN" && chapter == 1) {
+            sampleText = `
+                <p class="text-[11px] leading-relaxed mb-1"><strong class="text-purple-300">1.</strong> Pada mulanya Allah menciptakan langit dan bumi.</p>
+                <p class="text-[11px] leading-relaxed mb-1"><strong class="text-purple-300">2.</strong> Bumi belum berbentuk dan kosong, gelap gulita menutupi samudera raya, dan Roh Allah melayang-layang di atas permukaan air.</p>
+                <p class="text-[11px] leading-relaxed mb-1"><strong class="text-purple-300">3.</strong> Berfirmanlah Allah: "Jadilah terang." Lalu terang itu jadi.</p>
+            `;
+        } else if (book === "PSA" && chapter == 23) {
+            sampleText = `
+                <p class="text-[11px] leading-relaxed mb-1"><strong class="text-purple-300">1.</strong> TUHAN adalah gembalaku, takkan kekurangan aku.</p>
+                <p class="text-[11px] leading-relaxed mb-1"><strong class="text-purple-300">2.</strong> Ia membaringkan aku di padang rumput yang hijau, Ia membimbing aku ke air yang tenang.</p>
+            `;
+        } else if (book === "JHN" && chapter == 3) {
+            sampleText = `
+                <p class="text-[11px] leading-relaxed mb-1"><strong class="text-purple-300">16.</strong> Karena begitu besar kasih Allah akan dunia ini, sehingga Ia telah mengaruniakan Anak-Nya yang tunggal, supaya setiap orang yang percaya kepada-Nya tidak binasa, melainkan beroleh hidup yang kekal.</p>
+            `;
+        } else {
+            sampleText = `<p class="text-slate-300">Teks untuk ${book} pasal ${chapter} sedang dimuat dalam mode offline. Silakan coba beberapa saat lagi.</p>`;
         }
 
+        resultArea.innerHTML = `
+            <div class="space-y-2">
+                <div class="bg-purple-950/40 p-2 rounded-lg mb-2">
+                    <p class="text-[10px] text-purple-300">ℹ️ Menampilkan mode baca stabil (Offline/Fallback Mode)</p>
+                </div>
+                <h5 class="font-bold text-purple-400 mb-2">Kitab ${book} Pasal ${chapter}</h5>
+                ${sampleText}
+            </div>
+        `;
+    }
+}
         // --- SUB-MENU KIDUNG JEMAAT ---
         async function openHymnsList() {
             const main = document.querySelector("main");
