@@ -49,6 +49,56 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
 
+        // --- HALAMAN DINDING DUKUNGAN DOA PUBLIK ---
+async function openPublicPrayerWall() {
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
+    main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
+
+    main.innerHTML = `
+        <div class="space-y-4">
+            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+            <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl flex justify-between items-center">
+                <p class="text-xs text-purple-200">Mari saling mendoakan pergumulan sesama jemaat. Doa tayang otomatis selama 6 hari.</p>
+                <button onclick="switchTab('doa')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition">Kirim Doa</button>
+            </div>
+            
+            <div id="publicPrayerContainer" class="space-y-3">
+                <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat daftar dukungan doa...</p>
+            </div>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=getPrayers`);
+        const result = await response.json();
+        
+        const container = document.getElementById("publicPrayerContainer");
+        const prayers = result.prayers || [];
+
+        if (prayers.length === 0) {
+            container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada pokok doa publik yang ditayangkan saat ini.</p>`;
+            return;
+        }
+
+        container.innerHTML = prayers.map(p => `
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-sm">
+                <div class="flex justify-between items-center">
+                    <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
+                    <span class="text-[10px] text-slate-500">${new Date(p.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</span>
+                </div>
+                <p class="text-xs text-slate-200 leading-relaxed italic">"${p.isi_doa}"</p>
+                <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
+                    <span>Oleh: <strong class="text-slate-300">${p.nama_pengirim}</strong></span>
+                    <button onclick="showToast('Puji Tuhan, mari dukung dalam doa!')" class="text-purple-400 font-semibold hover:underline">Amen / Turut Mendoakan 🙏</button>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        document.getElementById("publicPrayerContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat dinding doa.</p>`;
+    }
+}
         function showToast(message, type = "success") {
             const container = document.getElementById("toastContainer");
             const toast = document.createElement("div");
@@ -286,10 +336,10 @@
     <div class="w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">🎂</div>
     <span class="text-[11px] text-slate-300 font-medium">Ulang Tahun</span>
 </div>
-                            <div onclick="showToast('Menu Notes')" class="cursor-pointer flex flex-col items-center">
-                                <div class="w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📔</div>
-                                <span class="text-[11px] text-slate-300 font-medium">Notes</span>
-                            </div>
+<div onclick="openPublicPrayerWall()" class="cursor-pointer flex flex-col items-center">
+    <div class="w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">🙏</div>
+    <span class="text-[11px] text-slate-300 font-medium">Dukungan Doa</span>
+</div>
                             <div onclick="showToast('Menu Donate')" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-blue-400 to-indigo-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">💲</div>
                                 <span class="text-[11px] text-slate-300 font-medium">Donate</span>
@@ -325,11 +375,21 @@
                         </div>
                     </div>
                 `;
-            } else if (tab === 'doa') {
+} else if (tab === 'doa') {
                 main.innerHTML = `
                     <div class="space-y-4">
-                        <h3 class="font-bold text-base text-purple-400">Kirim Kotak Doa</h3>
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-base text-purple-400">Kirim Kotak Doa</h3>
+                            <button onclick="openPublicPrayerWall()" class="text-xs text-purple-300 bg-purple-900/50 px-3 py-1.5 rounded-lg border border-purple-800 transition">Lihat Dinding Doa ➔</button>
+                        </div>
                         <form onsubmit="handleSendPrayer(event)" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Identitas Pengirim</label>
+                                <select id="prayerSenderOption" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                                    <option value="name">Tampilkan Nama Saya (${window.currentUser.nama_lengkap})</option>
+                                    <option value="anonymous">Kirim sebagai Anonim (Hamba Tuhan)</option>
+                                </select>
+                            </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-400 mb-1">Kategori Doa</label>
                                 <select id="prayerCategory" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
@@ -345,15 +405,14 @@
                             <div>
                                 <label class="block text-xs font-semibold text-slate-400 mb-1">Privasi Doa</label>
                                 <select id="prayerPrivacy" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                                    <option value="Publik">Publik (Ditampilkan di Dinding Doa setelah disetujui)</option>
                                     <option value="Rahasia">Rahasia (Hanya Pendeta/Admin)</option>
-                                    <option value="Publik">Publik (Untuk Pendoa Syafaat)</option>
                                 </select>
                             </div>
                             <button type="submit" id="btnPrayerSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition">Kirim Doa</button>
                         </form>
                     </div>
-                `;
-            } else if (tab === 'profil') {
+                `;            } else if (tab === 'profil') {
                 main.innerHTML = `
                     <div class="space-y-6 text-center pt-6">
                         <div class="w-20 h-20 bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full mx-auto shadow-inner">
@@ -461,16 +520,17 @@
             setTimeout(() => switchTab('profil'), 1000);
         }
 
-        async function handleSendPrayer(e) {
-            e.preventDefault();
-            const btn = document.getElementById("btnPrayerSubmit");
-            const data = {
-                action: "addPrayer",
-                user_id: window.currentUser.id,
-                kategori_doa: document.getElementById("prayerCategory").value,
-                isi_doa: document.getElementById("prayerContent").value,
-                status_privasi: document.getElementById("prayerPrivacy").value
-            };
+async function handleSendPrayer(e) {
+    e.preventDefault();
+    const btn = document.getElementById("btnPrayerSubmit");
+    const data = {
+        action: "addPrayer",
+        user_id: window.currentUser.id,
+        nama_pengirim: document.getElementById("prayerSenderOption").value === 'name' ? window.currentUser.nama_lengkap : "Hamba Tuhan / Anonim",
+        kategori_doa: document.getElementById("prayerCategory").value,
+        isi_doa: document.getElementById("prayerContent").value,
+        status_privasi: document.getElementById("prayerPrivacy").value
+    };
 
             btn.disabled = true;
             btn.innerHTML = "Mengirim...";
