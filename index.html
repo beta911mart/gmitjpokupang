@@ -47,7 +47,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
+        const SCRIPT_URL = "URL_WEB_APP_GOOGLE_SCRIPT_ANDA_DISINI";
 
         function showToast(message, type = "success") {
             const container = document.getElementById("toastContainer");
@@ -257,18 +257,18 @@
                         <!-- Search Bar -->
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">🔍</span>
-                            <input type="text" placeholder="Cari warta, kegiatan, atau informasi..." class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-full text-xs text-white placeholder-slate-500 outline-none focus:border-purple-500 shadow-inner">
+                            <input type="text" placeholder="Cari warta, kegiatan, atau dokumen..." class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-full text-xs text-white placeholder-slate-500 outline-none focus:border-purple-500 shadow-inner">
                         </div>
 
-                        <!-- Grid Ikon Bulat (Menu Utama: Website diganti Profile Lanjutan) -->
+                        <!-- Grid Ikon Bulat (Menu Utama: Branches diganti Download) -->
                         <div class="grid grid-cols-4 gap-4 text-center">
                             <div onclick="openExtendedProfile()" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-lime-500 to-green-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">👤</div>
                                 <span class="text-[11px] text-slate-300 font-medium">Profile</span>
                             </div>
-                            <div onclick="showToast('Menu Branches')" class="cursor-pointer flex flex-col items-center">
-                                <div class="w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">🏛️</div>
-                                <span class="text-[11px] text-slate-300 font-medium">Branches</span>
+                            <div onclick="openDownloadCenter()" class="cursor-pointer flex flex-col items-center">
+                                <div class="w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📥</div>
+                                <span class="text-[11px] text-slate-300 font-medium">Download</span>
                             </div>
                             <div onclick="showToast('Menu Hymns')" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📖</div>
@@ -376,6 +376,49 @@
             }
         }
 
+        // --- HALAMAN PUSAT DOWNLOAD (GOOGLE DRIVE) ---
+        function openDownloadCenter() {
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Pusat Download PDF";
+            main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
+
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
+                        <p class="text-xs text-purple-200">Unduh warta mingguan, lembar liturgi, dan dokumen penting gereja berformat PDF.</p>
+                    </div>
+
+                    <!-- Daftar File Download (Contoh tautan Google Drive) -->
+                    <div class="space-y-3">
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Warta Jemaat Minggu Ini</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Format PDF &bull; Ukuran 1.2 MB</p>
+                            </div>
+                            <a href="LINK_GOOGLE_DRIVE_ANDA_DISINI" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Download</a>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Lembar Liturgi Ibadah</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Format PDF &bull; Ukuran 850 KB</p>
+                            </div>
+                            <a href="LINK_GOOGLE_DRIVE_ANDA_DISINI" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Download</a>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Jadwal Pelayanan Bulanan</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Format PDF &bull; Ukuran 2.1 MB</p>
+                            </div>
+                            <a href="LINK_GOOGLE_DRIVE_ANDA_DISINI" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Download</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         // --- HALAMAN FORM DATA DIRI LANJUTAN ---
         function openExtendedProfile() {
             const main = document.querySelector("main");
@@ -425,7 +468,6 @@
 
         function handleSaveExtendedProfile(e) {
             e.preventDefault();
-            // Disini nanti bisa dihubungkan ke backend Google Apps Script untuk menyimpan data lanjutan
             showToast("Data diri lanjutan berhasil disimpan!");
             setTimeout(() => switchTab('profil'), 1000);
         }
