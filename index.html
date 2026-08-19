@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webapp Gereja</title>
+    <!-- Tailwind CSS untuk styling cepat dan modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Container Utama Mobile -->
+    <div id="app" class="max-w-md w-full mx-auto bg-white min-h-screen flex flex-col shadow-lg relative">
+        
+        <!-- HEADER -->
+        <header class="bg-indigo-600 text-white p-4 text-center font-bold text-lg shadow-md">
+            Gereja Digital
+        </header>
+
+        <!-- KONTEN UTAMA (Dinamis via JavaScript) -->
+        <main class="flex-1 p-4 overflow-y-auto pb-20">
+            <!-- Konten akan dimuat di sini -->
+        </main>
+
+        <!-- NAVIGATION BAR BAWAH (Untuk User yang sudah login) -->
+        <nav id="bottomNav" class="hidden absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-3 text-xs text-slate-600">
+            <button onclick="switchTab('home')" class="flex flex-col items-center focus:text-indigo-600">🏠 Beranda</button>
+            <button onclick="switchTab('doa')" class="flex flex-col items-center focus:text-indigo-600">🙏 Kotak Doa</button>
+            <button onclick="switchTab('profil')" class="flex flex-col items-center focus:text-indigo-600">👤 Profil</button>
+        </nav>
+
+    </div>
+
+    <script>
+        // --- GANTI DENGAN URL WEB APP GOOGLE SCRIPT ANDA ---
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
+
+        // Cek LocalStorage saat halaman pertama kali dibuka
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedUser = localStorage.getItem("user_gereja");
+            if (savedUser) {
+                renderDashboard(JSON.parse(savedUser));
+            } else {
+                renderAuthPage();
+            }
+        });
+
+        // --- 1. HALAMAN AUTH (LOGIN & REGISTRASI) ---
+        function renderAuthPage() {
+            document.getElementById("bottomNav").classList.add("hidden");
+            const main = document.querySelector("main");
+            
+            main.innerHTML = `
+                <div class="space-y-6 pt-4">
+                    <div class="text-center">
+                        <h2 class="text-xl font-bold text-indigo-600">Selamat Datang, Jemaat</h2>
+                        <p class="text-xs text-slate-500 mt-1">Silakan masuk atau daftar akun sensus gereja.</p>
+                    </div>
+
+                    <!-- Pilihan Tab Login / Register -->
+                    <div class="flex border-b border-slate-200">
+                        <button id="tabLoginBtn" onclick="toggleAuthTab('login')" class="flex-1 pb-2 font-semibold text-indigo-600 border-b-2 border-indigo-600">Masuk</button>
+                        <button id="tabRegBtn" onclick="toggleAuthTab('register')" class="flex-1 pb-2 text-slate-400">Daftar Baru</button>
+                    </div>
+
+                    <!-- FORM LOGIN -->
+                    <form id="formLogin" onsubmit="handleLogin(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap</label>
+                            <input type="text" id="loginNama" required placeholder="Contoh: Budi Santoso" class="w-full p-3 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">4 Digit Terakhir No. WhatsApp</label>
+                            <input type="password" maxlength="4" id="loginPin" required placeholder="Cth: 7899" class="w-full p-3 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold text-sm shadow-md hover:bg-indigo-700 transition">Masuk Aplikasi</button>
+                    </form>
+
+                    <!-- FORM REGISTRASI -->
+                    <form id="formRegister" onsubmit="handleRegister(event)" class="space-y-3 hidden">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap</label>
+                            <input type="text" id="regNama" required class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tempat Lahir</label>
+                                <input type="text" id="regTempatLahir" required class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Lahir</label>
+                                <input type="date" id="regTglLahir" required class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Status Pelayanan</label>
+                            <select id="regStatus" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none bg-white">
+                                <option value="Jemaat">Jemaat</option>
+                                <option value="Pendeta">Pendeta</option>
+                                <option value="Majelis">Majelis</option>
+                                <option value="Penatua">Penatua</option>
+                                <option value="Pegawai">Pegawai</option>
+                                <option value="Pengurus">Pengurus</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Lingkungan</label>
+                                <input type="text" id="regLingkungan" required placeholder="Cth: 1" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Rayon</label>
+                                <input type="text" id="regRayon" required placeholder="Cth: 2" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor WhatsApp (Aktif)</label>
+                            <input type="tel" id="regWa" required placeholder="081234567899" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                            <p class="text-[10px] text-slate-400 mt-1">*4 digit terakhir otomatis jadi PIN login Anda.</p>
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold text-sm shadow-md hover:bg-emerald-700 transition mt-2">Daftar Sensus</button>
+                    </form>
+                </div>
+            `;
+        }
+
+        // Toggle Tab Login / Register
+        function toggleAuthTab(type) {
+            const loginForm = document.getElementById("formLogin");
+            const regForm = document.getElementById("formRegister");
+            const loginBtn = document.getElementById("tabLoginBtn");
+            const regBtn = document.getElementById("tabRegBtn");
+
+            if (type === 'login') {
+                loginForm.classList.remove("hidden");
+                regForm.classList.add("hidden");
+                loginBtn.className = "flex-1 pb-2 font-semibold text-indigo-600 border-b-2 border-indigo-600";
+                regBtn.className = "flex-1 pb-2 text-slate-400";
+            } else {
+                loginForm.classList.add("hidden");
+                regForm.classList.remove("hidden");
+                regBtn.className = "flex-1 pb-2 font-semibold text-indigo-600 border-b-2 border-indigo-600";
+                loginBtn.className = "flex-1 pb-2 text-slate-400";
+            }
+        }
+
+        // --- 2. LOGIKA PROSES LOGIN ---
+        async function handleLogin(e) {
+            e.preventDefault();
+            const nama = document.getElementById("loginNama").value;
+            const pin = document.getElementById("loginPin").value;
+
+            alert("Memproses login...");
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "login", nama_lengkap: nama, pin_4_digit: pin })
+                });
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    localStorage.setItem("user_gereja", JSON.stringify(result.user));
+                    renderDashboard(result.user);
+                } else {
+                    alert(result.message);
+                }
+            } catch (err) {
+                alert("Terjadi kesalahan koneksi: " + err);
+            }
+        }
+
+        // --- 3. LOGIKA PROSES REGISTRASI ---
+        async function handleRegister(e) {
+            e.preventDefault();
+            const data = {
+                action: "register",
+                nama_lengkap: document.getElementById("regNama").value,
+                tempat_lahir: document.getElementById("regTempatLahir").value,
+                tanggal_lahir: document.getElementById("regTglLahir").value,
+                status_pelayanan: document.getElementById("regStatus").value,
+                lingkungan: document.getElementById("regLingkungan").value,
+                rayon: document.getElementById("regRayon").value,
+                no_whatsapp: document.getElementById("regWa").value
+            };
+
+            alert("Mengirim data pendaftaran...");
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    alert("Registrasi Berhasil! 4 digit terakhir No WA Anda kini menjadi PIN login.");
+                    localStorage.setItem("user_gereja", JSON.stringify(result.user));
+                    renderDashboard(result.user);
+                } else {
+                    alert(result.message);
+                }
+            } catch (err) {
+                alert("Terjadi kesalahan koneksi: " + err);
+            }
+        }
+
+        // --- 4. DASHBOARD UTAMA SETELAH LOGIN ---
+        function renderDashboard(user) {
+            document.getElementById("bottomNav").classList.remove("hidden");
+            window.currentUser = user;
+            switchTab('home');
+        }
+
+        // Pengganti Tab di Navigasi Bawah
+        function switchTab(tab) {
+            const main = document.querySelector("main");
+            const user = window.currentUser;
+
+            if (tab === 'home') {
+                main.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                            <h3 class="text-sm font-bold text-indigo-900">Syalom, ${user.nama_lengkap}!</h3>
+                            <p class="text-xs text-indigo-700 mt-1">Lingkungan ${user.lingkungan} | Rayon ${user.rayon}</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <h4 class="font-bold text-sm mb-2">📢 Warta & Berita Terbaru</h4>
+                            <p class="text-xs text-slate-500">Ibadah Minggu Raya akan disiarkan secara live streaming pukul 09.00 WITA.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <h4 class="font-bold text-sm mb-2">📅 Jadwal Kegiatan</h4>
+                            <p class="text-xs text-slate-500">- Doa Lingkungan: Rabu, 19.00 WITA<br>- Pemuda: Sabtu, 17.00 WITA</p>
+                        </div>
+                    </div>
+                `;
+            } else if (tab === 'doa') {
+                main.innerHTML = `
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-base text-indigo-900">Kirim Kotak Doa</h3>
+                        <form onsubmit="handleSendPrayer(event)" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Doa</label>
+                                <select id="prayerCategory" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none bg-white">
+                                    <option value="Doa Syukur">Doa Syukur</option>
+                                    <option value="Doa Pergumulan">Doa Pergumulan</option>
+                                    <option value="Doa Khusus">Doa Khusus</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Pokok Doa / Curahan Hati</label>
+                                <textarea id="prayerContent" rows="4" required placeholder="Tuliskan pokok doa Anda di sini..." class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Privasi Doa</label>
+                                <select id="prayerPrivacy" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none bg-white">
+                                    <option value="Rahasia">Rahasia (Hanya Pendeta/Admin)</option>
+                                    <option value="Publik">Publik (Untuk Pendoa Syafaat)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-semibold text-sm shadow-md hover:bg-indigo-700 transition">Kirim Doa</button>
+                        </form>
+                    </div>
+                `;
+            } else if (tab === 'profil') {
+                main.innerHTML = `
+                    <div class="space-y-4 text-center pt-6">
+                        <div class="w-20 h-20 bg-indigo-100 text-indigo-600 font-bold text-2xl flex items-center justify-center rounded-full mx-auto">
+                            ${user.nama_lengkap.charAt(0)}
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">${user.nama_lengkap}</h3>
+                            <p class="text-xs text-slate-500">Lingkungan ${user.lingkungan} - Rayon ${user.rayon}</p>
+                        </div>
+                        <div class="pt-6">
+                            <button onclick="logout()" class="w-full bg-rose-50 text-rose-600 border border-rose-200 py-2.5 rounded-lg font-semibold text-sm hover:bg-rose-100 transition">Keluar (Logout)</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // --- 5. KIRIM DOA KE SCRIPT ---
+        async function handleSendPrayer(e) {
+            e.preventDefault();
+            const data = {
+                action: "addPrayer",
+                user_id: window.currentUser.id,
+                kategori_doa: document.getElementById("prayerCategory").value,
+                isi_doa: document.getElementById("prayerContent").value,
+                status_privasi: document.getElementById("prayerPrivacy").value
+            };
+
+            alert("Mengirim pokok doa...");
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                alert(result.message);
+                if (result.status === "success") {
+                    switchTab('home');
+                }
+            } catch (err) {
+                alert("Gagal mengirim doa: " + err);
+            }
+        }
+
+        // --- 6. LOGOUT ---
+        function logout() {
+            localStorage.removeItem("user_gereja");
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
