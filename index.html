@@ -142,7 +142,7 @@
                             <input type="tel" id="regWa" required placeholder="081234567899" class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                             <p class="text-[10px] text-slate-500 mt-1">*4 digit terakhir otomatis jadi PIN login.</p>
                         </div>
-                        <button type="submit" id="btnRegSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition mt-2">Daftar Sensus</button>
+                        <button type="submit" id="btnRegSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition mt-2">Registrasi Jemaat</button>
                     </form>
                 </div>
             `;
@@ -230,12 +230,12 @@
                 } else {
                     showToast(result.message, "error");
                     btn.disabled = false;
-                    btn.innerHTML = "Daftar Sensus";
+                    btn.innerHTML = "Registrasi Jemaat";
                 }
             } catch (err) {
                 showToast("Kesalahan koneksi.", "error");
                 btn.disabled = false;
-                btn.innerHTML = "Daftar Sensus";
+                btn.innerHTML = "Registrasi Jemaat";
             }
         }
 
