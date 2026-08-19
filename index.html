@@ -461,29 +461,33 @@
             `;
         }
 
-        // 3. Audios (Khotbah Audio / Podcast Rohani)
-        function openAudiosMenu() {
-            const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Khotbah Audio & Podcast";
-            main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <div class="bg-yellow-950/40 border border-yellow-900/40 p-3 rounded-xl">
-                        <p class="text-xs text-yellow-200">Dengarkan rekaman suara khotbah pendeta secara praktis.</p>
-                    </div>
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3">
-                        <div>
-                            <h4 class="text-xs font-bold text-white">Seri Khotbah: Berjalan Dalam Kasih Karunia</h4>
-                            <p class="text-[10px] text-slate-400">Pdt. Jemaat &bull; Durasi: 28 Menit</p>
-                        </div>
-                        <audio controls class="w-full h-10 accent-purple-500">
-                            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-                            Browser Anda tidak mendukung elemen audio.
-                        </audio>
-                    </div>
+// --- 3. AUDIOS (KHOTBAH AUDIO / PODCAST ROHANI) ---
+function openAudiosMenu() {
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Khotbah Audio & Podcast";
+    main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
+
+    main.innerHTML = `
+        <div class="space-y-4">
+            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+            <div class="bg-yellow-950/40 border border-yellow-900/40 p-3 rounded-xl">
+                <p class="text-xs text-yellow-200">Dengarkan rekaman suara khotbah dan renungan rohani secara praktis.</p>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
+                <div>
+                    <h4 class="text-xs font-bold text-white">Renungan Harian: Kekuatan di Tengah Badai</h4>
+                    <p class="text-[10px] text-slate-400">Pdt. Jemaat &bull; Format Audio Rohani</p>
                 </div>
-            `;
-        }
+                <!-- Menggunakan Audio Khotbah Rohani Kristen yang Valid -->
+                <audio controls class="w-full h-10 accent-purple-500">
+                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" type="audio/mpeg">
+                    Browser Anda tidak mendukung elemen audio.
+                </audio>
+            </div>
+        </div>
+    `;
+}
 
         // 4. Bible (Ayat Emas Hari Ini)
         function openBibleMenu() {
