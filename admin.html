@@ -11,18 +11,18 @@
     <!-- Container Admin -->
     <div id="adminApp" class="max-w-4xl mx-auto p-4 min-h-screen flex flex-col">
         
-<!-- HEADER ADMIN YANG DIPERBARUI -->
-<header class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center shadow-md mb-6">
-    <div class="flex items-center gap-3">
-        <!-- Tombol kembali ke halaman jemaat -->
-        <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg text-xs transition" title="Kembali ke Aplikasi Jemaat">🏠 Jemaat</a>
-        <div>
-            <h1 class="font-bold text-sm">Panel Pengurus</h1>
-            <p id="adminInfo" class="text-[10px] text-slate-400">Silakan login</p>
-        </div>
-    </div>
-    <button id="logoutBtn" onclick="adminLogout()" class="hidden bg-rose-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-rose-700 transition">Keluar</button>
-</header>
+        <!-- HEADER ADMIN YANG DIPERBARUI -->
+        <header class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center shadow-md mb-6">
+            <div class="flex items-center gap-3">
+                <!-- Tombol kembali ke halaman jemaat -->
+                <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg text-xs transition" title="Kembali ke Aplikasi Jemaat">🏠 Jemaat</a>
+                <div>
+                    <h1 class="font-bold text-sm">Panel Pengurus</h1>
+                    <p id="adminInfo" class="text-[10px] text-slate-400">Silakan login</p>
+                </div>
+            </div>
+            <button id="logoutBtn" onclick="adminLogout()" class="hidden bg-rose-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-rose-700 transition">Keluar</button>
+        </header>
 
         <!-- KONTEN UTAMA ADMIN -->
         <main class="flex-1 flex flex-col">
@@ -92,20 +92,25 @@
 
         // --- 2. DASHBOARD ADMIN ---
         function renderAdminDashboard(admin) {
-            document.getElementById("adminInfoinnerText") = `Login sebagai: ${admin.nama} (${admin.role})`;
+            document.getElementById("adminInfo").innerText = `Login: ${admin.nama} (${admin.role})`;
             document.getElementById("logoutBtn").classList.remove("hidden");
             
             const main = document.querySelector("main");
             main.innerHTML = `
                 <div class="space-y-6">
-                    <div class="grid grid-cols-2 gap-4">
+                    <!-- Menu Grid Admin -->
+                    <div class="grid grid-cols-3 gap-4">
                         <button onclick="loadSensusData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
-                            <h3 class="font-bold text-sm text-slate-900">👥 Data Sensus Jemaat</h3>
-                            <p class="text-xs text-slate-500 mt-1">Lihat daftar seluruh jemaat terdaftar.</p>
+                            <h3 class="font-bold text-sm text-slate-900">👥 Data Sensus</h3>
+                            <p class="text-xs text-slate-500 mt-1">Lihat daftar jemaat.</p>
                         </button>
                         <button onclick="loadPrayerData('${admin.id}')" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
-                            <h3 class="font-bold text-sm text-slate-900">🙏 Moderasi Kotak Doa</h3>
-                            <p class="text-xs text-slate-500 mt-1">Perbarui status permohonan doa jemaat.</p>
+                            <h3 class="font-bold text-sm text-slate-900">🙏 Kotak Doa</h3>
+                            <p class="text-xs text-slate-500 mt-1">Moderasi doa jemaat.</p>
+                        </button>
+                        <button onclick="loadEventForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                            <h3 class="font-bold text-sm text-slate-900">📅 Kelola Kegiatan</h3>
+                            <p class="text-xs text-slate-500 mt-1">Tambah jadwal acara.</p>
                         </button>
                     </div>
 
@@ -115,21 +120,13 @@
                 </div>
             `;
         }
-<!-- Tambahkan tombol menu ini di Dashboard Admin (admin.html) -->
-<button onclick="loadEventForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
-    <h3 class="font-bold text-sm text-slate-900">📅 Kelola & Tambah Kegiatan</h3>
-    <p class="text-xs text-slate-500 mt-1">Input jadwal kegiatan baru untuk jemaat.</p>
-</button>
+
         // --- 3. AMBIL & TAMPILKAN DATA SENSUS ---
         async function loadSensusData() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat data jemaat...</p>`;
 
             try {
-                // Karena Apps Script doGet dengan action khusus, kita bisa panggil via fetch GET atau tambahkan penanganan
-                const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`); // (Opsional jika doGet di GAS disesuaikan, atau gunakan POST)
-                // Untuk amannya, kita bisa buat endpoint POST atau sesuaikan doGet. 
-                // Mari kita gunakan tampilan placeholder tabel:
                 area.innerHTML = `
                     <h3 class="font-bold text-sm mb-4">Daftar Sensus Jemaat</h3>
                     <p class="text-xs text-slate-500 mb-2">Data jemaat langsung tersinkronisasi dari Google Sheets tab 'Users'.</p>
@@ -154,69 +151,71 @@
             }
         }
 
-        // --- 4. LOGOUT ADMIN ---
+        // --- 4. FORM KELOLA KEGIATAN ---
+        function loadEventForm() {
+            const area = document.getElementById("adminContentArea");
+            area.innerHTML = `
+                <h3 class="font-bold text-sm mb-4 text-slate-900">Tambah Agenda Kegiatan Baru</h3>
+                <form onsubmit="handleSaveEvent(event)" class="space-y-3 max-w-lg">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Kegiatan / Acara</label>
+                        <input type="text" id="evNama" required placeholder="Cth: Perayaan Natal Rayon 2" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
+                            <input type="date" id="evTanggal" required class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Waktu</label>
+                            <input type="text" id="evWaktu" placeholder="Cth: 18.30 WITA" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Lokasi / Tempat</label>
+                        <input type="text" id="evLokasi" placeholder="Cth: Gedung Gereja Induk" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Tambahan</label>
+                        <textarea id="evKet" rows="3" placeholder="Catatan atau dresscode jika ada..." class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none"></textarea>
+                    </div>
+                    <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan Kegiatan</button>
+                </form>
+            `;
+        }
+
+        async function handleSaveEvent(e) {
+            e.preventDefault();
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const data = {
+                action: "addEvent",
+                admin_id: admin.id,
+                nama_kegiatan: document.getElementById("evNama").value,
+                tanggal: document.getElementById("evTanggal").value,
+                waktu: document.getElementById("evWaktu").value,
+                lokasi: document.getElementById("evLokasi").value,
+                keterangan: document.getElementById("evKet").value
+            };
+
+            alert("Menyimpan kegiatan...");
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                alert(result.message);
+                loadEventForm(); // Reset form
+            } catch (err) {
+                alert("Gagal menyimpan kegiatan: " + err);
+            }
+        }
+
+        // --- 5. LOGOUT ADMIN ---
         function adminLogout() {
             sessionStorage.removeItem("admin_gereja");
             window.location.reload();
         }
-        function loadEventForm() {
-    const area = document.getElementById("adminContentArea");
-    area.innerHTML = `
-        <h3 class="font-bold text-sm mb-4 text-slate-900">Tambah Agenda Kegiatan Baru</h3>
-        <form onsubmit="handleSaveEvent(event)" class="space-y-3 max-w-lg">
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Kegiatan / Acara</label>
-                <input type="text" id="evNama" required placeholder="Cth: Perayaan Natal Rayon 2" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-            </div>
-            <div class="flex gap-2">
-                <div class="flex-1">
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
-                    <input type="date" id="evTanggal" required class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-                </div>
-                <div class="flex-1">
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Waktu</label>
-                    <input type="text" id="evWaktu" placeholder="Cth: 18.30 WITA" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Lokasi / Tempat</label>
-                <input type="text" id="evLokasi" placeholder="Cth: Gedung Gereja Induk" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Tambahan</label>
-                <textarea id="evKet" rows="3" placeholder="Catatan atau dresscode jika ada..." class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none"></textarea>
-            </div>
-            <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan Kegiatan</button>
-        </form>
-    `;
-}
-
-async function handleSaveEvent(e) {
-    e.preventDefault();
-    const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
-    const data = {
-        action: "addEvent",
-        admin_id: admin.id,
-        nama_kegiatan: document.getElementById("evNama").value,
-        tanggal: document.getElementById("evTanggal").value,
-        waktu: document.getElementById("evWaktu").value,
-        lokasi: document.getElementById("evLokasi").value,
-        keterangan: document.getElementById("evKet").value
-    };
-
-    alert("Menyimpan kegiatan...");
-    try {
-        const res = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify(data)
-        });
-        const result = await res.json();
-        alert(result.message);
-        loadEventForm(); // Reset form
-    } catch (err) {
-        alert("Gagal menyimpan kegiatan: " + err);
-    }
-}
     </script>
 </body>
 </html>
