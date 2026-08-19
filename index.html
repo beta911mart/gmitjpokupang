@@ -274,10 +274,11 @@
                                 <div class="w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📖</div>
                                 <span class="text-[11px] text-slate-300 font-medium">Alkitab & KJ</span>
                             </div>
-                            <div onclick="showToast('Menu Events')" class="cursor-pointer flex flex-col items-center">
-                                <div class="w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📅</div>
-                                <span class="text-[11px] text-slate-300 font-medium">Events</span>
-                            </div>
+// Ganti ikon di menu grid home:
+<div onclick="openEventsList()" class="cursor-pointer flex flex-col items-center">
+    <div class="w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📅</div>
+    <span class="text-[11px] text-slate-300 font-medium">Kegiatan</span>
+</div>
                             <div onclick="showToast('Menu Inbox')" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">✉️</div>
                                 <span class="text-[11px] text-slate-300 font-medium">Inbox</span>
@@ -674,6 +675,54 @@ async function fetchBibleVerse() {
             );
             renderHymnsList(filtered);
         }
+        // --- HALAMAN DAFTAR KEGIATAN JEMAAT ---
+async function openEventsList() {
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Agenda & Kegiatan Gereja";
+    main.className = "flex-1 p-4 overflow-y-auto pb-24 animate-fade-in";
+
+    main.innerHTML = `
+        <div class="space-y-4">
+            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+            <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
+                <p class="text-xs text-purple-200">Jadwal kegiatan rutin, ibadah kategorial, dan acara khusus gereja.</p>
+            </div>
+            
+            <div id="eventsContainer" class="space-y-3">
+                <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat jadwal kegiatan...</p>
+            </div>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=getEvents`);
+        const result = await response.json();
+        
+        const container = document.getElementById("eventsContainer");
+        const events = result.events || [];
+
+        if (events.length === 0) {
+            container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada agenda kegiatan yang diunggah.</p>`;
+            return;
+        }
+
+        container.innerHTML = events.map(ev => `
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-sm">
+                <div class="flex justify-between items-start">
+                    <h4 class="text-xs font-bold text-white">${ev.nama_kegiatan}</h4>
+                    <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md">${ev.waktu || 'Sesuai Jadwal'}</span>
+                </div>
+                <div class="text-[11px] text-slate-400 space-y-1">
+                    <p>📅 ${ev.tanggal} &bull; 📍 ${ev.lokasi}</p>
+                    ${ev.keterangan ? `<p class="text-slate-300 italic pt-1 border-t border-slate-800">${ev.keterangan}</p>` : ''}
+                </div>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        document.getElementById("eventsContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data kegiatan.</p>`;
+    }
+}
     </script>
 </body>
 </html>
