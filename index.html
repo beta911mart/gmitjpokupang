@@ -693,24 +693,45 @@
             `;
         }
 
-        function openVideosMenu() {
-            const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Kanal Youtube JPO";
-            main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <div class="bg-sky-950/40 border border-sky-900/40 p-3 rounded-xl">
-                        <p class="text-xs text-sky-200">Video kegiatan / aktifitas Gereja dan Jemaat.</p>
-                    </div>
-                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl space-y-2">
-                        <h4 class="text-xs font-bold text-white">Ibadah Minggu Pagi - Pniel Oebobo</h4>
-                        <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
-                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video" frameborder="0" allowfullscreen></iframe>
-                        </div>
+function openVideosMenu() {
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Kanal Youtube JPO";
+    main.innerHTML = `
+        <div class="space-y-4">
+            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+            
+            <div class="bg-sky-950/40 border border-sky-900/40 p-3 rounded-xl mb-4">
+                <p class="text-xs text-sky-200">Video kegiatan / aktifitas Gereja dan Jemaat.</p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4">
+                <!-- 1. Siaran Langsung (Otomatis) -->
+                <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2">
+                    <h4 class="text-xs font-bold text-white">🔴 Siaran Langsung (Live)</h4>
+                    <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/live_stream?channel=UCZ3-3qhAyR8mDb6VTeJOXtA" title="Live Stream" frameborder="0" allowfullscreen></iframe>
                     </div>
                 </div>
-            `;
-        }
+
+                <!-- 2. Video Ibadah Pilihan -->
+                <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2">
+                    <h4 class="text-xs font-bold text-white">Ibadah Minggu Pagi - Pniel Oebobo</h4>
+                    <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/crC4ssoP9SI" title="YouTube video" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+
+                <!-- 3. Shorts (Format Vertikal) -->
+                <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 flex flex-col items-center">
+                    <h4 class="text-xs font-bold text-white w-full">📱 Cuplikan Singkat (Shorts)</h4>
+                    <div class="relative w-[250px] aspect-[9/16] rounded-lg overflow-hidden bg-black">
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/zFOv9Gy7Q7w" title="YouTube Shorts" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
 
         function openAudiosMenu() {
             const main = document.querySelector("main");
