@@ -1456,6 +1456,12 @@ function openVideosMenu() {
                 btn.innerText = "Kirim Konfirmasi";
             }
         }
+        // --- INISIALISASI SAAT HALAMAN DIMUAT ---
+        document.addEventListener("DOMContentLoaded", () => {
+            updateNetworkStatus();
+            switchTab('home'); // Menampilkan menu utama
+            checkPushNotification();
+        });
     </script>
 </body>
 </html>
