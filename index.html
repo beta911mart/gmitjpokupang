@@ -87,7 +87,7 @@
 
         function showToast(message, type = "success") {
             const container = document.getElementById("toastContainer");
-            container.innerHTML = ""; // Bersihkan toast sebelumnya agar tidak menumpuk
+            container.innerHTML = ""; 
             
             const toast = document.createElement("div");
             const bgColor = type === "success" ? "bg-emerald-600 shadow-emerald-900/50" : "bg-rose-600 shadow-rose-900/50";
@@ -179,6 +179,8 @@
         }
 
         function renderAuthPageForAction(callbackOnSuccess) {
+            window.pendingAuthAction = callbackOnSuccess; // Disimpan di memori global agar HTML tidak error membaca script
+
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Autentikasi Jemaat 🔐";
             
@@ -195,7 +197,8 @@
                         <button id="tabRegBtn" onclick="toggleAuthTab('register')" class="flex-1 pb-2 text-slate-500 text-xs">Daftar Baru</button>
                     </div>
 
-                    <form id="formLogin" onsubmit="handleLoginForAction(event, ${callbackOnSuccess})" class="space-y-4">
+                    <!-- Panggilan fungsi dimodifikasi agar bersih dari inner function yang merusak format HTML -->
+                    <form id="formLogin" onsubmit="handleLoginForAction(event)" class="space-y-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
                             <input type="text" id="loginNama" required placeholder="Contoh: Budi Santoso" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none focus:border-purple-500">
@@ -207,7 +210,7 @@
                         <button type="submit" id="btnLoginSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition">Masuk & Lanjutkan</button>
                     </form>
 
-                    <form id="formRegister" onsubmit="handleRegisterForAction(event, ${callbackOnSuccess})" class="space-y-3 hidden">
+                    <form id="formRegister" onsubmit="handleRegisterForAction(event)" class="space-y-3 hidden">
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
                             <input type="text" id="regNama" required class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
@@ -269,10 +272,14 @@
             }
         }
 
-        async function handleLoginForAction(e, callback) {
+        async function handleLoginForAction(e) {
             e.preventDefault();
+            const btn = document.getElementById("btnLoginSubmit");
             const nama = document.getElementById("loginNama").value;
             const pin = document.getElementById("loginPin").value;
+
+            btn.disabled = true;
+            btn.innerHTML = "Memproses...";
 
             try {
                 const response = await fetch(SCRIPT_URL, {
@@ -285,17 +292,29 @@
                     showToast("Login Berhasil!");
                     localStorage.setItem("user_gereja", JSON.stringify(result.user));
                     window.currentUser = result.user;
-                    if (typeof callback === 'function') callback();
+                    
+                    // Panggil fungsi callback jika ada
+                    if (typeof window.pendingAuthAction === 'function') {
+                        window.pendingAuthAction();
+                        window.pendingAuthAction = null;
+                    } else {
+                        switchTab('home');
+                    }
                 } else {
                     showToast(result.message, "error");
+                    btn.disabled = false;
+                    btn.innerHTML = "Masuk & Lanjutkan";
                 }
             } catch (err) {
                 showToast("Kesalahan koneksi.", "error");
+                btn.disabled = false;
+                btn.innerHTML = "Masuk & Lanjutkan";
             }
         }
 
-        async function handleRegisterForAction(e, callback) {
+        async function handleRegisterForAction(e) {
             e.preventDefault();
+            const btn = document.getElementById("btnRegSubmit");
             const data = {
                 action: "register",
                 nama_lengkap: document.getElementById("regNama").value,
@@ -306,6 +325,9 @@
                 rayon: document.getElementById("regRayon").value,
                 no_whatsapp: document.getElementById("regWa").value
             };
+
+            btn.disabled = true;
+            btn.innerHTML = "Mendaftarkan...";
 
             try {
                 const response = await fetch(SCRIPT_URL, {
@@ -318,12 +340,23 @@
                     showToast("Registrasi Berhasil!");
                     localStorage.setItem("user_gereja", JSON.stringify(result.user));
                     window.currentUser = result.user;
-                    if (typeof callback === 'function') callback();
+
+                    // Panggil fungsi callback jika ada
+                    if (typeof window.pendingAuthAction === 'function') {
+                        window.pendingAuthAction();
+                        window.pendingAuthAction = null;
+                    } else {
+                        switchTab('home');
+                    }
                 } else {
                     showToast(result.message, "error");
+                    btn.disabled = false;
+                    btn.innerHTML = "Daftar & Lanjutkan";
                 }
             } catch (err) {
                 showToast("Kesalahan koneksi.", "error");
+                btn.disabled = false;
+                btn.innerHTML = "Daftar & Lanjutkan";
             }
         }
 
@@ -452,11 +485,16 @@
                     if (!isExtendedFilled) {
                         openExtendedProfileForm(false);
                     } else {
+                        // Tampilkan Foto Profil jika ada
+                        const profileImageHtml = user.foto_profil 
+                            ? `<img src="${user.foto_profil}" class="w-full h-full object-cover">`
+                            : `${user.nama_lengkap.charAt(0)}`;
+
                         main.innerHTML = `
                             <div class="space-y-6 pt-2 animate-fade-in">
                                 <div class="text-center space-y-2">
-                                    <div class="w-20 h-20 bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full mx-auto shadow-inner">
-                                        ${user.nama_lengkap.charAt(0)}
+                                    <div class="w-20 h-20 bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full mx-auto shadow-inner border border-purple-800 overflow-hidden">
+                                        ${profileImageHtml}
                                     </div>
                                     <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
                                     <p class="text-xs text-purple-400 font-medium">${user.status_pelayanan || 'Jemaat'}</p>
@@ -490,7 +528,7 @@
                                 </div>
 
                                 <div class="space-y-2">
-                                    <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-xs shadow-md hover:bg-purple-700 transition">Perbarui Data Diri ✏️</button>
+                                    <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-xs shadow-md hover:bg-purple-700 transition">Perbarui Data Diri & Foto ✏️</button>
                                     <button onclick="logout()" class="w-full bg-rose-950/50 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs hover:bg-rose-900/50 transition">Keluar (Logout)</button>
                                     <a href="admin.html" class="block text-center text-[11px] text-slate-500 hover:text-purple-400 pt-2 transition">
                                         🔒 Masuk ke Panel Pengurus Gereja
@@ -815,6 +853,22 @@
             `;
         }
 
+        // --- FUNGSI PREVIEW GAMBAR SEBELUM DISIMPAN ---
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgPreview = document.getElementById('previewFoto');
+                    imgPreview.src = e.target.result;
+                    imgPreview.classList.remove('hidden');
+                    imgPreview.nextElementSibling.classList.add('hidden'); // Sembunyikan icon fallback
+                    document.getElementById('fotoBase64').value = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
         function openExtendedProfileForm(isEditing = false) {
             const main = document.querySelector("main");
             const user = window.currentUser || {};
@@ -826,7 +880,22 @@
                     <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
                         <p class="text-xs text-purple-200">Silakan lengkapi informasi tambahan di bawah ini untuk pendataan sensus gereja.</p>
                     </div>
-                    <form onsubmit="handleSaveExtendedProfile(event)" class="space-y-3">
+                    <form onsubmit="handleSaveExtendedProfile(event)" class="space-y-4">
+                        
+                        <!-- FITUR UPLOAD FOTO PROFIL (OPSIONAL) -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-2">Foto Profil (Opsional)</label>
+                            <div class="flex items-center gap-3">
+                                <div class="w-14 h-14 bg-slate-800 rounded-full overflow-hidden flex items-center justify-center border border-slate-700 shadow-inner">
+                                    <img id="previewFoto" src="${user.foto_profil || ''}" class="w-full h-full object-cover ${user.foto_profil ? '' : 'hidden'}" alt="Foto">
+                                    <span class="text-2xl text-slate-500 ${user.foto_profil ? 'hidden' : ''}">👤</span>
+                                </div>
+                                <input type="file" id="extFoto" accept="image/*" onchange="previewImage(event)" class="text-[10px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-purple-900/50 file:text-purple-300 hover:file:bg-purple-900 transition outline-none cursor-pointer">
+                            </div>
+                            <!-- Input tersembunyi untuk menampung string base64 gambar -->
+                            <input type="hidden" id="fotoBase64" value="${user.foto_profil || ''}">
+                        </div>
+
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Alamat Domisili Lengkap</label>
                             <textarea id="extAlamat" rows="2" required placeholder="Nama Jalan, No. Rumah..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">${user.alamat || ''}</textarea>
@@ -839,13 +908,20 @@
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Golongan Darah</label>
                             <select id="extGoldar" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                                 <option value="-" ${user.golongan_darah === '-' ? 'selected' : ''}>Pilih Golongan Darah</option>
-                                <option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option>
+                                <option value="A" ${user.golongan_darah === 'A' ? 'selected' : ''}>A</option>
+                                <option value="B" ${user.golongan_darah === 'B' ? 'selected' : ''}>B</option>
+                                <option value="AB" ${user.golongan_darah === 'AB' ? 'selected' : ''}>AB</option>
+                                <option value="O" ${user.golongan_darah === 'O' ? 'selected' : ''}>O</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Minat Pelayanan / Komisi</label>
                             <select id="extKomisi" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                <option value="Umum">Jemaat Umum</option><option value="PW">Perempuan / Wanita (PW)</option><option value="PKB">Kaum Bapak (PKB)</option><option value="Pemuda/Remaja">Pemuda & Remaja</option><option value="Sekolah Minggu">Sekolah Minggu</option>
+                                <option value="Umum" ${user.minat_pelayanan === 'Umum' ? 'selected' : ''}>Jemaat Umum</option>
+                                <option value="PW" ${user.minat_pelayanan === 'PW' ? 'selected' : ''}>Perempuan / Wanita (PW)</option>
+                                <option value="PKB" ${user.minat_pelayanan === 'PKB' ? 'selected' : ''}>Kaum Bapak (PKB)</option>
+                                <option value="Pemuda/Remaja" ${user.minat_pelayanan === 'Pemuda/Remaja' ? 'selected' : ''}>Pemuda & Remaja</option>
+                                <option value="Sekolah Minggu" ${user.minat_pelayanan === 'Sekolah Minggu' ? 'selected' : ''}>Sekolah Minggu</option>
                             </select>
                         </div>
                         <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition mt-2">Simpan Data Lanjutan</button>
@@ -856,13 +932,19 @@
 
         async function handleSaveExtendedProfile(e) {
             e.preventDefault();
+            const btn = e.target.querySelector("button[type='submit']");
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "Menyimpan Data...";
+
             const updatedData = {
                 action: "updateExtendedProfile",
                 user_id: window.currentUser.id,
                 alamat: document.getElementById("extAlamat").value,
                 pekerjaan: document.getElementById("extPekerjaan").value,
                 golongan_darah: document.getElementById("extGoldar").value,
-                minat_pelayanan: document.getElementById("extKomisi").value
+                minat_pelayanan: document.getElementById("extKomisi").value,
+                foto_profil: document.getElementById("fotoBase64").value // Simpan string gambar
             };
 
             try {
@@ -877,20 +959,30 @@
                     window.currentUser.pekerjaan = updatedData.pekerjaan;
                     window.currentUser.golongan_darah = updatedData.golongan_darah;
                     window.currentUser.minat_pelayanan = updatedData.minat_pelayanan;
+                    window.currentUser.foto_profil = updatedData.foto_profil;
+                    
                     localStorage.setItem("user_gereja", JSON.stringify(window.currentUser));
 
                     showToast("Data diri berhasil disimpan!");
                     setTimeout(() => switchTab('profil'), 800);
                 } else {
                     showToast(result.message, "error");
+                    btn.disabled = false;
+                    btn.innerText = originalText;
                 }
             } catch (err) {
                 showToast("Kesalahan koneksi.", "error");
+                btn.disabled = false;
+                btn.innerText = originalText;
             }
         }
 
         async function handleSendPrayer(e) {
             e.preventDefault();
+            const btn = document.getElementById("btnPrayerSubmit");
+            btn.disabled = true;
+            btn.innerText = "Mengirim...";
+
             const data = {
                 action: "addPrayer",
                 user_id: window.currentUser.id,
@@ -910,6 +1002,8 @@
                 if (result.status === "success") switchTab('home');
             } catch (err) {
                 showToast("Gagal mengirim doa.", "error");
+                btn.disabled = false;
+                btn.innerText = "Kirim Doa";
             }
         }
 
@@ -1047,19 +1141,31 @@
                 const result = await response.json();
                 const container = document.getElementById("birthdayContainer");
                 const list = result.birthdays || [];
+                
                 if (list.length === 0) {
                     container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Tidak ada jemaat yang berulang tahun hari ini.</p>`;
                     return;
                 }
-                container.innerHTML = list.map(b => `
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
-                        <div>
-                            <h4 class="text-xs font-bold text-white">${b.nama_lengkap}</h4>
-                            <p class="text-[11px] text-slate-400">Lingkungan ${b.lingkungan} &bull; Rayon ${b.rayon}</p>
+                
+                // Jika data yang berulang tahun ada, render foto profil masing-masing jemaat (opsional)
+                container.innerHTML = list.map(b => {
+                    const avatarPhoto = b.foto_profil 
+                        ? `<img src="${b.foto_profil}" class="w-10 h-10 object-cover rounded-full border border-slate-700 shadow-sm" alt="Foto Profil">` 
+                        : `<div class="w-10 h-10 bg-purple-900/60 text-purple-300 font-bold flex items-center justify-center rounded-full border border-purple-800 text-sm">${b.nama_lengkap.charAt(0)}</div>`;
+
+                    return `
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                ${avatarPhoto}
+                                <div>
+                                    <h4 class="text-xs font-bold text-white">${b.nama_lengkap}</h4>
+                                    <p class="text-[11px] text-slate-400">Lingkungan ${b.lingkungan} &bull; Rayon ${b.rayon}</p>
+                                </div>
+                            </div>
+                            <a href="https://api.whatsapp.com/send?phone=${b.no_whatsapp}&text=Syalom%20${encodeURIComponent(b.nama_lengkap)},%20Selamat%20Ulang%20Tahun!" target="_blank" class="bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md">💬 Ucapan</a>
                         </div>
-                        <a href="https://api.whatsapp.com/send?phone=${b.no_whatsapp}&text=Syalom%20${encodeURIComponent(b.nama_lengkap)},%20Selamat%20Ulang%20Tahun!" target="_blank" class="bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-semibold">💬 Ucapan</a>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (err) {
                 document.getElementById("birthdayContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data ulang tahun.</p>`;
             }
@@ -1159,6 +1265,10 @@
 
         async function handleSendDonation(e) {
             e.preventDefault();
+            const btn = e.target.querySelector("button[type='submit']");
+            btn.disabled = true;
+            btn.innerText = "Memproses...";
+
             const user = window.currentUser;
             const nameOption = document.getElementById("donNameOption").value;
             let finalName = nameOption === 'initial' ? user.nama_lengkap.charAt(0) + '***' : user.nama_lengkap;
@@ -1180,9 +1290,16 @@
                 });
                 const result = await response.json();
                 showToast(result.message);
-                if (result.status === "success") openDonationList();
+                if (result.status === "success") {
+                    openDonationList();
+                } else {
+                    btn.disabled = false;
+                    btn.innerText = "Kirim Konfirmasi";
+                }
             } catch (err) {
                 showToast("Gagal mengirim donasi.", "error");
+                btn.disabled = false;
+                btn.innerText = "Kirim Konfirmasi";
             }
         }
     </script>
