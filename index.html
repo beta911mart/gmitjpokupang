@@ -1222,7 +1222,8 @@ function previewImage(event) {
                 container.innerHTML = events.map(ev => `
                     <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
                         <h4 class="text-xs font-bold text-white">${ev.nama_kegiatan}</h4>
-                        <p class="text-[11px] text-slate-400">📅 ${ev.tanggal} &bull; 📍 ${ev.lokasi}</p>
+                        <p class="text-[11px] text-slate-400">📅 ${ev.tanggal} ${ev.waktu ? '&bull; ⏰ ' + ev.waktu : ''} &bull; 📍 ${ev.lokasi || 'Gereja'}</p>
+                        ${ev.keterangan ? `<p class="text-[12px] text-slate-300 italic pt-1 border-t border-slate-800/60">${ev.keterangan}</p>` : ''}
                     </div>
                 `).join('');
             } catch (err) {
