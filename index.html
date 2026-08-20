@@ -20,6 +20,20 @@
 </head>
 <body id="appBody" class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0">
 
+    <!-- PUSH NOTIFICATION POPUP (URGENT/WARNING) -->
+    <div id="pushNotifOverlay" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-slate-900 border-2 border-amber-500 rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.3)] p-6 max-w-xs w-full animate-slide-in relative">
+            <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-900 text-3xl rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-4 border-slate-900">
+                ⚠️
+            </div>
+            <h3 class="font-bold text-amber-400 text-center mt-5 mb-3 uppercase tracking-wider text-sm">Informasi Penting</h3>
+            <p id="pushNotifMessage" class="text-xs text-slate-200 text-center mb-6 leading-relaxed whitespace-pre-line"></p>
+            <button onclick="closePushNotif()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 rounded-xl text-sm transition shadow-md">
+                Mengerti & Tutup
+            </button>
+        </div>
+    </div>
+
     <!-- TOAST NOTIFICATION DI TENGAH LAYAR -->
     <div id="toastContainer" class="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"></div>
 
@@ -104,6 +118,31 @@
             }, 3000);
         }
 
+        // --- FITUR PUSH NOTIFIKASI ---
+        async function checkPushNotification() {
+            // Cek apakah user sudah melihat notifikasi di sesi ini
+            if (sessionStorage.getItem('notif_seen') === 'true') return;
+
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getNotification`);
+                const result = await response.json();
+                
+                if (result.status === 'success' && result.data.is_active) {
+                    document.getElementById('pushNotifMessage').innerText = result.data.message;
+                    document.getElementById('pushNotifOverlay').classList.remove('hidden');
+                    
+                    // Tandai bahwa notifikasi sudah dilihat di sesi ini
+                    sessionStorage.setItem('notif_seen', 'true');
+                }
+            } catch (err) {
+                console.log("Gagal memuat notifikasi", err);
+            }
+        }
+
+        function closePushNotif() {
+            document.getElementById('pushNotifOverlay').classList.add('hidden');
+        }
+
         // --- MONITORING STATUS ONLINE/OFFLINE ---
         function updateNetworkStatus() {
             const dot = document.getElementById("syncDot");
@@ -164,6 +203,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             updateNetworkStatus();
             switchTab('home');
+            checkPushNotification(); // Panggil notifikasi saat web selesai dimuat
         });
 
         // --- AUTH UNTUK POST ACTION (DOPOST) ---
