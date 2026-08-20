@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin - Gereja Digital</title>
+    <title>Panel Admin - JPO Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
@@ -96,7 +96,7 @@
             main.innerHTML = `
                 <div class="space-y-6">
                     <!-- Menu Grid Admin -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                         <button onclick="loadSensusData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
                             <h3 class="font-bold text-xs text-slate-900">👥 Data Jemaat</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Daftar sensus jemaat.</p>
@@ -112,6 +112,10 @@
                         <button onclick="loadEventForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
                             <h3 class="font-bold text-xs text-slate-900">📅 Kelola Kegiatan</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Tambah jadwal acara.</p>
+                        </button>
+                        <button onclick="loadNotificationAdmin()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                            <h3 class="font-bold text-xs text-slate-900">📢 Push Notif</h3>
+                            <p class="text-[11px] text-slate-500 mt-1">Kelola popup peringatan.</p>
                         </button>
                     </div>
 
@@ -405,6 +409,67 @@
                 loadEventForm();
             } catch (err) {
                 alert("Gagal menyimpan kegiatan: " + err);
+            }
+        }
+
+        // --- FUNGSI KELOLA NOTIFIKASI PUSH ---
+        async function loadNotificationAdmin() {
+            const area = document.getElementById("adminContentArea");
+            area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat pengaturan notifikasi...</p>`;
+
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getNotification`);
+                const result = await res.json();
+                const notif = result.data || { is_active: false, message: "" };
+
+                area.innerHTML = `
+                    <h3 class="font-bold text-sm mb-4 text-slate-900">Pengaturan Notifikasi Melayang (PopUp)</h3>
+                    <form onsubmit="handleSaveNotification(event)" class="space-y-4 max-w-lg">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Status Notifikasi</label>
+                            <select id="notifStatus" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
+                                <option value="true" ${notif.is_active ? 'selected' : ''}>Aktif (Tampilkan ke Jemaat)</option>
+                                <option value="false" ${!notif.is_active ? 'selected' : ''}>Non-aktif (Sembunyikan)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Pesan / Isi Notifikasi</label>
+                            <textarea id="notifMessage" rows="4" required class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none placeholder-slate-400" placeholder="Contoh: Tersedia kotak persembahan khusus Dukungan korban bencana alam...">${notif.message}</textarea>
+                        </div>
+                        <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm">Simpan & Terapkan</button>
+                    </form>
+                `;
+            } catch (err) {
+                area.innerHTML = `<p class="text-center text-rose-500 text-sm py-10">Gagal memuat pengaturan notifikasi.</p>`;
+            }
+        }
+
+        async function handleSaveNotification(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector("button[type='submit']");
+            btn.disabled = true;
+            btn.innerText = "Menyimpan...";
+
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const data = {
+                action: "saveNotification",
+                admin_id: admin.id,
+                is_active: document.getElementById("notifStatus").value === "true",
+                message: document.getElementById("notifMessage").value
+            };
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                alert(result.message || "Notifikasi berhasil diperbarui!");
+                loadNotificationAdmin();
+            } catch (err) {
+                alert("Gagal menyimpan notifikasi: " + err);
+                btn.disabled = false;
+                btn.innerText = "Simpan & Terapkan";
             }
         }
 
