@@ -207,9 +207,11 @@
                                     <p class="text-[10px] text-slate-500">Pengirim: <strong>${p.nama_pengirim}</strong> &bull; ${new Date(p.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
                                 </div>
                                 <div>
-                                    ${p.status_approval !== 'Approved' && p.status_privasi === 'Publik' ? `
+                                    ${p.status_approval === 'Approved' ? `
+                                        <button onclick="takedownPrayer('${p.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">Turunkan (Takedown)</button>
+                                    ` : p.status_privasi === 'Publik' ? `
                                         <button onclick="approvePrayer('${p.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">Setujui Tayang</button>
-                                    ` : `<span class="text-[11px] text-slate-400 font-medium">Sudah Ditayangkan / Rahasia</span>`}
+                                    ` : `<span class="text-[11px] text-slate-400 font-medium">Rahasia</span>`}
                                 </div>
                             </div>
                         `).join('')}
@@ -232,6 +234,22 @@
                 loadPrayerData(); // Refresh list
             } catch (err) {
                 alert("Gagal menyetujui doa: " + err);
+            }
+        }
+
+        // --- 4b TAKE DOWN PRAYERS ---
+        async function takedownPrayer(prayerId) {
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "takedownPrayer", prayer_id: prayerId, admin_id: admin.id })
+                });
+                const result = await res.json();
+                alert(result.message || "Doa berhasil diturunkan (takedown).");
+                loadPrayerData(); // Refresh list secara instan
+            } catch (err) {
+                alert("Gagal melakukan takedown doa: " + err);
             }
         }
 
