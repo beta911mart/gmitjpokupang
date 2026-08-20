@@ -408,12 +408,14 @@
             if (tab === 'home') {
                 main.innerHTML = `
                     <div class="space-y-6 pt-2">
-                        <!-- Grid Ikon Bulat Utama -->
-                        <div class="grid grid-cols-4 gap-4 text-center">
-                            <div onclick="openAboutPage()" class="cursor-pointer flex flex-col items-center">
-                                <div class="w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">ℹ️</div>
-                                <span class="text-[11px] text-slate-300 font-medium">Tentang</span>
-                            </div>
+                            <!-- Grid Ikon Bulat Utama -->
+                            <div class="grid grid-cols-4 gap-4 text-center">
+                                <div onclick="openAboutPage()" class="cursor-pointer flex flex-col items-center">
+                                    <div class="w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg mb-1 overflow-hidden">
+                                        <img src="jpo.ico" alt="Tentang JPO" class="w-full h-full object-cover">
+                                    </div>
+                                    <span class="text-[11px] text-slate-300 font-medium">Tentang</span>
+                                </div>
                             <div onclick="openDownloadCenter()" class="cursor-pointer flex flex-col items-center">
                                 <div class="w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-full flex items-center justify-center text-xl shadow-lg mb-1">📥</div>
                                 <span class="text-[11px] text-slate-300 font-medium">Download</span>
