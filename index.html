@@ -104,7 +104,15 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
+// Variabel untuk menyimpan prompt instalasi bawaan browser
+let deferredPrompt;
 
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Mencegah Chrome menampilkan prompt instalasi otomatis secara tiba-tiba
+    e.preventDefault();
+    // Simpan event ke variabel agar bisa dipanggil saat tombol diklik
+    deferredPrompt = e;
+});
         function showToast(message, type = "success") {
             const container = document.getElementById("toastContainer");
             container.innerHTML = ""; 
@@ -198,16 +206,24 @@
             showToast("Tema berhasil diterapkan!");
         }
 
-        function installPWA() {
-            showToast("Gunakan fitur 'Tambahkan ke Beranda' di menu browser Anda.");
-            toggleSidebar(false);
+        async function installPWA() {
+            if (deferredPrompt) {
+                // 1. Munculkan prompt instalasi bawaan browser
+                deferredPrompt.prompt();
+        
+                // 2. Tunggu respons dari user (apakah menekan "Install" atau "Batal")
+                const { outcome } = await deferredPrompt.userChoice;
+        
+                // 3. Prompt hanya bisa dipakai satu kali, jadi harus dikosongkan lagi
+                deferredPrompt = null;
+                toggleSidebar(false);
+            } else {
+                // Fallback: Jika perangkat tidak mendukung (misal: iPhone/Safari) 
+                // atau aplikasi sudah terinstal sebelumnya.
+                showToast("Gunakan menu 'Tambahkan ke Beranda' / 'Add to Home Screen' di pengaturan browser Anda.");
+                toggleSidebar(false);
+            }
         }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            updateNetworkStatus();
-            switchTab('home');
-            checkPushNotification();
-        });
 
         // --- AUTH UNTUK POST ACTION ---
         function checkAuthBeforeAction(actionCallback) {
