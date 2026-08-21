@@ -3,8 +3,8 @@
   "short_name": "JPO Digital",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#2c3e50",
-  "theme_color": "#3498db",
+  "background_color": "#26a1ed",
+  "theme_color": "#5d9bc2",
   "icons": [
     {
       "src": "jpo.png",
