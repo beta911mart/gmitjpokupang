@@ -14,13 +14,13 @@
 
     <div style="font-family: Arial, sans-serif; background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #334155; padding: 24px; border-radius: 16px; max-width: 300px; width: 100%; text-align: center; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.3); box-sizing: border-box;">
         
-        <div style="font-size: 40px; margin-bottom: 10px;">📻</div>
+        <div style="font-size: 40px; margin-bottom: 10px;" id="radioIcon">📻</div>
         <h4 style="margin: 0 0 5px 0; font-size: 16px;">Radio Rohani Kristen</h4>
         <p style="font-size: 11px; color: #94a3b8; margin: 0 0 20px 0;">Streaming Pujian 24 Jam Nonstop</p>
         
-        <!-- MENGGUNAKAN STREAM AUDIO HTTPS YANG STABIL -->
+        <!-- AUDIO ELEMENT DENGAN STREAM HTTPS -->
         <audio id="audioRadio" preload="none">
-            <!-- Contoh Direct Stream MP3 Aman (HTTPS) -->
+            <!-- Pastikan URL ber-HTTPS dan berformat murni audio/mpeg atau audio/aac -->
             <source src="https://phila.streamguys1.com/live" type="audio/mpeg">
             Browser Anda tidak mendukung pemutar audio ini.
         </audio>
@@ -29,37 +29,71 @@
             ▶ PUTAR SIARAN
         </button>
         
-        <p id="statusText" style="font-size: 10px; color: #64748b; margin-top: 15px;"></p>
+        <p id="statusText" style="font-size: 10px; color: #64748b; margin-top: 15px;">Tekan tombol untuk memutar</p>
     </div>
 
 <script>
     const audio = document.getElementById('audioRadio');
     const btn = document.getElementById('btnKontrol');
     const statusText = document.getElementById('statusText');
+    const icon = document.getElementById('radioIcon');
+
+    let isPlaying = false;
 
     btn.addEventListener('click', () => {
-        if (audio.paused) {
-            btn.innerText = "MEMUAT SIARAN...";
-            statusText.innerText = "Menghubungkan ke server...";
+        if (!isPlaying) {
+            btn.innerText = "MENYAMBUNGKAN...";
+            statusText.innerText = "Menguhubungkan ke server siaran...";
+            
+            // Paksa reload source jika macet
+            audio.load();
             
             audio.play()
                 .then(() => { 
+                    isPlaying = true;
                     btn.innerText = "⏸ HENTIKAN SIARAN";
                     btn.style.backgroundColor = "#e11d48";
-                    statusText.innerText = "Sedang Memutar Live Streaming";
+                    statusText.innerText = "🟢 Sedang Memutar Live Streaming";
+                    icon.style.transform = "scale(1.1)";
                 })
                 .catch(err => {
-                    console.error(err);
-                    statusText.innerText = "";
-                    alert("Gagal memuat siaran. Pastikan koneksi internet Anda stabil.");
+                    console.error("Gagal putar:", err);
+                    statusText.innerText = "❌ Gagal memuat siaran.";
+                    alert("Streaming gagal diputar. Server radio mungkin sedang offline atau diblokir jaringan.");
                     btn.innerText = "▶ PUTAR SIARAN";
+                    btn.style.backgroundColor = "#9333ea";
+                    isPlaying = false;
                 });
         } else {
             audio.pause();
+            audio.currentTime = 0; // Reset buffer
+            isPlaying = false;
             btn.innerText = "▶ PUTAR SIARAN";
             btn.style.backgroundColor = "#9333ea";
             statusText.innerText = "Siaran dijeda.";
+            icon.style.transform = "scale(1)";
         }
+    });
+
+    // Menangani jika jaringan terputus di tengah jalan
+    audio.addEventListener('waiting', () => {
+        if(isPlaying) {
+            statusText.innerText = "Buffering / Menunggu sinyal...";
+        }
+    });
+
+    audio.addEventListener('playing', () => {
+        if(isPlaying) {
+            statusText.innerText = "🟢 Sedang Memutar Live Streaming";
+        }
+    });
+
+    audio.addEventListener('error', (e) => {
+        console.error("Error Audio Element:", e);
+        statusText.innerText = "Koneksi stream terputus.";
+        btn.innerText = "▶ PUTAR SIARAN";
+        btn.style.backgroundColor = "#9333ea";
+        isPlaying = false;
     });
 </script>
 
