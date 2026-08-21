@@ -1,6 +1,6 @@
 {
   "name": "GMIT JPO Digital",
-  "short_name": "JPO",
+  "short_name": "JPO Digital",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#2c3e50",
