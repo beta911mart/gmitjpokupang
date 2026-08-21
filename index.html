@@ -117,15 +117,16 @@
                     });
             });
         }
-// Variabel untuk menyimpan prompt instalasi bawaan browser
-let deferredPrompt;
+        
+        // Variabel untuk menyimpan prompt instalasi bawaan browser
+        let deferredPrompt;
 
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Mencegah Chrome menampilkan prompt instalasi otomatis secara tiba-tiba
-    e.preventDefault();
-    // Simpan event ke variabel agar bisa dipanggil saat tombol diklik
-    deferredPrompt = e;
-});
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Mencegah Chrome menampilkan prompt instalasi otomatis secara tiba-tiba
+            e.preventDefault();
+            // Simpan event ke variabel agar bisa dipanggil saat tombol diklik
+            deferredPrompt = e;
+        });
 
         function showToast(message, type = "success") {
             const container = document.getElementById("toastContainer");
@@ -222,18 +223,11 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
         async function installPWA() {
             if (deferredPrompt) {
-                // 1. Munculkan prompt instalasi bawaan browser
                 deferredPrompt.prompt();
-        
-                // 2. Tunggu respons dari user (apakah menekan "Install" atau "Batal")
                 const { outcome } = await deferredPrompt.userChoice;
-        
-                // 3. Prompt hanya bisa dipakai satu kali, jadi harus dikosongkan lagi
                 deferredPrompt = null;
                 toggleSidebar(false);
             } else {
-                // Fallback: Jika perangkat tidak mendukung (misal: iPhone/Safari) 
-                // atau aplikasi sudah terinstal sebelumnya.
                 showToast("Gunakan menu 'Tambahkan ke Beranda' / 'Add to Home Screen' di pengaturan browser Anda.");
                 toggleSidebar(false);
             }
@@ -729,51 +723,45 @@ window.addEventListener('beforeinstallprompt', (e) => {
             `;
         }
 
-function openVideosMenu() {
-    const main = document.querySelector("main");
-    document.getElementById("headerTitle").innerText = "Kanal Youtube JPO";
-    main.innerHTML = `
-        <div class="space-y-4">
-            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-            
-            <!-- Box Informasi + Gambar button.ico untuk Link YouTube -->
-            <div class="bg-sky-950/40 border border-sky-900/40 p-3 rounded-xl mb-4 flex items-center justify-between gap-3">
-                <p class="text-xs text-sky-200">Video kegiatan / aktifitas Gereja dan Jemaat.</p>
-                
-                <!-- Tag <a> membungkus img button.ico -->
-                <a href="https://www.youtube.com/@GMITPNIELOebobo" target="_blank" class="shrink-0 hover:scale-105 transition-transform duration-200">
-                    <img src="button.ico" alt="Buka YouTube" class="h-14 w-auto object-contain">
-                </a>
-            </div>
+        function openVideosMenu() {
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Kanal Youtube JPO";
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    
+                    <div class="bg-sky-950/40 border border-sky-900/40 p-3 rounded-xl mb-4 flex items-center justify-between gap-3">
+                        <p class="text-xs text-sky-200">Video kegiatan / aktifitas Gereja dan Jemaat.</p>
+                        <a href="https://www.youtube.com/@GMITPNIELOebobo" target="_blank" class="shrink-0 hover:scale-105 transition-transform duration-200">
+                            <img src="button.ico" alt="Buka YouTube" class="h-14 w-auto object-contain">
+                        </a>
+                    </div>
 
-            <div class="grid grid-cols-1 gap-4">
-                <!-- 1. Siaran Langsung (Otomatis) -->
-                <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2">
-                    <h4 class="text-xs font-bold text-white">Ekspresif</h4>
-                    <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
-                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/KyYWzaNAZxY?list=PLAxMCJ5BwwFSroLQBQBgRUrrH0GkvU4v6" title="Live Stream" frameborder="0" allowfullscreen></iframe>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2">
+                            <h4 class="text-xs font-bold text-white">Ekspresif</h4>
+                            <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
+                                <iframe class="w-full h-full" src="https://www.youtube.com/embed/KyYWzaNAZxY?list=PLAxMCJ5BwwFSroLQBQBgRUrrH0GkvU4v6" title="Live Stream" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2">
+                            <h4 class="text-xs font-bold text-white">cuplikan Video - Pniel Oebobo</h4>
+                            <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
+                                <iframe class="w-full h-full" src="https://www.youtube.com/embed/crC4ssoP9SI" title="YouTube video" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 flex flex-col items-center">
+                            <h4 class="text-xs font-bold text-white w-full">📱 Cuplikan Singkat (Shorts)</h4>
+                            <div class="relative w-[250px] aspect-[9/16] rounded-lg overflow-hidden bg-black">
+                                <iframe class="w-full h-full" src="https://www.youtube.com/embed/zFOv9Gy7Q7w" title="YouTube Shorts" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- 2. Video Ibadah Pilihan -->
-                <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2">
-                    <h4 class="text-xs font-bold text-white">cuplikan Video - Pniel Oebobo</h4>
-                    <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
-                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/crC4ssoP9SI" title="YouTube video" frameborder="0" allowfullscreen></iframe>
-                    </div>
-                </div>
-
-                <!-- 3. Shorts (Format Vertikal) -->
-                <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 flex flex-col items-center">
-                    <h4 class="text-xs font-bold text-white w-full">📱 Cuplikan Singkat (Shorts)</h4>
-                    <div class="relative w-[250px] aspect-[9/16] rounded-lg overflow-hidden bg-black">
-                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/zFOv9Gy7Q7w" title="YouTube Shorts" frameborder="0" allowfullscreen></iframe>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
+            `;
+        }
 
         function openAudiosMenu() {
             const main = document.querySelector("main");
@@ -1297,6 +1285,25 @@ function openVideosMenu() {
         }
 
         async function openBirthdayList() {
+            // Mengecek apakah user sudah login atau belum di perangkat ini
+            const savedUser = localStorage.getItem("user_gereja");
+            if (!savedUser) {
+                const main = document.querySelector("main");
+                document.getElementById("headerTitle").innerText = "Ulang Tahun Hari Ini";
+                main.innerHTML = `
+                    <div class="space-y-4">
+                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
+                            <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
+                            <button onclick="renderAuthPageForAction(openBirthdayList)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">Login</button>
+                            <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            window.currentUser = JSON.parse(savedUser);
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Ulang Tahun Hari Ini";
             main.innerHTML = `
@@ -1305,6 +1312,7 @@ function openVideosMenu() {
                     <div id="birthdayContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6">Memuat data ulang tahun...</p></div>
                 </div>
             `;
+            
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getBirthdayUsers`);
                 const result = await response.json();
@@ -1340,6 +1348,26 @@ function openVideosMenu() {
         }
 
         async function openPublicPrayerWall() {
+            // Mengecek apakah user sudah login
+            const savedUser = localStorage.getItem("user_gereja");
+            if (!savedUser) {
+                const main = document.querySelector("main");
+                document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
+                main.innerHTML = `
+                    <div class="space-y-4">
+                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
+                            <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
+                            <button onclick="renderAuthPageForAction(openPublicPrayerWall)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">Login</button>
+                            <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            window.currentUser = JSON.parse(savedUser);
+            const user = window.currentUser;
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
             main.innerHTML = `
@@ -1348,20 +1376,37 @@ function openVideosMenu() {
                     <div id="publicPrayerContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6">Memuat dinding doa...</p></div>
                 </div>
             `;
+            
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getPrayers`);
                 const result = await response.json();
                 const container = document.getElementById("publicPrayerContainer");
                 const prayers = result.prayers || [];
+                
                 if (prayers.length === 0) {
                     container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada pokok doa publik.</p>`;
                     return;
                 }
+
+                // Cek status user untuk hak membalas doa
+                const isPengurus = ['Pendeta', 'Majelis', 'Admin', 'Sekretariat'].includes(user.status_pelayanan);
+
                 container.innerHTML = prayers.map(p => `
                     <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
                         <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
-                        <p class="text-xs text-slate-200 italic">"${p.isi_doa}"</p>
+                        <p class="text-xs text-slate-200 italic mt-1">"${p.isi_doa}"</p>
                         <p class="text-[10px] text-slate-400">Oleh: ${p.nama_pengirim}</p>
+                        
+                        <!-- Interaksi Reaksi & Balas -->
+                        <div class="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-2">
+                            <div class="flex gap-2">
+                                <button onclick="handleReaction('prayer', '${p.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">👍</button>
+                                <button onclick="handleReaction('prayer', '${p.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">🙏🏻</button>
+                                <button onclick="handleReaction('prayer', '${p.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">❤️</button>
+                                <button onclick="handleReaction('prayer', '${p.id}', '🕊️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">🕊️</button>
+                            </div>
+                            ${isPengurus ? `<button onclick="handleReplyPrayer('${p.id}')" class="text-[10px] font-semibold text-purple-400 hover:text-purple-300">Balas 💬</button>` : ''}
+                        </div>
                     </div>
                 `).join('');
             } catch (err) {
@@ -1370,31 +1415,62 @@ function openVideosMenu() {
         }
 
         async function openDonationList() {
+            // Mengecek apakah user sudah login
+            const savedUser = localStorage.getItem("user_gereja");
+            if (!savedUser) {
+                const main = document.querySelector("main");
+                document.getElementById("headerTitle").innerText = "Persembahan / Donasi";
+                main.innerHTML = `
+                    <div class="space-y-4">
+                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
+                            <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
+                            <button onclick="renderAuthPageForAction(openDonationList)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">Login</button>
+                            <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            window.currentUser = JSON.parse(savedUser);
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Persembahan / Donasi";
             main.innerHTML = `
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <button onclick="checkAuthBeforeAction(openFormDonation)" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md">➕ Konfirmasi / Catat Donasi Baru</button>
+                    <button onclick="openFormDonation()" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md">➕ Konfirmasi / Catat Donasi Baru</button>
                     <div id="donationContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6">Memuat data donasi...</p></div>
                 </div>
             `;
+            
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getDonations`);
                 const result = await response.json();
                 const container = document.getElementById("donationContainer");
                 const list = result.donations || [];
+                
                 if (list.length === 0) {
                     container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada riwayat donasi.</p>`;
                     return;
                 }
+                
                 container.innerHTML = list.map(d => `
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
-                        <div>
-                            <h4 class="text-xs font-bold text-white">${d.nama_donatur}</h4>
-                            <p class="text-[11px] text-slate-400">${d.keterangan}</p>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">${d.nama_donatur}</h4>
+                                <p class="text-[11px] text-slate-400">${d.keterangan}</p>
+                            </div>
+                            <span class="text-xs font-bold text-emerald-400">Rp ${Number(d.nominal).toLocaleString('id-ID')}</span>
                         </div>
-                        <span class="text-xs font-bold text-emerald-400">Rp ${Number(d.nominal).toLocaleString('id-ID')}</span>
+                        
+                        <!-- Interaksi Reaksi -->
+                        <div class="flex gap-2 border-t border-slate-800/60 pt-2 mt-1">
+                            <button onclick="handleReaction('donasi', '${d.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">👍</button>
+                            <button onclick="handleReaction('donasi', '${d.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">🙏🏻</button>
+                            <button onclick="handleReaction('donasi', '${d.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">❤️</button>
+                        </div>
                     </div>
                 `).join('');
             } catch (err) {
@@ -1470,6 +1546,22 @@ function openVideosMenu() {
                 btn.innerText = "Kirim Konfirmasi";
             }
         }
+        
+        // --- FITUR INTERAKSI JEMAAT (FUNGSI PENOPANG SEMENTARA) ---
+        function handleReaction(tipe, idTarget, emoji) {
+            // Tipe: 'prayer' atau 'donasi'
+            showToast(`Anda memberikan reaksi ${emoji}`);
+            // Nanti dikembangkan untuk fetch SCRIPT_URL dengan action='addReaction'
+        }
+
+        function handleReplyPrayer(prayerId) {
+            const replyText = prompt("Masukkan balasan pastoral Anda untuk doa ini:");
+            if (replyText && replyText.trim() !== "") {
+                showToast("Balasan sedang diproses...", "success");
+                // Nanti dikembangkan untuk fetch SCRIPT_URL dengan action='replyPrayer' 
+            }
+        }
+
         // --- INISIALISASI SAAT HALAMAN DIMUAT ---
         document.addEventListener("DOMContentLoaded", () => {
             updateNetworkStatus();
