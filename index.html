@@ -158,7 +158,10 @@
         <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex justify-around p-3 text-xs font-medium text-slate-400 shadow-lg">
             <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🏠 Beranda</button>
             <button onclick="switchTab('doa')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🙏 Kotak Doa</button>
-            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">👤 <span id="accountNavText">Akun</span></button>
+            <!-- Perhatikan tambahan class "inline-flex items-center gap-1" di bawah ini -->
+            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 inline-flex items-center gap-1 transition">
+                <span>👤</span> <span id="accountNavText">Akun</span>
+            </button>
         </nav>
     </div>
 
