@@ -1547,18 +1547,54 @@
             }
         }
         
-        // --- FITUR INTERAKSI JEMAAT (FUNGSI PENOPANG SEMENTARA) ---
-        function handleReaction(tipe, idTarget, emoji) {
-            // Tipe: 'prayer' atau 'donasi'
+// --- FITUR INTERAKSI JEMAAT (TERHUBUNG KE GOOGLE SHEET) ---
+        async function handleReaction(tipe, idTarget, emoji) {
+            // Langsung tampilkan feedback visual ke user
             showToast(`Anda memberikan reaksi ${emoji}`);
-            // Nanti dikembangkan untuk fetch SCRIPT_URL dengan action='addReaction'
+            
+            const user = window.currentUser || { id: "Anonim" };
+            
+            try {
+                // Kirim data ke backend di latar belakang secara diam-diam
+                fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "addReaction",
+                        tipe: tipe,           // 'prayer' atau 'donasi'
+                        target_id: idTarget,
+                        user_id: user.id,
+                        emoji: emoji
+                    })
+                });
+            } catch (err) {
+                console.log("Gagal mencatat reaksi", err);
+            }
         }
 
-        function handleReplyPrayer(prayerId) {
+        async function handleReplyPrayer(prayerId) {
             const replyText = prompt("Masukkan balasan pastoral Anda untuk doa ini:");
             if (replyText && replyText.trim() !== "") {
                 showToast("Balasan sedang diproses...", "success");
-                // Nanti dikembangkan untuk fetch SCRIPT_URL dengan action='replyPrayer' 
+                
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            action: "replyPrayer",
+                            prayer_id: prayerId,
+                            reply_text: replyText.trim()
+                        })
+                    });
+                    const result = await response.json();
+                    
+                    showToast(result.message);
+                    if (result.status === "success") {
+                        // Refresh halaman doa agar balasan langsung muncul
+                        openPublicPrayerWall();
+                    }
+                } catch (err) {
+                    showToast("Gagal mengirim balasan.", "error");
+                }
             }
         }
 
