@@ -887,24 +887,26 @@ async function openGaleryMenu() { // Menu Galeri Foto
                     </div>
                 </div>
 
-            <!-- MODAL LIGHTBOX / POPUP MELAYANG -->
-            <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col items-center justify-center p-4">
-    
-                <!-- Tombol Silang Inilah yang Menampilkan Simbol ✕ -->
-                <button onclick="closeLightbox()" class="absolute top-5 right-5 text-white text-xl font-bold bg-slate-800 w-11 h-11 rounded-full flex items-center justify-center">
-                    ✕
-                </button>
-    
-                <div class="relative max-w-lg w-full flex flex-col items-center">
-                    <img id="lightboxImg" src="" class="max-h-[70vh] object-contain rounded-xl">
-                    <p id="lightboxCaption" class="text-xs text-slate-300 mt-3 text-center"></p>
-        
-                    <div class="flex gap-4 mt-4">
-                        <button onclick="slidePhoto(-1)" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs">◀ Sebelumnya</button>
-                        <button onclick="slidePhoto(1)" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs">Selanjutnya ▶</button>
+<!-- MODAL LIGHTBOX / POPUP MELAYANG -->
+                <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col items-center justify-center p-4" onclick="closeLightbox(event)">
+                    
+                    <!-- Tombol Silang yang Lebih Besar & Jelas (Ditambah stopPropagation agar tidak ikut tertutup saat diklik fotonya) -->
+                    <button onclick="closeLightbox()" class="absolute top-5 right-5 text-white text-xl font-bold bg-slate-800 hover:bg-slate-700 w-11 h-11 rounded-full flex items-center justify-center shadow-lg border border-slate-600 transition z-50">
+                        ✕
+                    </button>
+                    
+                    <!-- Kontainer Foto & Navigasi -->
+                    <div class="relative max-w-lg w-full flex flex-col items-center" onclick="event.stopPropagation()">
+                        <img id="lightboxImg" src="" class="max-h-[70vh] object-contain rounded-xl shadow-2xl border border-slate-800">
+                        <p id="lightboxCaption" class="text-xs text-slate-300 mt-3 text-center font-medium px-4"></p>
+                        
+                        <!-- Tombol Navigasi Kiri / Kanan -->
+                        <div class="flex gap-4 mt-4">
+                            <button onclick="slidePhoto(-1)" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-md">◀ Sebelumnya</button>
+                            <button onclick="slidePhoto(1)" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-md">Selanjutnya ▶</button>
+                        </div>
                     </div>
                 </div>
-            </div>
             `;
 
             try {
