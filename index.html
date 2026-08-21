@@ -82,7 +82,7 @@
         <!-- HEADER (FIXED) -->
         <header class="fixed top-0 left-0 right-0 max-w-md mx-auto z-40 bg-slate-950/95 backdrop-blur-md text-white p-4 flex justify-between items-center border-b border-purple-900/30 shadow-md">
             <button onclick="toggleSidebar(true)" class="text-xl p-1 hover:bg-slate-900 rounded-lg transition">☰</button>
-            <h1 id="headerTitle" class="font-bold text-sm tracking-wide truncate px-2 text-center">Syalom Warga PNIEL Oebobo ⛪</h1>
+            <h1 id="headerTitle" class="font-bold text-sm tracking-wide truncate px-2 text-center">GMIT Jemaat PNIEL Oebobo ⛪</h1>
             <div id="syncIndicator" class="flex items-center gap-1 text-xs" title="Status Sinkronisasi Online">
                 <span id="syncDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span class="text-[10px] text-slate-400 hidden sm:inline" id="syncText">Online</span>
@@ -427,7 +427,7 @@
         // --- NAVIGATION SWITCH TAB ---
         function switchTab(tab) {
             const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Syalom Warga PNIEL Oebobo ⛪";
+            document.getElementById("headerTitle").innerText = "GMIT Jemaat PNIEL Oebobo ⛪";
 
             if (tab === 'home') {
                 main.innerHTML = `
