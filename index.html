@@ -555,6 +555,11 @@
                             ? `<img src="${user.foto_profil}" class="w-full h-full object-cover">`
                             : `${user.nama_lengkap.charAt(0)}`;
 
+                        // Cek apakah user sudah verified
+                        const verifiedBadge = user.is_verified 
+                            ? `<span class="bg-blue-600/30 text-blue-400 border border-blue-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1 mt-1">☑️ Jemaat Terverifikasi</span>`
+                            : `<span class="bg-amber-600/30 text-amber-400 border border-amber-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1 mt-1">⏳ Menunggu Verifikasi Sensus</span>`;
+
                         main.innerHTML = `
                             <div class="space-y-6 pt-2 animate-fade-in">
                                 <div class="text-center space-y-2">
@@ -562,6 +567,7 @@
                                         ${profileImageHtml}
                                     </div>
                                     <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
+                                    <div>${verifiedBadge}</div>
                                     <p class="text-xs text-purple-400 font-medium">${user.status_pelayanan || 'Jemaat'}</p>
                                 </div>
 
