@@ -839,26 +839,91 @@
             `;
         }
 
-        function openAudiosMenu() {
+async function openGalleryMenu() { // (Atau ubah jadi openGalleryMenu())
             const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Galeri Kita";
+            document.getElementById("headerTitle").innerText = "Galeri Foto Jemaat";
+            
             main.innerHTML = `
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <div class="bg-yellow-950/40 border border-yellow-900/40 p-3 rounded-xl">
-                        <p class="text-xs text-yellow-200">Foto kegiatan / aktifitas Gereja dan Jemaat.</p>
+                    
+                    <!-- Grid 4 Kolom -->
+                    <div id="galleryGrid" class="grid grid-cols-4 gap-2">
+                        <p class="col-span-4 text-xs text-slate-400 text-center py-10 animate-pulse">Memuat galeri foto...</p>
                     </div>
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
-                        <div>
-                            <h4 class="text-xs font-bold text-white">Khotbah Minggu: Hidup Dalam Pengharapan</h4>
-                            <p class="text-[10px] text-slate-400">Audio / Rekaman Ibadah Pniel Oebobo</p>
-                        </div>
-                        <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
-                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/videoseries?list=PLr6kZ6JvPz33z9s3..." title="Audio Khotbah Rohani" frameborder="0" allowfullscreen></iframe>
+                </div>
+
+                <!-- MODAL LIGHTBOX / POPUP MELAYANG -->
+                <div id="lightboxModal" class="fixed inset-0 bg-black/90 z-50 hidden flex flex-col items-center justify-center p-4">
+                    <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white text-2xl font-bold bg-slate-800/80 w-10 h-10 rounded-full flex items-center justify-center">✕</button>
+                    
+                    <div class="relative max-w-lg w-full flex flex-col items-center">
+                        <img id="lightboxImg" src="" class="max-h-[75vh] object-contain rounded-xl shadow-2xl border border-slate-700">
+                        <p id="lightboxCaption" class="text-xs text-slate-300 mt-3 text-center font-medium"></p>
+                        
+                        <!-- Tombol Navigasi Kiri / Kanan -->
+                        <div class="flex gap-4 mt-4">
+                            <button onclick="slidePhoto(-1)" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-700">◀ Sebelumnya</button>
+                            <button onclick="slidePhoto(1)" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-700">Selanjutnya ▶</button>
                         </div>
                     </div>
                 </div>
             `;
+
+            // Ambil data galeri dari backend GAS
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getGallery`);
+                const result = await response.json();
+                window.galleryData = result.gallery || [];
+                renderGallery(window.galleryData);
+            } catch (err) {
+                document.getElementById("galleryGrid").innerHTML = `<p class="col-span-4 text-xs text-rose-400 text-center">Gagal memuat galeri.</p>`;
+            }
+        }
+
+        let currentPhotoIndex = 0;
+
+        function renderGallery(photos) {
+            const grid = document.getElementById("galleryGrid");
+            if (photos.length === 0) {
+                grid.innerHTML = `<p class="col-span-4 text-xs text-slate-400 text-center py-10">Belum ada foto di galeri.</p>`;
+                return;
+            }
+
+            grid.innerHTML = photos.map((p, index) => `
+                <div onclick="openLightbox(${index})" class="bg-white p-1.5 pb-3 rounded shadow-md cursor-pointer transform hover:scale-105 transition duration-200 border border-slate-200">
+                    <div class="aspect-square bg-slate-100 overflow-hidden rounded-sm">
+                        <img src="${p.url}" class="w-full h-full object-cover" loading="lazy">
+                    </div>
+                    <p class="text-[9px] text-slate-800 font-serif text-center truncate mt-1.5 px-0.5">${p.judul}</p>
+                </div>
+            `).join('');
+        }
+
+        function openLightbox(index) {
+            currentPhotoIndex = index;
+            const photo = window.galleryData[currentPhotoIndex];
+            
+            document.getElementById("lightboxImg").src = photo.url;
+            document.getElementById("lightboxCaption").innerText = photo.judul;
+            document.getElementById("lightboxModal").classList.remove("hidden");
+        }
+
+        function closeLightbox() {
+            document.getElementById("lightboxModal").classList.add("hidden");
+        }
+
+        function slidePhoto(direction) {
+            currentPhotoIndex += direction;
+            if (currentPhotoIndex < 0) {
+                currentPhotoIndex = window.galleryData.length - 1; // Putar ke foto terakhir
+            } else if (currentPhotoIndex >= window.galleryData.length) {
+                currentPhotoIndex = 0; // Putar ke foto pertama
+            }
+            
+            const photo = window.galleryData[currentPhotoIndex];
+            document.getElementById("lightboxImg").src = photo.url;
+            document.getElementById("lightboxCaption").innerText = photo.judul;
         }
 
         function openBibleMenu() {
