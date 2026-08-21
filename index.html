@@ -608,28 +608,12 @@
                     `;
                 });
 } else if (tab === 'profil') {
-                checkAuthBeforeAction(async () => {
+                checkAuthBeforeAction(() => {
                     const user = window.currentUser;
                     const isExtendedFilled = user.alamat && user.alamat.trim() !== "";
-
-                    // Cek status admin (ambil dari cache lokal atau cek cepat)
-                    let isAdmin = user.isAdmin || false;
                     
-                    // Jika belum tercatat di cache sesi, cek sekali ke backend secara diam-diam
-                    if (user.isAdmin === undefined) {
-                        try {
-                            const res = await fetch(SCRIPT_URL, {
-                                method: "POST",
-                                body: JSON.stringify({ action: "checkIsAdmin", nama_lengkap: user.nama_lengkap })
-                            });
-                            const json = await res.json();
-                            isAdmin = json.isAdmin;
-                            user.isAdmin = isAdmin;
-                            localStorage.setItem("user_gereja", JSON.stringify(user));
-                        } catch (e) {
-                            isAdmin = false;
-                        }
-                    }
+                    // Langsung baca dari memori lokal (tanpa delay network/fetch)
+                    const isAdmin = user.isAdmin || false;
 
                     if (!isExtendedFilled) {
                         openExtendedProfileForm(false);
@@ -654,6 +638,7 @@
                                 </div>
 
                                 <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs">
+                                    <!-- Detail info profil -->
                                     <div class="border-b border-slate-800 pb-2">
                                         <span class="text-slate-400 block text-[10px]">Lingkungan / Rayon</span>
                                         <span class="text-slate-200 font-medium">Lingkungan ${user.lingkungan || '-'} - Rayon ${user.rayon || '-'}</span>
@@ -684,7 +669,6 @@
                                     <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition">Perbarui Data Diri & Foto ✏️</button>
                                     <button onclick="logout()" class="w-full bg-rose-950/50 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition">Keluar (Logout)</button>
                                     
-                                    <!-- TOMBOL PANEL PENGURUS HANYA MUNCUL JIKA ADMIN -->
                                     ${isAdmin ? `
                                         <a href="admin.html" class="block text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">
                                             🔒 Masuk ke Panel Pengurus Gereja
