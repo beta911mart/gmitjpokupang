@@ -1391,24 +1391,36 @@
                 // Cek status user untuk hak membalas doa
                 const isPengurus = ['Pendeta', 'Majelis', 'Admin', 'Sekretariat'].includes(user.status_pelayanan);
 
-                container.innerHTML = prayers.map(p => `
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
-                        <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
-                        <p class="text-xs text-slate-200 italic mt-1">"${p.isi_doa}"</p>
-                        <p class="text-[10px] text-slate-400">Oleh: ${p.nama_pengirim}</p>
-                        
-                        <!-- Interaksi Reaksi & Balas -->
-                        <div class="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-2">
-                            <div class="flex gap-2">
-                                <button onclick="handleReaction('prayer', '${p.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">👍</button>
-                                <button onclick="handleReaction('prayer', '${p.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">🙏🏻</button>
-                                <button onclick="handleReaction('prayer', '${p.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">❤️</button>
-                                <button onclick="handleReaction('prayer', '${p.id}', '🕊️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">🕊️</button>
+                container.innerHTML = prayers.map(p => {
+                        // Memetakan jumlah reaksi (jika 0 tidak usah ditampilkan angkanya agar bersih)
+                        const r = p.reactions || {};
+                        const getBadge = (emoji) => r[emoji] > idCountOrZero(r[emoji]) ? `<span class="text-[9px] text-purple-300 ml-0.5 font-bold">${r[emoji]}</span>` : '';
+
+                        return `
+                            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
+                                <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
+                                <p class="text-xs text-slate-200 italic mt-1">"${p.isi_doa}"</p>
+                                <p class="text-[10px] text-slate-400">Oleh: ${p.nama_pengirim}</p>
+                                
+                                ${p.balasan ? `
+                                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl mt-2">
+                                        <p class="text-[10px] font-bold text-amber-400 mb-1">Balasan Pastoral:</p>
+                                        <p class="text-[11px] text-slate-300 italic">${p.balasan}</p>
+                                    </div>
+                                ` : ''}
+
+                                <div class="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-2">
+                                    <div class="flex gap-1.5 flex-wrap">
+                                        <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
+                                        <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
+                                        <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
+                                        <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🕊️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🕊️ ${r["🕊️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🕊️"]}</span>` : ''}</button>
+                                    </div>
+                                    ${isPengurus ? `<button onclick="handleReplyPrayer('${p.id}')" class="text-[10px] font-semibold text-purple-400 hover:text-purple-300">Balas 💬</button>` : ''}
+                                </div>
                             </div>
-                            ${isPengurus ? `<button onclick="handleReplyPrayer('${p.id}')" class="text-[10px] font-semibold text-purple-400 hover:text-purple-300">Balas 💬</button>` : ''}
-                        </div>
-                    </div>
-                `).join('');
+                        `;
+                    }).join('');
             } catch (err) {
                 document.getElementById("publicPrayerContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat dinding doa.</p>`;
             }
@@ -1455,24 +1467,26 @@
                     return;
                 }
                 
-                container.innerHTML = list.map(d => `
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
-                        <div class="flex items-center justify-between mb-2">
-                            <div>
-                                <h4 class="text-xs font-bold text-white">${d.nama_donatur}</h4>
-                                <p class="text-[11px] text-slate-400">${d.keterangan}</p>
+                container.innerHTML = list.map(d => {
+                    const r = d.reactions || {};
+                    return `
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h4 class="text-xs font-bold text-white">${d.nama_donatur}</h4>
+                                    <p class="text-[11px] text-slate-400">${d.keterangan}</p>
+                                </div>
+                                <span class="text-xs font-bold text-emerald-400">Rp ${Number(d.nominal).toLocaleString('id-ID')}</span>
                             </div>
-                            <span class="text-xs font-bold text-emerald-400">Rp ${Number(d.nominal).toLocaleString('id-ID')}</span>
+                            
+                            <div class="flex gap-1.5 border-t border-slate-800/60 pt-2 mt-1">
+                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
+                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
+                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
+                            </div>
                         </div>
-                        
-                        <!-- Interaksi Reaksi -->
-                        <div class="flex gap-2 border-t border-slate-800/60 pt-2 mt-1">
-                            <button onclick="handleReaction('donasi', '${d.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">👍</button>
-                            <button onclick="handleReaction('donasi', '${d.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">🙏🏻</button>
-                            <button onclick="handleReaction('donasi', '${d.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition">❤️</button>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (err) {
                 document.getElementById("donationContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat donasi.</p>`;
             }
@@ -1547,25 +1561,29 @@
             }
         }
         
-// --- FITUR INTERAKSI JEMAAT (TERHUBUNG KE GOOGLE SHEET) ---
-        async function handleReaction(tipe, idTarget, emoji) {
-            // Langsung tampilkan feedback visual ke user
-            showToast(`Anda memberikan reaksi ${emoji}`);
-            
+// --- FITUR INTERAKSI JEMAAT (TERHUBUNG KE GOOGLE SHEET and REFRESHED) ---
+async function handleReactionAndRefresh(tipe, idTarget, emoji) {
+            showToast(`Memberikan reaksi ${emoji}`);
             const user = window.currentUser || { id: "Anonim" };
             
             try {
-                // Kirim data ke backend di latar belakang secara diam-diam
-                fetch(SCRIPT_URL, {
+                await fetch(SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({
                         action: "addReaction",
-                        tipe: tipe,           // 'prayer' atau 'donasi'
+                        tipe: tipe,
                         target_id: idTarget,
                         user_id: user.id,
                         emoji: emoji
                     })
                 });
+                
+                // Refresh halaman otomatis sesuai menu yang sedang dibuka
+                if (tipe === 'prayer') {
+                    openPublicPrayerWall();
+                } else {
+                    openDonationList();
+                }
             } catch (err) {
                 console.log("Gagal mencatat reaksi", err);
             }
