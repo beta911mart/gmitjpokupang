@@ -3,98 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radio Rohani Nonstop</title>
+    <title>Radio Rohani Nonstop - GMIT JPO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body style="background: #0f172a; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center p-4">
 
-    <!-- Tombol Kembali ke Beranda Aplikasi -->
-    <div style="width: 100%; max-width: 300px; margin-bottom: 12px;">
-        <a href="index.html" style="color: #c084fc; font-size: 12px; text-decoration: none; font-family: Arial, sans-serif; font-weight: bold;">← Kembali ke Beranda</a>
-    </div>
+    <div class="max-w-md w-full mx-auto bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-2xl space-y-5 text-center">
+        
+        <!-- Tombol Kembali -->
+        <div class="text-left">
+            <a href="index.html" class="text-xs text-purple-400 font-semibold hover:underline">← Kembali ke Beranda</a>
+        </div>
 
-    <div style="font-family: Arial, sans-serif; background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #334155; padding: 24px; border-radius: 16px; max-width: 300px; width: 100%; text-align: center; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.3); box-sizing: border-box;">
-        
-        <div style="font-size: 40px; margin-bottom: 10px;" id="radioIcon">📻</div>
-        <h4 style="margin: 0 0 5px 0; font-size: 16px;">Radio Rohani Kristen</h4>
-        <p style="font-size: 11px; color: #94a3b8; margin: 0 0 20px 0;">Streaming Pujian 24 Jam Nonstop</p>
-        
-        <!-- AUDIO ELEMENT DENGAN STREAM HTTPS -->
-        <audio id="audioRadio" preload="none">
-            <!-- Pastikan URL ber-HTTPS dan berformat murni audio/mpeg atau audio/aac -->
-            <source src="https://phila.streamguys1.com/live" type="audio/mpeg">
-            Browser Anda tidak mendukung pemutar audio ini.
-        </audio>
+        <div class="w-20 h-20 bg-pink-950 border border-pink-800 text-pink-300 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner">
+            📻
+        </div>
 
-        <button id="btnKontrol" style="background-color: #9333ea; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-size: 12px; font-weight: bold; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(147,51,234,0.4); transition: 0.2s;">
-            ▶ PUTAR SIARAN
-        </button>
-        
-        <p id="statusText" style="font-size: 10px; color: #64748b; margin-top: 15px;">Tekan tombol untuk memutar</p>
+        <div>
+            <h2 class="font-bold text-base text-white">Radio Rohani Kristen 24 Jam</h2>
+            <p class="text-xs text-slate-400 mt-1">Pujian & Firman Tuhan Nonstop</p>
+        </div>
+
+        <!-- Opsi 1: Pemutar Audio Internal yang Stabil -->
+        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3">
+            <p class="text-[11px] text-slate-300 font-medium">Pemutar Siaran Utama:</p>
+            <audio id="audioRadio" preload="none" class="w-full">
+                <source src="https://phila.streamguys1.com/live" type="audio/mpeg">
+                Browser Anda tidak mendukung audio.
+            </audio>
+            <button id="btnKontrol" onclick="togglePlay()" class="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition">
+                ▶ PUTAR SIARAN
+            </button>
+            <p id="statusText" class="text-[10px] text-slate-500">Tekan tombol untuk mendengarkan</p>
+        </div>
+
+        <hr class="border-slate-800">
+
+        <!-- Opsi 2: Tautan Langsung ke Radio Kristen Pilihan (Solusi Paling Aman dari Pusing) -->
+        <div class="space-y-2">
+            <p class="text-[11px] text-slate-400">Atau pilih saluran streaming eksternal:</p>
+            <a href="https://www.radiokristen.net/station_detail/13-Grace-Alone-Radio-Surabaya" target="_blank" class="block w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-purple-300 py-2.5 px-4 rounded-xl text-xs font-semibold transition">
+                🌐 Buka Grace Alone Radio Surabaya
+            </a>
+        </div>
+
     </div>
 
 <script>
     const audio = document.getElementById('audioRadio');
     const btn = document.getElementById('btnKontrol');
     const statusText = document.getElementById('statusText');
-    const icon = document.getElementById('radioIcon');
-
     let isPlaying = false;
 
-    btn.addEventListener('click', () => {
+    function togglePlay() {
         if (!isPlaying) {
             btn.innerText = "MENYAMBUNGKAN...";
-            statusText.innerText = "Menguhubungkan ke server siaran...";
-            
-            // Paksa reload source jika macet
+            statusText.innerText = "Menghubungkan ke server...";
             audio.load();
             
-            audio.play()
-                .then(() => { 
-                    isPlaying = true;
-                    btn.innerText = "⏸ HENTIKAN SIARAN";
-                    btn.style.backgroundColor = "#e11d48";
-                    statusText.innerText = "🟢 Sedang Memutar Live Streaming";
-                    icon.style.transform = "scale(1.1)";
-                })
-                .catch(err => {
-                    console.error("Gagal putar:", err);
-                    statusText.innerText = "❌ Gagal memuat siaran.";
-                    alert("Streaming gagal diputar. Server radio mungkin sedang offline atau diblokir jaringan.");
-                    btn.innerText = "▶ PUTAR SIARAN";
-                    btn.style.backgroundColor = "#9333ea";
-                    isPlaying = false;
-                });
+            audio.play().then(() => {
+                isPlaying = true;
+                btn.innerText = "⏸ HENTIKAN SIARAN";
+                btn.style.backgroundColor = "#e11d48";
+                statusText.innerText = "🟢 Sedang Memutar Live Streaming";
+            }).catch(err => {
+                console.error(err);
+                statusText.innerText = "❌ Gagal memuat siaran langsung.";
+                btn.innerText = "▶ PUTAR SIARAN";
+                btn.style.backgroundColor = "#db2777";
+                isPlaying = false;
+            });
         } else {
             audio.pause();
-            audio.currentTime = 0; // Reset buffer
             isPlaying = false;
             btn.innerText = "▶ PUTAR SIARAN";
-            btn.style.backgroundColor = "#9333ea";
+            btn.style.backgroundColor = "#db2777";
             statusText.innerText = "Siaran dijeda.";
-            icon.style.transform = "scale(1)";
         }
-    });
-
-    // Menangani jika jaringan terputus di tengah jalan
-    audio.addEventListener('waiting', () => {
-        if(isPlaying) {
-            statusText.innerText = "Buffering / Menunggu sinyal...";
-        }
-    });
-
-    audio.addEventListener('playing', () => {
-        if(isPlaying) {
-            statusText.innerText = "🟢 Sedang Memutar Live Streaming";
-        }
-    });
-
-    audio.addEventListener('error', (e) => {
-        console.error("Error Audio Element:", e);
-        statusText.innerText = "Koneksi stream terputus.";
-        btn.innerText = "▶ PUTAR SIARAN";
-        btn.style.backgroundColor = "#9333ea";
-        isPlaying = false;
-    });
+    }
 </script>
 
 </body>
