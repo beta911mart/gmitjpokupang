@@ -1663,12 +1663,33 @@
             }
         });
         
-// --- FITUR INTERAKSI JEMAAT (TERHUBUNG KE GOOGLE SHEET and REFRESHED) ---
-async function handleReactionAndRefresh(tipe, idTarget, emoji) {
-            showToast(`Memberikan reaksi ${emoji}`);
+// --- FITUR INTERAKSI JEMAAT (REAKSI INSTAN TANPA FULL REFRESH) ---
+        async function handleReactionAndRefresh(tipe, idTarget, emoji) {
             const user = window.currentUser || { id: "Anonim" };
             
+            // 1. Cari elemen tombol atau badge angka yang diklik berdasarkan target dan emoji
+            // Kita gunakan event target untuk mendeteksi tombol spesifik yang baru saja ditekan
+            const eventBtn = event.currentTarget;
+            if (eventBtn) {
+                // Cari elemen span angka di dalam tombol tersebut
+                let badgeSpan = eventBtn.querySelector('span');
+                if (badgeSpan) {
+                    // Jika span angka sudah ada, langsung tambahkan nilai angkanya secara instan
+                    let currentVal = parseInt(badgeSpan.innerText) || 0;
+                    badgeSpan.innerText = currentVal + 1;
+                } else {
+                    // Jika sebelumnya angka belum ada (kosong), buat elemen span baru secara instan
+                    const newSpan = document.createElement('span');
+                    newSpan.className = "text-[9px] text-amber-400 ml-1 font-bold";
+                    newSpan.innerText = "1";
+                    eventBtn.appendChild(newSpan);
+                }
+            }
+
+            showToast(`Memberikan reaksi ${emoji}`);
+            
             try {
+                // 2. Kirim data ke Google Sheet di latar belakang secara diam-diam
                 await fetch(SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({
@@ -1680,14 +1701,11 @@ async function handleReactionAndRefresh(tipe, idTarget, emoji) {
                     })
                 });
                 
-                // Refresh halaman otomatis sesuai menu yang sedang dibuka
-                if (tipe === 'prayer') {
-                    openPublicPrayerWall();
-                } else {
-                    openDonationList();
-                }
+                // Tidak perlu memanggil openPublicPrayerWall() atau openDonationList() lagi, 
+                // sehingga layar tidak akan berkedip / muat ulang sama sekali!
             } catch (err) {
                 console.log("Gagal mencatat reaksi", err);
+                showToast("Gagal mencatat reaksi", "error");
             }
         }
 
