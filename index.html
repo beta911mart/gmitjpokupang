@@ -22,8 +22,69 @@
         }
         .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
         .animate-fade-in { animation: fadeIn 0.25s ease-out forwards; }
+        /* --- GAYA KHUSUS MODE LANSIA --- */
+        body.senior-mode {
+            background-color: #fef3c7 !important; /* Amber 50 (Krem hangat yang tidak silau) */
+            color: #1e293b !important; /* Slate 800 (Gelap pekat agar mudah dibaca) */
+            font-size: 1.15rem !important; /* Memperbesar seluruh teks dasar */
+        }
+
+        /* Mengubah kontainer utama menjadi terang */
+        body.senior-mode .max-w-md {
+            background-color: #ffffff !important;
+            border-color: #fcd34d !important;
+            color: #0f172a !important;
+        }
+
+        /* Mengubah kartu-kartu (card) menjadi warna terang dengan border jelas */
+        body.senior-mode .bg-slate-900, 
+        body.senior-mode .bg-slate-950 {
+            background-color: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+
+        /* Memperbesar teks di dalam kartu */
+        body.senior-mode p, 
+        body.senior-mode span, 
+        body.senior-mode label, 
+        body.senior-mode a {
+            color: #1e293b !important;
+            font-size: 0.95rem !important;
+        }
+
+        /* Judul dibuat lebih tebal dan hitam */
+        body.senior-mode h1, body.senior-mode h2, body.senior-mode h3, body.senior-mode h4 {
+            color: #0f172a !important;
+            font-weight: 800 !important;
+        }
+
+        /* Input dan Form dibuat sangat jelas dengan garis tepi tebal */
+        body.senior-mode input, 
+        body.senior-mode select, 
+        body.senior-mode textarea {
+            background-color: #ffffff !important;
+            border: 2px solid #94a3b8 !important;
+            color: #0f172a !important;
+            font-size: 1rem !important;
+            padding: 12px !important;
+        }
+
+        /* Tombol-tombol dibuat berukuran besar dan kontras tinggi */
+        body.senior-mode button {
+            font-size: 1rem !important;
+            font-weight: bold !important;
+            padding-top: 12px !important;
+            padding-bottom: 12px !important;
+        }
     </style>
-</head>
+        <!-- Tambahkan di Header index.html Anda -->
+        <div class="flex items-center gap-2">
+            <button onclick="toggleSeniorMode()" id="seniorModeBtn" class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition">
+                👓 Mode Lansia
+            </button>
+        </div>
+    </head>
 <body id="appBody" class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0">
 
     <!-- PUSH NOTIFICATION POPUP (URGENT/WARNING) -->
@@ -1567,6 +1628,36 @@
                 btn.innerText = "Kirim Konfirmasi";
             }
         }
+        // --- FITUR MODE KHUSUS LANSIA / SENIOR ---
+        function toggleSeniorMode() {
+            const body = document.body;
+            const isSenior = body.classList.toggle('senior-mode');
+            
+            if (isSenior) {
+                localStorage.setItem('gmit_senior_mode', 'true');
+                showToast("Mode Lansia Diaktifkan (Huruf & Tampilan Diperbesar)");
+                document.getElementById('seniorModeBtn').innerText = "🌙 Mode Normal";
+                document.getElementById('seniorModeBtn').className = "text-xs bg-purple-600 text-white px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition shadow-md";
+            } else {
+                localStorage.setItem('gmit_senior_mode', 'false');
+                showToast("Kembali ke Mode Normal");
+                document.getElementById('seniorModeBtn').innerText = "👓 Mode Lansia";
+                document.getElementById('seniorModeBtn').className = "text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition";
+            }
+        }
+
+        // Jalankan saat aplikasi pertama kali dibuka untuk mengecek preferensi tersimpan
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedSeniorMode = localStorage.getItem('gmit_senior_mode');
+            if (savedSeniorMode === 'true') {
+                document.body.classList.add('senior-mode');
+                const btn = document.getElementById('seniorModeBtn');
+                if(btn) {
+                    btn.innerText = "🌙 Mode Normal";
+                    btn.className = "text-xs bg-purple-600 text-white px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition shadow-md";
+                }
+            }
+        });
         
 // --- FITUR INTERAKSI JEMAAT (TERHUBUNG KE GOOGLE SHEET and REFRESHED) ---
 async function handleReactionAndRefresh(tipe, idTarget, emoji) {
