@@ -607,10 +607,29 @@
                         </div>
                     `;
                 });
-            } else if (tab === 'profil') {
-                checkAuthBeforeAction(() => {
+} else if (tab === 'profil') {
+                checkAuthBeforeAction(async () => {
                     const user = window.currentUser;
                     const isExtendedFilled = user.alamat && user.alamat.trim() !== "";
+
+                    // Cek status admin (ambil dari cache lokal atau cek cepat)
+                    let isAdmin = user.isAdmin || false;
+                    
+                    // Jika belum tercatat di cache sesi, cek sekali ke backend secara diam-diam
+                    if (user.isAdmin === undefined) {
+                        try {
+                            const res = await fetch(SCRIPT_URL, {
+                                method: "POST",
+                                body: JSON.stringify({ action: "checkIsAdmin", nama_lengkap: user.nama_lengkap })
+                            });
+                            const json = await res.json();
+                            isAdmin = json.isAdmin;
+                            user.isAdmin = isAdmin;
+                            localStorage.setItem("user_gereja", JSON.stringify(user));
+                        } catch (e) {
+                            isAdmin = false;
+                        }
+                    }
 
                     if (!isExtendedFilled) {
                         openExtendedProfileForm(false);
@@ -619,7 +638,6 @@
                             ? `<img src="${user.foto_profil}" class="w-full h-full object-cover">`
                             : `${user.nama_lengkap.charAt(0)}`;
 
-                        // Cek apakah user sudah verified
                         const verifiedBadge = user.is_verified 
                             ? `<span class="bg-blue-600/30 text-blue-400 border border-blue-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1 mt-1">☑️ Jemaat Terverifikasi</span>`
                             : `<span class="bg-amber-600/30 text-amber-400 border border-amber-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1 mt-1">⏳ Menunggu Verifikasi Sensus</span>`;
@@ -663,11 +681,15 @@
                                 </div>
 
                                 <div class="space-y-2">
-                                    <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-xs shadow-md hover:bg-purple-700 transition">Perbarui Data Diri & Foto ✏️</button>
-                                    <button onclick="logout()" class="w-full bg-rose-950/50 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs hover:bg-rose-900/50 transition">Keluar (Logout)</button>
-                                    <a href="admin.html" class="block text-center text-[11px] text-slate-500 hover:text-purple-400 pt-2 transition">
-                                        🔒 Masuk ke Panel Pengurus Gereja
-                                    </a>
+                                    <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition">Perbarui Data Diri & Foto ✏️</button>
+                                    <button onclick="logout()" class="w-full bg-rose-950/50 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition">Keluar (Logout)</button>
+                                    
+                                    <!-- TOMBOL PANEL PENGURUS HANYA MUNCUL JIKA ADMIN -->
+                                    ${isAdmin ? `
+                                        <a href="admin.html" class="block text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">
+                                            🔒 Masuk ke Panel Pengurus Gereja
+                                        </a>
+                                    ` : ''}
                                 </div>
                             </div>
                         `;
