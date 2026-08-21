@@ -839,7 +839,7 @@
             `;
         }
 
-async function openGalleryMenu() { // (Atau ubah jadi openGalleryMenu())
+async function openGaleryMenu() { // Menu Galeri Foto
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Galeri Foto Jemaat";
             
@@ -847,7 +847,41 @@ async function openGalleryMenu() { // (Atau ubah jadi openGalleryMenu())
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                     
-                    <!-- Grid 4 Kolom -->
+                    <!-- KOTAK FILTER PENCARIAN -->
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 text-xs">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">Filter Kategorial</label>
+                                id="filterKategorial" onchange="filterGallery()" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none">
+                                    <option value="">Semua Kategorial</option>
+                                    <option value="Lansia">Lansia</option>
+                                    <option value="PKB">PKB (Kaum Bapak)</option>
+                                    <option value="PW">PW (Kaum Wanita)</option>
+                                    <option value="Pemuda">Pemuda</option>
+                                    <option value="Remaja">Remaja</option>
+                                    <option value="Anak">Anak / SM</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">Filter Momen</label>
+                                <select id="filterMoment" onchange="filterGallery()" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none">
+                                    <option value="">Semua Momen</option>
+                                    <option value="Natal">Natal</option>
+                                    <option value="Tahun Baru">Tahun Baru</option>
+                                    <option value="Paskah">Paskah</option>
+                                    <option value="Ultah Gereja">Ultah Gereja</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1">Filter Berdasarkan Tanggal</label>
+                            <input type="date" id="filterDate" onchange="filterGallery()" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none">
+                        </div>
+                    </div>
+
+                    <!-- GRID GALERI 4 KOLOM -->
                     <div id="galleryGrid" class="grid grid-cols-4 gap-2">
                         <p class="col-span-4 text-xs text-slate-400 text-center py-10 animate-pulse">Memuat galeri foto...</p>
                     </div>
@@ -861,7 +895,6 @@ async function openGalleryMenu() { // (Atau ubah jadi openGalleryMenu())
                         <img id="lightboxImg" src="" class="max-h-[75vh] object-contain rounded-xl shadow-2xl border border-slate-700">
                         <p id="lightboxCaption" class="text-xs text-slate-300 mt-3 text-center font-medium"></p>
                         
-                        <!-- Tombol Navigasi Kiri / Kanan -->
                         <div class="flex gap-4 mt-4">
                             <button onclick="slidePhoto(-1)" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-700">◀ Sebelumnya</button>
                             <button onclick="slidePhoto(1)" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-700">Selanjutnya ▶</button>
@@ -870,23 +903,25 @@ async function openGalleryMenu() { // (Atau ubah jadi openGalleryMenu())
                 </div>
             `;
 
-            // Ambil data galeri dari backend GAS
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getGallery`);
                 const result = await response.json();
-                window.galleryData = result.gallery || [];
-                renderGallery(window.galleryData);
+                window.allGalleryData = result.gallery || [];
+                renderGallery(window.allGalleryData);
             } catch (err) {
                 document.getElementById("galleryGrid").innerHTML = `<p class="col-span-4 text-xs text-rose-400 text-center">Gagal memuat galeri.</p>`;
             }
         }
 
+        let currentActiveGallery = [];
         let currentPhotoIndex = 0;
 
         function renderGallery(photos) {
+            currentActiveGallery = photos; // Simpan daftar foto yang sedang aktif difilter
             const grid = document.getElementById("galleryGrid");
+            
             if (photos.length === 0) {
-                grid.innerHTML = `<p class="col-span-4 text-xs text-slate-400 text-center py-10">Belum ada foto di galeri.</p>`;
+                grid.innerHTML = `<p class="col-span-4 text-xs text-slate-400 text-center py-10">Tidak ada foto yang sesuai dengan filter.</p>`;
                 return;
             }
 
@@ -900,12 +935,32 @@ async function openGalleryMenu() { // (Atau ubah jadi openGalleryMenu())
             `).join('');
         }
 
+        function filterGallery() {
+            const kategorialVal = document.getElementById("filterKategorial").value;
+            const momentVal = document.getElementById("filterMoment").value;
+            const dateVal = document.getElementById("filterDate").value;
+
+            let filtered = window.allAllGalleryData || window.allGalleryData;
+
+            if (kategorialVal) {
+                filtered = filtered.filter(p => p.kategorial === kategorialVal);
+            }
+            if (momentVal) {
+                filtered = filtered.filter(p => p.moment === momentVal);
+            }
+            if (dateVal) {
+                filtered = filtered.filter(p => p.tanggal === dateVal);
+            }
+
+            renderGallery(filtered);
+        }
+
         function openLightbox(index) {
             currentPhotoIndex = index;
-            const photo = window.galleryData[currentPhotoIndex];
+            const photo = currentActiveGallery[currentPhotoIndex];
             
             document.getElementById("lightboxImg").src = photo.url;
-            document.getElementById("lightboxCaption").innerText = photo.judul;
+            document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
             document.getElementById("lightboxModal").classList.remove("hidden");
         }
 
@@ -916,16 +971,15 @@ async function openGalleryMenu() { // (Atau ubah jadi openGalleryMenu())
         function slidePhoto(direction) {
             currentPhotoIndex += direction;
             if (currentPhotoIndex < 0) {
-                currentPhotoIndex = window.galleryData.length - 1; // Putar ke foto terakhir
-            } else if (currentPhotoIndex >= window.galleryData.length) {
-                currentPhotoIndex = 0; // Putar ke foto pertama
+                currentPhotoIndex = currentActiveGallery.length - 1;
+            } else if (currentPhotoIndex >= currentActiveGallery.length) {
+                currentPhotoIndex = 0;
             }
             
-            const photo = window.galleryData[currentPhotoIndex];
+            const photo = currentActiveGallery[currentPhotoIndex];
             document.getElementById("lightboxImg").src = photo.url;
-            document.getElementById("lightboxCaption").innerText = photo.judul;
+            document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
         }
-
         function openBibleMenu() {
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Renungan & Ayat Emas";
