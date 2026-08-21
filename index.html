@@ -986,6 +986,12 @@ async function openGaleryMenu() { // Menu Galeri Foto
             document.getElementById("lightboxImg").src = photo.url;
             document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
         }
+        function closeLightbox(event) {
+            // Jika diklik langsung di area luar foto (latar hitam), atau tombol silang dipanggil
+            if (!event || event.target.id === "lightboxModal" || event.target.tagName === "BUTTON") {
+                document.getElementById("lightboxModal").classList.add("hidden");
+            }
+        }
         function openBibleMenu() {
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Renungan & Ayat Emas";
