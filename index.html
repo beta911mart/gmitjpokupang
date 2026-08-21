@@ -887,11 +887,11 @@ async function openGaleryMenu() { // Menu Galeri Foto
                     </div>
                 </div>
 
-<!-- MODAL LIGHTBOX / POPUP MELAYANG -->
+                <!-- MODAL LIGHTBOX / POPUP MELAYANG -->
                 <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col items-center justify-center p-4" onclick="closeLightbox(event)">
                     
-                    <!-- Tombol Silang yang Lebih Besar & Jelas (Ditambah stopPropagation agar tidak ikut tertutup saat diklik fotonya) -->
-                    <button onclick="closeLightbox()" class="absolute top-5 right-5 text-white text-xl font-bold bg-slate-800 hover:bg-slate-700 w-11 h-11 rounded-full flex items-center justify-center shadow-lg border border-slate-600 transition z-50">
+                    <!-- Tombol Silang dengan Posisi Fixed agar Selalu Muncul di Pojok Atas Layar -->
+                    <button onclick="closeLightbox()" class="fixed top-4 right-4 z-[9999] bg-rose-600 hover:bg-rose-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold shadow-2xl border-2 border-white transition transform active:scale-95">
                         ✕
                     </button>
                     
