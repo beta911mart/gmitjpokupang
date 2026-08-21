@@ -154,12 +154,11 @@
         <main class="flex-1 p-4 pt-20 pb-20 overflow-y-auto animate-fade-in">
             <!-- Konten dimuat dinamis di sini -->
         </main>
-
-        <!-- NAVIGATION BAR BAWAH (FIXED) -->
+<!-- NAVIGATION BAR BAWAH (FIXED) -->
         <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex justify-around p-3 text-xs font-medium text-slate-400 shadow-lg">
             <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🏠 Beranda</button>
             <button onclick="switchTab('doa')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🙏 Kotak Doa</button>
-            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">👤 Akun</button>
+            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">👤 <span id="accountNavText">Akun</span></button>
         </nav>
     </div>
 
@@ -418,6 +417,7 @@
                 if (result.status === "success") {
                     showToast("Login Berhasil!");
                     localStorage.setItem("user_gereja", JSON.stringify(result.user));
+                    updateAuthNavText(); // <-- Ubah teks jadi Akun saat berhasil masuk
                     window.currentUser = result.user;
                     
                     if (typeof window.pendingAuthAction === 'function') {
@@ -1230,6 +1230,7 @@
         function logout() {
             localStorage.removeItem("user_gereja");
             showToast("Anda telah keluar.");
+            updateAuthNavText(); // <-- Ubah teks jadi Login saat logout
             setTimeout(() => switchTab('home'), 500);
         }
 
@@ -1713,13 +1714,23 @@ async function handleReactionAndRefresh(tipe, idTarget, emoji) {
                 }
             }
         }
-
-        // --- INISIALISASI SAAT HALAMAN DIMUAT ---
         document.addEventListener("DOMContentLoaded", () => {
             updateNetworkStatus();
-            switchTab('home'); // Menampilkan menu utama
+            switchTab('home');
             checkPushNotification();
+            updateAuthNavText(); // <-- Panggil di sini
         });
+        function updateAuthNavText() {
+            const navText = document.getElementById("accountNavText");
+            if (!navText) return;
+            
+            const savedUser = localStorage.getItem("user_gereja");
+            if (savedUser) {
+                navText.innerText = "Akun";
+            } else {
+                navText.innerText = "Login";
+            }
+        }
     </script>
 </body>
 </html>
