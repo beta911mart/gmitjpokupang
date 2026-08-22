@@ -888,29 +888,32 @@ async function openGaleryMenu() { // Menu Galeri Foto
                 </div>
 
                 <!-- MODAL LIGHTBOX / POPUP MELAYANG -->
-                <!-- Kontainer Utama Lightbox: Kita pakai h-screen dan flex agar tombol selalu di posisi bawah -->
-                <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col items-center justify-between p-4" onclick="closeLightbox(event)">
+<!-- MODAL LIGHTBOX / POPUP MELAYANG -->
+<div id="lightboxModal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col items-center justify-between p-4" onclick="closeLightbox(event)">
     
-                    <!-- Tombol Silang (Fixed di pojok layar agar selalu kelihatan) -->
-                    <button onclick="closeLightbox()" class="absolute top-5 right-5 bg-rose-600 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-lg z-50">
-                        ✕
-                    </button>
+    <!-- PERBAIKAN: Ubah jadi fixed dan pastikan z-index sangat tinggi agar pasti nongol -->
+    <button onclick="closeLightbox()" class="fixed top-4 right-4 bg-rose-600 hover:bg-rose-700 text-white w-11 h-11 rounded-full flex items-center justify-center text-xl font-bold shadow-2xl border-2 border-white z-[9999] transition active:scale-95">
+        ✕
+    </button>
 
-                    <!-- Gambar: Diberi flex-1 agar dia mengisi ruang yang tersisa saja -->
-                    <div class="flex-1 flex items-center justify-center w-full overflow-hidden" onclick="event.stopPropagation()">
-                        <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-full max-w-full object-contain rounded-xl cursor-pointer">
-                    </div>
+    <!-- Ruang Kosong di Atas (Agar tidak menabrak tombol silang fixed) -->
+    <div class="w-full h-8"></div>
+
+    <!-- Gambar: Mengisi ruang tengah yang tersisa -->
+    <div class="flex-1 flex items-center justify-center w-full overflow-hidden my-2" onclick="event.stopPropagation()">
+        <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-full max-w-full object-contain rounded-xl cursor-pointer shadow-2xl">
+    </div>
     
-                    <!-- Baris Navigasi: Dipaksa selalu di bawah (sticky) -->
-                    <div class="w-full flex flex-col items-center gap-2 pb-6 pt-2" onclick="event.stopPropagation()">
-                        <p id="lightboxCaption" class="text-xs text-slate-300 text-center truncate w-full px-4"></p>
-                        <div class="flex items-center gap-3">
-                            <button onclick="slidePhoto(-1)" class="bg-slate-800 text-white px-5 py-2 rounded-xl text-xs font-bold">◀ Prev</button>
-                            <button onclick="closeLightbox()" class="bg-rose-950 text-rose-300 px-6 py-2 rounded-xl text-xs font-semibold border border-rose-800">Tutup</button>
-                            <button onclick="slidePhoto(1)" class="bg-slate-800 text-white px-5 py-2 rounded-xl text-xs font-bold">Next ▶</button>
-                        </div>
-                    </div>
-                </div>
+    <!-- Baris Navigasi & Tutup di Bawah (Tidak akan pernah tenggelam) -->
+    <div class="w-full flex flex-col items-center gap-2 pb-4 pt-2" onclick="event.stopPropagation()">
+        <p id="lightboxCaption" class="text-xs text-slate-300 text-center truncate w-full px-4 font-medium"></p>
+        <div class="flex items-center gap-3">
+            <button onclick="slidePhoto(-1)" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shadow">◀ Prev</button>
+            <button onclick="closeLightbox()" class="bg-rose-950 hover:bg-rose-900 border border-rose-800 text-rose-300 px-6 py-2.5 rounded-xl text-xs font-semibold transition shadow">✕ Tutup</button>
+            <button onclick="slidePhoto(1)" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shadow">Next ▶</button>
+        </div>
+    </div>
+</div>
             `;
 
             try {
