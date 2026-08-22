@@ -3,84 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radio Rohani Nonstop - GMIT JPO</title>
+    <title>Statistik Jemaat - GMIT JPO</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col items-center justify-start p-4 md:p-6">
 
-    <div class="max-w-md w-full mx-auto bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-2xl space-y-5 text-center">
+    <div class="max-w-xl w-full mx-auto space-y-6">
         
-        <!-- Tombol Kembali -->
-        <div class="text-left">
-            <a href="index.html" class="text-xs text-purple-400 font-semibold hover:underline">← Kembali ke Beranda</a>
+        <!-- Header & Tombol Kembali -->
+        <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <div>
+                <h1 class="font-bold text-sm text-slate-900">📊 Statistik Jemaat</h1>
+                <p class="text-[11px] text-slate-500">Data ringkasan jemaat GMIT JPO</p>
+            </div>
+            <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition">← Beranda</a>
         </div>
 
-        <div class="w-20 h-20 bg-pink-950 border border-pink-800 text-pink-300 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner">
-            📻
-        </div>
-
-        <div>
-            <h2 class="font-bold text-base text-white">Radio Rohani Kristen 24 Jam</h2>
-            <p class="text-xs text-slate-400 mt-1">Pujian & Firman Tuhan Nonstop</p>
-        </div>
-
-        <!-- Opsi 1: Pemutar Audio Internal yang Stabil -->
-        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3">
-            <p class="text-[11px] text-slate-300 font-medium">Pemutar Siaran Utama:</p>
-            <audio id="audioRadio" preload="none" class="w-full">
-                <source src="https://phila.streamguys1.com/live" type="audio/mpeg">
-                Browser Anda tidak mendukung audio.
-            </audio>
-            <button id="btnKontrol" onclick="togglePlay()" class="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition">
-                ▶ PUTAR SIARAN
-            </button>
-            <p id="statusText" class="text-[10px] text-slate-500">Tekan tombol untuk mendengarkan</p>
-        </div>
-
-        <hr class="border-slate-800">
-
-        <!-- Opsi 2: Tautan Langsung ke Radio Kristen Pilihan (Solusi Paling Aman dari Pusing) -->
-        <div class="space-y-2">
-            <p class="text-[11px] text-slate-400">Atau pilih saluran streaming eksternal:</p>
-            <a href="https://www.radiokristen.net/station_detail/13-Grace-Alone-Radio-Surabaya" target="_blank" class="block w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-purple-300 py-2.5 px-4 rounded-xl text-xs font-semibold transition">
-                🌐 Buka Grace Alone Radio Surabaya
-            </a>
+        <!-- Area Konten Statistik (Ditarik dari Backend) -->
+        <div id="statsContainer" class="space-y-4">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm text-center">
+                <p class="text-xs text-slate-400 animate-pulse">Memuat data statistik gereja...</p>
+            </div>
         </div>
 
     </div>
 
 <script>
-    const audio = document.getElementById('audioRadio');
-    const btn = document.getElementById('btnKontrol');
-    const statusText = document.getElementById('statusText');
-    let isPlaying = false;
+    // Ganti dengan SCRIPT_URL deployment Google Apps Script Anda yang aktif
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
 
-    function togglePlay() {
-        if (!isPlaying) {
-            btn.innerText = "MENYAMBUNGKAN...";
-            statusText.innerText = "Menghubungkan ke server...";
-            audio.load();
+    async function loadStatistics() {
+        const container = document.getElementById("statsContainer");
+        
+        try {
+            // Kita bisa memanfaatkan fungsi doGet yang sudah ada untuk mengambil data jemaat
+            const res = await fetch(`${SCRIPT_URL}?action=getSensusData`);
+            const result = await res.json();
             
-            audio.play().then(() => {
-                isPlaying = true;
-                btn.innerText = "⏸ HENTIKAN SIARAN";
-                btn.style.backgroundColor = "#e11d48";
-                statusText.innerText = "🟢 Sedang Memutar Live Streaming";
-            }).catch(err => {
-                console.error(err);
-                statusText.innerText = "❌ Gagal memuat siaran langsung.";
-                btn.innerText = "▶ PUTAR SIARAN";
-                btn.style.backgroundColor = "#db2777";
-                isPlaying = false;
-            });
-        } else {
-            audio.pause();
-            isPlaying = false;
-            btn.innerText = "▶ PUTAR SIARAN";
-            btn.style.backgroundColor = "#db2777";
-            statusText.innerText = "Siaran dijeda.";
+            if (result.status === "success" && result.data) {
+                const data = result.data;
+                const totalJemaat = data.length;
+                
+                // Hitung data pendukung
+                let verifiedCount = data.filter(item => item[13] === "Verified").length;
+                let pendingCount = totalJemaat - verifiedCount;
+                
+                // Hitung berdasarkan Lingkungan (Kolom ke-5, indeks 5)
+                let lingkunganMap = {};
+                data.forEach(item => {
+                    let ling = item[5] || "Belum Ditentukan";
+                    lingkunganMap[ling] = (lingkunganMap[ling] || 0) + 1;
+                });
+
+                // Render Tampilan Kartu Statistik
+                container.innerHTML = `
+                    <!-- Kartu Utama Total -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-[11px] text-slate-500 font-medium">Total Terdaftar</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1">${totalJemaat}</h3>
+                            <p class="text-[10px] text-purple-600 mt-1 font-semibold">Jiwa di Database</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-[11px] text-slate-500 font-medium">Terverifikasi</p>
+                            <h3 class="text-2xl font-black text-emerald-600 mt-1">${verifiedCount}</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Pending: ${pendingCount}</p>
+                        </div>
+                    </div>
+
+                    <!-- Sebaran per Lingkungan -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="font-bold text-xs text-slate-900 border-b pb-2">📍 Sebaran Berdasarkan Lingkungan</h3>
+                        <div class="space-y-2">
+                            ${Object.entries(lingkunganMap).map(([ling, count]) => `
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-slate-600 font-medium">${ling}</span>
+                                    <span class="bg-purple-50 text-purple-700 font-bold px-2.5 py-1 rounded-lg">${count} Jiwa</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Gagal memuat data statistik.</div>`;
+            }
+        } catch (err) {
+            container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Terjadi kesalahan koneksi.</div>`;
         }
     }
+
+    // Jalankan saat halaman dibuka
+    loadStatistics();
 </script>
 
 </body>
