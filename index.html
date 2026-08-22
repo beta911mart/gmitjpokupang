@@ -616,9 +616,11 @@ function renderAuthPageForAction(callbackOnSuccess) {
             ? `<img src="${user.foto_profil}" class="w-full h-full object-cover">`
             : `${user.nama_lengkap ? user.nama_lengkap.charAt(0) : 'U'}`;
 
-        const verifiedBadge = user.is_verified 
-            ? `<span class="bg-blue-600/30 text-blue-400 border border-blue-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1 mt-1">☑️ Jemaat Terverifikasi</span>`
-            : `<span class="bg-amber-600/30 text-amber-400 border border-amber-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1 mt-1">⏳ Belum Lengkap / Menunggu Verifikasi</span>`;
+            const verifiedBadge = user.is_verified 
+            ? `<span class="inline-flex items-center gap-1.5 bg-blue-950/40 text-blue-300 border border-blue-500/30 text-[11px] px-2.5 py-1 rounded-full font-semibold mt-1">
+                   <img src="badge.png" class="w-4 h-4 object-contain" alt="Verified"> Jemaat Terverifikasi
+               </span>`
+            : `<span class="bg-amber-600/30 text-amber-400 border border-amber-500/30 text-[10px] px-2.5 py-1 rounded-full font-semibold inline-flex items-center gap-1 mt-1">⏳ Menunggu Verifikasi</span>`;
 
         main.innerHTML = `
             <div class="space-y-6 pt-2 animate-fade-in">
