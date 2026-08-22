@@ -88,15 +88,18 @@
         }
 
         // --- 2. DASHBOARD ADMIN ---
-        function renderAdminDashboard(admin) {
+function renderAdminDashboard(admin) {
             document.getElementById("adminInfo").innerText = `Login: ${admin.nama} (${admin.role})`;
             document.getElementById("logoutBtn").classList.remove("hidden");
             
+            // Cek apakah Super Admin untuk menentukan jumlah kolom grid menu
+            const isSuper = admin.role === "Super Admin";
+
             const main = document.querySelector("main");
             main.innerHTML = `
                 <div class="space-y-6">
-                    <!-- Menu Grid Admin -->
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <!-- Menu Grid Admin (Dinamis berdasarkan Role) -->
+                    <div class="grid grid-cols-2 md:grid-cols-${isSuper ? '6' : '5'} gap-3">
                         <button onclick="loadSensusData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
                             <h3 class="font-bold text-xs text-slate-900">👥 Data Jemaat</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Daftar sensus & verifikasi.</p>
@@ -117,6 +120,11 @@
                             <h3 class="font-bold text-xs text-slate-900">📢 Push Notif</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Kelola popup peringatan.</p>
                         </button>
+                        ${isSuper ? `
+                        <button onclick="loadAdminManagement()" class="bg-purple-50 border border-purple-200 p-4 rounded-xl shadow-sm text-left hover:border-purple-400 transition">
+                            <h3 class="font-bold text-xs text-purple-900">⚙️ Kelola Admin</h3>
+                            <p class="text-[11px] text-purple-600 mt-1">Tambah/hapus operator.</p>
+                        </button>` : ''}
                     </div>
 
                     <div id="adminContentArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm min-h-[350px]">
@@ -125,6 +133,110 @@
                 </div>
             `;
             loadSensusData();
+        }
+        // --- KELOLA ADMIN (KHUSUS SUPER ADMIN) ---
+        async function loadAdminManagement() {
+            const area = document.getElementById("adminContentArea");
+            area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat daftar pengurus...</p>`;
+
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getAdmins`);
+                const result = await res.json();
+                const admins = result.admins || [];
+
+                area.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Form Tambah Admin Operator -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 h-fit">
+                            <h3 class="font-bold text-xs text-slate-900 mb-2">➕ Tambah Admin Operator Baru</h3>
+                            <p class="text-[11px] text-slate-500 mb-4">Akun ini memiliki hak akses operator (tanpa hak kelola admin).</p>
+                            <form onsubmit="handleSaveNewAdmin(event)" class="space-y-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Lengkap</label>
+                                    <input type="text" id="newAdminNama" required placeholder="Cth: Penatua John" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-xs outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Username Login</label>
+                                    <input type="text" id="newAdminUser" required placeholder="Cth: operator1" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-xs outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Password</label>
+                                    <input type="password" id="newAdminPass" required placeholder="******" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-xs outline-none">
+                                </div>
+                                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg text-xs font-semibold transition shadow-sm">Simpan Admin Baru</button>
+                            </form>
+                        </div>
+
+                        <!-- Daftar Pengurus Aktif -->
+                        <div class="md:col-span-2 space-y-3">
+                            <h3 class="font-bold text-xs text-slate-900">Daftar Pengurus Gereja (${admins.length} Akun)</h3>
+                            <div class="space-y-2">
+                                ${admins.map(a => `
+                                    <div class="bg-white border border-slate-200 p-3.5 rounded-xl flex justify-between items-center shadow-sm">
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="text-xs font-bold text-slate-900">${a.nama}</h4>
+                                                <span class="text-[9px] px-2 py-0.5 rounded font-semibold ${a.role === 'Super Admin' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-700'}">${a.role}</span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-500 font-mono mt-0.5">Username: ${a.username}</p>
+                                        </div>
+                                        <div>
+                                            ${a.role !== 'Super Admin' ? `
+                                                <button onclick="deleteAdminItem('${a.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition">Hapus Akses</button>
+                                            ` : `<span class="text-[10px] text-slate-400 italic">Utama</span>`}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                area.innerHTML = `<p class="text-center text-rose-500 text-sm py-10">Gagal memuat daftar pengurus.</p>`;
+            }
+        }
+
+        async function handleSaveNewAdmin(e) {
+            e.preventDefault();
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const data = {
+                action: "addAdmin",
+                admin_id: admin.id,
+                nama: document.getElementById("newAdminNama").value,
+                username: document.getElementById("newAdminUser").value,
+                password: document.getElementById("newAdminPass").value
+            };
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                alert(result.message);
+                if (result.status === "success") {
+                    loadAdminManagement(); // Refresh daftar
+                }
+            } catch (err) {
+                alert("Gagal menambahkan admin: " + err);
+            }
+        }
+
+        async function deleteAdminItem(targetId) {
+            if (!confirm("Yakin ingin mencabut akses pengurus ini?")) return;
+            
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "deleteAdmin", admin_id: admin.id, target_id: targetId })
+                });
+                const result = await res.json();
+                alert(result.message);
+                loadAdminManagement(); // Refresh daftar
+            } catch (err) {
+                alert("Gagal menghapus admin: " + err);
+            }
         }
 
         // --- 3. AMBIL & TAMPILKAN DATA SENSUS JEMAAT (DENGAN USERNAME & VERIFIKASI) ---
