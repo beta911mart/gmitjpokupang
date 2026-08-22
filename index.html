@@ -608,78 +608,85 @@ function renderAuthPageForAction(callbackOnSuccess) {
                     `;
                 });
 } else if (tab === 'profil') {
-                checkAuthBeforeAction(() => {
-                    const user = window.currentUser;
-                    const isExtendedFilled = user.alamat && user.alamat.trim() !== "";
+    checkAuthBeforeAction(() => {
+        const user = window.currentUser;
+        const isAdmin = user.isAdmin || false;
+
+        const profileImageHtml = user.foto_profil 
+            ? `<img src="${user.foto_profil}" class="w-full h-full object-cover">`
+            : `${user.nama_lengkap ? user.nama_lengkap.charAt(0) : 'U'}`;
+
+        const verifiedBadge = user.is_verified 
+            ? `<span class="bg-blue-600/30 text-blue-400 border border-blue-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1 mt-1">☑️ Jemaat Terverifikasi</span>`
+            : `<span class="bg-amber-600/30 text-amber-400 border border-amber-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1 mt-1">⏳ Belum Lengkap / Menunggu Verifikasi</span>`;
+
+        main.innerHTML = `
+            <div class="space-y-6 pt-2 animate-fade-in">
+                <div class="text-center space-y-2">
+                    <div class="w-20 h-20 bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full mx-auto shadow-inner border border-purple-800 overflow-hidden">
+                        ${profileImageHtml}
+                    </div>
+                    <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
+                    <div>${verifiedBadge}</div>
+                    <p class="text-xs text-purple-400 font-medium">${user.status_pelayanan || 'Jemaat'}</p>
+                </div>
+
+                <!-- BANNER BENEFIT & PRIDE (MOTIVASI LENGKAPI DATA) -->
+                <div class="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/30 p-3.5 rounded-2xl text-xs space-y-1 shadow-md">
+                    <p class="font-bold text-purple-200 flex items-center gap-1.5"><span>✨</span> Keanggotaan Pniel Oebobo</p>
+                    <p class="text-[11px] text-slate-300 leading-relaxed">Lengkapi data diri dan alamat domisili Anda untuk mendapatkan lencana resmi <b>Centang Biru (Terverifikasi)</b> dari gereja.</p>
+                </div>
+
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs">
+                    <!-- Detail info profil -->
+                    <div class="border-b border-slate-800 pb-2">
+                        <span class="text-slate-400 block text-[10px]">Username Unik</span>
+                        <span class="text-purple-300 font-mono font-bold">${user.username || '-'}</span>
+                    </div>
+                    <div class="border-b border-slate-800 pb-2">
+                        <span class="text-slate-400 block text-[10px]">Lingkungan / Rayon</span>
+                        <span class="text-slate-200 font-medium">Lingkungan ${user.lingkungan || '-'} - Rayon ${user.rayon || '-'}</span>
+                    </div>
+                    <div class="border-b border-slate-800 pb-2">
+                        <span class="text-slate-400 block text-[10px]">No. WhatsApp</span>
+                        <span class="text-slate-200 font-medium">${user.no_whatsapp || '-'}</span>
+                    </div>
+                    <div class="border-b border-slate-800 pb-2">
+                        <span class="text-slate-400 block text-[10px]">Alamat Domisili</span>
+                        <span class="text-slate-200 font-medium">${user.alamat || '<span class="text-amber-400 italic">Belum diisi</span>'}</span>
+                    </div>
+                    <div class="border-b border-slate-800 pb-2">
+                        <span class="text-slate-400 block text-[10px]">Pekerjaan</span>
+                        <span class="text-slate-200 font-medium">${user.pekerjaan || '<span class="text-amber-400 italic">Belum diisi</span>'}</span>
+                    </div>
+                    <div class="border-b border-slate-800 pb-2">
+                        <span class="text-slate-400 block text-[10px]">Golongan Darah</span>
+                        <span class="text-slate-200 font-medium">${user.golongan_darah || '-'}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[10px]">Minat Pelayanan / Komisi</span>
+                        <span class="text-slate-200 font-medium">${user.minat_pelayanan || '-'}</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition flex items-center justify-center gap-1.5">
+                        <span>✏️</span> Lengkapi / Perbarui Data Diri
+                    </button>
+                    <button onclick="logout()" class="w-full bg-rose-950/50 hover:bg-rose-900/40 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition">
+                        Keluar (Logout)
+                    </button>
                     
-                    // Langsung baca dari memori lokal (tanpa delay network/fetch)
-                    const isAdmin = user.isAdmin || false;
-
-                    if (!isExtendedFilled) {
-                        openExtendedProfileForm(false);
-                    } else {
-                        const profileImageHtml = user.foto_profil 
-                            ? `<img src="${user.foto_profil}" class="w-full h-full object-cover">`
-                            : `${user.nama_lengkap.charAt(0)}`;
-
-                        const verifiedBadge = user.is_verified 
-                            ? `<span class="bg-blue-600/30 text-blue-400 border border-blue-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1 mt-1">☑️ Jemaat Terverifikasi</span>`
-                            : `<span class="bg-amber-600/30 text-amber-400 border border-amber-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1 mt-1">⏳ Menunggu Verifikasi Sensus</span>`;
-
-                        main.innerHTML = `
-                            <div class="space-y-6 pt-2 animate-fade-in">
-                                <div class="text-center space-y-2">
-                                    <div class="w-20 h-20 bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full mx-auto shadow-inner border border-purple-800 overflow-hidden">
-                                        ${profileImageHtml}
-                                    </div>
-                                    <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
-                                    <div>${verifiedBadge}</div>
-                                    <p class="text-xs text-purple-400 font-medium">${user.status_pelayanan || 'Jemaat'}</p>
-                                </div>
-
-                                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs">
-                                    <!-- Detail info profil -->
-                                    <div class="border-b border-slate-800 pb-2">
-                                        <span class="text-slate-400 block text-[10px]">Lingkungan / Rayon</span>
-                                        <span class="text-slate-200 font-medium">Lingkungan ${user.lingkungan || '-'} - Rayon ${user.rayon || '-'}</span>
-                                    </div>
-                                    <div class="border-b border-slate-800 pb-2">
-                                        <span class="text-slate-400 block text-[10px]">No. WhatsApp</span>
-                                        <span class="text-slate-200 font-medium">${user.no_whatsapp || '-'}</span>
-                                    </div>
-                                    <div class="border-b border-slate-800 pb-2">
-                                        <span class="text-slate-400 block text-[10px]">Alamat Domisili</span>
-                                        <span class="text-slate-200 font-medium">${user.alamat || '-'}</span>
-                                    </div>
-                                    <div class="border-b border-slate-800 pb-2">
-                                        <span class="text-slate-400 block text-[10px]">Pekerjaan</span>
-                                        <span class="text-slate-200 font-medium">${user.pekerjaan || '-'}</span>
-                                    </div>
-                                    <div class="border-b border-slate-800 pb-2">
-                                        <span class="text-slate-400 block text-[10px]">Golongan Darah</span>
-                                        <span class="text-slate-200 font-medium">${user.golongan_darah || '-'}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-slate-400 block text-[10px]">Minat Pelayanan / Komisi</span>
-                                        <span class="text-slate-200 font-medium">${user.minat_pelayanan || '-'}</span>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition">Perbarui Data Diri & Foto ✏️</button>
-                                    <button onclick="logout()" class="w-full bg-rose-950/50 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition">Keluar (Logout)</button>
-                                    
-                                    ${isAdmin ? `
-                                        <a href="admin.html" class="block text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">
-                                            🔒 Masuk ke Panel Pengurus Gereja
-                                        </a>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-            }
+                    ${isAdmin ? `
+                        <a href="admin.html" class="block text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">
+                            🔒 Masuk ke Panel Pengurus Gereja
+                        </a>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+}
         }
 
         const BIBLE_BOOKS = [
