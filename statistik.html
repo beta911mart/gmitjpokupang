@@ -6,81 +6,153 @@
     <title>Statistik Jemaat - GMIT JPO</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col items-center justify-start p-4 md:p-6">
+<body class="bg-slate-50 text-slate-950 font-sans antialiased min-h-screen flex flex-col items-center justify-start p-4 md:p-6">
 
     <div class="max-w-xl w-full mx-auto space-y-6">
         
         <!-- Header & Tombol Kembali -->
         <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
             <div>
-                <h1 class="font-bold text-sm text-slate-900">📊 Statistik Jemaat</h1>
-                <p class="text-[11px] text-slate-500">Data ringkasan jemaat GMIT JPO</p>
+                <h1 class="font-bold text-sm text-slate-900">📊 Statistik & Demografi Jemaat</h1>
+                <p class="text-[11px] text-slate-500">Data real-time GMIT JPO</p>
             </div>
             <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition">← Beranda</a>
         </div>
 
-        <!-- Area Konten Statistik (Ditarik dari Backend) -->
+        <!-- Area Konten Statistik -->
         <div id="statsContainer" class="space-y-4">
-            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm text-center">
-                <p class="text-xs text-slate-400 animate-pulse">Memuat data statistik gereja...</p>
+            <div class="bg-white p-12 rounded-2xl border border-slate-200 shadow-sm text-center">
+                <div class="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                <p class="text-xs text-slate-400">Memuat data demografi gereja...</p>
             </div>
         </div>
 
     </div>
 
 <script>
-    // Ganti dengan SCRIPT_URL deployment Google Apps Script Anda yang aktif
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
+    // Ganti dengan URL Web App Apps Script Anda yang aktif
+    const SCRIPT_URL = "URL_WEB_APP_ANDA_DI_SINI";
 
     async function loadStatistics() {
         const container = document.getElementById("statsContainer");
         
         try {
-            // Kita bisa memanfaatkan fungsi doGet yang sudah ada untuk mengambil data jemaat
             const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`);
             const result = await res.json();
             
-// Perhatikan apakah propertinya 'users' atau 'data'
             if (result.status === "success" && (result.users || result.data)) {
                 const data = result.users || result.data;
                 const totalJemaat = data.length;
                 
-                // Hitung data pendukung
-                let verifiedCount = data.filter(item => item[13] === "Verified").length;
+                if (totalJemaat === 0) {
+                    container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-slate-500">Belum ada data jemaat.</div>`;
+                    return;
+                }
+
+                // 1. Hitung Verifikasi (Indeks 13: "Verified")
+                let verifiedCount = data.filter(item => String(item[13]).trim() === "Verified").length;
                 let pendingCount = totalJemaat - verifiedCount;
-                
-                // Hitung berdasarkan Lingkungan (Kolom ke-5, indeks 5)
+                let verifiedPercent = Math.round((verifiedCount / totalJemaat) * 100);
+
+                // 2. Hitung Jenis Kelamin (Indeks 16 atau sesuaikan dengan kolom jenis kelamin di database Anda)
+                // Catatan: Jika kolom jenis kelamin ada di indeks lain, sesuaikan angkanya. 
+                // Berdasarkan skrip sebelumnya, jenis kelamin ada di indeks 16.
+                let genderMap = { "Laki-laki": 0, "Perempuan": 0, "Belum Diisi": 0 };
+                data.forEach(item => {
+                    let g = String(item[16] || "").trim().toLowerCase();
+                    if (g.startsWith("l") || g.includes("pria")) {
+                        genderMap["Laki-laki"]++;
+                    } else if (g.startsWith("p") || g.includes("wanita")) {
+                        genderMap["Perempuan"]++;
+                    } else {
+                        genderMap["Belum Diisi"]++;
+                    }
+                });
+
+                // 3. Hitung Lingkungan (Indeks 5)
                 let lingkunganMap = {};
                 data.forEach(item => {
-                    let ling = item[5] || "Belum Ditentukan";
+                    let ling = String(item[5] || "").trim() || "Belum Ditentukan";
                     lingkunganMap[ling] = (lingkunganMap[ling] || 0) + 1;
                 });
-                // Render Tampilan Kartu Statistik
+
+                // 4. Hitung Minat Pelayanan (Indeks 12)
+                let minatMap = {};
+                data.forEach(item => {
+                    let minatRaw = String(item[12] || "").trim();
+                    if (!minatRaw) {
+                        minatMap["Belum Memilih"] = (minatMap["Belum Memilih"] || 0) + 1;
+                    } else {
+                        // Jika minat dipisah koma
+                        let listMinat = minatRaw.split(",");
+                        listMinat.forEach(m => {
+                            let cleanM = m.trim();
+                            if (cleanM) {
+                                minatMap[cleanM] = (minatMap[cleanM] || 0) + 1;
+                            }
+                        });
+                    }
+                });
+
+                // Helper untuk membuat bar grafik visual HTML
+                function renderBar(label, count, total, colorClass = "bg-purple-600") {
+                    let percent = total > 0 ? Math.round((count / total) * 100) : 0;
+                    return `
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs">
+                                <span class="font-medium text-slate-700">${label}</span>
+                                <span class="font-bold text-slate-900">${count} <span class="text-[10px] text-slate-400 font-normal">(${percent}%)</span></span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                <div class="${colorClass} h-2.5 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Render UI Utama
                 container.innerHTML = `
-                    <!-- Kartu Utama Total -->
+                    <!-- 1. Ringkasan Utama -->
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                            <p class="text-[11px] text-slate-500 font-medium">Total Terdaftar</p>
+                            <p class="text-[11px] text-slate-500 font-medium">Total Jemaat</p>
                             <h3 class="text-2xl font-black text-slate-900 mt-1">${totalJemaat}</h3>
-                            <p class="text-[10px] text-purple-600 mt-1 font-semibold">Jiwa di Database</p>
+                            <p class="text-[10px] text-purple-600 mt-1 font-semibold">Terdaftar di Database</p>
                         </div>
                         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                            <p class="text-[11px] text-slate-500 font-medium">Terverifikasi</p>
-                            <h3 class="text-2xl font-black text-emerald-600 mt-1">${verifiedCount}</h3>
-                            <p class="text-[10px] text-slate-400 mt-1">Pending: ${pendingCount}</p>
+                            <p class="text-[11px] text-slate-500 font-medium">Status Verifikasi</p>
+                            <h3 class="text-2xl font-black text-emerald-600 mt-1">${verifiedPercent}%</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">${verifiedCount} Terverifikasi, ${pendingCount} Pending</p>
                         </div>
                     </div>
 
-                    <!-- Sebaran per Lingkungan -->
+                    <!-- 2. Grafik Jenis Kelamin -->
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                        <h3 class="font-bold text-xs text-slate-900 border-b pb-2">📍 Sebaran Berdasarkan Lingkungan</h3>
-                        <div class="space-y-2">
-                            ${Object.entries(lingkunganMap).map(([ling, count]) => `
-                                <div class="flex justify-between items-center text-xs">
-                                    <span class="text-slate-600 font-medium">${ling}</span>
-                                    <span class="bg-purple-50 text-purple-700 font-bold px-2.5 py-1 rounded-lg">${count} Jiwa</span>
-                                </div>
-                            `).join('')}
+                        <h3 class="font-bold text-xs text-slate-900 border-b pb-2">👥 Demografi Jenis Kelamin</h3>
+                        <div class="space-y-3">
+                            ${renderBar("Laki-laki", genderMap["Laki-laki"], totalJemaat, "bg-blue-500")}
+                            ${renderBar("Perempuan", genderMap["Perempuan"], totalJemaat, "bg-pink-500")}
+                            ${genderMap["Belum Diisi"] > 0 ? renderBar("Belum Diisi", genderMap["Belum Diisi"], totalJemaat, "bg-slate-400") : ''}
+                        </div>
+                    </div>
+
+                    <!-- 3. Grafik Sebaran Lingkungan -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="font-bold text-xs text-slate-900 border-b pb-2">📍 Sebaran Per Lingkungan</h3>
+                        <div class="space-y-3">
+                            ${Object.entries(lingkunganMap).map(([ling, count]) => 
+                                renderBar(ling, count, totalJemaat, "bg-purple-600")
+                            ).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 4. Grafik Minat Pelayanan -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="font-bold text-xs text-slate-900 border-b pb-2">✨ Minat Pelayanan Jemaat</h3>
+                        <div class="space-y-3">
+                            ${Object.entries(minatMap).map(([minat, count]) => 
+                                renderBar(minat, count, totalJemaat, "bg-amber-500")
+                            ).join('')}
                         </div>
                     </div>
                 `;
@@ -88,11 +160,11 @@
                 container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Gagal memuat data statistik.</div>`;
             }
         } catch (err) {
-            container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Terjadi kesalahan koneksi.</div>`;
+            console.error(err);
+            container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Terjadi kesalahan koneksi server.</div>`;
         }
     }
 
-    // Jalankan saat halaman dibuka
     loadStatistics();
 </script>
 
