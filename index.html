@@ -888,31 +888,30 @@ async function openGaleryMenu() { // Menu Galeri Foto
                 </div>
 
                 <!-- MODAL LIGHTBOX / POPUP MELAYANG -->
-                <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between items-center p-4">
-                    
-                    <!-- Header: Tombol Silang di Pojok Kanan Atas -->
-                    <div class="w-full flex justify-end">
-                        <button onclick="closeLightbox()" class="bg-rose-600 hover:bg-rose-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-lg">
-                            ✕
-                        </button>
-                    </div>
+<div id="lightboxModal" class="fixed inset-0 bg-black/90 z-[99999] hidden flex items-center justify-center p-2" onclick="closeLightbox(event)">
+    
+    <!-- Pembungkus Utama (Relative agar elemen di dalamnya bisa menempel pas) -->
+    <div class="relative max-w-md w-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+        
+        <!-- 1. TOMBOL SILANG (X) DI POJOK KANAN ATAS FOTO -->
+        <button onclick="closeLightbox()" class="absolute -top-4 -right-2 bg-rose-600 hover:bg-rose-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-2xl border-2 border-white z-50">
+            ✕
+        </button>
 
-                    <!-- Tengah: Gambar (Bisa diklik untuk slide foto berikutnya) -->
-                    <div class="flex-1 flex items-center justify-center w-full my-2">
-                        <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-[60vh] max-w-full object-contain rounded-xl cursor-pointer shadow-2xl">
-                    </div>
-                    
-                    <!-- Bawah: Judul & Tombol Navigasi Lengkap -->
-                    <div class="w-full flex flex-col items-center gap-2 pb-2">
-                        <p id="lightboxCaption" class="text-xs text-slate-300 text-center truncate w-full px-4 font-medium"></p>
-                        
-                        <div class="flex items-center gap-3">
-                            <button onclick="slidePhoto(-1)" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold">◀ Prev</button>
-                            <button onclick="closeLightbox()" class="bg-rose-950 hover:bg-rose-900 border border-rose-800 text-rose-300 px-6 py-2.5 rounded-xl text-xs font-semibold">✕ Tutup</button>
-                            <button onclick="slidePhoto(1)" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold">Next ▶</button>
-                        </div>
-                    </div>
-                </div>
+        <!-- 2. GAMBAR UTAMA (Bisa diklik untuk slide foto berikutnya) -->
+        <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-[65vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-slate-700 bg-black cursor-pointer">
+        
+        <!-- 3. KETERANGAN / JUDUL FOTO -->
+        <p id="lightboxCaption" class="text-xs text-slate-200 mt-2 text-center font-medium px-2 truncate w-full"></p>
+        
+        <!-- 4. TOMBOL NAVIGASI DI BAWAH (Dijamin tidak tenggelam karena posisinya di dalam modal berukuran pas) -->
+        <div class="flex items-center gap-3 mt-3">
+            <button onclick="slidePhoto(-1)" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow">◀ Prev</button>
+            <button onclick="closeLightbox()" class="bg-rose-950 hover:bg-rose-900 border border-rose-800 text-rose-300 px-5 py-2 rounded-xl text-xs font-semibold shadow">✕ Tutup</button>
+            <button onclick="slidePhoto(1)" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow">Next ▶</button>
+        </div>
+    </div>
+</div>
             `;
 
             try {
