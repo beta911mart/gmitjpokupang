@@ -310,7 +310,7 @@
             }
         }
 
-        function renderAuthPageForAction(callbackOnSuccess) {
+function renderAuthPageForAction(callbackOnSuccess) {
             window.pendingAuthAction = callbackOnSuccess;
 
             const main = document.querySelector("main");
@@ -321,7 +321,7 @@
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                     <div class="text-center">
                         <h2 class="text-lg font-bold text-purple-400">Verifikasi Akun Diperlukan</h2>
-                        <p class="text-xs text-slate-400 mt-1">Fitur ini memerlukan login atau registrasi agar data terhubung ke database gereja.</p>
+                        <p class="text-xs text-slate-400 mt-1">Masuk atau daftar untuk terhubung ke sistem jemaat.</p>
                     </div>
 
                     <div class="flex border-b border-slate-800">
@@ -329,59 +329,104 @@
                         <button id="tabRegBtn" onclick="toggleAuthTab('register')" class="flex-1 pb-2 text-slate-500 text-xs">Daftar Baru</button>
                     </div>
 
+                    <!-- FORM LOGIN (Mendukung Username Unik atau Nama Lengkap) -->
                     <form id="formLogin" onsubmit="handleLoginForAction(event)" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
-                            <input type="text" id="loginNama" required placeholder="Contoh: Budi Santoso" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none focus:border-purple-500">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Username Unik atau Nama Lengkap</label>
+                            <input type="text" id="loginNama" required placeholder="Cth: budi.wa899 atau Budi Santoso" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none focus:border-purple-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">4 Digit Terakhir No. WhatsApp</label>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Password / 4 Digit No. WhatsApp</label>
                             <input type="password" maxlength="4" id="loginPin" required placeholder="Cth: 7899" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none focus:border-purple-500">
                         </div>
-                        <button type="submit" id="btnLoginSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition">Masuk & Lanjutkan</button>
+                        <button type="submit" id="btnLoginSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition">Masuk</button>
                     </form>
 
-                    <form id="formRegister" onsubmit="handleRegisterForAction(event)" class="space-y-3 hidden">
+                    <!-- FORM REGISTRASI BARU (CUKUP NAMA & NOMOR WA SAJA) -->
+                    <form id="formRegister" onsubmit="handleRegisterForAction(event)" class="space-y-4 hidden">
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
-                            <input type="text" id="regNama" required class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="flex-1">
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Tempat Lahir</label>
-                                <input type="text" id="regTempatLahir" required class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                            </div>
-                            <div class="flex-1">
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Tanggal Lahir</label>
-                                <input type="date" id="regTglLahir" required class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Status Pelayanan</label>
-                            <select id="regStatus" class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                <option value="Jemaat">Jemaat</option>
-                                <option value="Pendeta">Pendeta</option>
-                                <option value="Majelis">Majelis</option>
-                            </select>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="flex-1">
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Lingkungan</label>
-                                <input type="text" id="regLingkungan" required placeholder="Cth: 1" class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                            </div>
-                            <div class="flex-1">
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Rayon</label>
-                                <input type="text" id="regRayon" required placeholder="Cth: 2" class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                            </div>
+                            <input type="text" id="regNama" required placeholder="Contoh: Budi Santoso" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Nomor WhatsApp</label>
-                            <input type="tel" id="regWa" required placeholder="081234567899" class="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                            <input type="tel" id="regWa" required placeholder="Contoh: 081234567899" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                            <p class="text-[10px] text-slate-400 mt-1">Password 4 digit akan otomatis dibuat dari nomor WA Anda.</p>
                         </div>
-                        <button type="submit" id="btnRegSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition mt-2">Daftar & Lanjutkan</button>
+                        <button type="submit" id="btnRegSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition mt-2">Daftar Akun Baru</button>
                     </form>
                 </div>
             `;
+        }
+
+        async function handleRegisterForAction(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnRegSubmit");
+            const nama = document.getElementById("regNama").value.trim();
+            const wa = document.getElementById("regWa").value.trim();
+
+            btn.disabled = true;
+            btn.innerHTML = "Membuat Akun...";
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "register",
+                        nama_lengkap: nama,
+                        no_whatsapp: wa
+                    })
+                });
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    const u = result.user;
+                    
+                    // Tampilkan Kartu Informasi Akun Sukses dengan Tombol Salin & Login
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pendaftaran Berhasil! 🎉',
+                        html: `
+                            <div class="text-left bg-slate-900 p-4 rounded-xl text-slate-200 text-xs space-y-2.5 border border-slate-800 mt-2">
+                                <p>Syalom <b>${u.nama_lengkap}</b>, akun Anda berhasil dibuat.</p>
+                                <hr class="border-slate-800 my-2">
+                                <p>👤 <b>Username Unik:</b> <code class="bg-purple-950 text-purple-300 px-2 py-0.5 rounded font-mono font-bold" id="txtUsername">${u.username}</code></p>
+                                <p>🔑 <b>Password (PIN):</b> <code class="bg-rose-950 text-rose-300 px-2 py-0.5 rounded font-mono font-bold" id="txtPassword">${u.password}</code></p>
+                                <p class="text-[10px] text-amber-400 mt-1">⚠️ Catat atau salin informasi akun ini untuk masuk ke aplikasi!</p>
+                            </div>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: '📋 Salin Akun',
+                        cancelButtonText: '🔑 Lanjut ke Login',
+                        confirmButtonColor: '#9333ea',
+                        cancelButtonColor: '#334155',
+                        allowOutsideClick: false
+                    }).then((clickResult) => {
+                        if (clickResult.isConfirmed) {
+                            // Salin teks ke clipboard
+                            const textToCopy = `Username: ${u.username}\nPassword: ${u.password}`;
+                            navigator.clipboard.writeText(textToCopy).then(() => {
+                                showToast("Akun berhasil disalin!");
+                            });
+                            toggleAuthTab('login');
+                        } else {
+                            // Pindah ke tab login
+                            toggleAuthTab('login');
+                        }
+                    });
+
+                    btn.disabled = false;
+                    btn.innerHTML = "Daftar Akun Baru";
+                } else {
+                    showToast(result.message, "error");
+                    btn.disabled = false;
+                    btn.innerHTML = "Daftar Akun Baru";
+                }
+            } catch (err) {
+                showToast("Kesalahan koneksi.", "error");
+                btn.disabled = false;
+                btn.innerHTML = "Daftar Akun Baru";
+            }
         }
 
         function toggleAuthTab(type) {
@@ -440,75 +485,6 @@
                 showToast("Kesalahan koneksi.", "error");
                 btn.disabled = false;
                 btn.innerHTML = "Masuk & Lanjutkan";
-            }
-        }
-
-        async function handleRegisterForAction(e) {
-            e.preventDefault();
-            const btn = document.getElementById("btnRegSubmit");
-            const data = {
-                action: "register",
-                nama_lengkap: document.getElementById("regNama").value,
-                tempat_lahir: document.getElementById("regTempatLahir").value,
-                tanggal_lahir: document.getElementById("regTglLahir").value,
-                status_pelayanan: document.getElementById("regStatus").value,
-                lingkungan: document.getElementById("regLingkungan").value,
-                rayon: document.getElementById("regRayon").value,
-                no_whatsapp: document.getElementById("regWa").value
-            };
-
-            btn.disabled = true;
-            btn.innerHTML = "Mendaftarkan...";
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-
-                if (result.status === "success") {
-                    const user = result.user;
-                    const pin4Digit = user.pin_4_digit || user.no_whatsapp.slice(-4);
-
-                    localStorage.setItem("user_gereja", JSON.stringify(user));
-                    window.currentUser = user;
-                    updateAuthNavText();
-
-                    // Tampilkan Kartu Informasi Akun Pendaftaran Berhasil
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Pendaftaran Berhasil! 🎉',
-                        html: `
-                            <div class="text-left bg-slate-800 p-4 rounded-xl text-slate-200 text-xs space-y-2 border border-slate-700 mt-2">
-                                <p>Syalom <b>${user.nama_lengkap}</b>, akun Anda telah terdaftar.</p>
-                                <hr class="border-slate-700 my-2">
-                                <p>📱 <b>No. WhatsApp:</b> ${user.no_whatsapp}</p>
-                                <p>🔑 <b>PIN Login Anda:</b> <span class="bg-rose-900/60 text-rose-300 px-2 py-0.5 rounded font-bold">${pin4Digit}</span></p>
-                                <p class="text-[11px] text-amber-400 mt-1">⚠️ Gunakan Nama Lengkap & PIN di atas untuk masuk berikutnya!</p>
-                            </div>
-                        `,
-                        confirmButtonText: 'Lanjut ke Menu Utama',
-                        confirmButtonColor: '#9333ea',
-                        allowOutsideClick: false
-                    }).then(() => {
-                        if (typeof window.pendingAuthAction === 'function') {
-                            window.pendingAuthAction();
-                            window.pendingAuthAction = null;
-                        } else {
-                            switchTab('home');
-                        }
-                    });
-
-                } else {
-                    showToast(result.message, "error");
-                    btn.disabled = false;
-                    btn.innerHTML = "Daftar & Lanjutkan";
-                }
-            } catch (err) {
-                showToast("Kesalahan koneksi.", "error");
-                btn.disabled = false;
-                btn.innerHTML = "Daftar & Lanjutkan";
             }
         }
 
