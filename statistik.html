@@ -37,11 +37,12 @@
         
         try {
             // Kita bisa memanfaatkan fungsi doGet yang sudah ada untuk mengambil data jemaat
-            const res = await fetch(`${SCRIPT_URL}?action=getSensusData`);
+            const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`);
             const result = await res.json();
             
-            if (result.status === "success" && result.data) {
-                const data = result.data;
+// Perhatikan apakah propertinya 'users' atau 'data'
+            if (result.status === "success" && (result.users || result.data)) {
+                const data = result.users || result.data;
                 const totalJemaat = data.length;
                 
                 // Hitung data pendukung
@@ -54,7 +55,6 @@
                     let ling = item[5] || "Belum Ditentukan";
                     lingkunganMap[ling] = (lingkunganMap[ling] || 0) + 1;
                 });
-
                 // Render Tampilan Kartu Statistik
                 container.innerHTML = `
                     <!-- Kartu Utama Total -->
