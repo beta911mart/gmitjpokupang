@@ -64,7 +64,7 @@
                     <input type="text" id="searchInput" oninput="filterJemaatList()" placeholder="Ketik nama atau no WA..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-purple-500">
                     
                     <!-- Dropdown / List Hasil Pencarian -->
-                    <div id="searchResults" class="max-h-40 overflow-y-auto space-y-1 bg-slate-900/9k border border-slate-800 rounded-xl p-2 hidden">
+                    <div id="searchResults" class="max-h-40 overflow-y-auto space-y-1 bg-slate-900 border border-slate-800 rounded-xl p-2 hidden">
                         <!-- Hasil dimuat dinamis -->
                     </div>
                 </div>
@@ -83,6 +83,16 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
                         <input type="text" id="sNama" required class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                    </div>
+
+                    <!-- TAMBAHAN: FIELD JENIS KELAMIN -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Jenis Kelamin</label>
+                        <select id="sGender" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                            <option value="-">Pilih Jenis Kelamin</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
                     </div>
                     
                     <div class="flex gap-2">
@@ -170,7 +180,6 @@
     </div>
 
     <script>
-        // Gunakan SCRIPT_URL yang sama dengan index.html Anda
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
         
         let allUsersCache = [];
@@ -263,7 +272,7 @@
             }
 
             resultsDiv.innerHTML = matched.map(u => `
-                <div onclick='selectJemaatForEdit(${JSON.stringify(u)})' class="p-2 bg-slate-950 hover:bg-purple-950/40 rounded-lg cursor-pointer border border-slate-800 flex justify-between items-center transition">
+                <div onclick='selectJemaatForEdit(${JSON.stringify(u)})' class="p-2 bg-slate-900 hover:bg-purple-950/40 rounded-lg cursor-pointer border border-slate-800 flex justify-between items-center transition">
                     <div>
                         <p class="text-xs font-bold text-white">${u.nama_lengkap} ${u.is_verified ? '☑️' : ''}</p>
                         <p class="text-[10px] text-slate-400">WA: ${u.no_whatsapp} &bull; Lingkungan ${u.lingkungan || '-'}</p>
@@ -277,6 +286,7 @@
         function selectJemaatForEdit(user) {
             document.getElementById("userIdField").value = user.id;
             document.getElementById("sNama").value = user.nama_lengkap || "";
+            document.getElementById("sGender").value = user.jenis_kelamin || "-"; // <-- Muat jenis kelamin
             document.getElementById("sTempatLahir").value = user.tempat_lahir || "";
             document.getElementById("sTglLahir").value = user.tanggal_lahir ? user.tanggal_lahir.split('T')[0] : "";
             document.getElementById("sStatus").value = user.status_pelayanan || "Jemaat";
@@ -312,6 +322,7 @@
                 action: "sensusSaveData",
                 user_id: userId, // Jika kosong berarti data baru
                 nama_lengkap: document.getElementById("sNama").value,
+                jenis_kelamin: document.getElementById("sGender").value, // <-- Kirim jenis kelamin
                 tempat_lahir: document.getElementById("sTempatLahir").value,
                 tanggal_lahir: document.getElementById("sTglLahir").value,
                 status_pelayanan: document.getElementById("sStatus").value,
@@ -323,7 +334,7 @@
                 golongan_darah: document.getElementById("sGoldar").value,
                 minat_pelayanan: document.getElementById("sKomisi").value,
                 is_verified: isVerifying,
-                verified_by: currentAdmin.nama // Mencatat nama/ID petugas
+                verified_by: currentAdmin.nama
             };
 
             showToast("Menyimpan data sensus...");
@@ -338,7 +349,7 @@
                 if (result.status === "success") {
                     showToast(result.message);
                     resetForm();
-                    loadAllUsersData(); // Refresh cache data
+                    loadAllUsersData();
                 } else {
                     showToast(result.message, "error");
                 }
@@ -347,7 +358,6 @@
             }
         }
 
-        // Cek sesi login tersimpan saat halaman dibuka
         window.addEventListener('DOMContentLoaded', () => {
             const savedPetugas = localStorage.getItem("petugas_sensus");
             if (savedPetugas) {
