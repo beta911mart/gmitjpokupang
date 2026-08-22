@@ -888,29 +888,26 @@ async function openGaleryMenu() { // Menu Galeri Foto
                 </div>
 
                 <!-- MODAL LIGHTBOX / POPUP MELAYANG -->
-                <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col items-center justify-center p-3" onclick="closeLightbox(event)">
-                    
-                    <!-- Kontainer Utama Lightbox -->
-                    <div class="relative max-w-sm w-full flex flex-col items-center" onclick="event.stopPropagation()">
-                        
-                        <!-- Tombol Silang di Sudut Kanan Atas Foto -->
-                        <button onclick="closeLightbox()" class="absolute -top-3 -right-3 bg-rose-600 hover:bg-rose-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-lg border-2 border-slate-900 transition z-50">
-                            ✕
-                        </button>
-                        
-                        <!-- GAMBAR DITAMBAHKAN ONCLICK: Ketuk foto langsung geser ke foto berikutnya! -->
-                        <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-[65vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-slate-800 bg-slate-950 cursor-pointer" title="Ketuk untuk foto selanjutnya">
-                        
-                        <!-- Keterangan Judul -->
-                        <p id="lightboxCaption" class="text-xs text-slate-300 mt-2.5 text-center font-medium px-2 truncate w-full"></p>
-                        
-                        <!-- Baris Navigasi Tambahan di Bawah -->
-                        <div class="flex items-center gap-2 mt-3 w-full justify-center">
-                            <button onclick="slidePhoto(-1)" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-xl text-[11px] font-bold transition shadow">◀ Prev</button>
-                            
-                            <button onclick="closeLightbox()" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-300 px-4 py-2 rounded-xl text-[11px] font-semibold transition shadow">✕ Tutup</button>
-                            
-                            <button onclick="slidePhoto(1)" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-xl text-[11px] font-bold transition shadow">Next ▶</button>
+                <!-- Kontainer Utama Lightbox: Kita pakai h-screen dan flex agar tombol selalu di posisi bawah -->
+                <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col items-center justify-between p-4" onclick="closeLightbox(event)">
+    
+                    <!-- Tombol Silang (Fixed di pojok layar agar selalu kelihatan) -->
+                    <button onclick="closeLightbox()" class="absolute top-5 right-5 bg-rose-600 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-lg z-50">
+                        ✕
+                    </button>
+
+                    <!-- Gambar: Diberi flex-1 agar dia mengisi ruang yang tersisa saja -->
+                    <div class="flex-1 flex items-center justify-center w-full overflow-hidden" onclick="event.stopPropagation()">
+                        <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-full max-w-full object-contain rounded-xl cursor-pointer">
+                    </div>
+    
+                    <!-- Baris Navigasi: Dipaksa selalu di bawah (sticky) -->
+                    <div class="w-full flex flex-col items-center gap-2 pb-6 pt-2" onclick="event.stopPropagation()">
+                        <p id="lightboxCaption" class="text-xs text-slate-300 text-center truncate w-full px-4"></p>
+                        <div class="flex items-center gap-3">
+                            <button onclick="slidePhoto(-1)" class="bg-slate-800 text-white px-5 py-2 rounded-xl text-xs font-bold">◀ Prev</button>
+                            <button onclick="closeLightbox()" class="bg-rose-950 text-rose-300 px-6 py-2 rounded-xl text-xs font-semibold border border-rose-800">Tutup</button>
+                            <button onclick="slidePhoto(1)" class="bg-slate-800 text-white px-5 py-2 rounded-xl text-xs font-bold">Next ▶</button>
                         </div>
                     </div>
                 </div>
