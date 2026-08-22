@@ -887,28 +887,27 @@ async function openGaleryMenu() { // Menu Galeri Foto
                     </div>
                 </div>
 
-<!-- MODAL LIGHTBOX / POPUP MELAYANG -->
+                <!-- MODAL LIGHTBOX / POPUP MELAYANG -->
                 <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col items-center justify-center p-3" onclick="closeLightbox(event)">
                     
-                    <!-- Kontainer Utama Lightbox (Relative agar tombol X bisa menempel pas di sudut kanan atas foto, bukan sudut layar) -->
+                    <!-- Kontainer Utama Lightbox -->
                     <div class="relative max-w-sm w-full flex flex-col items-center" onclick="event.stopPropagation()">
                         
-                        <!-- Tombol Silang Menempel Cantik di Sudut Kanan Atas Foto (Aman untuk Landscape & Potrait) -->
+                        <!-- Tombol Silang di Sudut Kanan Atas Foto -->
                         <button onclick="closeLightbox()" class="absolute -top-3 -right-3 bg-rose-600 hover:bg-rose-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-lg border-2 border-slate-900 transition z-50">
                             ✕
                         </button>
                         
-                        <!-- Gambar (Maksimal tinggi 65vh agar sisa ruang bawah cukup untuk tombol) -->
-                        <img id="lightboxImg" src="" class="max-h-[65vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-slate-800 bg-slate-950">
+                        <!-- GAMBAR DITAMBAHKAN ONCLICK: Ketuk foto langsung geser ke foto berikutnya! -->
+                        <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-[65vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-slate-800 bg-slate-950 cursor-pointer" title="Ketuk untuk foto selanjutnya">
                         
                         <!-- Keterangan Judul -->
                         <p id="lightboxCaption" class="text-xs text-slate-300 mt-2.5 text-center font-medium px-2 truncate w-full"></p>
                         
-                        <!-- Baris Navigasi Lengkap di Bawah (Termasuk Tombol Tutup Khusus) -->
+                        <!-- Baris Navigasi Tambahan di Bawah -->
                         <div class="flex items-center gap-2 mt-3 w-full justify-center">
                             <button onclick="slidePhoto(-1)" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-xl text-[11px] font-bold transition shadow">◀ Prev</button>
                             
-                            <!-- Tombol Tutup Teks di Tengah -->
                             <button onclick="closeLightbox()" class="bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-300 px-4 py-2 rounded-xl text-[11px] font-semibold transition shadow">✕ Tutup</button>
                             
                             <button onclick="slidePhoto(1)" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-xl text-[11px] font-bold transition shadow">Next ▶</button>
