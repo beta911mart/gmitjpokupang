@@ -644,6 +644,10 @@ function renderAuthPageForAction(callbackOnSuccess) {
                         <span class="text-purple-300 font-mono font-bold">${user.username || '-'}</span>
                     </div>
                     <div class="border-b border-slate-800 pb-2">
+                        <span class="text-slate-400 block text-[10px]">Jenis Kelamin</span>
+                        <span class="text-slate-200 font-medium">${user.jenis_kelamin || '<span class="text-amber-400 italic">Belum diisi</span>'}</span>
+                    </div>
+                    <div class="border-b border-slate-800 pb-2">
                         <span class="text-slate-400 block text-[10px]">Lingkungan / Rayon</span>
                         <span class="text-slate-200 font-medium">Lingkungan ${user.lingkungan || '-'} - Rayon ${user.rayon || '-'}</span>
                     </div>
@@ -1316,7 +1320,7 @@ function openExtendedProfileForm(isEditing = false) {
             `;
         }
 
-        async function handleSaveExtendedProfile(e) {
+async function handleSaveExtendedProfile(e) {
             e.preventDefault();
             const btn = e.target.querySelector("button[type='submit']");
             const originalText = btn.innerText;
@@ -1326,6 +1330,7 @@ function openExtendedProfileForm(isEditing = false) {
             const updatedData = {
                 action: "updateExtendedProfile",
                 user_id: window.currentUser.id,
+                jenis_kelamin: document.getElementById("extGender").value, // <-- Tambahan
                 alamat: document.getElementById("extAlamat").value,
                 pekerjaan: document.getElementById("extPekerjaan").value,
                 golongan_darah: document.getElementById("extGoldar").value,
@@ -1341,6 +1346,7 @@ function openExtendedProfileForm(isEditing = false) {
                 const result = await response.json();
 
                 if (result.status === "success") {
+                    window.currentUser.jenis_kelamin = updatedData.jenis_kelamin;
                     window.currentUser.alamat = updatedData.alamat;
                     window.currentUser.pekerjaan = updatedData.pekerjaan;
                     window.currentUser.golongan_darah = updatedData.golongan_darah;
