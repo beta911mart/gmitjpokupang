@@ -11,6 +11,8 @@
     <!-- Khusus untuk iPhone / iOS (Safari kadang mengabaikan manifest) -->
     <link rel="apple-touch-icon" href="download.png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 untuk Kartu Informasi Akun yang Elegan -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @keyframes slideIn {
             from { transform: translateY(-100%); opacity: 0; }
@@ -466,16 +468,38 @@
                 const result = await response.json();
 
                 if (result.status === "success") {
-                    showToast("Registrasi Berhasil!");
-                    localStorage.setItem("user_gereja", JSON.stringify(result.user));
-                    window.currentUser = result.user;
+                    const user = result.user;
+                    const pin4Digit = user.pin_4_digit || user.no_whatsapp.slice(-4);
 
-                    if (typeof window.pendingAuthAction === 'function') {
-                        window.pendingAuthAction();
-                        window.pendingAuthAction = null;
-                    } else {
-                        switchTab('home');
-                    }
+                    localStorage.setItem("user_gereja", JSON.stringify(user));
+                    window.currentUser = user;
+                    updateAuthNavText();
+
+                    // Tampilkan Kartu Informasi Akun Pendaftaran Berhasil
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pendaftaran Berhasil! 🎉',
+                        html: `
+                            <div class="text-left bg-slate-800 p-4 rounded-xl text-slate-200 text-xs space-y-2 border border-slate-700 mt-2">
+                                <p>Syalom <b>${user.nama_lengkap}</b>, akun Anda telah terdaftar.</p>
+                                <hr class="border-slate-700 my-2">
+                                <p>📱 <b>No. WhatsApp:</b> ${user.no_whatsapp}</p>
+                                <p>🔑 <b>PIN Login Anda:</b> <span class="bg-rose-900/60 text-rose-300 px-2 py-0.5 rounded font-bold">${pin4Digit}</span></p>
+                                <p class="text-[11px] text-amber-400 mt-1">⚠️ Gunakan Nama Lengkap & PIN di atas untuk masuk berikutnya!</p>
+                            </div>
+                        `,
+                        confirmButtonText: 'Lanjut ke Menu Utama',
+                        confirmButtonColor: '#9333ea',
+                        allowOutsideClick: false
+                    }).then(() => {
+                        if (typeof window.pendingAuthAction === 'function') {
+                            window.pendingAuthAction();
+                            window.pendingAuthAction = null;
+                        } else {
+                            switchTab('home');
+                        }
+                    });
+
                 } else {
                     showToast(result.message, "error");
                     btn.disabled = false;
@@ -1487,17 +1511,26 @@ async function openGaleryMenu() { // Menu Galeri Foto
             main.innerHTML = `
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <div class="bg-slate-900 border border-slate-800 p-2 rounded-2xl flex flex-col items-center justify-center min-h-[450px]">
-                        <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/880184913737266/c/Main?embed" data-style="width:100%; height:450px;" data-version="1.55">Chat</span>
+                    <div class="bg-slate-900 border border-slate-800 p-2 rounded-2xl flex flex-col items-center justify-center min-h-[500px]">
+                        <!-- Embed Resmi Minnit Chat -->
+                        <span style="display: none;" class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/880184913737266/c/Main?embed" data-style="width:100%; height:500px; max-height:90vh;" data-version="1.55">Chat</span>
+                        <p class="powered-by-minnit text-[10px] text-slate-500 mt-2 text-center">
+                            <a href="https://minnit.chat" target="_blank" class="hover:underline">Powered by Minnit Chat</a>
+                        </p>
                     </div>
                 </div>
             `;
+
             if (!document.getElementById("minnitScript")) {
                 const script = document.createElement("script");
                 script.id = "minnitScript";
                 script.src = "https://minnit.chat/js/embed.js?c=1772345192";
                 script.defer = true;
                 document.body.appendChild(script);
+            } else {
+                if (typeof window.minnit_reload === "function") {
+                    window.minnit_reload();
+                }
             }
         }
 
@@ -1611,7 +1644,7 @@ async function openGaleryMenu() { // Menu Galeri Foto
                 container.innerHTML = prayers.map(p => {
                         // Memetakan jumlah reaksi (jika 0 tidak usah ditampilkan angkanya agar bersih)
                         const r = p.reactions || {};
-                        const getBadge = (emoji) => r[emoji] > idCountOrZero(r[emoji]) ? `<span class="text-[9px] text-purple-300 ml-0.5 font-bold">${r[emoji]}</span>` : '';
+                        const getBadge = (emoji) => r[emoji] > 0 ? `<span class="text-[9px] text-purple-300 ml-0.5 font-bold">${r[emoji]}</span>` : '';
 
                         return `
                             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
@@ -1700,7 +1733,6 @@ async function openGaleryMenu() { // Menu Galeri Foto
                                 <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
                                 <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
                                 <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
-                                <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
                             </div>
                         </div>
                     `;
@@ -1813,18 +1845,13 @@ async function openGaleryMenu() { // Menu Galeri Foto
         async function handleReactionAndRefresh(tipe, idTarget, emoji) {
             const user = window.currentUser || { id: "Anonim" };
             
-            // 1. Cari elemen tombol atau badge angka yang diklik berdasarkan target dan emoji
-            // Kita gunakan event target untuk mendeteksi tombol spesifik yang baru saja ditekan
             const eventBtn = event.currentTarget;
             if (eventBtn) {
-                // Cari elemen span angka di dalam tombol tersebut
                 let badgeSpan = eventBtn.querySelector('span');
                 if (badgeSpan) {
-                    // Jika span angka sudah ada, langsung tambahkan nilai angkanya secara instan
                     let currentVal = parseInt(badgeSpan.innerText) || 0;
                     badgeSpan.innerText = currentVal + 1;
                 } else {
-                    // Jika sebelumnya angka belum ada (kosong), buat elemen span baru secara instan
                     const newSpan = document.createElement('span');
                     newSpan.className = "text-[9px] text-amber-400 ml-1 font-bold";
                     newSpan.innerText = "1";
@@ -1835,7 +1862,6 @@ async function openGaleryMenu() { // Menu Galeri Foto
             showToast(`Memberikan reaksi ${emoji}`);
             
             try {
-                // 2. Kirim data ke Google Sheet di latar belakang secara diam-diam
                 await fetch(SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({
@@ -1846,9 +1872,6 @@ async function openGaleryMenu() { // Menu Galeri Foto
                         emoji: emoji
                     })
                 });
-                
-                // Tidak perlu memanggil openPublicPrayerWall() atau openDonationList() lagi, 
-                // sehingga layar tidak akan berkedip / muat ulang sama sekali!
             } catch (err) {
                 console.log("Gagal mencatat reaksi", err);
                 showToast("Gagal mencatat reaksi", "error");
@@ -1873,7 +1896,6 @@ async function openGaleryMenu() { // Menu Galeri Foto
                     
                     showToast(result.message);
                     if (result.status === "success") {
-                        // Refresh halaman doa agar balasan langsung muncul
                         openPublicPrayerWall();
                     }
                 } catch (err) {
@@ -1885,7 +1907,7 @@ async function openGaleryMenu() { // Menu Galeri Foto
             updateNetworkStatus();
             switchTab('home');
             checkPushNotification();
-            updateAuthNavText(); // <-- Panggil di sini
+            updateAuthNavText();
         });
         function updateAuthNavText() {
             const navText = document.getElementById("accountNavText");
