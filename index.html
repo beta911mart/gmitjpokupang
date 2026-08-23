@@ -263,6 +263,35 @@
                 overlay.classList.add('hidden');
             }
         }
+        // --- CEK NOTIFIKASI PERSONAL JEMAAT ---
+        async function checkUserPersonalNotifications() {
+            const savedUser = localStorage.getItem("user_gereja");
+            if (!savedUser) return;
+            
+            const user = JSON.parse(savedUser);
+            // Cegah pengecekan berulang terus menerus dalam satu sesi
+            if (sessionStorage.getItem('personal_notif_checked') === 'true') return;
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "getUserNotifications", user_id: user.id })
+                });
+                const result = await response.json();
+
+                if (result.status === "success" && result.notifications && result.notifications.length > 0) {
+                    // Tampilkan balon notifikasi / toast interaktif
+                    result.notifications.forEach((notif, index) => {
+                        setTimeout(() => {
+                            showToast(`🔔 ${notif.text}`, "success");
+                        }, index * 1500);
+                    });
+                    sessionStorage.setItem('personal_notif_checked', 'true');
+                }
+            } catch (err) {
+                console.log("Gagal memuat notifikasi personal", err);
+            }
+        }
         // --- MONITORING STATUS ONLINE/OFFLINE ---
         function updateNetworkStatus() {
             const dot = document.getElementById("syncDot");
