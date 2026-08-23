@@ -1060,7 +1060,8 @@
 
         let currentActiveGallery = [];
         let currentPhotoIndex = 0;
-
+        // Membungkus URL dengan Image Proxy agar aman dari pemblokiran ISP lokal
+        let safeUrl = `https://wsrv.nl/?url=${encodeURIComponent(p.url)}&w=600&fit=cover`;
         function renderGallery(photos) {
             currentActiveGallery = photos; 
             const grid = document.getElementById("galleryGrid");
@@ -1077,7 +1078,7 @@
                 return `
                 <div class="bg-white p-1.5 pb-2 rounded shadow-md cursor-pointer transform hover:scale-105 transition duration-200 border border-slate-200 flex flex-col justify-between">
                     <div onclick="openLightbox(${index})" class="aspect-square bg-slate-100 overflow-hidden rounded-sm">
-                        <img src="${p.url}" class="w-full h-full object-cover" loading="lazy">
+                        <img src="${safeUrl}" class="w-full h-full object-cover" loading="lazy">
                     </div>
                     <p class="text-[9px] text-slate-800 font-serif text-center truncate mt-1 px-0.5">${p.judul}</p>
                     <div class="mt-1 pt-1 border-t border-slate-100 flex justify-center">
