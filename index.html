@@ -762,7 +762,7 @@ function renderAuthPageForAction(callbackOnSuccess) {
                 </div>
             `;
         }
-async function fetchBibleVerse() {
+        async function fetchBibleVerse() {
             const bookCode = document.getElementById("bibleBook").value;
             const chapter = document.getElementById("bibleChapter").value;
             const bookObj = BIBLE_BOOKS.find(b => b.code === bookCode);
@@ -771,7 +771,6 @@ async function fetchBibleVerse() {
             resultArea.innerHTML = `<p class="text-center text-purple-400 py-10 animate-pulse">Memuat ${bookObj.name} Pasal ${chapter}...</p>`;
             
             try {
-                // Menggunakan endpoint API Alkitab yang stabil untuk format per pasal
                 const response = await fetch(`https://api.etablis.org/bible/v1/id/books/${bookCode}/chapters/${chapter}`);
                 
                 if (!response.ok) throw new Error("Gagal mengambil data dari server");
@@ -790,8 +789,7 @@ async function fetchBibleVerse() {
                     throw new Error("Ayat tidak ditemukan");
                 }
                 
-            } catCH (err) {
-                // Fallback cerdas jika API utama sedang gangguan, tanpa membuat aplikasi error
+            } catch (err) {
                 resultArea.innerHTML = `
                     <div class="space-y-3">
                         <div class="bg-rose-950/40 border border-rose-900/40 p-3 rounded-xl">
