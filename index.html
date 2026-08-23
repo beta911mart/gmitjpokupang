@@ -1680,9 +1680,16 @@
         function openHymnModal(index) {
             const h = window.allHymns[index];
             if (!h) return;
+            
             document.getElementById("modalHymnNo").innerText = `KJ No. ${h.nomor}`;
             document.getElementById("modalHymnTitle").innerText = h.judul;
-            document.getElementById("modalHymnContent").innerText = h.lirik;
+            
+            const contentEl = document.getElementById("modalHymnContent");
+            contentEl.innerText = h.lirik;
+            
+            // Memperbesar ukuran font dan memberikan jarak baris yang nyaman dibaca (leading-relaxed)
+            contentEl.className = "text-base text-slate-200 leading-relaxed whitespace-pre-line";
+            
             document.getElementById("hymnModal").classList.remove("hidden");
         }
 
