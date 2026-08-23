@@ -238,7 +238,17 @@
                 const result = await response.json();
                 
                 if (result.status === 'success' && result.data.is_active) {
-                    document.getElementById('pushNotifMessage').innerText = result.data.message;
+                    const msg = result.data.message;
+                    const msgContainer = document.getElementById('pushNotifMessage');
+                    
+                    // Cek apakah pesan itu gambar (Base64) atau sekadar teks
+                    if (msg.startsWith('data:image')) {
+                        msgContainer.innerHTML = `<img src="${msg}" class="w-full h-auto rounded-xl shadow-md border border-slate-700 mx-auto">`;
+                    } else {
+                        // Jika teks biasa
+                        msgContainer.innerText = msg;
+                    }
+
                     document.getElementById('pushNotifOverlay').classList.remove('hidden');
                     sessionStorage.setItem('notif_seen', 'true');
                 }
