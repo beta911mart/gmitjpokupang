@@ -1629,14 +1629,19 @@
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Kidung Jemaat";
             main.innerHTML = `
-                <div class="space-y-4 relative flex flex-col h-full">
-                    <!-- Search Bar Fixed di atas agar tidak ikut scroll -->
-                    <div class="sticky top-0 bg-slate-950/95 backdrop-blur-md pt-1 pb-3 z-30 border-b border-slate-800 space-y-3">
-                        <button onclick="openLibraryMenu()" class="text-xs text-purple-400 font-semibold">← Kembali ke Pustaka</button>
+                <!-- Kontainer utama di-set flex dan tinggi penuh agar scroll terisolasi -->
+                <div class="flex flex-col h-[calc(100vh-140px)] relative">
+                    
+                    <!-- Search Bar Fixed / Sticky di atas -->
+                    <div class="sticky top-0 bg-slate-950 pt-1 pb-3 z-30 border-b border-slate-800 space-y-3 shrink-0">
+                        <button onclick="openLibraryMenu()" class="text-xs text-purple-400 font-semibold cursor-pointer">← Kembali ke Pustaka</button>
                         <input type="text" id="hymnSearchInput" oninput="filterHymns()" placeholder="Cari nomor atau judul lagu..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-purple-500 shadow-md">
                     </div>
                     
-                    <div id="hymnsContainer" class="space-y-2 pt-2 pb-10"><p class="text-xs text-slate-400 text-center py-6">Memuat daftar kidung...</p></div>
+                    <!-- Daftar lagu yang bisa di-scroll (overflow-y-auto) -->
+                    <div id="hymnsContainer" class="space-y-2 pt-3 pb-20 overflow-y-auto flex-1">
+                        <p class="text-xs text-slate-400 text-center py-6">Memuat daftar kidung...</p>
+                    </div>
                 </div>
             `;
             try {
