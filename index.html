@@ -83,15 +83,16 @@
     </head>
 <body id="appBody" class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0">
 
-    <!-- PUSH NOTIFICATION POPUP (URGENT/WARNING) -->
+<!-- PUSH NOTIFIKASI POPUP (URGENT/WARNING) -->
     <div id="pushNotifOverlay" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-slate-900 border-2 border-amber-500 rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.3)] p-6 max-w-xs w-full animate-slide-in relative">
             <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-900 text-3xl rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-4 border-slate-900">
                 ⚠️
             </div>
             <h3 class="font-bold text-amber-400 text-center mt-5 mb-3 uppercase tracking-wider text-sm">Syalom</h3>
-            <p id="pushNotifMessage" class="text-xs text-slate-200 text-center mb-6 leading-relaxed whitespace-pre-line"></p>
-            <button onclick="closePushNotif()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 rounded-xl text-sm transition shadow-md">
+            <div id="pushNotifMessage" class="text-xs text-slate-200 text-center mb-6 leading-relaxed whitespace-pre-line"></div>
+            <!-- Pastikan onclick memanggil fungsi closePushNotif() -->
+            <button onclick="closePushNotif()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 rounded-xl text-sm transition shadow-md cursor-pointer">
                 Mengerti & Tutup
             </button>
         </div>
