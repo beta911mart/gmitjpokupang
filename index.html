@@ -978,8 +978,8 @@
             }
 
             grid.innerHTML = photos.map((p, index) => {
+                // Mengambil data reaksi dari database
                 const r = p.reactions || {}; 
-                const heartCount = r["❤️"] ? `<span class="text-[9px] font-bold text-rose-500 ml-1">${r["❤️"]}</span>` : '<span>Suka</span>';
                 
                 return `
                 <div class="bg-white p-1.5 pb-2 rounded shadow-md cursor-pointer transform hover:scale-105 transition duration-200 border border-slate-200 flex flex-col justify-between">
@@ -988,8 +988,8 @@
                     </div>
                     <p class="text-[9px] text-slate-800 font-serif text-center truncate mt-1 px-0.5">${p.judul}</p>
                     <div class="mt-1 pt-1 border-t border-slate-100 flex justify-center">
-                        <button onclick="handleReactionAndRefresh('galeri', '${p.id}', '❤️')" class="text-[10px] bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 px-2 py-0.5 rounded-full transition flex items-center justify-center gap-0.5 border border-slate-200 hover:border-rose-200 w-full">
-                            ❤️ ${heartCount}
+                        <button onclick="handleReactionAndRefresh('galeri', '${p.id}', '❤️')" class="text-[10px] bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 px-2 py-1 rounded-lg transition flex items-center justify-center border border-slate-200 hover:border-rose-200 w-full">
+                            ❤️ ${r["❤️"] ? `<span class="text-[10px] font-bold text-rose-500 ml-1">${r["❤️"]}</span>` : '<span class="ml-1">Suka</span>'}
                         </button>
                     </div>
                 </div>
@@ -2018,19 +2018,36 @@
         async function handleReactionAndRefresh(tipe, idTarget, emoji) {
             const user = window.currentUser || { id: "Anonim" };
             
+            // 1. Update UI (Tampilan) Secara Instan
             const eventBtn = event.currentTarget;
             if (eventBtn) {
                 let badgeSpan = eventBtn.querySelector('span');
                 if (badgeSpan) {
                     let currentVal = parseInt(badgeSpan.innerText) || 0;
-                    if(isNaN(currentVal)) currentVal = 0; // if it says "Suka"
-                    badgeSpan.className = "text-[9px] font-bold text-rose-500 ml-1";
+                    if(isNaN(currentVal)) currentVal = 0; // Ubah teks "Suka" menjadi 0 untuk ditambah
+                    
+                    // Bedakan warna angka Galeri (Merah/Rose) dan fitur lain (Amber/Kuning)
+                    if(tipe === 'galeri' && emoji === '❤️') {
+                        badgeSpan.className = "text-[10px] font-bold text-rose-500 ml-1";
+                    } else {
+                        badgeSpan.className = "text-[9px] text-amber-400 ml-1 font-bold";
+                    }
                     badgeSpan.innerText = currentVal + 1;
+                }
+            }
+
+            // 2. Update data lokal Galeri agar angkanya menetap saat berpindah tab/filter
+            if (tipe === 'galeri' && window.allGalleryData) {
+                const photo = window.allGalleryData.find(p => p.id == idTarget);
+                if (photo) {
+                    if (!photo.reactions) photo.reactions = {};
+                    photo.reactions[emoji] = (photo.reactions[emoji] || 0) + 1;
                 }
             }
 
             showToast(`Memberikan reaksi ${emoji}`);
             
+            // 3. Kirim ke Database Google Apps Script
             try {
                 await fetch(SCRIPT_URL, {
                     method: "POST",
@@ -2044,7 +2061,7 @@
                 });
             } catch (err) {
                 console.log("Gagal mencatat reaksi", err);
-                showToast("Gagal mencatat reaksi", "error");
+                showToast("Gagal mencatat reaksi ke server", "error");
             }
         }
 
