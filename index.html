@@ -1097,7 +1097,7 @@
             const momentVal = document.getElementById("filterMoment").value;
             const dateVal = document.getElementById("filterDate").value;
 
-            let filtered = window.allAllGalleryData || window.allGalleryData;
+            let filtered = window.allGalleryData || window.allGalleryData;
 
             if (kategorialVal) {
                 filtered = filtered.filter(p => p.kategorial === kategorialVal);
