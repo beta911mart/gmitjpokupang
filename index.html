@@ -156,15 +156,32 @@
         <main class="flex-1 p-4 pt-20 pb-20 overflow-y-auto animate-fade-in">
             <!-- Konten dimuat dinamis di sini -->
         </main>
-<!-- NAVIGATION BAR BAWAH (FIXED) -->
+        
+        <!-- NAVIGATION BAR BAWAH (FIXED) -->
         <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex justify-around p-3 text-xs font-medium text-slate-400 shadow-lg">
             <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🏠 Beranda</button>
             <button onclick="switchTab('doa')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🙏 Kotak Doa</button>
-            <!-- Perhatikan tambahan class "inline-flex items-center gap-1" di bawah ini -->
             <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 inline-flex items-center gap-1 transition">
                 <span>👤</span> <span id="accountNavText">Akun</span>
             </button>
         </nav>
+    </div>
+
+    <!-- MODAL FULLSCREEN UNTUK LIRIK KIDUNG JEMAAT -->
+    <div id="hymnModal" class="fixed inset-0 bg-black/95 z-[99999] hidden flex flex-col p-4 animate-fade-in">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-800 pt-2">
+            <div>
+                <span id="modalHymnNo" class="text-xs font-bold text-purple-400"></span>
+                <h3 id="modalHymnTitle" class="text-sm font-bold text-white truncate max-w-[280px]"></h3>
+            </div>
+            <button onclick="closeHymnModal()" class="bg-rose-600 hover:bg-rose-700 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-md transition">✕</button>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4">
+            <p id="modalHymnContent" class="text-[13px] sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed font-sans px-1 pb-10"></p>
+        </div>
+        <div class="pt-3 border-t border-slate-800 text-center pb-2">
+            <button onclick="closeHymnModal()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md">Tutup Lirik</button>
+        </div>
     </div>
 
     <script>
@@ -310,7 +327,7 @@
             }
         }
 
-function renderAuthPageForAction(callbackOnSuccess) {
+        function renderAuthPageForAction(callbackOnSuccess) {
             window.pendingAuthAction = callbackOnSuccess;
 
             const main = document.querySelector("main");
@@ -329,7 +346,7 @@ function renderAuthPageForAction(callbackOnSuccess) {
                         <button id="tabRegBtn" onclick="toggleAuthTab('register')" class="flex-1 pb-2 text-slate-500 text-xs">Daftar Baru</button>
                     </div>
 
-                    <!-- FORM LOGIN (Mendukung Username Unik atau Nama Lengkap) -->
+                    <!-- FORM LOGIN -->
                     <form id="formLogin" onsubmit="handleLoginForAction(event)" class="space-y-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Username Unik atau Nama Lengkap</label>
@@ -342,7 +359,7 @@ function renderAuthPageForAction(callbackOnSuccess) {
                         <button type="submit" id="btnLoginSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition">Masuk</button>
                     </form>
 
-                    <!-- FORM REGISTRASI BARU (CUKUP NAMA & NOMOR WA SAJA) -->
+                    <!-- FORM REGISTRASI BARU -->
                     <form id="formRegister" onsubmit="handleRegisterForAction(event)" class="space-y-4 hidden">
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
@@ -382,7 +399,6 @@ function renderAuthPageForAction(callbackOnSuccess) {
                 if (result.status === "success") {
                     const u = result.user;
                     
-                    // Tampilkan Kartu Informasi Akun Sukses dengan Tombol Salin & Login
                     Swal.fire({
                         icon: 'success',
                         title: 'Pendaftaran Berhasil! 🎉',
@@ -403,14 +419,12 @@ function renderAuthPageForAction(callbackOnSuccess) {
                         allowOutsideClick: false
                     }).then((clickResult) => {
                         if (clickResult.isConfirmed) {
-                            // Salin teks ke clipboard
                             const textToCopy = `Username: ${u.username}\nPassword: ${u.password}`;
                             navigator.clipboard.writeText(textToCopy).then(() => {
                                 showToast("Akun berhasil disalin!");
                             });
                             toggleAuthTab('login');
                         } else {
-                            // Pindah ke tab login
                             toggleAuthTab('login');
                         }
                     });
@@ -467,7 +481,7 @@ function renderAuthPageForAction(callbackOnSuccess) {
                 if (result.status === "success") {
                     showToast("Login Berhasil!");
                     localStorage.setItem("user_gereja", JSON.stringify(result.user));
-                    updateAuthNavText(); // <-- Ubah teks jadi Akun saat berhasil masuk
+                    updateAuthNavText(); 
                     window.currentUser = result.user;
                     
                     if (typeof window.pendingAuthAction === 'function') {
@@ -607,101 +621,99 @@ function renderAuthPageForAction(callbackOnSuccess) {
                         </div>
                     `;
                 });
-} else if (tab === 'profil') {
-    checkAuthBeforeAction(() => {
-        const user = window.currentUser;
-        const isAdmin = user.isAdmin || false;
+            } else if (tab === 'profil') {
+                checkAuthBeforeAction(() => {
+                    const user = window.currentUser;
+                    const isAdmin = user.isAdmin || false;
 
-        const profileImageHtml = user.foto_profil 
-            ? `<img src="${user.foto_profil}" class="w-full h-full object-cover">`
-            : `${user.nama_lengkap ? user.nama_lengkap.charAt(0) : 'U'}`;
+                    const profileImageHtml = user.foto_profil 
+                        ? `<img src="${user.foto_profil}" class="w-full h-full object-cover">`
+                        : `${user.nama_lengkap ? user.nama_lengkap.charAt(0) : 'U'}`;
 
-        // 1. Variabel Badge Status Verifikasi
-        const verifiedBadge = user.is_verified 
-            ? `<span class="inline-flex items-center gap-1.5 bg-blue-950/40 text-blue-300 border border-blue-500/30 text-[11px] px-2.5 py-1 rounded-full font-semibold mt-1">
-                   <img src="bedge.png" class="w-4 h-4 object-contain inline-block align-middle" alt="Verified"> Jemaat Terverifikasi
-               </span>`
-            : `<span class="bg-amber-600/30 text-amber-400 border border-amber-500/30 text-[10px] px-2.5 py-1 rounded-full font-semibold inline-flex items-center gap-1 mt-1">⏳ Menunggu Verifikasi</span>`;
+                    const verifiedBadge = user.is_verified 
+                        ? `<span class="inline-flex items-center gap-1.5 bg-blue-950/40 text-blue-300 border border-blue-500/30 text-[11px] px-2.5 py-1 rounded-full font-semibold mt-1">
+                               <img src="bedge.png" class="w-4 h-4 object-contain inline-block align-middle" alt="Verified"> Jemaat Terverifikasi
+                           </span>`
+                        : `<span class="bg-amber-600/30 text-amber-400 border border-amber-500/30 text-[10px] px-2.5 py-1 rounded-full font-semibold inline-flex items-center gap-1 mt-1">⏳ Menunggu Verifikasi</span>`;
 
-        // 2. Kotak Informasi (Hanya muncul jika BELUM terverifikasi)
-        const verificationBanner = !user.is_verified 
-            ? `<div class="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/30 p-3.5 rounded-2xl text-xs space-y-1 shadow-md">
-                   <p class="font-bold text-purple-200 flex items-center gap-1.5"><span>✨</span> Keanggotaan Pniel Oebobo</p>
-                   <p class="text-[11px] text-slate-300 leading-relaxed">Lengkapi data diri dan alamat domisili Anda untuk mendapatkan lencana resmi <b>Centang Biru <img src="bedge.png" class="w-4 h-4 inline-block align-middle" alt="Verified"> (Terverifikasi)</b> dari gereja.</p>
-               </div>`
-            : '';
+                    const verificationBanner = !user.is_verified 
+                        ? `<div class="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/30 p-3.5 rounded-2xl text-xs space-y-1 shadow-md">
+                               <p class="font-bold text-purple-200 flex items-center gap-1.5"><span>✨</span> Keanggotaan Pniel Oebobo</p>
+                               <p class="text-[11px] text-slate-300 leading-relaxed">Lengkapi data diri dan alamat domisili Anda untuk mendapatkan lencana resmi <b>Centang Biru <img src="bedge.png" class="w-4 h-4 inline-block align-middle" alt="Verified"> (Terverifikasi)</b> dari gereja.</p>
+                           </div>`
+                        : '';
 
-        main.innerHTML = `
-            <div class="space-y-6 pt-2 animate-fade-in">
-                <div class="text-center space-y-2">
-                    <div class="w-20 h-20 bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full mx-auto shadow-inner border border-purple-800 overflow-hidden">
-                        ${profileImageHtml}
-                    </div>
-                    <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
-                    
-                    <div class="space-y-3 flex flex-col items-center">
-                        <!-- Badge Status -->
-                        <div>${verifiedBadge}</div>
-                        <!-- Banner Informasi (Otomatis hilang jika sudah verified) -->
-                        <div class="w-full text-left">${verificationBanner}</div>
-                    </div>
-                    
-                    <p class="text-xs text-purple-400 font-medium">${user.status_pelayanan || 'Jemaat'}</p>
-                </div>
+                    main.innerHTML = `
+                        <div class="space-y-6 pt-2 animate-fade-in">
+                            <div class="text-center space-y-2">
+                                <div class="w-20 h-20 bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full mx-auto shadow-inner border border-purple-800 overflow-hidden">
+                                    ${profileImageHtml}
+                                </div>
+                                <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
+                                
+                                <div class="space-y-3 flex flex-col items-center">
+                                    <!-- Badge Status -->
+                                    <div>${verifiedBadge}</div>
+                                    <!-- Banner Informasi -->
+                                    <div class="w-full text-left">${verificationBanner}</div>
+                                </div>
+                                
+                                <p class="text-xs text-purple-400 font-medium">${user.status_pelayanan || 'Jemaat'}</p>
+                            </div>
 
-                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs">
-                    <div class="border-b border-slate-800 pb-2">
-                        <span class="text-slate-400 block text-[10px]">Username Unik</span>
-                        <span class="text-purple-300 font-mono font-bold">${user.username || '-'}</span>
-                    </div>
-                    <div class="border-b border-slate-800 pb-2">
-                        <span class="text-slate-400 block text-[10px]">Jenis Kelamin</span>
-                        <span class="text-slate-200 font-medium">${user.jenis_kelamin || '<span class="text-amber-400 italic">Belum diisi</span>'}</span>
-                    </div>
-                    <div class="border-b border-slate-800 pb-2">
-                        <span class="text-slate-400 block text-[10px]">Lingkungan / Rayon</span>
-                        <span class="text-slate-200 font-medium">Lingkungan ${user.lingkungan || '-'} - Rayon ${user.rayon || '-'}</span>
-                    </div>
-                    <div class="border-b border-slate-800 pb-2">
-                        <span class="text-slate-400 block text-[10px]">No. WhatsApp</span>
-                        <span class="text-slate-200 font-medium">${user.no_whatsapp || '-'}</span>
-                    </div>
-                    <div class="border-b border-slate-800 pb-2">
-                        <span class="text-slate-400 block text-[10px]">Alamat Domisili</span>
-                        <span class="text-slate-200 font-medium">${user.alamat || '<span class="text-amber-400 italic">Belum diisi</span>'}</span>
-                    </div>
-                    <div class="border-b border-slate-800 pb-2">
-                        <span class="text-slate-400 block text-[10px]">Pekerjaan</span>
-                        <span class="text-slate-200 font-medium">${user.pekerjaan || '<span class="text-amber-400 italic">Belum diisi</span>'}</span>
-                    </div>
-                    <div class="border-b border-slate-800 pb-2">
-                        <span class="text-slate-400 block text-[10px]">Golongan Darah</span>
-                        <span class="text-slate-200 font-medium">${user.golongan_darah || '-'}</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-400 block text-[10px]">Minat Pelayanan / Komisi</span>
-                        <span class="text-slate-200 font-medium">${user.minat_pelayanan || '-'}</span>
-                    </div>
-                </div>
+                            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs">
+                                <div class="border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400 block text-[10px]">Username Unik</span>
+                                    <span class="text-purple-300 font-mono font-bold">${user.username || '-'}</span>
+                                </div>
+                                <div class="border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400 block text-[10px]">Jenis Kelamin</span>
+                                    <span class="text-slate-200 font-medium">${user.jenis_kelamin || '<span class="text-amber-400 italic">Belum diisi</span>'}</span>
+                                </div>
+                                <div class="border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400 block text-[10px]">Lingkungan / Rayon</span>
+                                    <span class="text-slate-200 font-medium">Lingkungan ${user.lingkungan || '-'} - Rayon ${user.rayon || '-'}</span>
+                                </div>
+                                <div class="border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400 block text-[10px]">No. WhatsApp</span>
+                                    <span class="text-slate-200 font-medium">${user.no_whatsapp || '-'}</span>
+                                </div>
+                                <div class="border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400 block text-[10px]">Alamat Domisili</span>
+                                    <span class="text-slate-200 font-medium">${user.alamat || '<span class="text-amber-400 italic">Belum diisi</span>'}</span>
+                                </div>
+                                <div class="border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400 block text-[10px]">Pekerjaan</span>
+                                    <span class="text-slate-200 font-medium">${user.pekerjaan || '<span class="text-amber-400 italic">Belum diisi</span>'}</span>
+                                </div>
+                                <div class="border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400 block text-[10px]">Golongan Darah</span>
+                                    <span class="text-slate-200 font-medium">${user.golongan_darah || '-'}</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block text-[10px]">Minat Pelayanan / Komisi</span>
+                                    <span class="text-slate-200 font-medium">${user.minat_pelayanan || '-'}</span>
+                                </div>
+                            </div>
 
-                <div class="space-y-2">
-                    <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition flex items-center justify-center gap-1.5">
-                        <span>✏️</span> Lengkapi / Perbarui Data Diri
-                    </button>
-                    <button onclick="logout()" class="w-full bg-rose-950/50 hover:bg-rose-900/40 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition">
-                        Keluar (Logout)
-                    </button>
-                    
-                    ${isAdmin ? `
-                        <a href="admin.html" class="block text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">
-                            🔒 Masuk ke Panel Pengurus Gereja
-                        </a>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    });
-}
+                            <div class="space-y-2">
+                                <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition flex items-center justify-center gap-1.5">
+                                    <span>✏️</span> Lengkapi / Perbarui Data Diri
+                                </button>
+                                <button onclick="logout()" class="w-full bg-rose-950/50 hover:bg-rose-900/40 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition">
+                                    Keluar (Logout)
+                                </button>
+                                
+                                ${isAdmin ? `
+                                    <a href="admin.html" class="block text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">
+                                        🔒 Masuk ke Panel Pengurus Gereja
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
         }
 
         const BIBLE_BOOKS = [
@@ -762,7 +774,8 @@ function renderAuthPageForAction(callbackOnSuccess) {
                 </div>
             `;
         }
-async function fetchBibleVerse() {
+
+        async function fetchBibleVerse() {
             const bookCode = document.getElementById("bibleBook").value;
             const chapter = document.getElementById("bibleChapter").value;
             const bookObj = BIBLE_BOOKS.find(b => b.code === bookCode);
@@ -795,7 +808,7 @@ async function fetchBibleVerse() {
                 resultArea.innerHTML = `
                     <div class="space-y-3">
                         <div class="bg-amber-950/40 border border-amber-900/40 p-3 rounded-xl">
-                            <p class="text-[11px] text-amber-300">ℹ️ Server Alkitab online sedang dalam pengembangan.</p>
+                            <p class="text-[11px] text-amber-300">ℹ️ Server Alkitab online sedang dalam pemeliharaan.</p>
                         </div>
                         <h5 class="font-bold text-purple-400 mb-2">${bookObj.name} Pasal ${chapter}</h5>
                         <p class="text-[11px] leading-relaxed text-slate-400 italic">Silakan coba beberapa saat lagi atau hubungi admin.</p>
@@ -866,7 +879,7 @@ async function fetchBibleVerse() {
             `;
         }
 
-async function openGaleryMenu() { // Menu Galeri Foto
+        async function openGaleryMenu() { 
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Galeri Foto Jemaat";
             
@@ -915,34 +928,21 @@ async function openGaleryMenu() { // Menu Galeri Foto
                 </div>
 
                 <!-- MODAL LIGHTBOX / POPUP MELAYANG -->
-<div id="lightboxModal" class="fixed inset-0 bg-black/95 z-[99999] hidden flex items-center justify-center p-4" onclick="closeLightbox(event)">
-    
-    <!-- Pembungkus Utama (Relative agar tombol panah bisa diposisikan di kiri-kanan luar gambar) -->
-    <div class="relative max-w-lg w-full flex flex-col items-center justify-center" onclick="event.stopPropagation()">
-        
-        <!-- 1. TOMBOL SILANG (X) DI POJOK KANAN ATAS -->
-        <button onclick="closeLightbox()" class="absolute -top-6 right-0 bg-rose-600 hover:bg-rose-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-2xl border-2 border-white z-50">
-            ✕
-        </button>
-
-        <!-- 2. TOMBOL PANAH KIRI (MELAYANG DI SEBELAH KIRI FOTO) -->
-        <button onclick="slidePhoto(-1)" class="absolute -left-3 sm:-left-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition active:scale-95">
-            ❮
-        </button>
-
-        <!-- 3. GAMBAR UTAMA -->
-        <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-[75vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-slate-800 bg-black cursor-pointer">
-        
-        <!-- 4. TOMBOL PANAH KANAN (MELAYANG DI SEBELAH KANAN FOTO) -->
-        <button onclick="slidePhoto(1)" class="absolute -right-3 sm:-right-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition active:scale-95">
-            ❯
-        </button>
-        
-        <!-- 5. KETERANGAN / JUDUL FOTO DI BAWAH -->
-        <p id="lightboxCaption" class="text-xs text-slate-300 mt-3 text-center font-medium px-2 truncate w-full"></p>
-        
-    </div>
-</div>
+                <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-[99999] hidden flex items-center justify-center p-4" onclick="closeLightbox(event)">
+                    <div class="relative max-w-lg w-full flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+                        <button onclick="closeLightbox()" class="absolute -top-6 right-0 bg-rose-600 hover:bg-rose-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-2xl border-2 border-white z-50">
+                            ✕
+                        </button>
+                        <button onclick="slidePhoto(-1)" class="absolute -left-3 sm:-left-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition active:scale-95">
+                            ❮
+                        </button>
+                        <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-[75vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-slate-800 bg-black cursor-pointer">
+                        <button onclick="slidePhoto(1)" class="absolute -right-3 sm:-right-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition active:scale-95">
+                            ❯
+                        </button>
+                        <p id="lightboxCaption" class="text-xs text-slate-300 mt-3 text-center font-medium px-2 truncate w-full"></p>
+                    </div>
+                </div>
             `;
 
             try {
@@ -959,7 +959,7 @@ async function openGaleryMenu() { // Menu Galeri Foto
         let currentPhotoIndex = 0;
 
         function renderGallery(photos) {
-            currentActiveGallery = photos; // Simpan daftar foto yang sedang aktif difilter
+            currentActiveGallery = photos; 
             const grid = document.getElementById("galleryGrid");
             
             if (photos.length === 0) {
@@ -967,14 +967,23 @@ async function openGaleryMenu() { // Menu Galeri Foto
                 return;
             }
 
-            grid.innerHTML = photos.map((p, index) => `
-                <div onclick="openLightbox(${index})" class="bg-white p-1.5 pb-3 rounded shadow-md cursor-pointer transform hover:scale-105 transition duration-200 border border-slate-200">
-                    <div class="aspect-square bg-slate-100 overflow-hidden rounded-sm">
+            grid.innerHTML = photos.map((p, index) => {
+                const r = p.reactions || {}; 
+                const heartCount = r["❤️"] ? `<span class="text-[9px] font-bold text-rose-500 ml-1">${r["❤️"]}</span>` : '<span>Suka</span>';
+                
+                return `
+                <div class="bg-white p-1.5 pb-2 rounded shadow-md cursor-pointer transform hover:scale-105 transition duration-200 border border-slate-200 flex flex-col justify-between">
+                    <div onclick="openLightbox(${index})" class="aspect-square bg-slate-100 overflow-hidden rounded-sm">
                         <img src="${p.url}" class="w-full h-full object-cover" loading="lazy">
                     </div>
-                    <p class="text-[9px] text-slate-800 font-serif text-center truncate mt-1.5 px-0.5">${p.judul}</p>
+                    <p class="text-[9px] text-slate-800 font-serif text-center truncate mt-1 px-0.5">${p.judul}</p>
+                    <div class="mt-1 pt-1 border-t border-slate-100 flex justify-center">
+                        <button onclick="handleReactionAndRefresh('galeri', '${p.id}', '❤️')" class="text-[10px] bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 px-2 py-0.5 rounded-full transition flex items-center justify-center gap-0.5 border border-slate-200 hover:border-rose-200 w-full">
+                            ❤️ ${heartCount}
+                        </button>
+                    </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function filterGallery() {
@@ -1022,12 +1031,13 @@ async function openGaleryMenu() { // Menu Galeri Foto
             document.getElementById("lightboxImg").src = photo.url;
             document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
         }
+        
         function closeLightbox(event) {
-            // Jika diklik langsung di area luar foto (latar hitam), atau tombol silang dipanggil
             if (!event || event.target.id === "lightboxModal" || event.target.tagName === "BUTTON") {
                 document.getElementById("lightboxModal").classList.add("hidden");
             }
         }
+        
         function openBibleMenu() {
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Renungan & Ayat Emas";
@@ -1065,7 +1075,7 @@ async function openGaleryMenu() { // Menu Galeri Foto
             `;
         }
 
-function openStatistikMenu() {
+        function openStatistikMenu() {
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Statistik & Demografi Jemaat";
             main.innerHTML = `
@@ -1082,7 +1092,6 @@ function openStatistikMenu() {
                 </div>
             `;
 
-            // Panggil fungsi untuk mengambil dan merender data statistik secara otomatis
             loadStatisticsData();
         }
 
@@ -1103,12 +1112,10 @@ function openStatistikMenu() {
                         return;
                     }
 
-                    // 1. Hitung Verifikasi (Indeks 13: "Verified")
                     let verifiedCount = data.filter(item => String(item[13]).trim() === "Verified").length;
                     let pendingCount = totalJemaat - verifiedCount;
                     let verifiedPercent = Math.round((verifiedCount / totalJemaat) * 100);
 
-                    // 2. Hitung Jenis Kelamin (Indeks 16)
                     let genderMap = { "Laki-laki": 0, "Perempuan": 0, "Belum Diisi": 0 };
                     data.forEach(item => {
                         let g = String(item[16] || "").trim().toLowerCase();
@@ -1121,14 +1128,12 @@ function openStatistikMenu() {
                         }
                     });
 
-                    // 3. Hitung Lingkungan (Indeks 5)
                     let lingkunganMap = {};
                     data.forEach(item => {
                         let ling = String(item[5] || "").trim() || "Belum Ditentukan";
                         lingkunganMap[ling] = (lingkunganMap[ling] || 0) + 1;
                     });
 
-                    // 4. Hitung Minat Pelayanan (Indeks 12)
                     let minatMap = {};
                     data.forEach(item => {
                         let minatRaw = String(item[12] || "").trim();
@@ -1145,7 +1150,6 @@ function openStatistikMenu() {
                         }
                     });
 
-                    // Helper render bar grafik
                     function renderBar(label, count, total, colorClass = "bg-purple-600") {
                         let percent = total > 0 ? Math.round((count / total) * 100) : 0;
                         return `
@@ -1161,9 +1165,7 @@ function openStatistikMenu() {
                         `;
                     }
 
-                    // Render UI Dashboard Statistik ke dalam Single Page App (SPA)
                     container.innerHTML = `
-                        <!-- Ringkasan Utama -->
                         <div class="grid grid-cols-2 gap-3">
                             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                                 <p class="text-[11px] text-slate-500 font-medium">Total Jemaat</p>
@@ -1177,7 +1179,6 @@ function openStatistikMenu() {
                             </div>
                         </div>
 
-                        <!-- Grafik Jenis Kelamin -->
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                             <h3 class="font-bold text-xs text-slate-900 border-b pb-2">👥 Demografi Jenis Kelamin</h3>
                             <div class="space-y-3">
@@ -1187,7 +1188,6 @@ function openStatistikMenu() {
                             </div>
                         </div>
 
-                        <!-- Grafik Sebaran Lingkungan -->
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                             <h3 class="font-bold text-xs text-slate-900 border-b pb-2">📍 Sebaran Per Lingkungan</h3>
                             <div class="space-y-3">
@@ -1197,7 +1197,6 @@ function openStatistikMenu() {
                             </div>
                         </div>
 
-                        <!-- Grafik Minat Pelayanan -->
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                             <h3 class="font-bold text-xs text-slate-900 border-b pb-2">✨ Minat Pelayanan Jemaat</h3>
                             <div class="space-y-3">
@@ -1409,7 +1408,7 @@ function openStatistikMenu() {
             reader.readAsDataURL(file);
         }
 
-function openExtendedProfileForm(isEditing = false) {
+        function openExtendedProfileForm(isEditing = false) {
             const main = document.querySelector("main");
             const user = window.currentUser || {};
             document.getElementById("headerTitle").innerText = isEditing ? "Perbarui Data Diri" : "Lengkapi Data Diri";
@@ -1434,7 +1433,6 @@ function openExtendedProfileForm(isEditing = false) {
                             <input type="hidden" id="fotoBase64" value="${user.foto_profil || ''}">
                         </div>
 
-                        <!-- TAMBAHAN: FIELD JENIS KELAMIN -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Jenis Kelamin</label>
                             <select id="extGender" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
@@ -1478,7 +1476,7 @@ function openExtendedProfileForm(isEditing = false) {
             `;
         }
 
-async function handleSaveExtendedProfile(e) {
+        async function handleSaveExtendedProfile(e) {
             e.preventDefault();
             const btn = e.target.querySelector("button[type='submit']");
             const originalText = btn.innerText;
@@ -1488,7 +1486,7 @@ async function handleSaveExtendedProfile(e) {
             const updatedData = {
                 action: "updateExtendedProfile",
                 user_id: window.currentUser.id,
-                jenis_kelamin: document.getElementById("extGender").value, // <-- Tambahan
+                jenis_kelamin: document.getElementById("extGender").value,
                 alamat: document.getElementById("extAlamat").value,
                 pekerjaan: document.getElementById("extPekerjaan").value,
                 golongan_darah: document.getElementById("extGoldar").value,
@@ -1560,7 +1558,7 @@ async function handleSaveExtendedProfile(e) {
         function logout() {
             localStorage.removeItem("user_gereja");
             showToast("Anda telah keluar.");
-            updateAuthNavText(); // <-- Ubah teks jadi Login saat logout
+            updateAuthNavText(); 
             setTimeout(() => switchTab('home'), 500);
         }
 
@@ -1590,10 +1588,14 @@ async function handleSaveExtendedProfile(e) {
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Kidung Jemaat";
             main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="openLibraryMenu()" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Pustaka</button>
-                    <input type="text" id="hymnSearchInput" oninput="filterHymns()" placeholder="Cari nomor atau judul lagu..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none">
-                    <div id="hymnsContainer" class="space-y-2"><p class="text-xs text-slate-400 text-center py-6">Memuat daftar kidung...</p></div>
+                <div class="space-y-4 relative flex flex-col h-full">
+                    <!-- Search Bar Fixed di atas agar tidak ikut scroll -->
+                    <div class="sticky top-0 bg-slate-950/95 backdrop-blur-md pt-1 pb-3 z-30 border-b border-slate-800 space-y-3">
+                        <button onclick="openLibraryMenu()" class="text-xs text-purple-400 font-semibold">← Kembali ke Pustaka</button>
+                        <input type="text" id="hymnSearchInput" oninput="filterHymns()" placeholder="Cari nomor atau judul lagu..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-purple-500 shadow-md">
+                    </div>
+                    
+                    <div id="hymnsContainer" class="space-y-2 pt-2 pb-10"><p class="text-xs text-slate-400 text-center py-6">Memuat daftar kidung...</p></div>
                 </div>
             `;
             try {
@@ -1612,13 +1614,13 @@ async function handleSaveExtendedProfile(e) {
                 container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Lagu tidak ditemukan.</p>`;
                 return;
             }
-            container.innerHTML = hymns.map(h => `
-                <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl">
+            container.innerHTML = hymns.map((h, idx) => `
+                <div onclick="openHymnModal(${idx})" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-3.5 rounded-xl cursor-pointer transition shadow-sm">
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-xs font-bold text-purple-400">KJ No. ${h.nomor}</span>
+                        <span class="text-[10px] text-slate-400 bg-slate-950 px-2 py-0.5 rounded">Ketuk baca ↗</span>
                     </div>
                     <h5 class="text-xs font-semibold text-white mb-1">${h.judul}</h5>
-                    <p class="text-[11px] text-slate-400 whitespace-pre-line bg-slate-950 p-3 rounded-lg mt-2">${h.lirik}</p>
                 </div>
             `).join('');
         }
@@ -1627,6 +1629,19 @@ async function handleSaveExtendedProfile(e) {
             const keyword = document.getElementById("hymnSearchInput").value.toLowerCase();
             const filtered = window.allHymns.filter(h => String(h.nomor).toLowerCase().includes(keyword) || h.judul.toLowerCase().includes(keyword));
             renderHymnsList(filtered);
+        }
+
+        function openHymnModal(index) {
+            const h = window.allHymns[index];
+            if (!h) return;
+            document.getElementById("modalHymnNo").innerText = `KJ No. ${h.nomor}`;
+            document.getElementById("modalHymnTitle").innerText = h.judul;
+            document.getElementById("modalHymnContent").innerText = h.lirik;
+            document.getElementById("hymnModal").classList.remove("hidden");
+        }
+
+        function closeHymnModal() {
+            document.getElementById("hymnModal").classList.add("hidden");
         }
 
         async function openEventsList() {
@@ -1692,7 +1707,6 @@ async function handleSaveExtendedProfile(e) {
         }
 
         async function openBirthdayList() {
-            // Mengecek apakah user sudah login atau belum di perangkat ini
             const savedUser = localStorage.getItem("user_gereja");
             if (!savedUser) {
                 const main = document.querySelector("main");
@@ -1755,7 +1769,6 @@ async function handleSaveExtendedProfile(e) {
         }
 
         async function openPublicPrayerWall() {
-            // Mengecek apakah user sudah login
             const savedUser = localStorage.getItem("user_gereja");
             if (!savedUser) {
                 const main = document.querySelector("main");
@@ -1795,14 +1808,10 @@ async function handleSaveExtendedProfile(e) {
                     return;
                 }
 
-                // Cek status user untuk hak membalas doa
                 const isPengurus = ['Pendeta', 'Majelis', 'Admin', 'Sekretariat'].includes(user.status_pelayanan);
 
                 container.innerHTML = prayers.map(p => {
-                        // Memetakan jumlah reaksi (jika 0 tidak usah ditampilkan angkanya agar bersih)
                         const r = p.reactions || {};
-                        const getBadge = (emoji) => r[emoji] > 0 ? `<span class="text-[9px] text-purple-300 ml-0.5 font-bold">${r[emoji]}</span>` : '';
-
                         return `
                             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
                                 <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
@@ -1834,7 +1843,6 @@ async function handleSaveExtendedProfile(e) {
         }
 
         async function openDonationList() {
-            // Mengecek apakah user sudah login
             const savedUser = localStorage.getItem("user_gereja");
             if (!savedUser) {
                 const main = document.querySelector("main");
@@ -1967,7 +1975,7 @@ async function handleSaveExtendedProfile(e) {
                 btn.innerText = "Kirim Konfirmasi";
             }
         }
-        // --- FITUR MODE KHUSUS LANSIA / SENIOR ---
+        
         function toggleSeniorMode() {
             const body = document.body;
             const isSenior = body.classList.toggle('senior-mode');
@@ -1985,7 +1993,6 @@ async function handleSaveExtendedProfile(e) {
             }
         }
 
-        // Jalankan saat aplikasi pertama kali dibuka untuk mengecek preferensi tersimpan
         window.addEventListener('DOMContentLoaded', () => {
             const savedSeniorMode = localStorage.getItem('gmit_senior_mode');
             if (savedSeniorMode === 'true') {
@@ -1998,7 +2005,6 @@ async function handleSaveExtendedProfile(e) {
             }
         });
         
-// --- FITUR INTERAKSI JEMAAT (REAKSI INSTAN TANPA FULL REFRESH) ---
         async function handleReactionAndRefresh(tipe, idTarget, emoji) {
             const user = window.currentUser || { id: "Anonim" };
             
@@ -2007,12 +2013,9 @@ async function handleSaveExtendedProfile(e) {
                 let badgeSpan = eventBtn.querySelector('span');
                 if (badgeSpan) {
                     let currentVal = parseInt(badgeSpan.innerText) || 0;
+                    if(isNaN(currentVal)) currentVal = 0; // if it says "Suka"
+                    badgeSpan.className = "text-[9px] font-bold text-rose-500 ml-1";
                     badgeSpan.innerText = currentVal + 1;
-                } else {
-                    const newSpan = document.createElement('span');
-                    newSpan.className = "text-[9px] text-amber-400 ml-1 font-bold";
-                    newSpan.innerText = "1";
-                    eventBtn.appendChild(newSpan);
                 }
             }
 
@@ -2060,12 +2063,14 @@ async function handleSaveExtendedProfile(e) {
                 }
             }
         }
+
         document.addEventListener("DOMContentLoaded", () => {
             updateNetworkStatus();
             switchTab('home');
             checkPushNotification();
             updateAuthNavText();
         });
+
         function updateAuthNavText() {
             const navText = document.getElementById("accountNavText");
             if (!navText) return;
