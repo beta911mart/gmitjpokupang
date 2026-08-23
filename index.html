@@ -187,7 +187,31 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
-
+// Mencegah aplikasi langsung tertutup saat tombol back HP ditekan
+        window.addEventListener('popstate', function (event) {
+            // Cek apakah user sedang berada di halaman utama / beranda
+            const headerTitle = document.getElementById("headerTitle").innerText;
+            
+            if (headerTitle === "Beranda" || headerTitle === "Dashboard") {
+                // Jika di beranda, biarkan keluar atau berikan konfirmasi
+                // Biarkan default (keluar aplikasi)
+            } else {
+                // Jika sedang di sub-menu (misal: Kidung Jemaat, Profil, dll), arahkan kembali ke Beranda/Menu Utama
+                event.preventDefault();
+                
+                // Panggil fungsi kembali ke beranda aplikasi Anda (sesuaikan nama fungsinya, misal openHome() atau openLibraryMenu())
+                if (typeof openHome === "function") {
+                    openHome();
+                } else if (typeof openLibraryMenu === "function") {
+                    openLibraryMenu();
+                } else {
+                    location.reload(); // Fallback aman
+                }
+                
+                // Dorong ulang state agar history tidak rusak
+                history.pushState(null, '', window.location.href);
+            }
+        });
         // --- PENDAFTARAN SERVICE WORKER (WAJIB UNTUK PWA) ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -1604,6 +1628,8 @@
         }
 
         async function openLibraryMenu() {
+            // Merekam state navigasi agar tombol back HP merespons
+            history.pushState({page: 'hymns'}, '', '');
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Alkitab & Kidung Jemaat";
             main.innerHTML = `
