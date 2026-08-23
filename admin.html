@@ -578,7 +578,7 @@
             }
         }
 
-// --- 7. PENGATURAN PUSH NOTIFIKASI (DENGAN MANUAL BASE64 GENERATOR) ---
+// --- 7. PENGATURAN PUSH NOTIFIKASI (MENGGUNAKAN LINK URL GAMBAR) ---
         async function loadNotificationAdmin() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat pengaturan notifikasi...</p>`;
@@ -588,7 +588,8 @@
                 const result = await res.json();
                 const notif = result.data || { is_active: false, message: "" };
                 
-                const isImage = notif.message && notif.message.startsWith('data:image');
+                // Deteksi apakah pesan saat ini adalah sebuah link URL gambar
+                const isUrlImage = notif.message && (notif.message.startsWith('http://') || notif.message.startsWith('https://') || notif.message.match(/\.(jpeg|jpg|png|webp)$/i));
 
                 area.innerHTML = `
                     <h3 class="font-bold text-sm mb-4 text-slate-900">Pengaturan Notifikasi Melayang (PopUp)</h3>
@@ -604,31 +605,25 @@
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Tipe Konten Notifikasi</label>
                             <select id="notifType" onchange="toggleNotifType()" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
-                                <option value="teks" ${!isImage ? 'selected' : ''}>Pesan Teks Biasa</option>
-                                <option value="gambar" ${isImage ? 'selected' : ''}>Gambar / Brosur (Base64)</option>
+                                <option value="teks" ${!isUrlImage ? 'selected' : ''}>Pesan Teks Biasa</option>
+                                <option value="gambar" ${isUrlImage ? 'selected' : ''}>Link URL Gambar (Poster / Brosur)</option>
                             </select>
                         </div>
 
                         <!-- INPUT JIKA TEKS -->
-                        <div id="areaTeks" class="${isImage ? 'hidden' : ''} bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                        <div id="areaTeks" class="${isUrlImage ? 'hidden' : ''} bg-slate-50 border border-slate-200 p-3 rounded-xl">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Isi Pesan Notifikasi</label>
-                            <textarea id="notifMessage" rows="4" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none placeholder-slate-400" placeholder="Contoh: Tersedia kotak persembahan khusus...">${!isImage ? notif.message : ''}</textarea>
+                            <textarea id="notifMessage" rows="4" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none placeholder-slate-400" placeholder="Contoh: Tersedia kotak persembahan khusus...">${!isUrlImage ? notif.message : ''}</textarea>
                         </div>
 
-                        <!-- INPUT JIKA GAMBAR (MANUAL BASE64 GENERATOR) -->
-                        <div id="areaGambar" class="${isImage ? '' : 'hidden'} bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-3">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">1. Pilih File Gambar untuk Dikonversi</label>
-                                <input type="file" id="localImageFile" accept="image/*" onchange="convertImageToBase64(event)" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white cursor-pointer border border-slate-300 bg-white p-1 rounded-lg">
-                            </div>
+                        <!-- INPUT JIKA LINK URL GAMBAR -->
+                        <div id="areaGambar" class="${isUrlImage ? '' : 'hidden'} bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-2">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Link URL Gambar (URL Publik)</label>
+                            <input type="url" id="notifImageUrl" value="${isUrlImage ? notif.message : ''}" class="w-full p-3 border border-slate-300 rounded-xl text-xs outline-none bg-white" placeholder="https://... (paste link gambar di sini)">
+                            <p class="text-[10px] text-slate-500 italic">💡 Unggah gambar ke Google Drive (atur izin ke publik), Imgur, atau Postimages, lalu salin link gambarnya ke sini.</p>
                             
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">2. Kode Base64 (Otomatis Terisi / Bisa Tempel Manual)</label>
-                                <textarea id="notifMessageBase64" rows="3" class="w-full p-2 border border-slate-300 rounded-xl text-xs font-mono bg-white outline-none" placeholder="Hasil konversi Base64 akan muncul di sini...">${isImage ? notif.message : ''}</textarea>
-                            </div>
-
-                            <div class="flex justify-center bg-white border border-slate-200 rounded-xl p-2">
-                                <img id="previewBase64Img" src="${isImage ? notif.message : ''}" class="max-h-40 object-contain rounded ${isImage ? '' : 'hidden'}" alt="Preview">
+                            <div class="mt-2 flex justify-center bg-white border border-slate-200 rounded-xl p-2">
+                                <img id="previewUrlImg" src="${isUrlImage ? notif.message : ''}" class="max-h-40 object-contain rounded ${isUrlImage ? '' : 'hidden'}" alt="Preview">
                             </div>
                         </div>
 
@@ -640,7 +635,7 @@
             }
         }
 
-        // Fungsi Toggle Jenis Input
+        // Fungsi Toggle Jenis Input Teks / Gambar
         window.toggleNotifType = function() {
             const type = document.getElementById("notifType").value;
             const areaTeks = document.getElementById("areaTeks");
@@ -655,43 +650,7 @@
             }
         };
 
-        // Fungsi Generator Base64 Otomatis dari File Lokal
-        window.convertImageToBase64 = function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600;
-                    let width = img.width;
-                    let height = img.height;
-                    
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    const base64String = canvas.toDataURL('image/jpeg', 0.7);
-                    
-                    document.getElementById("notifMessageBase64").value = base64String;
-                    
-                    const preview = document.getElementById("previewBase64Img");
-                    preview.src = base64String;
-                    preview.classList.remove("hidden");
-                };
-            };
-            reader.readAsDataURL(file);
-        };
-
+        // Fungsi Simpan Notifikasi
         async function handleSaveNotification(e) {
             e.preventDefault();
             const btn = e.target.querySelector("button[type='submit']");
@@ -705,9 +664,9 @@
             if (type === 'teks') {
                 finalMessage = document.getElementById("notifMessage").value;
             } else {
-                finalMessage = document.getElementById("notifMessageBase64").value;
+                finalMessage = document.getElementById("notifImageUrl").value;
                 if (!finalMessage) {
-                    alert("⚠️ Silakan pilih gambar atau masukkan kode Base64 terlebih dahulu!");
+                    alert("⚠️ Silakan masukkan Link URL gambar terlebih dahulu!");
                     btn.disabled = false;
                     btn.innerText = "Simpan & Terapkan Notifikasi";
                     return;
