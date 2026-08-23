@@ -1060,8 +1060,7 @@
 
         let currentActiveGallery = [];
         let currentPhotoIndex = 0;
-        // Membungkus URL dengan Image Proxy agar aman dari pemblokiran ISP lokal
-        let safeUrl = `https://wsrv.nl/?url=${encodeURIComponent(p.url)}&w=600&fit=cover`;
+
         function renderGallery(photos) {
             currentActiveGallery = photos; 
             const grid = document.getElementById("galleryGrid");
@@ -1072,12 +1071,15 @@
             }
 
             grid.innerHTML = photos.map((p, index) => {
-                // Mengambil data reaksi dari database
                 const r = p.reactions || {}; 
+                
+                // PINDAHKAN KE SINI: Membungkus URL dengan Image Proxy per gambar
+                let safeUrl = p.url ? `https://wsrv.nl/?url=${encodeURIComponent(p.url)}&w=600&fit=cover` : '';
                 
                 return `
                 <div class="bg-white p-1.5 pb-2 rounded shadow-md cursor-pointer transform hover:scale-105 transition duration-200 border border-slate-200 flex flex-col justify-between">
                     <div onclick="openLightbox(${index})" class="aspect-square bg-slate-100 overflow-hidden rounded-sm">
+                        <!-- GUNAKAN safeUrl DI SINI -->
                         <img src="${safeUrl}" class="w-full h-full object-cover" loading="lazy">
                     </div>
                     <p class="text-[9px] text-slate-800 font-serif text-center truncate mt-1 px-0.5">${p.judul}</p>
@@ -1115,7 +1117,10 @@
             currentPhotoIndex = index;
             const photo = currentActiveGallery[currentPhotoIndex];
             
-            document.getElementById("lightboxImg").src = photo.url;
+            // Terapkan proxy juga untuk foto ukuran besar
+            let safeLargeUrl = photo.url ? `https://wsrv.nl/?url=${encodeURIComponent(photo.url)}&w=1200` : '';
+            
+            document.getElementById("lightboxImg").src = safeLargeUrl;
             document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
             document.getElementById("lightboxModal").classList.remove("hidden");
         }
@@ -1138,7 +1143,11 @@
             }
             
             const photo = currentActiveGallery[currentPhotoIndex];
-            document.getElementById("lightboxImg").src = photo.url;
+            
+            // Terapkan proxy untuk slide gambar berikutnya
+            let safeLargeUrl = photo.url ? `https://wsrv.nl/?url=${encodeURIComponent(photo.url)}&w=1200` : '';
+            
+            document.getElementById("lightboxImg").src = safeLargeUrl;
             document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
         }
         
