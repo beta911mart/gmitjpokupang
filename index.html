@@ -257,6 +257,12 @@
                 console.log("Gagal memuat notifikasi", err);
             }
         }
+        function closePushNotif() {
+            const overlay = document.getElementById('pushNotifOverlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+            }
+        }
         // --- MONITORING STATUS ONLINE/OFFLINE ---
         function updateNetworkStatus() {
             const dot = document.getElementById("syncDot");
