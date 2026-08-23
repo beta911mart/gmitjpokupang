@@ -241,9 +241,9 @@
                     const msg = result.data.message;
                     const msgContainer = document.getElementById('pushNotifMessage');
                     
-                    // Cek apakah pesan itu gambar (Base64) atau sekadar teks
-                    if (msg.startsWith('data:image')) {
-                        msgContainer.innerHTML = `<img src="${msg}" class="w-full h-auto rounded-xl shadow-md border border-slate-700 mx-auto">`;
+                    // Cek apakah pesan berupa Link Gambar (mengandung http atau ekstensi gambar)
+                    if (msg.startsWith('http://') || msg.startsWith('https://') || msg.match(/\.(jpeg|jpg|png|webp)$/i)) {
+                        msgContainer.innerHTML = `<img src="${msg}" class="w-full h-auto rounded-xl shadow-md border border-slate-700 mx-auto" style="max-height: 350px; object-fit: contain;">`;
                     } else {
                         // Jika teks biasa
                         msgContainer.innerText = msg;
@@ -256,11 +256,6 @@
                 console.log("Gagal memuat notifikasi", err);
             }
         }
-
-        function closePushNotif() {
-            document.getElementById('pushNotifOverlay').classList.add('hidden');
-        }
-
         // --- MONITORING STATUS ONLINE/OFFLINE ---
         function updateNetworkStatus() {
             const dot = document.getElementById("syncDot");
