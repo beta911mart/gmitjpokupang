@@ -699,54 +699,140 @@
                 btn.innerText = "Simpan & Terapkan Notifikasi";
             }
         }
-// Fungsi Form di admin.html
-function showRenunganForm() {
+async function showRenunganForm() {
     const contentArea = document.getElementById("adminContentArea");
     contentArea.innerHTML = `
-        <div class="space-y-4 max-w-2xl bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
-            <h2 class="text-lg font-bold text-slate-100">Input Renungan & Ayat Emas Baru</h2>
-            <p class="text-xs text-slate-400">Masukkan data renungan rohani yang akan langsung diterbitkan ke aplikasi jemaat.</p>
-            
-            <form id="formAddRenungan" onsubmit="submitNewRenungan(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal Renungan</label>
-                    <input type="date" id="inputTanggal" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none">
+        <div class="space-y-6">
+            <!-- BAGIAN 1: FORM INPUT RENUNGAN BARU -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl max-w-2xl">
+                <h2 class="text-lg font-bold text-slate-100">Input Renungan & Ayat Emas Baru</h2>
+                <p class="text-xs text-slate-400 mb-4">Tambahkan stok renungan baru ke dalam database.</p>
+                
+                <form id="formAddRenungan" onsubmit="submitNewRenungan(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal Renungan</label>
+                        <input type="date" id="inputTanggal" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Referensi Ayat (Contoh: Filipi 4:13)</label>
+                        <input type="text" id="inputAyatHarian" placeholder="Misal: Yohanes 3:16" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Isi Ayat Alkitab</label>
+                        <textarea id="inputIsiAyat" rows="3" placeholder="Tuliskan ayat lengkap di sini..." required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Isi Pesan Renungan</label>
+                        <textarea id="inputRenungan" rows="5" placeholder="Tuliskan isi renungan harian di sini..." required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none"></textarea>
+                    </div>
+                    <button type="submit" id="btnSubmitRenungan" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-2.5 rounded-xl transition shadow-lg shadow-purple-600/30">
+                        Simpan ke Stok Renungan
+                    </button>
+                </form>
+            </div>
+
+            <!-- BAGIAN 2: TABEL STOK & PILIH TANGGAL TAYANG -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <h3 class="font-bold text-sm text-slate-100 mb-1">Stok Arsip Renungan & Pilih Tanggal Tayang</h3>
+                <p class="text-xs text-slate-400 mb-4">Pilih salah satu tanggal di bawah ini dan klik "Tayangkan" agar tampil di aplikasi jemaat.</p>
+                
+                <div id="renunganStockLoading" class="text-xs text-slate-400 py-4 text-center">Memuat daftar stok renungan...</div>
+                
+                <div id="renunganTableWrapper" class="overflow-x-auto hidden">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-950 border-b border-slate-800 text-slate-400">
+                                <th class="p-3">Tanggal</th>
+                                <th class="p-3">Ayat Emas</th>
+                                <th class="p-3">Pratinjau Renungan</th>
+                                <th class="p-3 text-center">Aksi Tayang</th>
+                            </tr>
+                        </thead>
+                        <tbody id="renunganTableBody" class="divide-y divide-slate-800 text-slate-300">
+                            <!-- Diisi via JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Referensi Ayat (Contoh: Filipi 4:13)</label>
-                    <input type="text" id="inputAyatHarian" placeholder="Misal: Yohanes 3:16" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Isi Ayat Alkitab</label>
-                    <textarea id="inputIsiAyat" rows="3" placeholder="Tuliskan ayat lengkap di sini..." required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none"></textarea>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Isi Pesan Renungan</label>
-                    <textarea id="inputRenungan" rows="6" placeholder="Tuliskan isi renungan harian di sini..." required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none"></textarea>
-                </div>
-                <button type="submit" id="btnSubmitRenungan" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-2.5 rounded-xl transition shadow-lg shadow-purple-600/30">
-                    Publikasikan Renungan
-                </button>
-            </form>
+            </div>
         </div>
     `;
     
-    // Set tanggal hari ini secara otomatis di input date
     document.getElementById("inputTanggal").valueAsDate = new Date();
+    loadRenunganStock(); // Muat tabel stok
 }
 
+// Fungsi untuk memuat data tabel stok
+async function loadRenunganStock() {
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getAdminRenunganList`);
+        const result = await res.json();
+        const list = result.renunganList || [];
+        
+        document.getElementById("renunganStockLoading").classList.add("hidden");
+        document.getElementById("renunganTableWrapper").classList.remove("hidden");
+        
+        const tbody = document.getElementById("renunganTableBody");
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Belum ada stok renungan. Silakan input di atas.</td></tr>`;
+            return;
+        }
+
+        // Urutkan dari tanggal terbaru ke terlama
+        list.reverse();
+
+        tbody.innerHTML = list.map(item => `
+            <tr class="hover:bg-slate-800/50 transition">
+                <td class="p-3 font-bold text-purple-400 whitespace-nowrap">${item.tanggal}</td>
+                <td class="p-3">
+                    <div class="font-semibold text-slate-200">${item.ayat_harian}</div>
+                    <div class="text-[10px] text-slate-400 italic truncate max-w-xs">"${item.isi_ayat}"</div>
+                </td>
+                <td class="p-3 text-slate-400 text-[11px] truncate max-w-xs">${item.renungan}</td>
+                <td class="p-3 text-center whitespace-nowrap">
+                    <button onclick="makeActiveRenungan(${item.row_index}, '${item.tanggal}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-md">
+                        🚀 Tayangkan
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        document.getElementById("renunganStockLoading").innerText = "Gagal memuat daftar stok renungan.";
+    }
+}
+
+// Fungsi saat tombol "Tayangkan" diklik admin
+async function makeActiveRenungan(rowIndex, tanggal) {
+    if (!confirm(`Yakin ingin menayangkan renungan untuk tanggal ${tanggal} ke aplikasi jemaat?`)) return;
+
+    const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+    try {
+        const res = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "setActiveRenungan",
+                admin_id: admin ? admin.id : "ADMIN",
+                row_index: rowIndex
+            })
+        });
+        const result = await res.json();
+        alert(result.message);
+        loadRenunganStock(); // Refresh tabel
+    } catch (err) {
+        alert("Gagal mengubah status tayang: " + err);
+    }
+}
+
+// Fungsi Submit Form Input Stok Baru
 async function submitNewRenungan(event) {
     event.preventDefault();
     const btn = document.getElementById("btnSubmitRenungan");
-    btn.innerText = "Mengirim...";
+    btn.innerText = "Menyimpan...";
     btn.disabled = true;
 
-    // Ambil data admin yang sedang login dari sessionStorage
     const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
-
     const payload = {
         action: "addRenungan",
-        admin_id: admin ? admin.id : "UNKNOWN", // Mengambil ID admin yang valid
+        admin_id: admin ? admin.id : "ADMIN",
         tanggal: document.getElementById("inputTanggal").value,
         ayat_harian: document.getElementById("inputAyatHarian").value,
         isi_ayat: document.getElementById("inputIsiAyat").value,
@@ -754,18 +840,19 @@ async function submitNewRenungan(event) {
     };
 
     try {
-        let res = await fetch(SCRIPT_URL, { // Menggunakan SCRIPT_URL yang benar
+        let res = await fetch(SCRIPT_URL, {
             method: "POST",
             body: JSON.stringify(payload)
         });
         let json = await res.json();
-        alert(json.message || "Renungan berhasil dipublikasikan!");
+        alert(json.message || "Renungan berhasil disimpan ke stok!");
         document.getElementById("formAddRenungan").reset();
         document.getElementById("inputTanggal").valueAsDate = new Date();
+        loadRenunganStock(); // Refresh tabel otomatis agar data baru langsung muncul
     } catch (err) {
-        alert("Gagal mengirim data. Periksa koneksi: " + err);
+        alert("Gagal mengirim data: " + err);
     } finally {
-        btn.innerText = "Publikasikan Renungan";
+        btn.innerText = "Simpan ke Stok Renungan";
         btn.disabled = false;
     }
 }
