@@ -782,7 +782,7 @@ async function loadRenunganStock() {
 
         tbody.innerHTML = list.map(item => `
             <tr class="hover:bg-slate-800/50 transition">
-                <td class="p-3 font-bold text-purple-400 whitespace-nowrap">${item.tanggal}</td>
+                <td class="p-3 font-bold text-purple-400 whitespace-nowrap">${item.tanggal ? new Date(item.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '-'}</td>
                 <td class="p-3">
                     <div class="font-semibold text-slate-200">${item.ayat_harian}</div>
                     <div class="text-[10px] text-slate-400 italic truncate max-w-xs">"${item.isi_ayat}"</div>
