@@ -286,7 +286,7 @@
         function selectJemaatForEdit(user) {
             document.getElementById("userIdField").value = user.id;
             document.getElementById("sNama").value = user.nama_lengkap || "";
-            document.getElementById("sGender").value = user.jenis_kelamin || "-"; // <-- Muat jenis kelamin
+            document.getElementById("sGender").value = user.jenis_kelamin || "-";
             document.getElementById("sTempatLahir").value = user.tempat_lahir || "";
             document.getElementById("sTglLahir").value = user.tanggal_lahir ? user.tanggal_lahir.split('T')[0] : "";
             document.getElementById("sStatus").value = user.status_pelayanan || "Jemaat";
@@ -299,7 +299,18 @@
             document.getElementById("sKomisi").value = user.minat_pelayanan || "Umum";
 
             document.getElementById("formTitle").innerText = "Edit / Lengkapi Data Jemaat";
-            document.getElementById("badgeStatus").innerText = user.is_verified ? "Status: Verified ☑️" : "Status: Belum Verified";
+            
+            // PERBAIKAN DI SINI: Cek apakah boolean true atau string "Verified"
+            const isVerified = user.is_verified === true || user.is_verified === "Verified";
+            const badge = document.getElementById("badgeStatus");
+            
+            if (isVerified) {
+                badge.innerText = "Status: Verified ☑️";
+                badge.className = "text-[10px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded font-semibold border border-emerald-900/50";
+            } else {
+                badge.innerText = "Status: Belum Verified";
+                badge.className = "text-[10px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded font-semibold border border-amber-900/50";
+            }
             
             document.getElementById("searchResults").classList.add("hidden");
             document.getElementById("searchInput").value = "";
