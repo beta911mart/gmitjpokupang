@@ -1155,23 +1155,60 @@
             document.getElementById("lightboxImg").src = safeLargeUrl;
             document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
         }
-        
-        function openBibleMenu(isBack = false) {
+        async function openBibleMenu(isBack = false) {
             if (!isBack) pushNavState('openBibleMenu');
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Renungan & Ayat Emas";
+            
+            // Tampilkan kerangka loading dulu agar mulus
             main.innerHTML = `
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <div class="bg-gradient-to-br from-emerald-950 to-slate-900 border border-emerald-500/40 p-5 rounded-2xl text-center space-y-3 shadow-lg">
-                        <span class="bg-emerald-900/80 text-emerald-300 text-[10px] px-2.5 py-1 rounded-full font-semibold">✝️ Renungan & Ayat Harian</span>
-                        <blockquote class="text-sm text-slate-100 italic leading-relaxed font-serif">
-                            "Segala perkara dapat kutanggung di dalam Dia yang memberi kekuatan kepadaku."
-                        </blockquote>
-                        <p class="text-xs font-bold text-emerald-400">— Filipi 4:13 —</p>
-                    </div>
+                    <div class="text-center py-10 text-slate-400 text-sm">Memuat renungan hari ini...</div>
                 </div>
             `;
+            
+            try {
+                let res = await fetch(WEB_APP_URL + "?action=getRenungan");
+                let json = await res.json();
+                
+                if (json.status === "success") {
+                    let item = json.data;
+                    
+                    main.innerHTML = `
+                        <div class="space-y-4">
+                            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                            
+                            <!-- KONTAINER 1: AYAT EMAS / HARIAN -->
+                            <div class="bg-gradient-to-br from-emerald-950 to-slate-900 border border-emerald-500/40 p-5 rounded-2xl text-center space-y-3 shadow-lg">
+                                <span class="bg-emerald-900/80 text-emerald-300 text-[10px] px-2.5 py-1 rounded-full font-semibold">✨ Ayat Emas Harian</span>
+                                <blockquote class="text-sm text-slate-100 italic leading-relaxed font-serif">
+                                    "${item.isi_ayat}"
+                                </blockquote>
+                                <p class="text-xs font-bold text-emerald-400">— ${item.ayat_harian} —</p>
+                            </div>
+
+                            <!-- KONTAINER 2: RENUNGAN HARIAN -->
+                            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3 shadow-lg">
+                                <div class="flex items-center space-x-2">
+                                    <span class="bg-purple-900/80 text-purple-300 text-[10px] px-2.5 py-1 rounded-full font-semibold">✝️ Renungan Harian</span>
+                                </div>
+                                <div class="text-sm text-slate-300 leading-relaxed space-y-2 whitespace-pre-line font-sans">
+                                    ${item.renungan}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error("Gagal memuat renungan:", err);
+                main.innerHTML = `
+                    <div class="space-y-4">
+                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                        <div class="text-center py-10 text-rose-400 text-sm">Gagal memuat data renungan. Periksa koneksi Anda.</div>
+                    </div>
+                `;
+            }
         }
 
         function openLivestreamsMenu(isBack = false) {
