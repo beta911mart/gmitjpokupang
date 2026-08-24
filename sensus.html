@@ -196,42 +196,42 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        async function handleLoginPetugas(e) {
-            e.preventDefault();
-            const btn = document.getElementById("btnLoginAdmin");
-            const user = document.getElementById("adminUser").value;
-            const pass = document.getElementById("adminPass").value;
+async function handleLoginPetugas(e) {
+    e.preventDefault();
+    const btn = document.getElementById("btnLoginAdmin");
+    const user = document.getElementById("adminUser").value;
+    const pass = document.getElementById("adminPass").value;
 
-            btn.disabled = true;
-            btn.innerHTML = "Memverifikasi...";
+    btn.disabled = true;
+    btn.innerHTML = "Memverifikasi...";
 
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "adminLogin", username: user, password: pass })
-                });
-                const result = await response.json();
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "sensusLogin", username: user, password: pass }) // Memanggil aksi khusus sensus
+        });
+        const result = await response.json();
 
-                if (result.status === "success") {
-                    currentAdmin = result.admin;
-                    localStorage.setItem("petugas_sensus", JSON.stringify(currentAdmin));
-                    document.getElementById("petugasNameLabel").innerText = currentAdmin.nama;
-                    
-                    document.getElementById("loginPetugasSection").classList.add("hidden");
-                    document.getElementById("dashboardSensusSection").classList.remove("hidden");
-                    loadAllUsersData();
-                    showToast("Login Petugas Berhasil!");
-                } else {
-                    showToast(result.message, "error");
-                    btn.disabled = false;
-                    btn.innerHTML = "Masuk Sensus";
-                }
-            } catch (err) {
-                showToast("Koneksi gagal.", "error");
-                btn.disabled = false;
-                btn.innerHTML = "Masuk Sensus";
-            }
+        if (result.status === "success") {
+            currentAdmin = result.admin;
+            localStorage.setItem("petugas_sensus", JSON.stringify(currentAdmin));
+            document.getElementById("petugasNameLabel").innerText = currentAdmin.nama;
+            
+            document.getElementById("loginPetugasSection").classList.add("hidden");
+            document.getElementById("dashboardSensusSection").classList.remove("hidden");
+            loadAllUsersData();
+            showToast("Login Petugas Sensus Berhasil!");
+        } else {
+            showToast(result.message, "error");
+            btn.disabled = false;
+            btn.innerHTML = "Masuk Sensus";
         }
+    } catch (err) {
+        showToast("Koneksi gagal: " + err, "error");
+        btn.disabled = false;
+        btn.innerHTML = "Masuk Sensus";
+    }
+}
 
         function logoutPetugas() {
             localStorage.removeItem("petugas_sensus");
