@@ -1181,7 +1181,7 @@ async function openBibleMenu(isBack = false) {
                     
                     <!-- KONTAINER 1: AYAT EMAS / HARIAN -->
                     <div class="bg-gradient-to-br from-emerald-950 to-slate-900 border border-emerald-500/40 p-5 rounded-2xl text-center space-y-3 shadow-lg">
-                        <span class="bg-emerald-900/80 text-emerald-300 text-[10px] px-2.5 py-1 rounded-full font-semibold">✨ Ayat Emas Harian (${item.tanggal})</span>
+                        <span class="bg-emerald-900/80 text-emerald-300 text-[10px] px-2.5 py-1 rounded-full font-semibold">✨ Ayat Emas Harian (${item.tanggal ? new Date(item.tanggal).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'}) : ''})</span>
                         <blockquote class="text-sm text-slate-100 italic leading-relaxed font-serif">
                             "${item.isi_ayat}"
                         </blockquote>
