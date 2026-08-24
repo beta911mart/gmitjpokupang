@@ -1168,7 +1168,8 @@ async function openBibleMenu(isBack = false) {
     `;
     
     try {
-        let res = await fetch(WEB_APP_URL + "?action=getLatestRenungan");
+        // PERBAIKAN: Ubah WEB_APP_URL menjadi SCRIPT_URL
+        let res = await fetch(SCRIPT_URL + "?action=getLatestRenungan");
         let json = await res.json();
         
         if (json.status === "success" && json.data) {
