@@ -1155,7 +1155,7 @@
             document.getElementById("lightboxImg").src = safeLargeUrl;
             document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
         }
-        async function openBibleMenu(isBack = false) {
+async function openBibleMenu(isBack = false) {
     if (!isBack) pushNavState('openBibleMenu');
     const main = document.querySelector("main");
     document.getElementById("headerTitle").innerText = "Renungan & Ayat Emas";
