@@ -781,27 +781,29 @@ async function loadRenunganStock() {
         list.reverse();
 
 tbody.innerHTML = list.map(item => {
-            // Format tanggal yang aman dari error Invalid Date
-            let formattedDate = "-";
+            // Ubah format YYYY-MM-DD menjadi Tanggal Indonesia (Cth: 26 Agustus 2026)
+            let displayDate = item.tanggal;
             if (item.tanggal) {
-                let d = new Date(item.tanggal);
-                if (!isNaN(d.getTime())) {
-                    formattedDate = d.toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
-                } else {
-                    formattedDate = item.tanggal; // Tampilkan mentah jika format teks biasa
+                let parts = item.tanggal.split("-");
+                if (parts.length === 3) {
+                    let tahun = parts[0];
+                    let bulanIndo = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                    let bulan = bulanIndo[parseInt(parts[1], 10)] || parts[1];
+                    let hari = parseInt(parts[2], 10);
+                    displayDate = `${hari} ${bulan} ${tahun}`;
                 }
             }
 
             return `
                 <tr class="hover:bg-slate-800/50 transition">
-                    <td class="p-3 font-bold text-purple-400 whitespace-nowrap">${formattedDate}</td>
+                    <td class="p-3 font-bold text-purple-400 whitespace-nowrap">${displayDate}</td>
                     <td class="p-3">
                         <div class="font-semibold text-slate-200">${item.ayat_harian}</div>
                         <div class="text-[10px] text-slate-400 italic truncate max-w-xs">"${item.isi_ayat}"</div>
                     </td>
                     <td class="p-3 text-slate-400 text-[11px] truncate max-w-xs">${item.renungan}</td>
                     <td class="p-3 text-center whitespace-nowrap">
-                        <button onclick="makeActiveRenungan(${item.row_index}, '${formattedDate}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-md">
+                        <button onclick="makeActiveRenungan(${item.row_index}, '${displayDate}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-md">
                             🚀 Tayangkan
                         </button>
                     </td>
