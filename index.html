@@ -2251,30 +2251,51 @@
         async function checkLiveStatusForMenu() {
     const channelId = "UCZ3-3qhAyR8mDb6VTeJOXtA";
     try {
-        // Menggunakan RSS feed publik YouTube via RSS2JSON untuk mendeteksi video aktif
         const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.youtube.com%2Ffeeds%2Fvideos.xml%3Fchannel_id%3D${channelId}`;
         const response = await fetch(rssUrl);
         const data = await response.json();
         
         if (data.status === 'ok' && data.items.length > 0) {
-            // Cek video terbaru
+            // Cek video teratas di RSS
             const latestVideo = data.items[0];
             
-            // Catatan: Anda juga bisa menyaring berdasarkan judul atau waktu publikasi jika diperlukan, 
-            // namun secara umum video teratas di RSS adalah yang terbaru. 
-            // Untuk memastikan apakah itu benar-benar live, kita bisa beri efek menyala.
+            // YouTube RSS mencantumkan 'guid' atau link. 
+            // Namun, cara paling pasti untuk mendeteksi apakah channel sedang live streaming 
+            // adalah memeriksa apakah video tersebut berformat live atau kita bisa melakukan fetch kilat ke URL embed live.
             
-            // Mengubah border container menjadi merah menyala
-            const card = document.getElementById('livestream-card');
-            const badge = document.getElementById('livestream-badge');
+            // Alternatif cerdas: Cek apakah judul mengandung kata "Ibadah", "Live", atau "Streaming" 
+            // atau kita verifikasi langsung ketersediaan stream aktifnya.
+            // Tapi agar otomatis murni dari YouTube, mari kita cek apakah link-nya mengandung 'watch?v=' 
+            // dan kita validasi apakah video tersebut adalah siaran aktif.
             
-            if (card && badge) {
-                // Beri gaya border merah menyala (glow effect)
-                card.classList.remove('border-orange-200/40', 'hover:border-orange-400');
-                card.classList.add('border-rose-600', 'shadow-lg', 'shadow-rose-600/30', 'hover:border-rose-500');
+            let videoId = "";
+            if (latestVideo.link.includes('v=')) {
+                videoId = latestVideo.link.split('v=')[1].split('&')[0];
+            }
+            
+            if (videoId) {
+                // Kita uji apakah video ini benar-benar sedang live dengan memuat status playernya secara background
+                // Atau cara termudah: Cek tag/kategori dari RSS jika ada, atau pastikan durasinya / status live.
                 
-                // Munculkan badge LIVE berdenyut
-                badge.classList.remove('hidden');
+                // Pengecekan tambahan: YouTube biasanya memberi tanda pada item live di RSS 
+                // jika itu adalah siaran aktif. Jika data.items[0] adalah video reguler yang baru di-upload 
+                // (misal video kemarin), kita bisa bandingkan tanggal publikasinya dengan waktu sekarang.
+                
+                let pubDate = new Date(latestVideo.pubDate);
+                let now = new Date();
+                let hoursDifference = (now - pubDate) / (1000 * 60 * 60);
+                
+                // Jika video teratas di-upload kurang dari 4 jam lalu, kemungkinan besar itu ibadah/live yang sedang/baru berlangsung
+                if (hoursDifference <= 4) {
+                    const card = document.getElementById('livestream-card');
+                    const badge = document.getElementById('livestream-badge');
+                    
+                    if (card && badge) {
+                        card.classList.remove('border-orange-200/40', 'hover:border-orange-400');
+                        card.classList.add('border-rose-600', 'shadow-lg', 'shadow-rose-600/30', 'hover:border-rose-500');
+                        badge.classList.remove('hidden');
+                    }
+                }
             }
         }
     } catch (error) {
@@ -2282,10 +2303,10 @@
     }
 }
 
-// Jalankan saat halaman selesai dimuat
 document.addEventListener("DOMContentLoaded", () => {
     checkLiveStatusForMenu();
 });
+
     </script>
 </body>
 </html>
