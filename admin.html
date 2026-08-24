@@ -741,9 +741,12 @@ async function submitNewRenungan(event) {
     btn.innerText = "Mengirim...";
     btn.disabled = true;
 
+    // Ambil data admin yang sedang login dari sessionStorage
+    const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+
     const payload = {
         action: "addRenungan",
-        admin_id: currentAdminId,
+        admin_id: admin ? admin.id : "UNKNOWN", // Mengambil ID admin yang valid
         tanggal: document.getElementById("inputTanggal").value,
         ayat_harian: document.getElementById("inputAyatHarian").value,
         isi_ayat: document.getElementById("inputIsiAyat").value,
@@ -751,7 +754,7 @@ async function submitNewRenungan(event) {
     };
 
     try {
-        let res = await fetch(WEB_APP_URL, {
+        let res = await fetch(SCRIPT_URL, { // Menggunakan SCRIPT_URL yang benar
             method: "POST",
             body: JSON.stringify(payload)
         });
@@ -760,7 +763,7 @@ async function submitNewRenungan(event) {
         document.getElementById("formAddRenungan").reset();
         document.getElementById("inputTanggal").valueAsDate = new Date();
     } catch (err) {
-        alert("Gagal mengirim data. Periksa koneksi.");
+        alert("Gagal mengirim data. Periksa koneksi: " + err);
     } finally {
         btn.innerText = "Publikasikan Renungan";
         btn.disabled = false;
