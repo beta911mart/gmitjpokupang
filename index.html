@@ -1180,7 +1180,7 @@
             `;
         }
 
-        function openStatistikMenu(isBack = false) {
+function openStatistikMenu(isBack = false) {
             if (!isBack) pushNavState('openStatistikMenu');
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Statistik & Demografi Jemaat";
@@ -1201,7 +1201,7 @@
             loadStatisticsData();
         }
 
-async function loadStatisticsData() {
+        async function loadStatisticsData() {
             const container = document.getElementById("statsContainer");
             if (!container) return;
             
@@ -1243,10 +1243,18 @@ async function loadStatisticsData() {
                     }
                 } else {
                     // Jika sudah berupa array of objects
-                    dataList = rawData;
+                    dataList = rawData.map(item => ({
+                        is_verified: item.is_verified || item[13] || "",
+                        jenis_kelamin: item.jenis_kelamin || item[16] || "",
+                        lingkungan: item.lingkungan || item[5] || "",
+                        rayon: item.rayon || item[6] || "",
+                        minat_pelayanan: item.minat_pelayanan || item[12] || ""
+                    }));
                 }
 
                 const totalJemaat = dataList.length;
+                
+                // 1. Hitung Verifikasi
                 let verifiedCount = dataList.filter(item => {
                     let v = String(item.is_verified || "").trim().toLowerCase();
                     return v === "verified" || v === "true" || v === "terverifikasi";
@@ -1255,12 +1263,9 @@ async function loadStatisticsData() {
                 let pendingCount = totalJemaat - verifiedCount;
                 let verifiedPercent = totalJemaat > 0 ? Math.round((verifiedCount / totalJemaat) * 100) : 0;
 
+                // 2. Hitung Demografi Jenis Kelamin
                 let genderMap = { "Laki-laki": 0, "Perempuan": 0, "Belum Diisi": 0 };
-                let lingkunganMap = {};
-                let minatMap = {};
-
                 dataList.forEach(item => {
-                    // 1. Demografi Jenis Kelamin
                     let g = String(item.jenis_kelamin || "").trim().toLowerCase();
                     if (g.startsWith("l") || g.includes("pria") || g.includes("laki")) {
                         genderMap["Laki-laki"]++;
@@ -1269,24 +1274,55 @@ async function loadStatisticsData() {
                     } else {
                         genderMap["Belum Diisi"]++;
                     }
+                });
 
-                    // 2. Sebaran Lingkungan
-                    let ling = String(item.lingkungan || "").trim();
-                    if (!ling || ling === "-") ling = "Belum Ditentukan";
-                    lingkunganMap[ling] = (lingkunganMap[ling] || 0) + 1;
+                // 3. Hitung Sebaran Lingkungan (1 sampai 16 + Belum Ditentukan)
+                let lingkunganMap = {};
+                for (let i = 1; i <= 16; i++) {
+                    lingkunganMap["Lingkungan " + i] = 0;
+                }
+                lingkunganMap["Belum Ditentukan"] = 0;
 
-                    // 3. Minat Pelayanan
+                dataList.forEach(item => {
+                    let lingStr = String(item.lingkungan || "").trim();
+                    if (/^\d+$/.test(lingStr)) {
+                        lingStr = "Lingkungan " + lingStr;
+                    }
+                    
+                    let lingKey = "Belum Ditentukan";
+                    if (lingStr && lingStr !== "-") {
+                        let match = lingStr.match(/(?:lingkungan\s*)?(\d+)/i);
+                        if (match && parseInt(match[1]) >= 1 && parseInt(match[1]) <= 16) {
+                            lingKey = "Lingkungan " + parseInt(match[1]);
+                        } else {
+                            lingKey = lingStr;
+                        }
+                    }
+                    
+                    if (lingkunganMap[lingKey] !== undefined) {
+                        lingkunganMap[lingKey]++;
+                    } else {
+                        lingkunganMap[lingKey] = 1;
+                    }
+                });
+
+                // 4. Hitung Minat Pelayanan
+                let minatMap = {};
+                dataList.forEach(item => {
                     let minatRaw = String(item.minat_pelayanan || "").trim();
                     if (!minatRaw || minatRaw === "-") {
                         minatMap["Belum Memilih"] = (minatMap["Belum Memilih"] || 0) + 1;
                     } else {
                         minatRaw.split(",").forEach(m => {
                             let cleanM = m.trim();
-                            if (cleanM) minatMap[cleanM] = (minatMap[cleanM] || 0) + 1;
+                            if (cleanM) {
+                                minatMap[cleanM] = (minatMap[cleanM] || 0) + 1;
+                            }
                         });
                     }
                 });
 
+                // Helper untuk membuat bar grafik visual HTML standar
                 function renderBar(label, count, total, colorClass = "bg-purple-600") {
                     let percent = total > 0 ? Math.round((count / total) * 100) : 0;
                     return `
@@ -1302,6 +1338,48 @@ async function loadStatisticsData() {
                     `;
                 }
 
+                // Palet Warna untuk Sebaran Lingkungan
+                const warnaLingkungan = [
+                    "bg-red-500", "bg-orange-500", "bg-amber-500", "bg-yellow-500",
+                    "bg-lime-500", "bg-green-500", "bg-emerald-500", "bg-teal-500",
+                    "bg-cyan-500", "bg-sky-500", "bg-blue-500", "bg-indigo-500",
+                    "bg-violet-500", "bg-purple-500", "bg-fuchsia-500", "bg-pink-500",
+                    "bg-slate-400"
+                ];
+
+                let entriesLingkungan = Object.entries(lingkunganMap);
+                let multiBarHtml = `
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs font-semibold text-slate-700">
+                            <span>Distribusi XVI Lingkungan</span>
+                            <span>Total: ${totalJemaat} Jiwa</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden flex shadow-inner">
+                `;
+
+                entriesLingkungan.forEach(([ling, count], index) => {
+                    let percent = totalJemaat > 0 ? (count / totalJemaat) * 100 : 0;
+                    if (percent > 0) {
+                        let colorClass = warnaLingkungan[index % warnaLingkungan.length];
+                        multiBarHtml += `<div class="${colorClass} h-full transition-all duration-500" style="width: ${percent}%" title="${ling}: ${count} (${Math.round(percent)}%)"></div>`;
+                    }
+                });
+
+                multiBarHtml += `</div>`;
+                multiBarHtml += `<div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-2 text-[10px]">`;
+                entriesLingkungan.forEach(([ling, count], index) => {
+                    let percent = totalJemaat > 0 ? Math.round((count / totalJemaat) * 100) : 0;
+                    let colorClass = warnaLingkungan[index % warnaLingkungan.length];
+                    multiBarHtml += `
+                        <div class="flex items-center gap-1.5 bg-slate-50 p-1 rounded border border-slate-100">
+                            <span class="w-2.5 h-2.5 rounded-full ${colorClass} shrink-0"></span>
+                            <span class="truncate text-slate-600 font-medium">${ling}: <b class="text-slate-900">${count}</b> (${percent}%)</span>
+                        </div>
+                    `;
+                });
+                multiBarHtml += `</div></div>`;
+
+                // Render UI Utama ke dalam container
                 container.innerHTML = `
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm animate-card-hover">
@@ -1326,10 +1404,8 @@ async function loadStatisticsData() {
                     </div>
 
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                        <h3 class="font-bold text-xs text-slate-900 border-b pb-2">📍 Sebaran Per Lingkungan</h3>
-                        <div class="space-y-3">
-                            ${Object.entries(lingkunganMap).map(([ling, count]) => renderBar(ling, count, totalJemaat, "bg-purple-600")).join('')}
-                        </div>
+                        <h3 class="font-bold text-xs text-slate-900 border-b pb-2">📍 Sebaran Per Lingkungan (XVI Lingkungan)</h3>
+                        ${multiBarHtml}
                     </div>
 
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
@@ -1340,10 +1416,10 @@ async function loadStatisticsData() {
                     </div>
                 `;
             } catch (err) {
+                console.error(err);
                 container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Terjadi kesalahan koneksi server: ${err.message}</div>`;
             }
         }
-
         function openAboutPage(isBack = false) {
             if (!isBack) pushNavState('openAboutPage');
             const main = document.querySelector("main");
