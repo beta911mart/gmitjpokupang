@@ -1201,7 +1201,7 @@
             loadStatisticsData();
         }
 
-        async function loadStatisticsData() {
+async function loadStatisticsData() {
             const container = document.getElementById("statsContainer");
             if (!container) return;
             
@@ -1209,100 +1209,138 @@
                 const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`);
                 const result = await res.json();
                 
-                if (result.status === "success" && (result.users || result.data)) {
-                    const data = result.users || result.data;
-                    const totalJemaat = data.length;
+                // Mendukung berbagai format struktur respons dari Apps Script (users / data)
+                let rawData = result.users || result.data || [];
+                
+                if (rawData.length === 0) {
+                    container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-slate-500">Belum ada data jemaat.</div>`;
+                    return;
+                }
+
+                let dataList = [];
+                
+                // Cek apakah data berupa array of arrays (baris spreadsheet) atau array of objects
+                if (Array.isArray(rawData[0])) {
+                    // Jika berupa baris spreadsheet, baris pertama biasanya Header
+                    let headers = rawData[0].map(h => String(h).trim().toLowerCase());
                     
-                    if (totalJemaat === 0) {
-                        container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-slate-500">Belum ada data jemaat.</div>`;
-                        return;
+                    // Cari indeks kolom secara otomatis berdasarkan nama header-nya
+                    let idxVerified = headers.findIndex(h => h.includes('verif') || h.includes('status'));
+                    let idxGender = headers.findIndex(h => h.includes('gender') || h.includes('kelamin'));
+                    let idxLing = headers.findIndex(h => h.includes('lingkungan') || h.includes('ling'));
+                    let idxRayon = headers.findIndex(h => h.includes('rayon'));
+                    let idxMinat = headers.findIndex(h => h.includes('minat') || h.includes('komisi') || h.includes('pelayanan'));
+
+                    for (let i = 1; i < rawData.length; i++) {
+                        let row = rawData[i];
+                        dataList.push({
+                            is_verified: idxVerified !== -1 ? String(row[idxVerified]) : "",
+                            jenis_kelamin: idxGender !== -1 ? String(row[idxGender]) : "",
+                            lingkungan: idxLing !== -1 ? String(row[idxLing]) : "",
+                            rayon: idxRayon !== -1 ? String(row[idxRayon]) : "",
+                            minat_pelayanan: idxMinat !== -1 ? String(row[idxMinat]) : ""
+                        });
+                    }
+                } else {
+                    // Jika sudah berupa array of objects
+                    dataList = rawData;
+                }
+
+                const totalJemaat = dataList.length;
+                let verifiedCount = dataList.filter(item => {
+                    let v = String(item.is_verified || "").trim().toLowerCase();
+                    return v === "verified" || v === "true" || v === "terverifikasi";
+                }).length;
+                
+                let pendingCount = totalJemaat - verifiedCount;
+                let verifiedPercent = totalJemaat > 0 ? Math.round((verifiedCount / totalJemaat) * 100) : 0;
+
+                let genderMap = { "Laki-laki": 0, "Perempuan": 0, "Belum Diisi": 0 };
+                let lingkunganMap = {};
+                let minatMap = {};
+
+                dataList.forEach(item => {
+                    // 1. Demografi Jenis Kelamin
+                    let g = String(item.jenis_kelamin || "").trim().toLowerCase();
+                    if (g.startsWith("l") || g.includes("pria") || g.includes("laki")) {
+                        genderMap["Laki-laki"]++;
+                    } else if (g.startsWith("p") || g.includes("wanita") || g.includes("perempuan")) {
+                        genderMap["Perempuan"]++;
+                    } else {
+                        genderMap["Belum Diisi"]++;
                     }
 
-                    let verifiedCount = data.filter(item => String(item[13]).trim() === "Verified").length;
-                    let pendingCount = totalJemaat - verifiedCount;
-                    let verifiedPercent = Math.round((verifiedCount / totalJemaat) * 100);
+                    // 2. Sebaran Lingkungan
+                    let ling = String(item.lingkungan || "").trim();
+                    if (!ling || ling === "-") ling = "Belum Ditentukan";
+                    lingkunganMap[ling] = (lingkunganMap[ling] || 0) + 1;
 
-                    // Pemetaan Demografi
-                    let genderMap = { "Laki-laki": 0, "Perempuan": 0, "Belum Diisi": 0 };
-                    let lingkunganMap = {};
-                    let minatMap = {};
-
-                    data.forEach(item => {
-                        let g = String(item[16] || "").trim().toLowerCase();
-                        if (g.startsWith("l") || g.includes("pria")) genderMap["Laki-laki"]++;
-                        else if (g.startsWith("p") || g.includes("wanita")) genderMap["Perempuan"]++;
-                        else genderMap["Belum Diisi"]++;
-
-                        let ling = String(item[5] || "").trim() || "Belum Ditentukan";
-                        lingkunganMap[ling] = (lingkunganMap[ling] || 0) + 1;
-
-                        let minatRaw = String(item[12] || "").trim();
-                        if (!minatRaw) minatMap["Belum Memilih"] = (minatMap["Belum Memilih"] || 0) + 1;
-                        else {
-                            minatRaw.split(",").forEach(m => {
-                                let cleanM = m.trim();
-                                if (cleanM) minatMap[cleanM] = (minatMap[cleanM] || 0) + 1;
-                            });
-                        }
-                    });
-
-                    function renderBar(label, count, total, colorClass = "bg-purple-600") {
-                        let percent = total > 0 ? Math.round((count / total) * 100) : 0;
-                        return `
-                            <div class="space-y-1">
-                                <div class="flex justify-between text-xs">
-                                    <span class="font-medium text-slate-700">${label}</span>
-                                    <span class="font-bold text-slate-900">${count} <span class="text-[10px] text-slate-400 font-normal">(${percent}%)</span></span>
-                                </div>
-                                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                                    <div class="${colorClass} h-2.5 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
-                                </div>
-                            </div>
-                        `;
+                    // 3. Minat Pelayanan
+                    let minatRaw = String(item.minat_pelayanan || "").trim();
+                    if (!minatRaw || minatRaw === "-") {
+                        minatMap["Belum Memilih"] = (minatMap["Belum Memilih"] || 0) + 1;
+                    } else {
+                        minatRaw.split(",").forEach(m => {
+                            let cleanM = m.trim();
+                            if (cleanM) minatMap[cleanM] = (minatMap[cleanM] || 0) + 1;
+                        });
                     }
+                });
 
-                    container.innerHTML = `
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm animate-card-hover">
-                                <p class="text-[11px] text-slate-500 font-medium">Total Jemaat</p>
-                                <h3 class="text-2xl font-black text-slate-900 mt-1">${totalJemaat}</h3>
-                                <p class="text-[10px] text-purple-600 mt-1 font-semibold">Terdaftar di Database</p>
+                function renderBar(label, count, total, colorClass = "bg-purple-600") {
+                    let percent = total > 0 ? Math.round((count / total) * 100) : 0;
+                    return `
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs">
+                                <span class="font-medium text-slate-700">${label}</span>
+                                <span class="font-bold text-slate-900">${count} <span class="text-[10px] text-slate-400 font-normal">(${percent}%)</span></span>
                             </div>
-                            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm animate-card-hover">
-                                <p class="text-[11px] text-slate-500 font-medium">Status Verifikasi</p>
-                                <h3 class="text-2xl font-black text-emerald-600 mt-1">${verifiedPercent}%</h3>
-                                <p class="text-[10px] text-slate-400 mt-1">${verifiedCount} Terverifikasi, ${pendingCount} Pending</p>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                            <h3 class="font-bold text-xs text-slate-900 border-b pb-2">👥 Demografi Jenis Kelamin</h3>
-                            <div class="space-y-3">
-                                ${renderBar("Laki-laki", genderMap["Laki-laki"], totalJemaat, "bg-blue-500")}
-                                ${renderBar("Perempuan", genderMap["Perempuan"], totalJemaat, "bg-pink-500")}
-                                ${genderMap["Belum Diisi"] > 0 ? renderBar("Belum Diisi", genderMap["Belum Diisi"], totalJemaat, "bg-slate-400") : ''}
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                            <h3 class="font-bold text-xs text-slate-900 border-b pb-2">📍 Sebaran Per Lingkungan</h3>
-                            <div class="space-y-3">
-                                ${Object.entries(lingkunganMap).map(([ling, count]) => renderBar(ling, count, totalJemaat, "bg-purple-600")).join('')}
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                            <h3 class="font-bold text-xs text-slate-900 border-b pb-2">✨ Minat Pelayanan Jemaat</h3>
-                            <div class="space-y-3">
-                                ${Object.entries(minatMap).map(([minat, count]) => renderBar(minat, count, totalJemaat, "bg-amber-500")).join('')}
+                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                <div class="${colorClass} h-2.5 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
                             </div>
                         </div>
                     `;
-                } else {
-                    container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Gagal memuat data statistik.</div>`;
                 }
+
+                container.innerHTML = `
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm animate-card-hover">
+                            <p class="text-[11px] text-slate-500 font-medium">Total Jemaat</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1">${totalJemaat}</h3>
+                            <p class="text-[10px] text-purple-600 mt-1 font-semibold">Terdaftar di Database</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm animate-card-hover">
+                            <p class="text-[11px] text-slate-500 font-medium">Status Verifikasi</p>
+                            <h3 class="text-2xl font-black text-emerald-600 mt-1">${verifiedPercent}%</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">${verifiedCount} Terverifikasi, ${pendingCount} Pending</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="font-bold text-xs text-slate-900 border-b pb-2">👥 Demografi Jenis Kelamin</h3>
+                        <div class="space-y-3">
+                            ${renderBar("Laki-laki", genderMap["Laki-laki"], totalJemaat, "bg-blue-500")}
+                            ${renderBar("Perempuan", genderMap["Perempuan"], totalJemaat, "bg-pink-500")}
+                            ${genderMap["Belum Diisi"] > 0 ? renderBar("Belum Diisi", genderMap["Belum Diisi"], totalJemaat, "bg-slate-400") : ''}
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="font-bold text-xs text-slate-900 border-b pb-2">📍 Sebaran Per Lingkungan</h3>
+                        <div class="space-y-3">
+                            ${Object.entries(lingkunganMap).map(([ling, count]) => renderBar(ling, count, totalJemaat, "bg-purple-600")).join('')}
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="font-bold text-xs text-slate-900 border-b pb-2">✨ Minat Pelayanan Jemaat</h3>
+                        <div class="space-y-3">
+                            ${Object.entries(minatMap).map(([minat, count]) => renderBar(minat, count, totalJemaat, "bg-amber-500")).join('')}
+                        </div>
+                    </div>
+                `;
             } catch (err) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Terjadi kesalahan koneksi server.</div>`;
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Terjadi kesalahan koneksi server: ${err.message}</div>`;
             }
         }
 
