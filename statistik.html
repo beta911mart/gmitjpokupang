@@ -106,12 +106,37 @@ async function loadStatistics() {
                 }
             });
 
-            // 3. Hitung Lingkungan
+            // 3. Hitung Sebaran Lingkungan (1 sampai 16 + Belum Ditentukan)
             let lingkunganMap = {};
+            // Inisialisasi otomatis Lingkungan 1 s.d 16 agar urut dan konsisten
+            for (let i = 1; i <= 16; i++) {
+                lingkunganMap["Lingkungan " + i] = 0;
+            }
+            lingkunganMap["Belum Ditentukan"] = 0;
+
             dataList.forEach(item => {
-                let ling = String(item.lingkungan || "").trim();
-                if (!ling || ling === "-") ling = "Belum Ditentukan";
-                lingkunganMap[ling] = (lingkunganMap[ling] || 0) + 1;
+                let lingStr = String(item.lingkungan || "").trim();
+                // Normalisasi teks input jika user menulis angka saja (misal "1" menjadi "Lingkungan 1")
+                if (/^\d+$/.test(lingStr)) {
+                    lingStr = "Lingkungan " + lingStr;
+                }
+                
+                let lingKey = "Belum Ditentukan";
+                if (lingStr && lingStr !== "-") {
+                    // Cari apakah cocok dengan lingkungan 1-16
+                    let match = lingStr.match(/(?:lingkungan\s*)?(\d+)/i);
+                    if (match && parseInt(match[1]) >= 1 && parseInt(match[1]) <= 16) {
+                        lingKey = "Lingkungan " + parseInt(match[1]);
+                    } else {
+                        lingKey = lingStr; // Jika ada nama lingkungan kustom di luar 1-16
+                    }
+                }
+                
+                if (lingkunganMap[lingKey] !== undefined) {
+                    lingkunganMap[lingKey]++;
+                } else {
+                    lingkunganMap[lingKey] = 1;
+                }
             });
 
             // 4. Hitung Minat Pelayanan
@@ -139,6 +164,50 @@ async function loadStatistics() {
                         <div class="flex justify-between text-xs">
                             <span class="font-medium text-slate-700">${label}</span>
                             <span class="font-bold text-slate-900">${count} <span class="text-[10px] text-slate-400 font-normal">(${percent}%)</span></span>
+// Palet 16 Warna Unik untuk 16 Lingkungan
+            const warnaLingkungan = [
+                "bg-red-500", "bg-orange-500", "bg-amber-500", "bg-yellow-500",
+                "bg-lime-500", "bg-green-500", "bg-emerald-500", "bg-teal-500",
+                "bg-cyan-500", "bg-sky-500", "bg-blue-500", "bg-indigo-500",
+                "bg-violet-500", "bg-purple-500", "bg-fuchsia-500", "bg-pink-500",
+                "bg-slate-400" // Untuk Belum Ditentukan
+            ];
+
+            // Render Single Bar Panjang Berisi 16+ Warna
+            let entriesLingkungan = Object.entries(lingkunganMap);
+            let multiBarHtml = `
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xs font-semibold text-slate-700">
+                        <span>Sebaran 16 Lingkungan</span>
+                        <span>Total: ${totalJemaat} Jiwa</span>
+                    </div>
+                    <!-- Bar Panjang Gabungan -->
+                    <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden flex shadow-inner">
+            `;
+
+            entriesLingkungan.forEach(([ling, count], index) => {
+                let percent = totalJemaat > 0 ? (count / totalJemaat) * 100 : 0;
+                if (percent > 0) {
+                    let colorClass = warnaLingkungan[index % warnaLingkungan.length];
+                    multiBarHtml += `<div class="${colorClass} h-full transition-all duration-500" style="width: ${percent}%" title="${ling}: ${count} (${Math.round(percent)}%)"></div>`;
+                }
+            });
+
+            multiBarHtml += `</div>`;
+
+            // Legenda / Keterangan Warna di Bawahnya (Grid kecil agar rapi)
+            multiBarHtml += `<div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-2 text-[10px]">`;
+            entriesLingkungan.forEach(([ling, count], index) => {
+                let percent = totalJemaat > 0 ? Math.round((count / totalJemaat) * 100) : 0;
+                let colorClass = warnaLingkungan[index % warnaLingkungan.length];
+                multiBarHtml += `
+                    <div class="flex items-center gap-1.5 bg-slate-50 p-1 rounded border border-slate-100">
+                        <span class="w-2.5 h-2.5 rounded-full ${colorClass} shrink-0"></span>
+                        <span class="truncate text-slate-600 font-medium">${ling}: <b class="text-slate-900">${count}</b> (${percent}%)</span>
+                    </div>
+                `;
+            });
+            multiBarHtml += `</div></div>`;
                         </div>
                         <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                             <div class="${colorClass} h-2.5 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
@@ -173,14 +242,10 @@ async function loadStatistics() {
                     </div>
                 </div>
 
-                <!-- 3. Grafik Sebaran Lingkungan -->
+<!-- 3. Grafik Sebaran Lingkungan (Satu Garis Panjang 16 Warna) -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <h3 class="font-bold text-xs text-slate-900 border-b pb-2">📍 Sebaran Per Lingkungan</h3>
-                    <div class="space-y-3">
-                        ${Object.entries(lingkunganMap).map(([ling, count]) => 
-                            renderBar(ling, count, totalJemaat, "bg-purple-600")
-                        ).join('')}
-                    </div>
+                    <h3 class="font-bold text-xs text-slate-900 border-b pb-2">📍 Sebaran Per Lingkungan (XVI Lingkungan)</h3>
+                    ${multiBarHtml}
                 </div>
 
                 <!-- 4. Grafik Minat Pelayanan -->
