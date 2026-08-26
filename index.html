@@ -1101,7 +1101,7 @@
             document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
         }
 
-        async function openBibleMenu(isBack = false) {
+async function openBibleMenu(isBack = false) {
             if (!isBack) pushNavState('openBibleMenu');
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Renungan & Ayat Emas";
@@ -1120,6 +1120,32 @@
                 
                 if (json.status === "success" && json.data) {
                     let item = json.data;
+                    
+                    // --- PEMROSESAN TEKS: Baris 1 (Judul) & Baris Terakhir (Quote) ---
+                    let rawText = item.renungan || "";
+                    let lines = rawText.split("\n").filter(l => l.trim() !== "");
+                    
+                    let formattedHtml = "";
+                    if (lines.length > 0) {
+                        let judul = `<h4 class="font-bold text-white text-base mb-3">${lines[0]}</h4>`;
+                        let isiTengah = "";
+                        let quote = "";
+                        
+                        if (lines.length > 2) {
+                            let lastLine = lines[lines.length - 1];
+                            quote = `<blockquote class="border-l-2 border-purple-500 pl-3 italic text-purple-200/90 my-3 text-xs">"${lastLine}"</blockquote>`;
+                            let middleLines = lines.slice(1, lines.length - 1);
+                            isiTengah = middleLines.join("<br><br>");
+                        } else if (lines.length === 2) {
+                            isiTengah = lines[1];
+                        }
+                        
+                        formattedHtml = `${judul}<div class="space-y-2 text-slate-300">${isiTengah}</div>${quote}`;
+                    } else {
+                        formattedHtml = "Belum ada isi renungan.";
+                    }
+                    // -------------------------------------------------------------
+
                     main.innerHTML = `
                         <div class="space-y-4">
                             <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
@@ -1136,8 +1162,8 @@
                                 <div class="flex items-center space-x-2">
                                     <span class="bg-purple-900/80 text-purple-300 text-[10px] px-2.5 py-1 rounded-full font-semibold">✝️ Renungan Harian</span>
                                 </div>
-                                <div class="text-sm text-slate-300 leading-relaxed space-y-2 whitespace-pre-line font-sans">
-                                    ${item.renungan}
+                                <div class="text-sm text-slate-300 leading-relaxed space-y-2 font-sans">
+                                    ${formattedHtml}
                                 </div>
                             </div>
                         </div>
@@ -1159,7 +1185,6 @@
                 `;
             }
         }
-
         function openLivestreamsMenu(isBack = false) {
             if (!isBack) pushNavState('openLivestreamsMenu');
             const main = document.querySelector("main");
