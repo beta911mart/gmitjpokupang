@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz & Games Alkitab - JPO Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulseTimer {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        .timer-warning { animation: pulseTimer 0.8s infinite; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toastContainer" class="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"></div>
+
+    <!-- Container Utama Full Wide -->
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-4 flex-1 flex flex-col space-y-6">
+        
+        <!-- HEADER -->
+        <header class="bg-slate-900 border border-purple-900/40 p-4 rounded-xl flex justify-between items-center shadow-lg w-full">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🎮</span>
+                <div>
+                    <h1 class="font-bold text-sm text-purple-300">Quiz & Games Rohani</h1>
+                    <p class="text-[10px] text-slate-400">Asah Iman & Pengetahuan Alkitab</p>
+                </div>
+            </div>
+            <button onclick="window.location.href='index.html'" class="text-xs bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700 px-3 py-1.5 rounded-xl transition">← Beranda</button>
+        </header>
+
+        <!-- GRID UTAMA: GAME & HIGHSCORE (Lebar Penuh) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 w-full">
+            
+            <!-- KOLOM KIRI & TENGAH: ARENA GAME -->
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between relative overflow-hidden w-full">
+                
+                <!-- MENU UTAMA / PILIH GAME -->
+                <div id="gameMenu" class="space-y-6 my-auto py-4 text-center w-full">
+                    <div class="space-y-2">
+                        <span class="bg-purple-950 text-purple-300 text-xs px-3 py-1 rounded-full font-semibold border border-purple-900/50">✨ Zona Hiburan Rohani</span>
+                        <h2 class="text-xl font-bold text-white">Tantangan Kuis Alkitab</h2>
+                        <p class="text-xs text-slate-400 max-w-md mx-auto">Soal diacak secara otomatis dari bank soal dengan batas waktu 10 detik per pertanyaan!</p>
+                    </div>
+
+                    <div class="max-w-xs mx-auto">
+                        <button onclick="initQuizGame()" id="startBtn" class="w-full bg-gradient-to-br from-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white p-4 rounded-xl shadow-lg transition space-y-1 border border-purple-500/30 font-bold text-sm">
+                            🚀 Mulai Kuis Sekarang
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ARENA QUIZ (Hidden Default) -->
+                <div id="quizArena" class="space-y-6 my-auto hidden w-full">
+                    <!-- Progress & Timer Bar -->
+                    <div class="flex justify-between items-center w-full">
+                        <span id="questionCounter" class="text-xs font-semibold text-purple-400">Memuat soal...</span>
+                        <div class="flex items-center gap-2 bg-slate-950 px-3 py-1 rounded-full border border-slate-800">
+                            <span class="text-xs text-slate-400">⏱️ Waktu:</span>
+                            <span id="timerDisplay" class="text-xs font-bold text-rose-400">10s</span>
+                        </div>
+                    </div>
+
+                    <!-- Kotak Soal -->
+                    <div class="bg-slate-950 border border-slate-800 p-5 rounded-2xl space-y-3 w-full">
+                        <p id="categoryLabel" class="text-[10px] text-purple-400 uppercase tracking-wider font-semibold">Kategori: Pengetahuan Alkitab</p>
+                        <h3 id="questionText" class="text-sm sm:text-base text-slate-100 font-semibold leading-relaxed">
+                            Memuat pertanyaan...
+                        </h3>
+                    </div>
+
+                    <!-- Pilihan Ganda -->
+                    <div id="optionsContainer" class="grid grid-cols-1 gap-2.5 w-full">
+                        <!-- Opsi dimasukkan via JS -->
+                    </div>
+                </div>
+
+                <!-- ARENA SELESAI / SKOR AKHIR (Hidden Default) -->
+                <div id="quizResult" class="space-y-6 my-auto text-center hidden py-6 w-full">
+                    <div class="space-y-2">
+                        <div id="resultUserName" class="text-xs font-bold text-purple-300 bg-purple-950/50 border border-purple-900/50 px-3 py-1 rounded-full inline-block">Nama User</div>
+                        <div class="text-4xl">🏆</div>
+                        <h2 class="text-xl font-bold text-white">Permainan Selesai!</h2>
+                        <p class="text-xs text-slate-400">Hebat! Skor Anda telah disimpan di perangkat ini.</p>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 p-4 rounded-xl max-w-xs mx-auto space-y-1">
+                        <span class="text-[10px] text-slate-400 uppercase">Perolehan Skor Anda</span>
+                        <h3 id="finalScoreText" class="text-3xl font-black text-emerald-400">0 Poin</h3>
+                    </div>
+                    <button onclick="resetToMenu()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl text-xs font-semibold shadow-lg transition">Main Lagi / Menu Utama</button>
+                </div>
+
+            </div>
+
+            <!-- KOLOM KANAN: PAPAN HIGHSCORE & TOMBOL GLOBAL -->
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col w-full space-y-4">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                    <h3 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
+                        <span>📊</span> <span id="scoreListTitle">Papan Peringkat Lokal</span>
+                    </h3>
+                    <span id="scoreListBadge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-semibold border border-slate-700">Perangkat Ini</span>
+                </div>
+
+                <!-- Tombol Sinkronisasi Global (Hanya Tampil Jika User Sudah Login) -->
+                <div id="globalSyncWrapper" class="hidden">
+                    <button onclick="syncAndFetchGlobalScores()" id="syncBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-3 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2">
+                        <span>🌐 Tampilkan & Sinkronkan Skor Global</span>
+                    </button>
+                    <p class="text-[9px] text-slate-400 text-center mt-1">Kirim skor terbaik Anda & lihat peringkat jemaat lain.</p>
+                </div>
+
+                <!-- Tombol Kembali ke Lokal (Muncul saat mode global aktif) -->
+                <button onclick="loadLocalHighScores()" id="backToLocalBtn" class="hidden text-[10px] text-purple-400 underline text-center">← Kembali ke Papan Skor Lokal</button>
+
+                <!-- Daftar Highscore -->
+                <div id="highScoreList" class="space-y-2 overflow-y-auto max-h-[300px] pr-1 flex-1 w-full">
+                    <!-- Data dimuat dinamis via JS -->
+                </div>
+                
+                <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400 text-center" id="scoreFooterInfo">
+                    Skor tersimpan otomatis di perangkat Anda.
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- LOGIKA GAME & SINKRONISASI HYBRID -->
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
+
+        const masterQuestionBank = [
+            { q: "Siapakah tokoh yang dimasukkan ke dalam gua singa karena tetap setia berdoa kepada Allah?", options: ["Daud", "Daniel", "Yusuf", "Sadarakh"], answer: "Daniel" },
+            { q: "Berapa hari lamanya hujan turun membumi pada zaman air bah Nuh?", options: ["40 hari 40 malam", "7 hari 7 malam", "100 hari", "12 hari"], answer: "40 hari 40 malam" },
+            { q: "Di kota manakah Yesus dilahirkan menurut Perjanjian Baru?", options: ["Nazaret", "Yerusalem", "Betlehem", "Kapernaum"], answer: "Betlehem" },
+            { q: "Siapakah murid Yesus yang memungkiri Yesus sebanyak tiga kali sebelum ayam berkokok?", options: ["Yudas Iskariot", "Petrus", "Yohanes", "Tomas"], answer: "Petrus" },
+            { q: "Apakah mukjizat pertama yang diperbuat oleh Yesus di Kana di Galilea?", options: ["Meredakan angin ribut", "Mengubah air menjadi anggur", "Memberi makan 5000 orang", "Membangkitkan Lazarus"], answer: "Mengubah air menjadi anggur" },
+            { q: "Siapakah wanita di Alkitab yang menjadi ratu Persia dan menyelamatkan bangsa Yahudi dari kebinasaan?", options: ["Ratu Tiesa", "Ester", "Rut", "Naomi"], answer: "Ester" },
+            { q: "Kitab manakah yang merupakan kitab terakhir di dalam Kitab Suci Perjanjian Baru?", options: ["Kisah Para Rasul", "Yudas", "Wahyu", "Ibrani"], answer: "Wahyu" },
+            { q: "Siapakah nabi yang menelan ikan besar setelah mencoba melarikan diri dari perintah Tuhan ke Tarsis?", options: ["Elia", "Yunus", "Yesaya", "Yeremia"], answer: "Yunus" },
+            { q: "Berapa jumlah hukum utama yang diberikan Allah kepada Musa di atas Gunung Sinai?", options: ["3 hukum", "7 hukum", "10 hukum", "12 hukum"], answer: "10 hukum" },
+            { q: "Siapakah nama panglima Aram yang disembuhkan dari penyakit kusta setelah mandi tujuh kali di Sungai Yordan?", options: ["Naaman", "Nebukadnezar", "Herodes", "Pilatus"], answer: "Naaman" }
+        ];
+
+        let questionBank = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer = null;
+        let timeLeft = 10;
+        const TOTAL_SOAL = 5;
+
+        function showToast(message, type = "success") {
+            const container = document.getElementById("toastContainer");
+            container.innerHTML = ""; 
+            const toast = document.createElement("div");
+            const bgColor = type === "success" ? "bg-emerald-600" : "bg-rose-600";
+            toast.className = `${bgColor} text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold pointer-events-auto max-w-xs w-full text-center`;
+            toast.innerHTML = `<span>${type === 'success' ? '✅' : '⚠️'} ${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Ambil info login user (jemaat terdaftar) atau null jika belum login
+        function getLoggedInUser() {
+            let savedUser = sessionStorage.getItem("user_gereja") || localStorage.getItem("user_gereja");
+            if (savedUser) {
+                try {
+                    let userObj = JSON.parse(savedUser);
+                    if (userObj.nama_lengkap) return userObj;
+                } catch(e) {}
+            }
+            return null;
+        }
+
+        function getParticipantName() {
+            let user = getLoggedInUser();
+            if (user) return user.nama_lengkap;
+            
+            let anonymousId = localStorage.getItem("anon_id");
+            if (!anonymousId) {
+                let randomNum = Math.floor(Math.random() * 900) + 1;
+                anonymousId = String(randomNum).padStart(3, '0');
+                localStorage.setItem("anon_id", anonymousId);
+            }
+            return `Anak Tuhan (${anonymousId})`;
+        }
+
+        // Cek status login untuk menampilkan tombol sync global
+        function checkLoginStatusForUI() {
+            const user = getLoggedInUser();
+            const syncWrapper = document.getElementById("globalSyncWrapper");
+            if (user) {
+                syncWrapper.classList.remove("hidden"); // Tampil hanya jika login
+            } else {
+                syncWrapper.classList.add("hidden"); // Sembunyikan jika belum login
+            }
+        }
+
+        // 1. TAMPILKAN HIGHSCORE LOKAL
+        function loadLocalHighScores() {
+            document.getElementById("scoreListTitle").innerText = "Papan Peringkat Lokal";
+            document.getElementById("scoreListBadge").innerText = "Perangkat Ini";
+            document.getElementById("scoreListBadge").className = "text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-semibold border border-slate-700";
+            document.getElementById("backToLocalBtn").classList.add("hidden");
+            document.getElementById("scoreFooterInfo").innerText = "Skor tersimpan otomatis di perangkat Anda.";
+
+            let scores = JSON.parse(localStorage.getItem("jpo_quiz_scores") || "[]");
+            const listEl = document.getElementById("highScoreList");
+
+            if (scores.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Belum ada riwayat skor di perangkat ini. Ayo mulai bermain!</p>`;
+                return;
+            }
+
+            scores.sort((a, b) => b.score - a.score);
+
+            listEl.innerHTML = scores.map((item, index) => {
+                let badgeColor = index === 0 ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : 
+                                 index === 1 ? "bg-slate-300/20 text-slate-300 border-slate-300/30" : 
+                                 index === 2 ? "bg-amber-700/20 text-amber-600 border-amber-700/30" : "bg-slate-800 text-slate-400 border-slate-700";
+                
+                return `
+                    <div class="p-2.5 bg-slate-950 border border-slate-800/80 rounded-xl flex justify-between items-center w-full">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold border ${badgeColor}">${index + 1}</span>
+                            <div>
+                                <h4 class="text-xs font-bold text-white truncate max-w-[130px]">${item.name}</h4>
+                                <span class="text-[9px] text-slate-500">${item.date || 'Baru saja'}</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-black text-purple-400">${item.score} Poin</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 2. SINKRONISASI & AMBIL SKOR GLOBAL DARI GOOGLE SHEET (Hanya Saat Tombol Diklik)
+        async function syncAndFetchGlobalScores() {
+            let user = getLoggedInUser();
+            if (!user) {
+                showToast("Fitur global hanya untuk jemaat yang sudah login.", "error");
+                return;
+            }
+
+            // Ambil skor tertinggi dari localStorage perangkat user ini
+            let scores = JSON.parse(localStorage.getItem("jpo_quiz_scores") || "[]");
+            let myHighestScore = scores.length > 0 ? Math.max(...scores.map(s => s.score)) : 0;
+
+            const syncBtn = document.getElementById("syncBtn");
+            syncBtn.innerHTML = "<span>⏳ Menyinkronkan Skor...</span>";
+            syncBtn.disabled = true;
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "syncQuizScore",
+                        nama: user.nama_lengkap,
+                        score: myHighestScore
+                    })
+                });
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    showToast("Skor berhasil disinkronkan ke server!");
+                    renderGlobalScores(result.leaderboard);
+                } else {
+                    showToast(result.message || "Gagal menyinkronkan skor.", "error");
+                    syncBtn.innerHTML = "<span>🌐 Tampilkan & Sinkronkan Skor Global</span>";
+                    syncBtn.disabled = false;
+                }
+            } catch (err) {
+                showToast("Koneksi server gagal.", "error");
+                syncBtn.innerHTML = "<span>🌐 Tampilkan & Sinkronkan Skor Global</span>";
+                syncBtn.disabled = false;
+            }
+        }
+
+        // Render Papan Skor Global di UI
+        function renderGlobalScores(globalScores) {
+            document.getElementById("scoreListTitle").innerText = "Papan Peringkat Global";
+            document.getElementById("scoreListBadge").innerText = "Server Gereja";
+            document.getElementById("scoreListBadge").className = "text-[10px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded font-semibold border border-emerald-900/50";
+            document.getElementById("backToLocalBtn").classList.remove("hidden");
+            document.getElementById("scoreFooterInfo").innerText = "Peringkat resmi seluruh jemaat terdaftar.";
+
+            const syncBtn = document.getElementById("syncBtn");
+            syncBtn.innerHTML = "<span>🌐 Tampilkan & Sinkronkan Skor Global</span>";
+            syncBtn.disabled = false;
+
+            const listEl = document.getElementById("highScoreList");
+            if (!globalScores || globalScores.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Belum ada data skor global di server.</p>`;
+                return;
+            }
+
+            // Urutkan dari skor tertinggi
+            globalScores.sort((a, b) => b.score - a.score);
+
+            listEl.innerHTML = globalScores.map((item, index) => {
+                let badgeColor = index === 0 ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : 
+                                 index === 1 ? "bg-slate-300/20 text-slate-300 border-slate-300/30" : 
+                                 index === 2 ? "bg-amber-700/20 text-amber-600 border-amber-700/30" : "bg-slate-800 text-slate-400 border-slate-700";
+                
+                return `
+                    <div class="p-2.5 bg-slate-950 border border-slate-800/80 rounded-xl flex justify-between items-center w-full">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold border ${badgeColor}">${index + 1}</span>
+                            <div>
+                                <h4 class="text-xs font-bold text-white truncate max-w-[130px]">${item.name}</h4>
+                                <span class="text-[9px] text-slate-500">Terakhir: ${item.date || '-'}</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-black text-emerald-400">${item.score} Poin</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- GAME LOGIC ---
+        function initQuizGame() {
+            questionBank = [...masterQuestionBank];
+            questionBank.sort(() => Math.random() - 0.5);
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            document.getElementById("gameMenu").classList.add("hidden");
+            document.getElementById("quizArena").classList.remove("hidden");
+            document.getElementById("quizResult").classList.add("hidden");
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            clearInterval(timer);
+            if (currentQuestionIndex >= TOTAL_SOAL || currentQuestionIndex >= questionBank.length) {
+                endGame();
+                return;
+            }
+
+            timeLeft = 10;
+            const timerEl = document.getElementById("timerDisplay");
+            timerEl.innerText = timeLeft + "s";
+            timerEl.classList.remove("timer-warning", "text-rose-500");
+            timerEl.classList.add("text-rose-400");
+            
+            let q = questionBank[currentQuestionIndex];
+            document.getElementById("questionCounter").innerText = `Soal ${currentQuestionIndex + 1} dari ${TOTAL_SOAL}`;
+            document.getElementById("questionText").innerText = q.q;
+
+            let allOptions = [...q.options];
+            if (!allOptions.includes(q.answer)) {
+                allOptions.push(q.answer);
+            }
+            allOptions.sort(() => Math.random() - 0.5);
+
+            let optionsHtml = "";
+            allOptions.forEach((opt, idx) => {
+                optionsHtml += `
+                    <button onclick="checkAnswer(this, '${opt.replace(/'/g, "\\'")}', '${q.answer.replace(/'/g, "\\'")}')" class="w-full text-left p-3.5 bg-slate-900 hover:bg-purple-950/50 border border-slate-800 hover:border-purple-600/50 rounded-xl text-xs text-slate-200 transition font-medium">
+                        <span class="inline-block w-5 font-bold text-purple-400">${String.fromCharCode(65 + idx)}.</span> ${opt}
+                    </button>
+                `;
+            });
+            document.getElementById("optionsContainer").innerHTML = optionsHtml;
+
+            timer = setInterval(() => {
+                timeLeft--;
+                timerEl.innerText = timeLeft + "s";
+                if (timeLeft <= 3) {
+                    timerEl.classList.add("timer-warning", "text-rose-500");
+                }
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    currentQuestionIndex++;
+                    loadQuestion();
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(buttonEl, chosen, correct) {
+            clearInterval(timer);
+            
+            let allButtons = document.querySelectorAll("#optionsContainer button");
+            allButtons.forEach(b => b.disabled = true);
+
+            if (chosen === correct) {
+                buttonEl.classList.remove("bg-slate-900", "border-slate-800");
+                buttonEl.classList.add("bg-emerald-600", "border-emerald-500", "text-white", "font-bold");
+                score += 100 + (timeLeft * 5);
+            } else {
+                buttonEl.classList.remove("bg-slate-900", "border-slate-800");
+                buttonEl.classList.add("bg-rose-600", "border-rose-500", "text-white");
+                
+                allButtons.forEach(b => {
+                    if (b.innerText.includes(correct)) {
+                        b.classList.add("bg-emerald-600/80", "border-emerald-500", "text-white");
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                loadQuestion();
+            }, 1200);
+        }
+
+        function endGame() {
+            document.getElementById("quizArena").classList.add("hidden");
+            document.getElementById("quizResult").classList.remove("hidden");
+            
+            let participantName = getParticipantName();
+            document.getElementById("resultUserName").innerText = `Pemain: ${participantName}`;
+            document.getElementById("finalScoreText").innerText = score + " Poin";
+
+            let scores = JSON.parse(localStorage.getItem("jpo_quiz_scores") || "[]");
+            scores.push({
+                name: participantName,
+                score: score,
+                date: new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'short'})
+            });
+
+            localStorage.setItem("jpo_quiz_scores", JSON.stringify(scores));
+            loadLocalHighScores();
+        }
+
+        function resetToMenu() {
+            document.getElementById("gameMenu").classList.remove("hidden");
+            document.getElementById("quizResult").classList.add("hidden");
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            checkLoginStatusForUI();
+            loadLocalHighScores();
+        });
+    </script>
+</body>
+</html>
