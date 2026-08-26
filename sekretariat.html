@@ -14,7 +14,6 @@
         <!-- HEADER SEKRETARIAT -->
         <header class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center shadow-md mb-6">
             <div class="flex items-center gap-3">
-                <!-- Tombol ← Jemaat dihapus sesuai permintaan -->
                 <div>
                     <h1 class="font-bold text-sm">Panel Admin Web/App JPO</h1>
                     <p id="adminInfo" class="text-[10px] text-slate-400">Silakan login</p>
@@ -137,12 +136,16 @@
                         </button>
                     </div>
 
-                    <div id="adminContentArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm min-h-[350px]">
-                        <p class="text-center text-slate-400 text-sm py-10">Silakan pilih menu di atas untuk mengelola data gereja.</p>
+                    <div id="adminContentArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm min-h-[350px] flex items-center justify-center">
+                        <div class="text-center space-y-2">
+                            <div class="text-3xl">👋</div>
+                            <h3 class="font-bold text-sm text-slate-700">Selamat Datang, ${admin.nama}</h3>
+                            <p class="text-xs text-slate-400 max-w-sm">Silakan pilih salah satu menu di atas untuk mulai melihat atau mengelola data pelayanan gereja.</p>
+                        </div>
                     </div>
                 </div>
             `;
-            loadSensusData();
+            // loadSensusData(); <-- DIHAPUS agar tidak langsung memuat data di awal loading[cite: 3]
         }
 
 
@@ -223,7 +226,7 @@
                         action: "verifyUser", 
                         user_id: userId, 
                         admin_id: admin.id,
-                        admin_nama: admin.nama, // Untuk log pencatatan
+                        admin_nama: admin.nama,
                         catatan_log: `Memverifikasi centang biru untuk jemaat: ${userNama}`
                     })
                 });
@@ -290,7 +293,7 @@
                         action: "approvePrayer", 
                         prayer_id: prayerId, 
                         admin_id: admin.id,
-                        admin_nama: admin.nama, // Pencatatan log
+                        admin_nama: admin.nama,
                         catatan_log: "Menyetujui (Approve) kotak doa tayang ke publik."
                     })
                 });
@@ -311,7 +314,7 @@
                         action: "takedownPrayer", 
                         prayer_id: prayerId, 
                         admin_id: admin.id,
-                        admin_nama: admin.nama, // Pencatatan log
+                        admin_nama: admin.nama,
                         catatan_log: "Menurunkan (Takedown) kotak doa dari publik."
                     })
                 });
@@ -380,7 +383,7 @@
                         action: "approveDonation", 
                         donation_id: donationId, 
                         admin_id: admin.id,
-                        admin_nama: admin.nama, // Pencatatan log
+                        admin_nama: admin.nama,
                         catatan_log: "Menyetujui (Approve) data donasi masuk."
                     })
                 });
@@ -401,7 +404,7 @@
                         action: "takedownDonation", 
                         donation_id: donationId, 
                         admin_id: admin.id,
-                        admin_nama: admin.nama, // Pencatatan log
+                        admin_nama: admin.nama,
                         catatan_log: "Menurunkan (Takedown) data donasi."
                     })
                 });
@@ -450,7 +453,7 @@
             const data = {
                 action: "addDonation",
                 admin_id: admin.id,
-                admin_nama: admin.nama, // Pencatatan log manual input
+                admin_nama: admin.nama,
                 catatan_log: "Input manual donasi baru & approve",
                 nama_donatur: document.getElementById("donNama").value,
                 jenis_donasi: document.getElementById("donJenis").value,
@@ -511,7 +514,7 @@
             const data = {
                 action: "addEvent",
                 admin_id: admin.id,
-                admin_nama: admin.nama, // Untuk Log
+                admin_nama: admin.nama,
                 nama_kegiatan: document.getElementById("evNama").value,
                 tanggal: document.getElementById("evTanggal").value,
                 waktu: document.getElementById("evWaktu").value,
@@ -532,11 +535,11 @@
             }
         }
 
-// --- 7. INPUT RENUNGAN & AYAT EMAS ---
-       async function showRenunganForm() {
-           const contentArea = document.getElementById("adminContentArea");
-           contentArea.innerHTML = `
-               <div class="space-y-6">
+        // --- 7. INPUT RENUNGAN & AYAT EMAS ---
+        async function showRenunganForm() {
+            const contentArea = document.getElementById("adminContentArea");
+            contentArea.innerHTML = `
+                <div class="space-y-6">
                     <!-- BAGIAN 1: FORM INPUT RENUNGAN BARU -->
                     <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl max-w-2xl">
                         <div class="flex justify-between items-center mb-1">
@@ -599,179 +602,169 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                             </table>
                        </div>
                     </div>
-               </div>
-           `;
-           
-           document.getElementById("inputTanggal").valueAsDate = new Date();
-           loadRenunganStock(); // Muat tabel stok
-       }
-     
-       async function loadRenunganStock() {
-           try {
-               const res = await fetch(`${SCRIPT_URL}?action=getAdminRenunganList`);
-               const result = await res.json();
-               const list = result.renunganList || [];
-               
-               // Simpan ke variabel global agar mudah diakses saat tombol Edit diklik
-               window.renunganCacheList = list;
-               
-               document.getElementById("renunganStockLoading").classList.add("hidden");
-               document.getElementById("renunganTableWrapper").classList.remove("hidden");
-               
-               const tbody = document.getElementById("renunganTableBody");
-               if (list.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Belum ada stok renungan. Silakan input di atas.</td></tr>`;
-                    return;
-               }
-     
-               // Salin array sebelum dibalik agar indeks objek tetap sinkron dengan cache
-               let reversedList = [...list].reverse();
-     
-               tbody.innerHTML = reversedList.map(item => {
-                    let displayDate = item.tanggal;
-                    if (item.tanggal) {
-                        let parts = item.tanggal.split("-");
-                        if (parts.length === 3) {
-                            let tahun = parts[0];
-                            let bulanIndo = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                            let bulan = bulanIndo[parseInt(parts[1], 10)] || parts[1];
-                            let hari = parseInt(parts[2], 10);
-                            displayDate = `${hari} ${bulan} ${tahun}`;
-                        }
-                    }
-     
-                    return `
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-3 font-bold text-purple-400 whitespace-nowrap">${displayDate}</td>
-                            <td class="p-3">
-                                <div class="font-semibold text-slate-200">${item.ayat_harian}</div>
-                                <div class="text-[10px] text-slate-400 italic truncate max-w-xs">"${item.isi_ayat}"</div>
-                            </td>
-                            <td class="p-3 text-slate-400 text-[11px] truncate max-w-xs">${item.renungan}</td>
-                            <td class="p-3 text-center whitespace-nowrap space-x-1">
-                                <button onclick="prepareEditRenungan(${item.row_index})" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition shadow-md" title="Muat ulang ke form input">
-                                    ✏️ Edit
-                                </button>
-                                <button onclick="makeActiveRenungan(${item.row_index}, '${displayDate}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-md">
-                                    🚀 Tayangkan
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-               }).join('');
-           } catch (err) {
-               document.getElementById("renunganStockLoading").innerText = "Gagal memuat daftar stok renungan.";
-           }
-       }
-     
-       // Fungsi untuk memuat data baris tabel ke dalam form input di atas
-       function prepareEditRenungan(rowIndex) {
-           const target = (window.renunganCacheList || []).find(r => r.row_index === rowIndex);
-           if (!target) {
-               alert("Data renungan tidak ditemukan di cache.");
-               return;
-           }
+                </div>
+            `;
+            
+            document.getElementById("inputTanggal").valueAsDate = new Date();
+            loadRenunganStock();
+        }
+      
+        async function loadRenunganStock() {
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getAdminRenunganList`);
+                const result = await res.json();
+                const list = result.renunganList || [];
+                
+                window.renunganCacheList = list;
+                
+                document.getElementById("renunganStockLoading").classList.add("hidden");
+                document.getElementById("renunganTableWrapper").classList.remove("hidden");
+                
+                const tbody = document.getElementById("renunganTableBody");
+                if (list.length === 0) {
+                     tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Belum ada stok renungan. Silakan input di atas.</td></tr>`;
+                     return;
+                }
+      
+                let reversedList = [...list].reverse();
+      
+                tbody.innerHTML = reversedList.map(item => {
+                     let displayDate = item.tanggal;
+                     if (item.tanggal) {
+                         let parts = item.tanggal.split("-");
+                         if (parts.length === 3) {
+                             let tahun = parts[0];
+                             let bulanIndo = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                             let bulan = bulanIndo[parseInt(parts[1], 10)] || parts[1];
+                             let hari = parseInt(parts[2], 10);
+                             displayDate = `${hari} ${bulan} ${tahun}`;
+                         }
+                     }
+      
+                     return `
+                         <tr class="hover:bg-slate-800/50 transition">
+                             <td class="p-3 font-bold text-purple-400 whitespace-nowrap">${displayDate}</td>
+                             <td class="p-3">
+                                 <div class="font-semibold text-slate-200">${item.ayat_harian}</div>
+                                 <div class="text-[10px] text-slate-400 italic truncate max-w-xs">"${item.isi_ayat}"</div>
+                             </td>
+                             <td class="p-3 text-slate-400 text-[11px] truncate max-w-xs">${item.renungan}</td>
+                             <td class="p-3 text-center whitespace-nowrap space-x-1">
+                                 <button onclick="prepareEditRenungan(${item.row_index})" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition shadow-md" title="Muat ulang ke form input">
+                                     ✏️ Edit
+                                 </button>
+                                 <button onclick="makeActiveRenungan(${item.row_index}, '${displayDate}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-md">
+                                     🚀 Tayangkan
+                                 </button>
+                             </td>
+                         </tr>
+                     `;
+                }).join('');
+            } catch (err) {
+                document.getElementById("renunganStockLoading").innerText = "Gagal memuat daftar stok renungan.";
+            }
+        }
+      
+        function prepareEditRenungan(rowIndex) {
+            const target = (window.renunganCacheList || []).find(r => r.row_index === rowIndex);
+            if (!target) {
+                alert("Data renungan tidak ditemukan di cache.");
+                return;
+            }
 
-           // Isi elemen form dengan data dari baris tabel yang dipilih
-           document.getElementById("editRowIndex").value = target.row_index;
-           document.getElementById("inputTanggal").value = target.tanggal || "";
-           document.getElementById("inputAyatHarian").value = target.ayat_harian || "";
-           document.getElementById("inputIsiAyat").value = target.isi_ayat || "";
-           document.getElementById("inputRenungan").value = target.renungan || "";
+            document.getElementById("editRowIndex").value = target.row_index;
+            document.getElementById("inputTanggal").value = target.tanggal || "";
+            document.getElementById("inputAyatHarian").value = target.ayat_harian || "";
+            document.getElementById("inputIsiAyat").value = target.isi_ayat || "";
+            document.getElementById("inputRenungan").value = target.renungan || "";
 
-           // Ubah judul form & tampilkan tombol Batal Edit
-           document.getElementById("formRenunganTitle").innerText = "Edit / Perbarui Stok Renungan";
-           document.getElementById("formRenunganSubtitle").innerText = `Sedang mengedit baris data ke-${rowIndex}. Klik Simpan untuk memperbarui.`;
-           document.getElementById("btnSubmitRenungan").innerText = "Perbarui Stok Renungan";
-           document.getElementById("btnCancelEdit").classList.remove("hidden");
+            document.getElementById("formRenunganTitle").innerText = "Edit / Perbarui Stok Renungan";
+            document.getElementById("formRenunganSubtitle").innerText = `Sedang mengedit baris data ke-${rowIndex}. Klik Simpan untuk memperbarui.`;
+            document.getElementById("btnSubmitRenungan").innerText = "Perbarui Stok Renungan";
+            document.getElementById("btnCancelEdit").classList.remove("hidden");
 
-           // Gulirkan halaman (scroll) ke bagian atas form
-           window.scrollTo({ top: 0, behavior: 'smooth' });
-       }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-       // Fungsi untuk membatalkan mode edit dan mereset form
-       function resetRenunganForm() {
-           document.getElementById("formAddRenungan").reset();
-           document.getElementById("editRowIndex").value = "";
-           document.getElementById("inputTanggal").valueAsDate = new Date();
-           
-           document.getElementById("formRenunganTitle").innerText = "Input Renungan & Ayat Emas Baru";
-           document.getElementById("formRenunganSubtitle").innerText = "Tambahkan stok renungan baru ke dalam database.";
-           document.getElementById("btnSubmitRenungan").innerText = "Simpan ke Stok Renungan";
-           document.getElementById("btnCancelEdit").classList.add("hidden");
-       }
-     
-       async function makeActiveRenungan(rowIndex, tanggal) {
-           if (!confirm(`Yakin ingin menayangkan renungan untuk tanggal ${tanggal} ke aplikasi jemaat?`)) return;
-     
-           const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
-           try {
-               const res = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: "setActiveRenungan",
-                        admin_id: admin ? admin.id : "ADMIN",
-                        admin_nama: admin ? admin.nama : "Admin",
-                        catatan_log: `Menayangkan renungan untuk tanggal ${tanggal}`,
-                        row_index: rowIndex
-                    })
-               });
-               const result = await res.json();
-               alert(result.message);
-               loadRenunganStock(); // Refresh tabel
-           } catch (err) {
-               alert("Gagal mengubah status tayang: " + err);
-           }
-       }
-     
-       async function submitNewRenungan(event) {
-           event.preventDefault();
-           const btn = document.getElementById("btnSubmitRenungan");
-           const originalBtnText = btn.innerText;
-           btn.innerText = "Menyimpan...";
-           btn.disabled = true;
-     
-           const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
-           const editIndex = document.getElementById("editRowIndex").value;
-           
-           // Jika ada editIndex, Anda bisa membuat backend menangani update atau menambahkan baris baru.
-           // Berdasarkan script backend Anda sebelumnya, fungsi addRenungan dan setActiveRenungan sudah tersedia.
-           const payload = {
-               action: "addRenungan",
-               admin_id: admin ? admin.id : "ADMIN",
-               admin_nama: admin ? admin.nama : "Admin",
-               catatan_log: editIndex ? `Memperbarui stok renungan baris ${editIndex}` : "Input renungan dan ayat emas baru",
-               tanggal: document.getElementById("inputTanggal").value,
-               ayat_harian: document.getElementById("inputAyatHarian").value,
-               isi_ayat: document.getElementById("inputIsiAyat").value,
-               renungan: document.getElementById("inputRenungan").value
-           };
-     
-           try {
-               let res = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-               });
-               let json = await res.json();
-               alert(json.message || "Renungan berhasil disimpan ke stok!");
-               
-               resetRenunganForm();
-               loadRenunganStock(); // Refresh tabel otomatis
-           } catch (err) {
-               alert("Gagal mengirim data: " + err);
-           } finally {
-               btn.innerText = originalBtnText;
-               btn.disabled = false;
-           }
-       }
-        
-// --- 8. LOG AKTIVITAS (MEMBUTUHKAN ENDPOINT getLogs DI APPS SCRIPT) ---
+        function resetRenunganForm() {
+            document.getElementById("formAddRenungan").reset();
+            document.getElementById("editRowIndex").value = "";
+            document.getElementById("inputTanggal").valueAsDate = new Date();
+            
+            document.getElementById("formRenunganTitle").innerText = "Input Renungan & Ayat Emas Baru";
+            document.getElementById("formRenunganSubtitle").innerText = "Tambahkan stok renungan baru ke dalam database.";
+            document.getElementById("btnSubmitRenungan").innerText = "Simpan ke Stok Renungan";
+            document.getElementById("btnCancelEdit").classList.add("hidden");
+        }
+      
+        async function makeActiveRenungan(rowIndex, tanggal) {
+            if (!confirm(`Yakin ingin menayangkan renungan untuk tanggal ${tanggal} ke aplikasi jemaat?`)) return;
+      
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                     method: "POST",
+                     body: JSON.stringify({
+                         action: "setActiveRenungan",
+                         admin_id: admin ? admin.id : "ADMIN",
+                         admin_nama: admin ? admin.nama : "Admin",
+                         catatan_log: `Menayangkan renungan untuk tanggal ${tanggal}`,
+                         row_index: rowIndex
+                     })
+                });
+                const result = await res.json();
+                alert(result.message);
+                loadRenunganStock();
+            } catch (err) {
+                alert("Gagal mengubah status tayang: " + err);
+            }
+        }
+      
+        async function submitNewRenungan(event) {
+            event.preventDefault();
+            const btn = document.getElementById("btnSubmitRenungan");
+            const originalBtnText = btn.innerText;
+            btn.innerText = "Menyimpan...";
+            btn.disabled = true;
+      
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const editIndex = document.getElementById("editRowIndex").value;
+            
+            const payload = {
+                action: "addRenungan",
+                admin_id: admin ? admin.id : "ADMIN",
+                admin_nama: admin ? admin.nama : "Admin",
+                catatan_log: editIndex ? `Memperbarui stok renungan baris ${editIndex}` : "Input renungan dan ayat emas baru",
+                tanggal: document.getElementById("inputTanggal").value,
+                ayat_harian: document.getElementById("inputAyatHarian").value,
+                isi_ayat: document.getElementById("inputIsiAyat").value,
+                renungan: document.getElementById("inputRenungan").value
+            };
+      
+            try {
+                let res = await fetch(SCRIPT_URL, {
+                     method: "POST",
+                     body: JSON.stringify(payload)
+                });
+                let json = await res.json();
+                alert(json.message || "Renungan berhasil disimpan ke stok!");
+                
+                resetRenunganForm();
+                loadRenunganStock();
+            } catch (err) {
+                alert("Gagal mengirim data: " + err);
+            } finally {
+                btn.innerText = originalBtnText;
+                btn.disabled = false;
+            }
+        }
+         
+        // --- 8. LOG AKTIVITAS ---
         async function loadActivityLogs() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat log aktivitas...</p>`;
 
             try {
-                // Catatan: Pastikan Anda menambahkan case "getActivityLogs" di doGet Apps Script Anda
                 const res = await fetch(`${SCRIPT_URL}?action=getActivityLogs`);
                 const result = await res.json();
                 const logs = result.logs || [];
@@ -810,6 +803,7 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                     </div>
                 `;
             } catch (err) {
+                area.notes = err;
                 area.innerHTML = `
                     <div class="text-center py-10 space-y-2">
                         <p class="text-rose-500 text-sm font-semibold">Gagal memuat log aktivitas.</p>
