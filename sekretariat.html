@@ -76,7 +76,6 @@
                 const result = await response.json();
 
                 if (result.status === "success") {
-                    // Validasi Role: Hanya boleh masuk jika role adalah Sekretariat
                     const userRole = result.admin.role.toLowerCase();
                     if (userRole === "sekretariat" || userRole === "sekertariat") {
                         sessionStorage.setItem("admin_gereja", JSON.stringify(result.admin));
@@ -94,7 +93,7 @@
 
         // --- 2. DASHBOARD SEKRETARIAT ---
         function renderAdminDashboard(admin) {
-            document.getElementById("adminInfo").innerText = `Login: ${admin.nama} (${admin.role})`;
+            document.getElementById("adminInfo").innerText = `Login: ${admin.nama} (${admin.role})[cite: 3]`;
             document.getElementById("logoutBtn").classList.remove("hidden");
             
             const main = document.querySelector("main");
@@ -145,7 +144,6 @@
                     </div>
                 </div>
             `;
-            // loadSensusData(); <-- DIHAPUS agar tidak langsung memuat data di awal loading[cite: 3]
         }
 
 
@@ -165,51 +163,51 @@
                 }
 
                 area.innerHTML = `
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col space-y-4">
                         <div>
                             <h3 class="font-bold text-sm">Daftar Sensus Jemaat (${users.length} Jiwa)</h3>
                             <p class="text-xs text-slate-500">Data lengkap, username unik, dan verifikasi centang biru jemaat.</p>
                         </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead>
-                                <tr class="bg-slate-100 border-b border-slate-200 text-slate-600">
-                                    <th class="p-2.5">Nama & Username Unik</th>
-                                    <th class="p-2.5">Gender / Status</th>
-                                    <th class="p-2.5">Ling / Rayon</th>
-                                    <th class="p-2.5">No. WhatsApp</th>
-                                    <th class="p-2.5">Alamat & Pekerjaan</th>
-                                    <th class="p-2.5 text-center">Status Verifikasi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                ${users.map(u => `
-                                    <tr class="hover:bg-slate-50">
-                                        <td class="p-2.5">
-                                            <div class="font-bold text-slate-900">${u.nama_lengkap}</div>
-                                            <div class="font-mono text-[11px] text-purple-600">${u.username || '-'}</div>
-                                        </td>
-                                        <td class="p-2.5">
-                                            <div class="text-slate-700">${u.jenis_kelamin || '-'}</div>
-                                            <div class="text-[10px] text-purple-700 font-medium">${u.status_pelayanan || 'Jemaat'}</div>
-                                        </td>
-                                        <td class="p-2.5">Ling. ${u.lingkungan || '-'} <br>Rayon ${u.rayon || '-'}</td>
-                                        <td class="p-2.5">${u.no_whatsapp || '-'}</td>
-                                        <td class="p-2.5 text-slate-500 text-[11px]">
-                                            <div>${u.alamat || '<span class="italic text-amber-600">Belum diisi</span>'}</div>
-                                            <div class="text-[10px] text-slate-400">${u.pekerjaan || ''}</div>
-                                        </td>
-                                        <td class="p-2.5 text-center">
-                                            ${u.is_verified ? 
-                                                `<span class="bg-blue-100 text-blue-700 font-semibold px-2 py-1 rounded text-[10px] inline-block">☑️ Terverifikasi</span>` : 
-                                                `<button onclick="verifyUser('${u.id}', '${u.nama_lengkap}')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-semibold px-2.5 py-1 rounded text-[10px] transition">Verifikasi</button>`
-                                            }
-                                        </td>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b border-slate-200 text-slate-600">
+                                        <th class="p-2.5">Nama & Username Unik</th>
+                                        <th class="p-2.5">Gender / Status</th>
+                                        <th class="p-2.5">Ling / Rayon</th>
+                                        <th class="p-2.5">No. WhatsApp</th>
+                                        <th class="p-2.5">Alamat & Pekerjaan</th>
+                                        <th class="p-2.5 text-center">Status Verifikasi</th>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${users.map(u => `
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-2.5">
+                                                <div class="font-bold text-slate-900">${u.nama_lengkap}</div>
+                                                <div class="font-mono text-[11px] text-purple-600">${u.username || '-'}</div>
+                                            </td>
+                                            <td class="p-2.5">
+                                                <div class="text-slate-700">${u.jenis_kelamin || '-'}</div>
+                                                <div class="text-[10px] text-purple-700 font-medium">${u.status_pelayanan || 'Jemaat'}</div>
+                                            </td>
+                                            <td class="p-2.5">Ling. ${u.lingkungan || '-'} <br>Rayon ${u.rayon || '-'}</td>
+                                            <td class="p-2.5">${u.no_whatsapp || '-'}</td>
+                                            <td class="p-2.5 text-slate-500 text-[11px]">
+                                                <div>${u.alamat || '<span class="italic text-amber-600">Belum diisi</span>'}</div>
+                                                <div class="text-[10px] text-slate-400">${u.pekerjaan || ''}</div>
+                                            </td>
+                                            <td class="p-2.5 text-center">
+                                                ${u.is_verified ? 
+                                                    `<span class="bg-blue-100 text-blue-700 font-semibold px-2 py-1 rounded text-[10px] inline-block">☑️ Terverifikasi</span>` : 
+                                                    `<button onclick="verifyUser('${u.id}', '${u.nama_lengkap}')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-semibold px-2.5 py-1 rounded text-[10px] transition">Verifikasi</button>`
+                                                }
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 `;
             } catch (err) {
@@ -254,29 +252,33 @@
                 }
 
                 area.innerHTML = `
-                    <h3 class="font-bold text-sm mb-1">Moderasi Kotak Doa Jemaat</h3>
-                    <p class="text-xs text-slate-500 mb-4">Setujui pokok doa berstatus publik agar tampil otomatis di Dinding Doa jemaat.</p>
-                    <div class="space-y-3">
-                        ${prayers.map(p => `
-                            <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                                <div class="space-y-1 flex-1">
-                                    <div class="flex items-center gap-2">
-                                        <span class="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded font-semibold">${p.kategori_doa}</span>
-                                        <span class="bg-slate-200 text-slate-700 text-[10px] px-2 py-0.5 rounded">${p.status_privasi}</span>
-                                        <span class="text-[10px] font-bold ${p.status_approval === 'Approved' ? 'text-emerald-600' : 'text-amber-600'}">Status: ${p.status_approval || 'Pending'}</span>
+                    <div class="flex flex-col space-y-4">
+                        <div>
+                            <h3 class="font-bold text-sm mb-1">Moderasi Kotak Doa Jemaat</h3>
+                            <p class="text-xs text-slate-500">Setujui pokok doa berstatus publik agar tampil otomatis di Dinding Doa jemaat.</p>
+                        </div>
+                        <div class="space-y-3">
+                            ${prayers.map(p => `
+                                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                                    <div class="space-y-1 flex-1">
+                                        <div class="flex items-center gap-2">
+                                            <span class="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded font-semibold">${p.kategori_doa}</span>
+                                            <span class="bg-slate-200 text-slate-700 text-[10px] px-2 py-0.5 rounded">${p.status_privasi}</span>
+                                            <span class="text-[10px] font-bold ${p.status_approval === 'Approved' ? 'text-emerald-600' : 'text-amber-600'}">Status: ${p.status_approval || 'Pending'}</span>
+                                        </div>
+                                        <p class="text-xs text-slate-800 font-medium italic">"${p.isi_doa}"</p>
+                                        <p class="text-[10px] text-slate-500">Pengirim: <strong>${p.nama_pengirim}</strong> &bull; ${new Date(p.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
                                     </div>
-                                    <p class="text-xs text-slate-800 font-medium italic">"${p.isi_doa}"</p>
-                                    <p class="text-[10px] text-slate-500">Pengirim: <strong>${p.nama_pengirim}</strong> &bull; ${new Date(p.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
+                                    <div>
+                                        ${p.status_approval === 'Approved' ? `
+                                            <button onclick="takedownPrayer('${p.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">Arsipkan</button>
+                                        ` : p.status_privasi === 'Publik' ? `
+                                            <button onclick="approvePrayer('${p.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">Setujui Tayang</button>
+                                        ` : `<span class="text-[11px] text-slate-400 font-medium">Rahasia</span>`}
+                                    </div>
                                 </div>
-                                <div>
-                                    ${p.status_approval === 'Approved' ? `
-                                        <button onclick="takedownPrayer('${p.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">Arsipkan</button>
-                                    ` : p.status_privasi === 'Publik' ? `
-                                        <button onclick="approvePrayer('${p.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">Setujui Tayang</button>
-                                    ` : `<span class="text-[11px] text-slate-400 font-medium">Rahasia</span>`}
-                                </div>
-                            </div>
-                        `).join('')}
+                            `).join('')}
+                        </div>
                     </div>
                 `;
             } catch (err) {
@@ -337,36 +339,38 @@
                 const donations = result.donations || [];
 
                 area.innerHTML = `
-                    <div class="flex justify-between items-center mb-4">
-                        <div>
-                            <h3 class="font-bold text-sm">Verifikasi & Pencatatan Donasi</h3>
-                            <p class="text-xs text-slate-500">Kelola dan setujui persembahan kasih jemaat.</p>
+                    <div class="flex flex-col space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-sm">Verifikasi & Pencatatan Donasi</h3>
+                                <p class="text-xs text-slate-500">Kelola dan setujui persembahan kasih jemaat.</p>
+                            </div>
+                            <button onclick="loadDonationForm()" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">➕ Input Donasi Manual</button>
                         </div>
-                        <button onclick="loadDonationForm()" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">➕ Input Donasi Manual</button>
-                    </div>
-                    <div class="space-y-3">
-                        ${donations.length === 0 ? `<p class="text-center text-slate-500 text-sm py-6">Belum ada riwayat donasi.</p>` : 
-                            donations.map(d => `
-                                <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex justify-between items-center">
-                                    <div class="space-y-0.5">
-                                        <div class="flex items-center gap-2">
-                                            <h4 class="text-xs font-bold text-slate-900">${d.nama_donatur}</h4>
-                                            <span class="bg-slate-200 text-slate-700 text-[9px] px-2 py-0.5 rounded">${d.jenis_donasi || 'Transfer'}</span>
-                                            <span class="text-[10px] font-bold ${d.status_approval === 'Approved' ? 'text-emerald-600' : 'text-amber-600'}">${d.status_approval || 'Pending'}</span>
+                        <div class="space-y-3">
+                            ${donations.length === 0 ? `<p class="text-center text-slate-500 text-sm py-6">Belum ada riwayat donasi.</p>` : 
+                                donations.map(d => `
+                                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex justify-between items-center">
+                                        <div class="space-y-0.5">
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="text-xs font-bold text-slate-900">${d.nama_donatur}</h4>
+                                                <span class="bg-slate-200 text-slate-700 text-[9px] px-2 py-0.5 rounded">${d.jenis_donasi || 'Transfer'}</span>
+                                                <span class="text-[10px] font-bold ${d.status_approval === 'Approved' ? 'text-emerald-600' : 'text-amber-600'}">${d.status_approval || 'Pending'}</span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-600">Peruntukan: <strong class="text-slate-800">${d.keterangan}</strong></p>
+                                            <p class="text-[10px] text-slate-400">${new Date(d.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
                                         </div>
-                                        <p class="text-[11px] text-slate-600">Peruntukan: <strong class="text-slate-800">${d.keterangan}</strong></p>
-                                        <p class="text-[10px] text-slate-400">${new Date(d.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
+                                        <div class="text-right flex flex-col items-end gap-1.5">
+                                            <span class="text-xs font-bold text-emerald-600">${isNaN(d.nominal) ? d.nominal : 'Rp ' + Number(d.nominal).toLocaleString('id-ID')}</span>
+                                            ${d.status_approval === 'Approved' ? `
+                                                <button onclick="takedownDonation('${d.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">Arsipkan</button>
+                                            ` : `
+                                                <button onclick="approveDonation('${d.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">Setujui</button>
+                                            `}
+                                        </div>
                                     </div>
-                                    <div class="text-right flex flex-col items-end gap-1.5">
-                                        <span class="text-xs font-bold text-emerald-600">${isNaN(d.nominal) ? d.nominal : 'Rp ' + Number(d.nominal).toLocaleString('id-ID')}</span>
-                                        ${d.status_approval === 'Approved' ? `
-                                            <button onclick="takedownDonation('${d.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">Arsipkan</button>
-                                        ` : `
-                                            <button onclick="approveDonation('${d.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">Setujui</button>
-                                        `}
-                                    </div>
-                                </div>
-                            `).join('')}
+                                `).join('')}
+                        </div>
                     </div>
                 `;
             } catch (err) {
@@ -419,31 +423,36 @@
         function loadDonationForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
-                <button onclick="loadDonationAdmin()" class="text-xs text-purple-600 font-semibold mb-3 block">← Kembali ke Daftar Donasi</button>
-                <h3 class="font-bold text-sm mb-4 text-slate-900">Pencatatan Donasi Manual oleh Pengurus</h3>
-                <form onsubmit="handleSaveDonation(event)" class="space-y-3 max-w-lg">
+                <div class="flex flex-col space-y-4 max-w-lg">
+                    <button onclick="loadDonationAdmin()" class="text-xs text-purple-600 font-semibold block">← Kembali ke Daftar Donasi</button>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Donatur</label>
-                        <input type="text" id="donNama" required placeholder="Cth: Bpk. Budi / Anonim" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        <h3 class="font-bold text-sm text-slate-900">Pencatatan Donasi Manual oleh Pengurus</h3>
+                        <p class="text-xs text-slate-500">Catat persembahan kasih secara langsung dari sekretariat.</p>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Donasi</label>
-                        <select id="donJenis" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
-                            <option value="Transfer">Transfer</option>
-                            <option value="Setor Tunai">Setor Tunai</option>
-                            <option value="Sumbangan Barang">Sumbangan Barang</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah / Nominal (Angka atau Deskripsi Barang)</label>
-                        <input type="text" id="donNominal" required placeholder="Cth: 250000 atau 5 Sak Semen" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan / Peruntukan</label>
-                        <input type="text" id="donKet" required placeholder="Cth: Pembangunan Gedung / Diakonia" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-                    </div>
-                    <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan & Langsung Setujui Donasi</button>
-                </form>
+                    <form onsubmit="handleSaveDonation(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Donatur</label>
+                            <input type="text" id="donNama" required placeholder="Cth: Bpk. Budi / Anonim" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Donasi</label>
+                            <select id="donJenis" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
+                                <option value="Transfer">Transfer</option>
+                                <option value="Setor Tunai">Setor Tunai</option>
+                                <option value="Sumbangan Barang">Sumbangan Barang</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah / Nominal (Angka atau Deskripsi Barang)</label>
+                            <input type="text" id="donNominal" required placeholder="Cth: 250000 atau 5 Sak Semen" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan / Peruntukan</label>
+                            <input type="text" id="donKet" required placeholder="Cth: Pembangunan Gedung / Diakonia" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        </div>
+                        <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan & Langsung Setujui Donasi</button>
+                    </form>
+                </div>
             `;
         }
 
@@ -479,32 +488,37 @@
         function loadEventForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
-                <h3 class="font-bold text-sm mb-4 text-slate-900">Tambah Agenda Kegiatan Baru</h3>
-                <form onsubmit="handleSaveEvent(event)" class="space-y-3 max-w-lg">
+                <div class="flex flex-col space-y-4 max-w-lg">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Kegiatan / Acara</label>
-                        <input type="text" id="evNama" required placeholder="Cth: Perayaan Natal Rayon 2" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        <h3 class="font-bold text-sm text-slate-900">Tambah Agenda Kegiatan Baru</h3>
+                        <p class="text-xs text-slate-500">Masukkan detail jadwal acara atau kegiatan gereja.</p>
                     </div>
-                    <div class="flex gap-2">
-                        <div class="flex-1">
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
-                            <input type="date" id="evTanggal" required class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                    <form onsubmit="handleSaveEvent(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Kegiatan / Acara</label>
+                            <input type="text" id="evNama" required placeholder="Cth: Perayaan Natal Rayon 2" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
                         </div>
-                        <div class="flex-1">
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Waktu</label>
-                            <input type="text" id="evWaktu" placeholder="Cth: 18.30 WITA" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
+                                <input type="date" id="evTanggal" required class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Waktu</label>
+                                <input type="text" id="evWaktu" placeholder="Cth: 18.30 WITA" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Lokasi / Tempat</label>
-                        <input type="text" id="evLokasi" placeholder="Cth: Gedung Gereja Induk" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Tambahan</label>
-                        <textarea id="evKet" rows="3" placeholder="Catatan atau dresscode jika ada..." class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none"></textarea>
-                    </div>
-                    <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan Kegiatan</button>
-                </form>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Lokasi / Tempat</label>
+                            <input type="text" id="evLokasi" placeholder="Cth: Gedung Gereja Induk" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Tambahan</label>
+                            <textarea id="evKet" rows="3" placeholder="Catatan atau dresscode jika ada..." class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none"></textarea>
+                        </div>
+                        <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan Kegiatan</button>
+                    </form>
+                </div>
             `;
         }
 
@@ -775,35 +789,36 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                 }
 
                 area.innerHTML = `
-                    <div class="mb-4">
-                        <h3 class="font-bold text-sm">Riwayat Aktivitas Pengurus / Sekretariat</h3>
-                        <p class="text-xs text-slate-500">Mencatat siapa yang melakukan approve, verifikasi, atau input data penting.</p>
-                    </div>
-                    <div class="overflow-x-auto bg-slate-50 border border-slate-200 rounded-xl max-h-[500px] overflow-y-auto">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead class="sticky top-0 bg-slate-200 shadow-sm text-slate-700">
-                                <tr>
-                                    <th class="p-3 whitespace-nowrap">Waktu</th>
-                                    <th class="p-3">Nama Pengurus / User</th>
-                                    <th class="p-3">Aktivitas (Log)</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200">
-                                ${logs.map(l => `
-                                    <tr class="hover:bg-white transition">
-                                        <td class="p-3 whitespace-nowrap text-[10px] font-mono text-slate-500">
-                                            ${new Date(l.timestamp).toLocaleString('id-ID')}
-                                        </td>
-                                        <td class="p-3 font-semibold text-slate-800">${l.admin_nama || '-'}</td>
-                                        <td class="p-3 text-slate-600">${l.catatan_log || l.action_type || '-'}</td>
+                    <div class="flex flex-col space-y-4">
+                        <div>
+                            <h3 class="font-bold text-sm">Riwayat Aktivitas Pengurus / Sekretariat</h3>
+                            <p class="text-xs text-slate-500">Mencatat siapa yang melakukan approve, verifikasi, atau input data penting.</p>
+                        </div>
+                        <div class="overflow-x-auto bg-slate-50 border border-slate-200 rounded-xl max-h-[500px] overflow-y-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="sticky top-0 bg-slate-200 shadow-sm text-slate-700">
+                                    <tr>
+                                        <th class="p-3 whitespace-nowrap">Waktu</th>
+                                        <th class="p-3">Nama Pengurus / User</th>
+                                        <th class="p-3">Aktivitas (Log)</th>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    ${logs.map(l => `
+                                        <tr class="hover:bg-white transition">
+                                            <td class="p-3 whitespace-nowrap text-[10px] font-mono text-slate-500">
+                                                ${new Date(l.timestamp).toLocaleString('id-ID')}
+                                            </td>
+                                            <td class="p-3 font-semibold text-slate-800">${l.admin_nama || '-'}</td>
+                                            <td class="p-3 text-slate-600">${l.catatan_log || l.action_type || '-'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 `;
             } catch (err) {
-                area.notes = err;
                 area.innerHTML = `
                     <div class="text-center py-10 space-y-2">
                         <p class="text-rose-500 text-sm font-semibold">Gagal memuat log aktivitas.</p>
