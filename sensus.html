@@ -13,24 +13,25 @@
         .animate-fade-in { animation: fadeIn 0.25s ease-out forwards; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-start p-4">
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
 
     <!-- TOAST NOTIFICATION -->
     <div id="toastContainer" class="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"></div>
 
-    <div class="max-w-md w-full mx-auto bg-slate-950 min-h-[90vh] flex flex-col shadow-2xl relative rounded-3xl border border-slate-800 overflow-hidden">
+    <!-- Container Utama Full Wide -->
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-4 min-h-screen flex flex-col space-y-6">
         
         <!-- HEADER -->
-        <header class="bg-slate-900/95 p-4 flex justify-between items-center border-b border-purple-900/30">
+        <header class="bg-slate-900/95 p-4 rounded-xl flex justify-between items-center border border-purple-900/30 shadow-md">
             <h1 class="font-bold text-sm tracking-wide text-purple-400">📋 Panel Sensus Lapangan</h1>
-            <button onclick="logoutPetugas()" class="text-xs text-rose-400 bg-rose-950/40 border border-rose-900/50 px-2.5 py-1 rounded-lg">Keluar</button>
+            <button onclick="logoutPetugas()" class="text-xs text-rose-400 bg-rose-950/40 border border-rose-900/50 px-3 py-1.5 rounded-lg transition hover:bg-rose-900/50">Keluar</button>
         </header>
 
         <!-- KONTEN UTAMA -->
-        <main class="flex-1 p-4 overflow-y-auto space-y-4 animate-fade-in">
+        <main class="flex-1 flex flex-col space-y-4 animate-fade-in w-full">
             
             <!-- HALAMAN LOGIN PETUGAS SENSUS -->
-            <div id="loginPetugasSection" class="space-y-4 pt-6">
+            <div id="loginPetugasSection" class="space-y-4 pt-10 max-w-md mx-auto w-full bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-xl">
                 <div class="text-center space-y-1">
                     <h2 class="text-base font-bold text-white">Login Petugas Sensus</h2>
                     <p class="text-xs text-slate-400">Masukkan akun admin/majelis Anda untuk mendata.</p>
@@ -49,101 +50,101 @@
             </div>
 
             <!-- HALAMAN UTAMA SENSUS (PENCARIAN & FORM) -->
-            <div id="dashboardSensusSection" class="space-y-4 hidden">
-                <div class="bg-purple-950/30 border border-purple-950 p-3 rounded-xl flex justify-between items-center">
+            <div id="dashboardSensusSection" class="space-y-6 hidden w-full">
+                <div class="bg-purple-950/30 border border-purple-900/50 p-4 rounded-xl flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-purple-300 block">Petugas Bertugas:</span>
                         <strong id="petugasNameLabel" class="text-xs text-white">Admin</strong>
                     </div>
-                    <button onclick="resetForm()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">➕ Tambah Baru</button>
+                    <button onclick="resetForm()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-md transition">➕ Tambah Baru</button>
                 </div>
 
                 <!-- SEARCH BAR -->
-                <div class="space-y-2">
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 w-full">
                     <label class="block text-xs font-semibold text-slate-400">Cari Jemaat (Nama / No. WhatsApp)</label>
                     <input type="text" id="searchInput" oninput="filterJemaatList()" placeholder="Ketik nama atau no WA..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-purple-500">
                     
                     <!-- Dropdown / List Hasil Pencarian -->
-                    <div id="searchResults" class="max-h-40 overflow-y-auto space-y-1 bg-slate-900 border border-slate-800 rounded-xl p-2 hidden">
+                    <div id="searchResults" class="max-h-60 overflow-y-auto space-y-1 bg-slate-900 border border-slate-800 rounded-xl p-2 hidden">
                         <!-- Hasil dimuat dinamis -->
                     </div>
                 </div>
 
-                <hr class="border-slate-800">
-
                 <!-- FORM INPUT / EDIT DATA JEMAAT -->
-                <form id="formSensus" onsubmit="submitSensusData(event, 'verify')" class="space-y-3 bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                <form id="formSensus" onsubmit="submitSensusData(event, 'verify')" class="space-y-4 bg-slate-950 p-6 rounded-2xl border border-slate-800 w-full">
                     <input type="hidden" id="userIdField">
                     
-                    <div class="flex justify-between items-center mb-1">
-                        <h3 id="formTitle" class="font-bold text-xs text-purple-400">Form Pendataan Jemaat</h3>
-                        <span id="badgeStatus" class="text-[10px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded font-semibold border border-amber-900/50">Status: Belum Diverifikasi</span>
+                    <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-800">
+                        <h3 id="formTitle" class="font-bold text-sm text-purple-400">Form Pendataan Jemaat</h3>
+                        <span id="badgeStatus" class="text-[10px] bg-amber-950 text-amber-400 px-2.5 py-1 rounded font-semibold border border-amber-900/50">Status: Belum Diverifikasi</span>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
-                        <input type="text" id="sNama" required class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
-                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
+                            <input type="text" id="sNama" required class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                        </div>
 
-                    <!-- TAMBAHAN: FIELD JENIS KELAMIN -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Jenis Kelamin</label>
-                        <select id="sGender" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
-                            <option value="-">Pilih Jenis Kelamin</option>
-                            <option value="Laki-laki">Laki-laki</option>
-                            <option value="Perempuan">Perempuan</option>
-                        </select>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Jenis Kelamin</label>
+                            <select id="sGender" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                                <option value="-">Pilih Jenis Kelamin</option>
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                        </div>
                     </div>
                     
-                    <div class="flex gap-2">
-                        <div class="flex-1">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Tempat Lahir</label>
-                            <input type="text" id="sTempatLahir" required class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                            <input type="text" id="sTempatLahir" required class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none">
                         </div>
-                        <div class="flex-1">
+                        <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Tanggal Lahir</label>
-                            <input type="date" id="sTglLahir" required class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                            <input type="date" id="sTglLahir" required class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none">
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Status Pelayanan</label>
-                        <select id="sStatus" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
-                            <option value="Jemaat">Jemaat</option>
-                            <option value="Pendeta">Pendeta</option>
-                            <option value="Majelis">Majelis</option>
-                        </select>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <div class="flex-1">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Status Pelayanan</label>
+                            <select id="sStatus" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                                <option value="Jemaat">Jemaat</option>
+                                <option value="Pendeta">Pendeta</option>
+                                <option value="Majelis">Majelis</option>
+                            </select>
+                        </div>
+                        <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Lingkungan</label>
-                            <input type="text" id="sLingkungan" required class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                            <input type="text" id="sLingkungan" required class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none">
                         </div>
-                        <div class="flex-1">
+                        <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Rayon</label>
-                            <input type="text" id="sRayon" required class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                            <input type="text" id="sRayon" required class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none">
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nomor WhatsApp</label>
-                        <input type="tel" id="sWa" required class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nomor WhatsApp</label>
+                            <input type="tel" id="sWa" required class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Pekerjaan</label>
+                            <input type="text" id="sPekerjaan" required class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                        </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">Alamat Domisili</label>
-                        <textarea id="sAlamat" rows="2" required class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none"></textarea>
+                        <textarea id="sAlamat" rows="2" required class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none"></textarea>
                     </div>
 
-                    <div class="flex gap-2">
-                        <div class="flex-1">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Pekerjaan</label>
-                            <input type="text" id="sPekerjaan" required class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
-                        </div>
-                        <div class="flex-1">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Gol. Darah</label>
-                            <select id="sGoldar" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                            <select id="sGoldar" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none">
                                 <option value="-">-</option>
                                 <option value="A">A</option>
                                 <option value="B">B</option>
@@ -151,30 +152,29 @@
                                 <option value="O">O</option>
                             </select>
                         </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Minat Pelayanan</label>
-                        <select id="sKomisi" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
-                            <option value="Umum">Jemaat Umum</option>
-                            <option value="PW">Perempuan / Wanita (PW)</option>
-                            <option value="PKB">Kaum Bapak (PKB)</option>
-                            <option value="Pemuda/Remaja">Pemuda & Remaja</option>
-                            <option value="Sekolah Minggu">Sekolah Minggu</option>
-                        </select>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Minat Pelayanan</label>
+                            <select id="sKomisi" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none">
+                                <option value="Umum">Jemaat Umum</option>
+                                <option value="PW">Perempuan / Wanita (PW)</option>
+                                <option value="PKB">Kaum Bapak (PKB)</option>
+                                <option value="Pemuda/Remaja">Pemuda & Remaja</option>
+                                <option value="Sekolah Minggu">Sekolah Minggu</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Tombol Aksi Ganda -->
-                    <div class="grid grid-cols-2 gap-2 pt-2">
-                        <button type="button" onclick="submitSensusData(event, 'save')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl font-semibold text-xs transition">Simpan Saja</button>
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-semibold text-xs shadow-md transition">Simpan & Verifikasi ☑️</button>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
+                        <button type="button" onclick="submitSensusData(event, 'save')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-xl font-semibold text-xs transition">Simpan Saja</button>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition">Simpan & Verifikasi ☑️</button>
                     </div>
                 </form>
             </div>
 
         </main>
         
-        <footer class="p-3 bg-slate-900 border-t border-slate-800 text-center text-[10px] text-slate-500">
+        <footer class="p-4 bg-slate-900 border border-slate-800 rounded-xl text-center text-[10px] text-slate-500">
             Modul Sensus Lapangan &bull; GMIT JPO Digital
         </footer>
     </div>
@@ -196,42 +196,42 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-async function handleLoginPetugas(e) {
-    e.preventDefault();
-    const btn = document.getElementById("btnLoginAdmin");
-    const user = document.getElementById("adminUser").value;
-    const pass = document.getElementById("adminPass").value;
+        async function handleLoginPetugas(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnLoginAdmin");
+            const user = document.getElementById("adminUser").value;
+            const pass = document.getElementById("adminPass").value;
 
-    btn.disabled = true;
-    btn.innerHTML = "Memverifikasi...";
+            btn.disabled = true;
+            btn.innerHTML = "Memverifikasi...";
 
-    try {
-        const response = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "sensusLogin", username: user, password: pass }) // Memanggil aksi khusus sensus
-        });
-        const result = await response.json();
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "sensusLogin", username: user, password: pass })
+                });
+                const result = await response.json();
 
-        if (result.status === "success") {
-            currentAdmin = result.admin;
-            localStorage.setItem("petugas_sensus", JSON.stringify(currentAdmin));
-            document.getElementById("petugasNameLabel").innerText = currentAdmin.nama;
-            
-            document.getElementById("loginPetugasSection").classList.add("hidden");
-            document.getElementById("dashboardSensusSection").classList.remove("hidden");
-            loadAllUsersData();
-            showToast("Login Petugas Sensus Berhasil!");
-        } else {
-            showToast(result.message, "error");
-            btn.disabled = false;
-            btn.innerHTML = "Masuk Sensus";
+                if (result.status === "success") {
+                    currentAdmin = result.admin;
+                    localStorage.setItem("petugas_sensus", JSON.stringify(currentAdmin));
+                    document.getElementById("petugasNameLabel").innerText = currentAdmin.nama;
+                    
+                    document.getElementById("loginPetugasSection").classList.add("hidden");
+                    document.getElementById("dashboardSensusSection").classList.remove("hidden");
+                    loadAllUsersData();
+                    showToast("Login Petugas Sensus Berhasil!");
+                } else {
+                    showToast(result.message, "error");
+                    btn.disabled = false;
+                    btn.innerHTML = "Masuk Sensus";
+                }
+            } catch (err) {
+                showToast("Koneksi gagal: " + err, "error");
+                btn.disabled = false;
+                btn.innerHTML = "Masuk Sensus";
+            }
         }
-    } catch (err) {
-        showToast("Koneksi gagal: " + err, "error");
-        btn.disabled = false;
-        btn.innerHTML = "Masuk Sensus";
-    }
-}
 
         function logoutPetugas() {
             localStorage.removeItem("petugas_sensus");
@@ -272,7 +272,7 @@ async function handleLoginPetugas(e) {
             }
 
             resultsDiv.innerHTML = matched.map(u => `
-                <div onclick='selectJemaatForEdit(${JSON.stringify(u)})' class="p-2 bg-slate-900 hover:bg-purple-950/40 rounded-lg cursor-pointer border border-slate-800 flex justify-between items-center transition">
+                <div onclick='selectJemaatForEdit(${JSON.stringify(u)})' class="p-2.5 bg-slate-900 hover:bg-purple-950/40 rounded-lg cursor-pointer border border-slate-800 flex justify-between items-center transition">
                     <div>
                         <p class="text-xs font-bold text-white">${u.nama_lengkap} ${u.is_verified ? '☑️' : ''}</p>
                         <p class="text-[10px] text-slate-400">WA: ${u.no_whatsapp} &bull; Lingkungan ${u.lingkungan || '-'}</p>
@@ -300,16 +300,15 @@ async function handleLoginPetugas(e) {
 
             document.getElementById("formTitle").innerText = "Edit / Lengkapi Data Jemaat";
             
-            // PERBAIKAN DI SINI: Cek apakah boolean true atau string "Verified"
             const isVerified = user.is_verified === true || user.is_verified === "Verified";
             const badge = document.getElementById("badgeStatus");
             
             if (isVerified) {
                 badge.innerText = "Status: Verified ☑️";
-                badge.className = "text-[10px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded font-semibold border border-emerald-900/50";
+                badge.className = "text-[10px] bg-emerald-950 text-emerald-400 px-2.5 py-1 rounded font-semibold border border-emerald-900/50";
             } else {
                 badge.innerText = "Status: Belum Verified";
-                badge.className = "text-[10px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded font-semibold border border-amber-900/50";
+                badge.className = "text-[10px] bg-amber-950 text-amber-400 px-2.5 py-1 rounded font-semibold border border-amber-900/50";
             }
             
             document.getElementById("searchResults").classList.add("hidden");
@@ -331,9 +330,9 @@ async function handleLoginPetugas(e) {
 
             const payload = {
                 action: "sensusSaveData",
-                user_id: userId, // Jika kosong berarti data baru
+                user_id: userId,
                 nama_lengkap: document.getElementById("sNama").value,
-                jenis_kelamin: document.getElementById("sGender").value, // <-- Kirim jenis kelamin
+                jenis_kelamin: document.getElementById("sGender").value,
                 tempat_lahir: document.getElementById("sTempatLahir").value,
                 tanggal_lahir: document.getElementById("sTglLahir").value,
                 status_pelayanan: document.getElementById("sStatus").value,
