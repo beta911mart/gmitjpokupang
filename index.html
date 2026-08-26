@@ -717,6 +717,8 @@
                 checkAuthBeforeAction(() => {
                     const user = window.currentUser;
                     const isAdmin = user.isAdmin || false;
+                    // Ambil role admin dengan aman dari objek user
+                    const adminRole = user.adminRole || user.role || '';
 
                     const profileImageHtml = user.foto_profil 
                         ? `<img src="${user.foto_profil}" class="w-full h-full object-cover">`
@@ -769,7 +771,7 @@
                                 <button onclick="logout()" class="w-full bg-rose-950/50 hover:bg-rose-900/40 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition">
                                     Keluar (Logout)
                                 </button>
-                                ${isAdmin ? `<button onclick="redirectToRolePanel()" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">🔒 Masuk ke Panel Pengurus Gereja (${adminRole || 'Admin'})</button>` : ''}` : ''}
+                                ${isAdmin ? `<button onclick="redirectToRolePanel()" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">🔒 Masuk ke Panel Pengurus Gereja (${adminRole || 'Admin'})</button>` : ''}
                             </div>
                         </div>
                     `;
