@@ -8,8 +8,8 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
 
-    <!-- Container Sekretariat Full Wide -->
-    <div id="adminApp" class="w-full px-4 sm:px-6 lg:px-8 py-4 min-h-screen flex flex-col">
+    <!-- Container Sekretariat -->
+    <div id="adminApp" class="max-w-7xl mx-auto p-4 sm:p-6 min-h-screen flex flex-col">
         
         <!-- HEADER SEKRETARIAT -->
         <header class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center shadow-md mb-6">
@@ -93,12 +93,12 @@
 
         // --- 2. DASHBOARD SEKRETARIAT ---
         function renderAdminDashboard(admin) {
-            document.getElementById("adminInfo").innerText = `Login: ${admin.nama} (${admin.role})`[cite: 3];
+            document.getElementById("adminInfo").innerText = `Login: ${admin.nama} (${admin.role})`;
             document.getElementById("logoutBtn").classList.remove("hidden");
             
             const main = document.querySelector("main");
             main.innerHTML = `
-                <div class="space-y-6 w-full">
+                <div class="space-y-6">
                     <!-- Menu Grid Sekretariat -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <button onclick="loadSensusData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
@@ -135,8 +135,8 @@
                         </button>
                     </div>
 
-                    <!-- Area Konten Full Wide Tanpa Pemusat (Flex Center Dihapus) -->
-                    <div id="adminContentArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm min-h-[350px] w-full">
+                    <!-- Area Konten Dinamis -->
+                    <div id="adminContentArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm min-h-[350px]">
                         <div class="text-center py-16 space-y-2">
                             <div class="text-3xl">👋</div>
                             <h3 class="font-bold text-sm text-slate-700">Selamat Datang, ${admin.nama}</h3>
@@ -164,12 +164,12 @@
                 }
 
                 area.innerHTML = `
-                    <div class="flex flex-col space-y-4 w-full">
+                    <div class="space-y-4">
                         <div>
                             <h3 class="font-bold text-sm">Daftar Sensus Jemaat (${users.length} Jiwa)</h3>
                             <p class="text-xs text-slate-500">Data lengkap, username unik, dan verifikasi centang biru jemaat.</p>
                         </div>
-                        <div class="overflow-x-auto w-full">
+                        <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead>
                                     <tr class="bg-slate-100 border-b border-slate-200 text-slate-600">
@@ -253,12 +253,12 @@
                 }
 
                 area.innerHTML = `
-                    <div class="flex flex-col space-y-4 w-full">
+                    <div class="space-y-4">
                         <div>
                             <h3 class="font-bold text-sm mb-1">Moderasi Kotak Doa Jemaat</h3>
                             <p class="text-xs text-slate-500">Setujui pokok doa berstatus publik agar tampil otomatis di Dinding Doa jemaat.</p>
                         </div>
-                        <div class="space-y-3 w-full">
+                        <div class="space-y-3">
                             ${prayers.map(p => `
                                 <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                                     <div class="space-y-1 flex-1">
@@ -340,15 +340,15 @@
                 const donations = result.donations || [];
 
                 area.innerHTML = `
-                    <div class="flex flex-col space-y-4 w-full">
-                        <div class="flex justify-between items-center w-full">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
                             <div>
                                 <h3 class="font-bold text-sm">Verifikasi & Pencatatan Donasi</h3>
                                 <p class="text-xs text-slate-500">Kelola dan setujui persembahan kasih jemaat.</p>
                             </div>
                             <button onclick="loadDonationForm()" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">➕ Input Donasi Manual</button>
                         </div>
-                        <div class="space-y-3 w-full">
+                        <div class="space-y-3">
                             ${donations.length === 0 ? `<p class="text-center text-slate-500 text-sm py-6">Belum ada riwayat donasi.</p>` : 
                                 donations.map(d => `
                                     <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex justify-between items-center">
@@ -424,7 +424,7 @@
         function loadDonationForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
-                <div class="flex flex-col space-y-4 w-full">
+                <div class="space-y-4">
                     <button onclick="loadDonationAdmin()" class="text-xs text-purple-600 font-semibold block">← Kembali ke Daftar Donasi</button>
                     <div>
                         <h3 class="font-bold text-sm text-slate-900">Pencatatan Donasi Manual oleh Pengurus</h3>
@@ -489,7 +489,7 @@
         function loadEventForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
-                <div class="flex flex-col space-y-4 w-full">
+                <div class="space-y-4">
                     <div>
                         <h3 class="font-bold text-sm text-slate-900">Tambah Agenda Kegiatan Baru</h3>
                         <p class="text-xs text-slate-500">Masukkan detail jadwal acara atau kegiatan gereja.</p>
@@ -554,9 +554,9 @@
         async function showRenunganForm() {
             const contentArea = document.getElementById("adminContentArea");
             contentArea.innerHTML = `
-                <div class="space-y-6 w-full">
+                <div class="space-y-6">
                     <!-- BAGIAN 1: FORM INPUT RENUNGAN BARU -->
-                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full">
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl max-w-2xl">
                         <div class="flex justify-between items-center mb-1">
                             <h2 class="text-lg font-bold text-slate-100" id="formRenunganTitle">Input Renungan & Ayat Emas Baru</h2>
                             <button type="button" id="btnCancelEdit" onclick="resetRenunganForm()" class="hidden text-xs bg-rose-950/50 text-rose-400 border border-rose-900/50 px-2.5 py-1 rounded-lg transition">Batal Edit</button>
@@ -595,13 +595,13 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                     </div>
      
                     <!-- BAGIAN 2: TABEL STOK & PILIH TANGGAL TAYANG -->
-                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full">
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
                         <h3 class="font-bold text-sm text-slate-100 mb-1">Stok Arsip Renungan & Pilih Tanggal Tayang</h3>
                         <p class="text-xs text-slate-400 mb-4">Pilih salah satu tanggal di bawah ini untuk ditayangkan atau diedit ulang.</p>
                         
                         <div id="renunganStockLoading" class="text-xs text-slate-400 py-4 text-center">Memuat daftar stok renungan...</div>
                         
-                        <div id="renunganTableWrapper" class="overflow-x-auto hidden w-full">
+                        <div id="renunganTableWrapper" class="overflow-x-auto hidden">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead>
                                     <tr class="bg-slate-950 border-b border-slate-800 text-slate-400">
@@ -790,12 +790,12 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                 }
 
                 area.innerHTML = `
-                    <div class="flex flex-col space-y-4 w-full">
+                    <div class="space-y-4">
                         <div>
                             <h3 class="font-bold text-sm">Riwayat Aktivitas Pengurus / Sekretariat</h3>
                             <p class="text-xs text-slate-500">Mencatat siapa yang melakukan approve, verifikasi, atau input data penting.</p>
                         </div>
-                        <div class="overflow-x-auto bg-slate-50 border border-slate-200 rounded-xl max-h-[500px] overflow-y-auto w-full">
+                        <div class="overflow-x-auto bg-slate-50 border border-slate-200 rounded-xl max-h-[500px] overflow-y-auto">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead class="sticky top-0 bg-slate-200 shadow-sm text-slate-700">
                                     <tr>
