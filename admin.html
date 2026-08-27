@@ -785,40 +785,49 @@
             }
         }
 
-        async function handleSendBroadcast(e) {
-            e.preventDefault();
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
-            const targetType = document.getElementById("bcTargetType").value;
-            
-            const payload = {
-                action: "sendBroadcast",
-                admin_id: admin.id || "ADMIN",
-                target_type: targetType,
-                message: document.getElementById("bcMessage").value,
-                category: targetType === 'global' ? document.getElementById("bcGlobalCategory").value : document.getElementById("bcUserCategory").value,
-                visibility: targetType === 'users' ? document.getElementById("bcVisibility").value : 'Global',
-                target_user_id: targetType === 'users' ? document.getElementById("bcTargetUserId").value : null
-            };
+async function handleSendBroadcast(e) {
+    e.preventDefault();
+    
+    // Amankan pengambilan sesi admin
+    const adminStr = sessionStorage.getItem("admin_gereja");
+    if (!adminStr) {
+        alert("Sesi login Anda telah habis. Silakan login ulang ke panel admin.");
+        renderAdminLogin();
+        return;
+    }
+    const admin = JSON.parse(adminStr);
 
-            const btn = document.getElementById("btnSubmitBc");
-            btn.disabled = true;
-            btn.innerText = "Mengirim Broadcast...";
+    const targetType = document.getElementById("bcTargetType").value;
+    
+    const payload = {
+        action: "sendBroadcast",
+        admin_id: admin.id || "ADMIN", // Fallback aman jika id tidak terbaca
+        target_type: targetType,
+        message: document.getElementById("bcMessage").value,
+        category: targetType === 'global' ? document.getElementById("bcGlobalCategory").value : document.getElementById("bcUserCategory").value,
+        visibility: targetType === 'users' ? document.getElementById("bcVisibility").value : 'Global',
+        target_user_id: targetType === 'users' ? document.getElementById("bcTargetUserId").value : null
+    };
 
-            try {
-                const res = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
-                const result = await res.json();
-                alert(result.message || "Broadcast berhasil dikirim!");
-                document.getElementById("bcMessage").value = "";
-            } catch (err) {
-                alert("Gagal mengirim broadcast: " + err);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Kirim Broadcast Sekarang 🚀";
-            }
-        }
+    const btn = document.getElementById("btnSubmitBc");
+    btn.disabled = true;
+    btn.innerText = "Mengirim Broadcast...";
+
+    try {
+        const res = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        alert(result.message || "Broadcast berhasil dikirim!");
+        document.getElementById("bcMessage").value = "";
+    } catch (err) {
+        alert("Gagal mengirim broadcast: " + err);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Kirim Broadcast Sekarang 🚀";
+    }
+}
 
         async function showRenunganForm() {
             const contentArea = document.getElementById("adminContentArea");
