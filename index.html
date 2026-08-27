@@ -2471,7 +2471,7 @@
             `;
         }
 
-        // 1. Fungsi Pemutar Suara Notifikasi
+// Fungsi Pemutar Suara Notifikasi yang Aman
         function playNotificationSound() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -2479,8 +2479,8 @@
                 const gainNode = audioCtx.createGain();
 
                 oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Nada D5
-                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // Nada A5
+                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
+                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); 
 
                 gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
@@ -2491,11 +2491,11 @@
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + 0.4);
             } catch (e) {
-                console.log("Audio dibatasi oleh browser sebelum ada interaksi.", e);
+                console.log("Audio dibatasi browser:", e);
             }
         }
 
-        // 2. Fungsi Pengecekan Notifikasi Belum Dibaca (Unread) & Suara
+        // Fungsi Cek Notifikasi Belum Dibaca
         async function checkUnreadNotifications() {
             const savedUser = localStorage.getItem("user_gereja");
             if (!savedUser) return;
@@ -2512,28 +2512,30 @@
                     const latestNotifId = String(result.notifications[result.notifications.length - 1].id);
                     const lastSeenNotifId = localStorage.getItem("last_seen_notif_id");
 
-                    // Jika ada ID notif terbaru yang belum sama dengan yang terakhir dilihat
+                    // Jika ada ID baru yang belum pernah dilihat sebelumnya
                     if (latestNotifId !== lastSeenNotifId) {
                         const badge = document.getElementById("unreadNotifBadge");
                         if (badge) badge.classList.remove("hidden");
                         
-                        // Bunyikan suara notifikasi
+                        // Bunyikan suara
                         playNotificationSound();
                     }
                 }
             } catch (err) {
-                console.log("Gagal mengecek notifikasi baru", err);
+                console.log("Gagal mengecek notifikasi", err);
             }
         }
 
-        // 3. Inisialisasi Utama Saat Halaman Dimuat
+        // Inisialisasi Saat Halaman Pertama Kali Dibuka / Refresh
         document.addEventListener("DOMContentLoaded", () => {
             updateNetworkStatus();
             switchTab('home', false, true); 
             checkPushNotification();
             updateAuthNavText();
             checkLiveStatusForMenu();
-            checkUnreadNotifications(); // Pengecekan notif & suara aktif di sini
+            
+            // Jalankan pengecekan badge unread
+            checkUnreadNotifications();
         });
     </script>
 </body>
