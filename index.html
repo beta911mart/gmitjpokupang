@@ -2472,33 +2472,35 @@ function redirectToRolePanel() {
         window.location.href = "admin.html";
     }
 }
+
         function openPrayerMenu(isBack = false) {
-         if (!isBack) pushNavState('openPrayerMenu');
-         const main = document.querySelector("main");
-         document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
-         triggerPageTransition();
-         main.innerHTML = `
-             <div class="space-y-4 pt-2">
-                 <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                 <div class="grid grid-cols-1 gap-4">
-                     <div onclick="switchTab('doa')" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-500/50 cursor-pointer">
-                         <div>
-                             <h4 class="text-sm font-bold text-white flex items-center gap-2">📝 Kirim Pokok Doa</h4>
-                             <p class="text-[11px] text-slate-400 mt-1">Kirim doa syukur atau pergumulan ke kotak doa.</p>
-                         </div>
-                         <span class="bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md ml-2">Kirim</span>
-                     </div>
-                     <div onclick="openPublicPrayerWall()" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-500/50 cursor-pointer">
-                         <div>
-                             <h4 class="text-sm font-bold text-white flex items-center gap-2">🙏 Dinding Doa</h4>
-                             <p class="text-[11px] text-slate-400 mt-1">Lihat dan dukung doa publik jemaat lainnya.</p>
-                         </div>
-                         <span class="bg-purple-600 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md ml-2">Lihat</span>
-                     </div>
-                 </div>
-             </div>
-         `;
-     }
+            if (!isBack) pushNavState('openPrayerMenu');
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
+            triggerPageTransition();
+            main.innerHTML = `
+                <div class="space-y-4 pt-2">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- Diubah langsung memanggil fungsi render form doa original Anda -->
+                        <div onclick="openFormPrayer()" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-500/50 cursor-pointer">
+                            <div>
+                                <h4 class="text-sm font-bold text-white flex items-center gap-2">📝 Kirim Pokok Doa</h4>
+                                <p class="text-[11px] text-slate-400 mt-1">Kirim doa syukur atau pergumulan ke kotak doa.</p>
+                            </div>
+                            <span class="bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md ml-2">Kirim</span>
+                        </div>
+                        <div onclick="openPublicPrayerWall()" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-500/50 cursor-pointer">
+                            <div>
+                                <h4 class="text-sm font-bold text-white flex items-center gap-2">🙏 Dinding Doa</h4>
+                                <p class="text-[11px] text-slate-400 mt-1">Lihat dan dukung doa publik jemaat lainnya.</p>
+                            </div>
+                            <span class="bg-purple-600 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md ml-2">Lihat</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
