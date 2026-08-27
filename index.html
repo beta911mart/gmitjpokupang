@@ -2525,6 +2525,34 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Audio dibatasi oleh browser sebelum ada interaksi.", e);
     }
 }
+        async function checkUnreadNotifications() {
+    const savedUser = localStorage.getItem("user_gereja");
+    if (!savedUser) return;
+
+    try {
+        const user = JSON.parse(savedUser);
+        const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "getUserNotifications", user_id: user.id })
+        });
+        const result = await response.json();
+
+        if (result.status === "success" && result.notifications && result.notifications.length > 0) {
+            const latestNotifId = result.notifications[result.notifications.length - 1].id;
+            const lastSeenNotifId = localStorage.getItem("last_seen_notif_id");
+
+            if (latestNotifId !== lastSeenNotifId) {
+                const badge = document.getElementById("unreadNotifBadge");
+                if (badge) badge.classList.remove("hidden");
+
+                // 🔔 BUNYIKAN SUARA NOTIFIKASI DI SINI
+                playNotificationSound();
+            }
+        }
+    } catch (err) {
+        console.log("Gagal mengecek notifikasi baru", err);
+    }
+}
     </script>
 </body>
 </html>
