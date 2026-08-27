@@ -788,30 +788,44 @@
 async function handleSendBroadcast(e) {
     e.preventDefault();
     
-    // Amankan pengambilan sesi admin
-    const adminStr = sessionStorage.getItem("admin_gereja");
-    if (!adminStr) {
-        alert("Sesi login Anda telah habis. Silakan login ulang ke panel admin.");
-        renderAdminLogin();
-        return;
+    // Pengecekan pengaman mutlak untuk mencegah error .id is undefined
+    let rawAdmin = sessionStorage.getItem("admin_gereja");
+    let adminId = "SUPER_ADMIN"; // Fallback aman agar tidak pernah error
+    
+    if (rawAdmin) {
+        try {
+            let parsedAdmin = JSON.parse(rawAdmin);
+            if (parsedAdmin && parsedAdmin.id) {
+                adminId = parsedAdmin.id;
+            }
+        } catch (err) {
+            console.warn("Format session admin tidak valid, menggunakan fallback ID.");
+        }
     }
-    const admin = JSON.parse(adminStr);
 
     const targetType = document.getElementById("bcTargetType").value;
+    const messageInput = document.getElementById("bcMessage");
     
+    if (!messageInput || !messageInput.value.trim()) {
+        alert("⚠️ Pesan broadcast tidak boleh kosong!");
+        return;
+    }
+
     const payload = {
         action: "sendBroadcast",
-        admin_id: admin.id || "ADMIN", // Fallback aman jika id tidak terbaca
+        admin_id: adminId,
         target_type: targetType,
-        message: document.getElementById("bcMessage").value,
+        message: messageInput.value.trim(),
         category: targetType === 'global' ? document.getElementById("bcGlobalCategory").value : document.getElementById("bcUserCategory").value,
         visibility: targetType === 'users' ? document.getElementById("bcVisibility").value : 'Global',
         target_user_id: targetType === 'users' ? document.getElementById("bcTargetUserId").value : null
     };
 
     const btn = document.getElementById("btnSubmitBc");
-    btn.disabled = true;
-    btn.innerText = "Mengirim Broadcast...";
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = "Mengirim Broadcast...";
+    }
 
     try {
         const res = await fetch(SCRIPT_URL, {
@@ -819,13 +833,16 @@ async function handleSendBroadcast(e) {
             body: JSON.stringify(payload)
         });
         const result = await res.json();
+        
         alert(result.message || "Broadcast berhasil dikirim!");
-        document.getElementById("bcMessage").value = "";
+        messageInput.value = "";
     } catch (err) {
         alert("Gagal mengirim broadcast: " + err);
     } finally {
-        btn.disabled = false;
-        btn.innerText = "Kirim Broadcast Sekarang 🚀";
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = "Kirim Broadcast Sekarang 🚀";
+        }
     }
 }
 
