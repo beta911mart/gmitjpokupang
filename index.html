@@ -657,7 +657,7 @@
                     </div>
                 `;
             } 
-            else if (tab === 'notifikasi') {
+            } else if (tab === 'notifikasi') {
                 checkAuthBeforeAction(async () => {
                     document.getElementById("headerTitle").innerText = "Notifikasi & Kotak Masuk";
                     const badge = document.getElementById("unreadNotifBadge");
@@ -689,6 +689,10 @@
                         const container = document.getElementById("notifListContainer");
 
                         if (result.status === "success" && result.notifications && result.notifications.length > 0) {
+                            // Simpan ID notifikasi terbaru ke localStorage agar badge titik merah tidak menyala terus
+                            const latestNotifId = result.notifications[result.notifications.length - 1].id;
+                            localStorage.setItem("last_seen_notif_id", latestNotifId);
+
                             container.innerHTML = result.notifications.map(n => `
                                 <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-sm animate-card-hover">
                                     <div class="flex justify-between items-center">
@@ -2467,7 +2471,7 @@
                 </div>
             `;
         }
-        async function checkUnreadNotifications() {
+async function checkUnreadNotifications() {
     const savedUser = localStorage.getItem("user_gereja");
     if (!savedUser) return;
     
@@ -2480,10 +2484,14 @@
         const result = await response.json();
 
         if (result.status === "success" && result.notifications && result.notifications.length > 0) {
-            // Tampilkan titik merah (badge) di ikon notifikasi
-            const badge = document.getElementById("unreadNotifBadge");
-            if (badge) {
-                badge.classList.remove("hidden");
+            // Ambil ID atau jumlah notifikasi terakhir dari server
+            const latestNotifId = result.notifications[result.notifications.length - 1].id;
+            const lastSeenNotifId = localStorage.getItem("last_seen_notif_id");
+
+            // Jika ada ID notif terbaru yang belum sama dengan yang terakhir dilihat
+            if (latestNotifId !== lastSeenNotifId) {
+                const badge = document.getElementById("unreadNotifBadge");
+                if (badge) badge.classList.remove("hidden");
             }
         }
     } catch (err) {
