@@ -8,7 +8,8 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
 
-   <div id="adminApp" class="w-full px-4 md:px-8 py-4 min-h-screen flex flex-col">
+    <!-- Kontainer utama diperlebar menjadi w-full dengan padding fleksibel -->
+    <div id="adminApp" class="w-full px-4 md:px-6 py-4 min-h-screen flex flex-col">
         
         <header class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center shadow-md mb-6">
             <div class="flex items-center gap-3">
@@ -30,7 +31,6 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
 
-        // Helper aman untuk mengambil ID admin tanpa error undefined
         function getSafeAdminId() {
             try {
                 let raw = sessionStorage.getItem("admin_gereja");
@@ -108,7 +108,7 @@
 
             const main = document.querySelector("main");
             main.innerHTML = `
-                <div class="space-y-6">
+                <div class="space-y-6 w-full">
                     <div class="grid grid-cols-2 md:grid-cols-${isSuper ? '8' : '7'} gap-3">
                         <button onclick="loadSensusData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
                             <h3 class="font-bold text-xs text-slate-900">👥 Data Jemaat</h3>
@@ -149,7 +149,8 @@
                         </button>` : ''}
                     </div>
 
-                    <div id="adminContentArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm min-h-[350px]">
+                    <!-- Area konten dinamis diatur w-full penuh -->
+                    <div id="adminContentArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm min-h-[350px] w-full">
                         <p class="text-center text-slate-400 text-sm py-10">Silakan pilih menu di atas untuk mengelola data gereja.</p>
                     </div>
                 </div>
@@ -167,11 +168,11 @@
                 const admins = result.admins || [];
 
                 area.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 h-fit">
                             <h3 class="font-bold text-xs text-slate-900 mb-2">➕ Tambah Pengurus Baru</h3>
                             <p class="text-[11px] text-slate-500 mb-4">Pilih hak akses role untuk akun pengurus yang akan dibuat.</p>
-                            <form onsubmit="handleSaveNewAdmin(event)" class="space-y-3">
+                            <form onsubmit="handleSaveNewAdmin(event)" class="space-y-3 w-full">
                                 <div>
                                     <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Lengkap</label>
                                     <input type="text" id="newAdminNama" required placeholder="Cth: Penatua John" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-xs outline-none">
@@ -196,11 +197,11 @@
                             </form>
                         </div>
 
-                        <div class="md:col-span-2 space-y-3">
+                        <div class="md:col-span-2 space-y-3 w-full">
                             <h3 class="font-bold text-xs text-slate-900">Daftar Pengurus Gereja (${admins.length} Akun)</h3>
-                            <div class="space-y-2">
+                            <div class="space-y-2 w-full">
                                 ${admins.map(a => `
-                                    <div class="bg-white border border-slate-200 p-3.5 rounded-xl flex justify-between items-center shadow-sm">
+                                    <div class="bg-white border border-slate-200 p-3.5 rounded-xl flex justify-between items-center shadow-sm w-full">
                                         <div>
                                             <div class="flex items-center gap-2">
                                                 <h4 class="text-xs font-bold text-slate-900">${a.nama}</h4>
@@ -282,51 +283,53 @@
                 }
 
                 area.innerHTML = `
-                    <div class="flex justify-between items-center mb-4">
-                        <div>
-                            <h3 class="font-bold text-sm">Daftar Sensus Jemaat (${users.length} Jiwa)</h3>
-                            <p class="text-xs text-slate-500">Data lengkap, username unik, dan verifikasi centang biru jemaat.</p>
+                    <div class="w-full space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-sm">Daftar Sensus Jemaat (${users.length} Jiwa)</h3>
+                                <p class="text-xs text-slate-500">Data lengkap, username unik, dan verifikasi centang biru jemaat.</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead>
-                                <tr class="bg-slate-100 border-b border-slate-200 text-slate-600">
-                                    <th class="p-2.5">Nama & Username Unik</th>
-                                    <th class="p-2.5">Gender / Status</th>
-                                    <th class="p-2.5">Ling / Rayon</th>
-                                    <th class="p-2.5">No. WhatsApp</th>
-                                    <th class="p-2.5">Alamat & Pekerjaan</th>
-                                    <th class="p-2.5 text-center">Status Verifikasi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                ${users.map(u => `
-                                    <tr class="hover:bg-slate-50">
-                                        <td class="p-2.5">
-                                            <div class="font-bold text-slate-900">${u.nama_lengkap}</div>
-                                            <div class="font-mono text-[11px] text-purple-600">${u.username || '-'}</div>
-                                        </td>
-                                        <td class="p-2.5">
-                                            <div class="text-slate-700">${u.jenis_kelamin || '-'}</div>
-                                            <div class="text-[10px] text-purple-700 font-medium">${u.status_pelayanan || 'Jemaat'}</div>
-                                        </td>
-                                        <td class="p-2.5">Ling. ${u.lingkungan || '-'} <br>Rayon ${u.rayon || '-'}</td>
-                                        <td class="p-2.5">${u.no_whatsapp || '-'}</td>
-                                        <td class="p-2.5 text-slate-500 text-[11px]">
-                                            <div>${u.alamat || '<span class="italic text-amber-600">Belum diisi</span>'}</div>
-                                            <div class="text-[10px] text-slate-400">${u.pekerjaan || ''}</div>
-                                        </td>
-                                        <td class="p-2.5 text-center">
-                                            ${u.is_verified ? 
-                                                `<span class="bg-blue-100 text-blue-700 font-semibold px-2 py-1 rounded text-[10px] inline-block">☑️ Terverifikasi</span>` : 
-                                                `<button onclick="verifyUser('${u.id}')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-semibold px-2.5 py-1 rounded text-[10px] transition">Verifikasi</button>`
-                                            }
-                                        </td>
+                        <div class="w-full overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b border-slate-200 text-slate-600">
+                                        <th class="p-2.5">Nama & Username Unik</th>
+                                        <th class="p-2.5">Gender / Status</th>
+                                        <th class="p-2.5">Ling / Rayon</th>
+                                        <th class="p-2.5">No. WhatsApp</th>
+                                        <th class="p-2.5">Alamat & Pekerjaan</th>
+                                        <th class="p-2.5 text-center">Status Verifikasi</th>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${users.map(u => `
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-2.5">
+                                                <div class="font-bold text-slate-900">${u.nama_lengkap}</div>
+                                                <div class="font-mono text-[11px] text-purple-600">${u.username || '-'}</div>
+                                            </td>
+                                            <td class="p-2.5">
+                                                <div class="text-slate-700">${u.jenis_kelamin || '-'}</div>
+                                                <div class="text-[10px] text-purple-700 font-medium">${u.status_pelayanan || 'Jemaat'}</div>
+                                            </td>
+                                            <td class="p-2.5">Ling. ${u.lingkungan || '-'} <br>Rayon ${u.rayon || '-'}</td>
+                                            <td class="p-2.5">${u.no_whatsapp || '-'}</td>
+                                            <td class="p-2.5 text-slate-500 text-[11px]">
+                                                <div>${u.alamat || '<span class="italic text-amber-600">Belum diisi</span>'}</div>
+                                                <div class="text-[10px] text-slate-400">${u.pekerjaan || ''}</div>
+                                            </td>
+                                            <td class="p-2.5 text-center">
+                                                ${u.is_verified ? 
+                                                    `<span class="bg-blue-100 text-blue-700 font-semibold px-2 py-1 rounded text-[10px] inline-block">☑️ Terverifikasi</span>` : 
+                                                    `<button onclick="verifyUser('${u.id}')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-semibold px-2.5 py-1 rounded text-[10px] transition">Verifikasi</button>`
+                                                }
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 `;
             } catch (err) {
@@ -364,29 +367,33 @@
                 }
 
                 area.innerHTML = `
-                    <h3 class="font-bold text-sm mb-1">Moderasi Kotak Doa Jemaat</h3>
-                    <p class="text-xs text-slate-500 mb-4">Setujui pokok doa berstatus publik agar tampil otomatis di Dinding Doa jemaat.</p>
-                    <div class="space-y-3">
-                        ${prayers.map(p => `
-                            <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                                <div class="space-y-1 flex-1">
-                                    <div class="flex items-center gap-2">
-                                        <span class="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded font-semibold">${p.kategori_doa}</span>
-                                        <span class="bg-slate-200 text-slate-700 text-[10px] px-2 py-0.5 rounded">${p.status_privasi}</span>
-                                        <span class="text-[10px] font-bold ${p.status_approval === 'Approved' ? 'text-emerald-600' : 'text-amber-600'}">Status: ${p.status_approval || 'Pending'}</span>
+                    <div class="w-full space-y-4">
+                        <div>
+                            <h3 class="font-bold text-sm mb-1">Moderasi Kotak Doa Jemaat</h3>
+                            <p class="text-xs text-slate-500">Setujui pokok doa berstatus publik agar tampil otomatis di Dinding Doa jemaat.</p>
+                        </div>
+                        <div class="space-y-3 w-full">
+                            ${prayers.map(p => `
+                                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3 w-full">
+                                    <div class="space-y-1 flex-1">
+                                        <div class="flex items-center gap-2">
+                                            <span class="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded font-semibold">${p.kategori_doa}</span>
+                                            <span class="bg-slate-200 text-slate-700 text-[10px] px-2 py-0.5 rounded">${p.status_privasi}</span>
+                                            <span class="text-[10px] font-bold ${p.status_approval === 'Approved' ? 'text-emerald-600' : 'text-amber-600'}">Status: ${p.status_approval || 'Pending'}</span>
+                                        </div>
+                                        <p class="text-xs text-slate-800 font-medium italic">"${p.isi_doa}"</p>
+                                        <p class="text-[10px] text-slate-500">Pengirim: <strong>${p.nama_pengirim}</strong> &bull; ${new Date(p.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
                                     </div>
-                                    <p class="text-xs text-slate-800 font-medium italic">"${p.isi_doa}"</p>
-                                    <p class="text-[10px] text-slate-500">Pengirim: <strong>${p.nama_pengirim}</strong> &bull; ${new Date(p.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
+                                    <div>
+                                        ${p.status_approval === 'Approved' ? `
+                                            <button onclick="takedownPrayer('${p.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">Arsipkan</button>
+                                        ` : p.status_privasi === 'Publik' ? `
+                                            <button onclick="approvePrayer('${p.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">Setujui Tayang</button>
+                                        ` : `<span class="text-[11px] text-slate-400 font-medium">Rahasia</span>`}
+                                    </div>
                                 </div>
-                                <div>
-                                    ${p.status_approval === 'Approved' ? `
-                                        <button onclick="takedownPrayer('${p.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">Arsipkan</button>
-                                    ` : p.status_privasi === 'Publik' ? `
-                                        <button onclick="approvePrayer('${p.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">Setujui Tayang</button>
-                                    ` : `<span class="text-[11px] text-slate-400 font-medium">Rahasia</span>`}
-                                </div>
-                            </div>
-                        `).join('')}
+                            `).join('')}
+                        </div>
                     </div>
                 `;
             } catch (err) {
@@ -434,36 +441,38 @@
                 const donations = result.donations || [];
 
                 area.innerHTML = `
-                    <div class="flex justify-between items-center mb-4">
-                        <div>
-                            <h3 class="font-bold text-sm">Verifikasi & Pencatatan Donasi</h3>
-                            <p class="text-xs text-slate-500">Kelola dan setujui persembahan kasih jemaat.</p>
+                    <div class="w-full space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-sm">Verifikasi & Pencatatan Donasi</h3>
+                                <p class="text-xs text-slate-500">Kelola dan setujui persembahan kasih jemaat.</p>
+                            </div>
+                            <button onclick="loadDonationForm()" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">➕ Input Donasi Manual</button>
                         </div>
-                        <button onclick="loadDonationForm()" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">➕ Input Donasi Manual</button>
-                    </div>
-                    <div class="space-y-3">
-                        ${donations.length === 0 ? `<p class="text-center text-slate-500 text-sm py-6">Belum ada riwayat donasi.</p>` : 
-                            donations.map(d => `
-                                <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex justify-between items-center">
-                                    <div class="space-y-0.5">
-                                        <div class="flex items-center gap-2">
-                                            <h4 class="text-xs font-bold text-slate-900">${d.nama_donatur}</h4>
-                                            <span class="bg-slate-200 text-slate-700 text-[9px] px-2 py-0.5 rounded">${d.jenis_donasi || 'Transfer'}</span>
-                                            <span class="text-[10px] font-bold ${d.status_approval === 'Approved' ? 'text-emerald-600' : 'text-amber-600'}">${d.status_approval || 'Pending'}</span>
+                        <div class="space-y-3 w-full">
+                            ${donations.length === 0 ? `<p class="text-center text-slate-500 text-sm py-6">Belum ada riwayat donasi.</p>` : 
+                                donations.map(d => `
+                                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex justify-between items-center w-full">
+                                        <div class="space-y-0.5">
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="text-xs font-bold text-slate-900">${d.nama_donatur}</h4>
+                                                <span class="bg-slate-200 text-slate-700 text-[9px] px-2 py-0.5 rounded">${d.jenis_donasi || 'Transfer'}</span>
+                                                <span class="text-[10px] font-bold ${d.status_approval === 'Approved' ? 'text-emerald-600' : 'text-amber-600'}">${d.status_approval || 'Pending'}</span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-600">Peruntukan: <strong class="text-slate-800">${d.keterangan}</strong></p>
+                                            <p class="text-[10px] text-slate-400">${new Date(d.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
                                         </div>
-                                        <p class="text-[11px] text-slate-600">Peruntukan: <strong class="text-slate-800">${d.keterangan}</strong></p>
-                                        <p class="text-[10px] text-slate-400">${new Date(d.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
+                                        <div class="text-right flex flex-col items-end gap-1.5">
+                                            <span class="text-xs font-bold text-emerald-600">${isNaN(d.nominal) ? d.nominal : 'Rp ' + Number(d.nominal).toLocaleString('id-ID')}</span>
+                                            ${d.status_approval === 'Approved' ? `
+                                                <button onclick="takedownDonation('${d.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">Arsipkan</button>
+                                            ` : `
+                                                <button onclick="approveDonation('${d.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">Setujui</button>
+                                            `}
+                                        </div>
                                     </div>
-                                    <div class="text-right flex flex-col items-end gap-1.5">
-                                        <span class="text-xs font-bold text-emerald-600">${isNaN(d.nominal) ? d.nominal : 'Rp ' + Number(d.nominal).toLocaleString('id-ID')}</span>
-                                        ${d.status_approval === 'Approved' ? `
-                                            <button onclick="takedownDonation('${d.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">Arsipkan</button>
-                                        ` : `
-                                            <button onclick="approveDonation('${d.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">Setujui</button>
-                                        `}
-                                    </div>
-                                </div>
-                            `).join('')}
+                                `).join('')}
+                        </div>
                     </div>
                 `;
             } catch (err) {
@@ -489,31 +498,33 @@
         function loadDonationForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
-                <button onclick="loadDonationAdmin()" class="text-xs text-purple-600 font-semibold mb-3 block">← Kembali ke Daftar Donasi</button>
-                <h3 class="font-bold text-sm mb-4 text-slate-900">Pencatatan Donasi Manual oleh Pengurus</h3>
-                <form onsubmit="handleSaveDonation(event)" class="space-y-3 max-w-lg">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Donatur</label>
-                        <input type="text" id="donNama" required placeholder="Cth: Bpk. Budi / Anonim" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Donasi</label>
-                        <select id="donJenis" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
-                            <option value="Transfer">Transfer</option>
-                            <option value="Setor Tunai">Setor Tunai</option>
-                            <option value="Sumbangan Barang">Sumbangan Barang</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah / Nominal (Angka atau Deskripsi Barang)</label>
-                        <input type="text" id="donNominal" required placeholder="Cth: 250000 atau 5 Sak Semen" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan / Peruntukan</label>
-                        <input type="text" id="donKet" required placeholder="Cth: Pembangunan Gedung / Diakonia" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-                    </div>
-                    <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan & Langsung Setujui Donasi</button>
-                </form>
+                <div class="w-full space-y-4">
+                    <button onclick="loadDonationAdmin()" class="text-xs text-purple-600 font-semibold block">← Kembali ke Daftar Donasi</button>
+                    <h3 class="font-bold text-sm text-slate-900">Pencatatan Donasi Manual oleh Pengurus</h3>
+                    <form onsubmit="handleSaveDonation(event)" class="space-y-3 w-full">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Donatur</label>
+                            <input type="text" id="donNama" required placeholder="Cth: Bpk. Budi / Anonim" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Donasi</label>
+                            <select id="donJenis" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
+                                <option value="Transfer">Transfer</option>
+                                <option value="Setor Tunai">Setor Tunai</option>
+                                <option value="Sumbangan Barang">Sumbangan Barang</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah / Nominal (Angka atau Deskripsi Barang)</label>
+                            <input type="text" id="donNominal" required placeholder="Cth: 250000 atau 5 Sak Semen" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan / Peruntukan</label>
+                            <input type="text" id="donKet" required placeholder="Cth: Pembangunan Gedung / Diakonia" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        </div>
+                        <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan & Langsung Setujui Donasi</button>
+                    </form>
+                </div>
             `;
         }
 
@@ -546,32 +557,34 @@
         function loadEventForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
-                <h3 class="font-bold text-sm mb-4 text-slate-900">Tambah Agenda Kegiatan Baru</h3>
-                <form onsubmit="handleSaveEvent(event)" class="space-y-3 max-w-lg">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Kegiatan / Acara</label>
-                        <input type="text" id="evNama" required placeholder="Cth: Perayaan Natal Rayon 2" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-                    </div>
-                    <div class="flex gap-2">
-                        <div class="flex-1">
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
-                            <input type="date" id="evTanggal" required class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                <div class="w-full space-y-4">
+                    <h3 class="font-bold text-sm text-slate-900">Tambah Agenda Kegiatan Baru</h3>
+                    <form onsubmit="handleSaveEvent(event)" class="space-y-3 w-full">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Kegiatan / Acara</label>
+                            <input type="text" id="evNama" required placeholder="Cth: Perayaan Natal Rayon 2" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
                         </div>
-                        <div class="flex-1">
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Waktu</label>
-                            <input type="text" id="evWaktu" placeholder="Cth: 18.30 WITA" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
+                                <input type="date" id="evTanggal" required class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Waktu</label>
+                                <input type="text" id="evWaktu" placeholder="Cth: 18.30 WITA" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Lokasi / Tempat</label>
-                        <input type="text" id="evLokasi" placeholder="Cth: Gedung Gereja Induk" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Tambahan</label>
-                        <textarea id="evKet" rows="3" placeholder="Catatan atau dresscode jika ada..." class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none"></textarea>
-                    </div>
-                    <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan Kegiatan</button>
-                </form>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Lokasi / Tempat</label>
+                            <input type="text" id="evLokasi" placeholder="Cth: Gedung Gereja Induk" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Tambahan</label>
+                            <textarea id="evKet" rows="3" placeholder="Catatan atau dresscode jika ada..." class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none"></textarea>
+                        </div>
+                        <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan Kegiatan</button>
+                    </form>
+                </div>
             `;
         }
 
@@ -613,37 +626,39 @@
                 const isUrlImage = notif.message && (notif.message.startsWith('http://') || notif.message.startsWith('https://') || notif.message.match(/\.(jpeg|jpg|png|webp)$/i));
 
                 area.innerHTML = `
-                    <h3 class="font-bold text-sm mb-4 text-slate-900">Pengaturan Notifikasi Melayang (PopUp)</h3>
-                    <form onsubmit="handleSaveNotification(event)" class="space-y-4 max-w-lg">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Status Notifikasi</label>
-                            <select id="notifStatus" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
-                                <option value="true" ${notif.is_active ? 'selected' : ''}>Aktif (Tampilkan ke Jemaat)</option>
-                                <option value="false" ${!notif.is_active ? 'selected' : ''}>Non-aktif (Sembunyikan)</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tipe Konten Notifikasi</label>
-                            <select id="notifType" onchange="toggleNotifType()" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
-                                <option value="teks" ${!isUrlImage ? 'selected' : ''}>Pesan Teks Biasa</option>
-                                <option value="gambar" ${isUrlImage ? 'selected' : ''}>Link URL Gambar (Poster / Brosur)</option>
-                            </select>
-                        </div>
+                    <div class="w-full space-y-4">
+                        <h3 class="font-bold text-sm text-slate-900">Pengaturan Notifikasi Melayang (PopUp)</h3>
+                        <form onsubmit="handleSaveNotification(event)" class="space-y-4 w-full">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Status Notifikasi</label>
+                                <select id="notifStatus" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
+                                    <option value="true" ${notif.is_active ? 'selected' : ''}>Aktif (Tampilkan ke Jemaat)</option>
+                                    <option value="false" ${!notif.is_active ? 'selected' : ''}>Non-aktif (Sembunyikan)</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tipe Konten Notifikasi</label>
+                                <select id="notifType" onchange="toggleNotifType()" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
+                                    <option value="teks" ${!isUrlImage ? 'selected' : ''}>Pesan Teks Biasa</option>
+                                    <option value="gambar" ${isUrlImage ? 'selected' : ''}>Link URL Gambar (Poster / Brosur)</option>
+                                </select>
+                            </div>
 
-                        <div id="areaTeks" class="${isUrlImage ? 'hidden' : ''} bg-slate-50 border border-slate-200 p-3 rounded-xl">
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Isi Pesan Notifikasi</label>
-                            <textarea id="notifMessage" rows="4" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none placeholder-slate-400" placeholder="Contoh: Tersedia kotak persembahan khusus...">${!isUrlImage ? notif.message : ''}</textarea>
-                        </div>
+                            <div id="areaTeks" class="${isUrlImage ? 'hidden' : ''} bg-slate-50 border border-slate-200 p-3 rounded-xl w-full">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Isi Pesan Notifikasi</label>
+                                <textarea id="notifMessage" rows="4" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none placeholder-slate-400" placeholder="Contoh: Tersedia kotak persembahan khusus...">${!isUrlImage ? notif.message : ''}</textarea>
+                            </div>
 
-                        <div id="areaGambar" class="${isUrlImage ? '' : 'hidden'} bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-2">
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Link URL Gambar (URL Publik)</label>
-                            <input type="url" id="notifImageUrl" value="${isUrlImage ? notif.message : ''}" class="w-full p-3 border border-slate-300 rounded-xl text-xs outline-none bg-white" placeholder="https://... (paste link gambar di sini)">
-                            <p class="text-[10px] text-slate-500 italic">💡 Unggah gambar ke Google Drive (atur izin ke publik), Imgur, atau Postimages, lalu salin link gambarnya ke sini.</p>
-                        </div>
+                            <div id="areaGambar" class="${isUrlImage ? '' : 'hidden'} bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-2 w-full">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Link URL Gambar (URL Publik)</label>
+                                <input type="url" id="notifImageUrl" value="${isUrlImage ? notif.message : ''}" class="w-full p-3 border border-slate-300 rounded-xl text-xs outline-none bg-white" placeholder="https://... (paste link gambar di sini)">
+                                <p class="text-[10px] text-slate-500 italic">💡 Unggah gambar ke Google Drive (atur izin ke publik), Imgur, atau Postimages, lalu salin link gambarnya ke sini.</p>
+                            </div>
 
-                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 px-4 py-3 rounded-xl text-xs font-bold transition shadow-sm mt-2">Simpan & Terapkan Notifikasi</button>
-                    </form>
+                            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 px-4 py-3 rounded-xl text-xs font-bold transition shadow-sm mt-2">Simpan & Terapkan Notifikasi</button>
+                        </form>
+                    </div>
                 `;
             } catch (err) {
                 area.innerHTML = `<p class="text-center text-rose-500 text-sm py-10">Gagal memuat pengaturan notifikasi.</p>`;
@@ -711,12 +726,12 @@
         async function loadMassBroadcastForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
-                <div class="max-w-2xl mx-auto space-y-4">
+                <div class="w-full space-y-4">
                     <div>
                         <h3 class="font-bold text-sm text-slate-900">Mass Broadcast Update</h3>
                         <p class="text-xs text-slate-500">Kirimkan pemberitahuan massal atau terarah langsung ke jemaat.</p>
                     </div>
-                    <form onsubmit="handleSendBroadcast(event)" class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                    <form onsubmit="handleSendBroadcast(event)" class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200 w-full">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Kategori Target Broadcast</label>
                             <select id="bcTargetType" onchange="toggleBroadcastTarget()" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
@@ -725,7 +740,7 @@
                             </select>
                         </div>
 
-                        <div id="bcGlobalOptions" class="space-y-3">
+                        <div id="bcGlobalOptions" class="space-y-3 w-full">
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Pilihan Cepat Global</label>
                             <select id="bcGlobalCategory" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
                                 <option value="Liturgi diperbarui">Liturgi diperbarui</option>
@@ -735,8 +750,8 @@
                             </select>
                         </div>
 
-                        <div id="bcUsersOptions" class="space-y-3 hidden">
-                            <div class="grid grid-cols-2 gap-3">
+                        <div id="bcUsersOptions" class="space-y-3 hidden w-full">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-700 mb-1">Visibilitas</label>
                                     <select id="bcVisibility" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
@@ -848,12 +863,12 @@
         async function showRenunganForm() {
             const contentArea = document.getElementById("adminContentArea");
             contentArea.innerHTML = `
-                <div class="space-y-6">
-                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl max-w-2xl">
+                <div class="space-y-6 w-full">
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full">
                         <h2 class="text-lg font-bold text-slate-100">Input Renungan & Ayat Emas Baru</h2>
                         <p class="text-xs text-slate-400 mb-4">Tambahkan stok renungan baru ke dalam database.</p>
                         
-                        <form id="formAddRenungan" onsubmit="submitNewRenungan(event)" class="space-y-4">
+                        <form id="formAddRenungan" onsubmit="submitNewRenungan(event)" class="space-y-4 w-full">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal Renungan</label>
                                 <input type="date" id="inputTanggal" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none">
@@ -876,13 +891,13 @@
                         </form>
                     </div>
 
-                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full">
                         <h3 class="font-bold text-sm text-slate-100 mb-1">Stok Arsip Renungan & Pilih Tanggal Tayang</h3>
                         <p class="text-xs text-slate-400 mb-4">Pilih salah satu tanggal di bawah ini dan klik "Tayangkan" agar tampil di aplikasi jemaat.</p>
                         
                         <div id="renunganStockLoading" class="text-xs text-slate-400 py-4 text-center">Memuat daftar stok renungan...</div>
                         
-                        <div id="renunganTableWrapper" class="overflow-x-auto hidden">
+                        <div id="renunganTableWrapper" class="w-full overflow-x-auto hidden">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead>
                                     <tr class="bg-slate-950 border-b border-slate-800 text-slate-400">
@@ -1020,7 +1035,7 @@
             if (!area) return;
 
             area.innerHTML = `
-                <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="w-full bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                     <div class="flex justify-between items-center border-b pb-3">
                         <div>
                             <h3 class="font-bold text-sm text-slate-900">📤 Kirim Laporan & Backup Manual</h3>
@@ -1029,7 +1044,7 @@
                         <button onclick="location.reload()" class="text-xs text-slate-500 hover:text-slate-800 font-semibold">✕ Tutup</button>
                     </div>
 
-                    <form onsubmit="handleSendManualReport(event)" class="space-y-4">
+                    <form onsubmit="handleSendManualReport(event)" class="space-y-4 w-full">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">E-mail Tujuan Laporan</label>
                             <input type="email" id="reportEmail" required placeholder="Cth: sekretariat@gmitjpo.org" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-purple-600">
@@ -1037,7 +1052,7 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-2">Pilih Sheet yang Akan Diexport:</label>
-                            <div class="grid grid-cols-2 gap-2 text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 w-full">
                                 <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Users" checked class="rounded text-purple-600"> Users (Jemaat)</label>
                                 <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Donations" checked class="rounded text-purple-600"> Donations (Keuangan)</label>
                                 <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Prayers" checked class="rounded text-purple-600"> Prayers (Doa)</label>
@@ -1047,7 +1062,7 @@
                             </div>
                         </div>
 
-                        <div class="flex gap-2 pt-2">
+                        <div class="flex gap-2 pt-2 w-full">
                             <button type="submit" id="btnSendReport" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl text-xs font-semibold transition shadow-sm">
                                 Kirim Berkas Laporan Sekarang 🚀
                             </button>
