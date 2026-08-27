@@ -476,6 +476,7 @@
             }
         }
 
+
         async function handleLoginForAction(e) {
             e.preventDefault();
             const btn = document.getElementById("btnLoginSubmit");
@@ -514,6 +515,15 @@
                 btn.disabled = false;
                 btn.innerHTML = "Masuk & Lanjutkan";
             }
+        }
+        function logout() {
+            localStorage.removeItem("user_gereja");
+            window.currentUser = null;
+            showToast("Anda telah keluar.");
+            updateAuthNavText(); 
+            setTimeout(() => {
+                switchTab('home');
+            }, 400);
         }
 
         function switchTab(tab, isBack = false, isReplace = false) {
