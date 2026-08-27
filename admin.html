@@ -30,10 +30,26 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
 
+        // Helper aman untuk mengambil ID admin tanpa error undefined
+        function getSafeAdminId() {
+            try {
+                let raw = sessionStorage.getItem("admin_gereja");
+                if (raw) {
+                    let parsed = JSON.parse(raw);
+                    if (parsed && parsed.id) return parsed.id;
+                }
+            } catch (e) {}
+            return "SUPER_ADMIN";
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const savedAdmin = sessionStorage.getItem("admin_gereja");
             if (savedAdmin) {
-                renderAdminDashboard(JSON.parse(savedAdmin));
+                try {
+                    renderAdminDashboard(JSON.parse(savedAdmin));
+                } catch(e) {
+                    renderAdminLogin();
+                }
             } else {
                 renderAdminLogin();
             }
@@ -83,10 +99,12 @@
         }
 
         function renderAdminDashboard(admin) {
-            document.getElementById("adminInfo").innerText = `Login: ${admin.nama} (${admin.role})`;
+            const adminNama = admin && admin.nama ? admin.nama : "Admin";
+            const adminRole = admin && admin.role ? admin.role : "Operator";
+            document.getElementById("adminInfo").innerText = `Login: ${adminNama} (${adminRole})`;
             document.getElementById("logoutBtn").classList.remove("hidden");
             
-            const isSuper = admin.role === "Super Admin";
+            const isSuper = adminRole === "Super Admin";
 
             const main = document.querySelector("main");
             main.innerHTML = `
@@ -113,7 +131,7 @@
                             <p class="text-[11px] text-slate-500 mt-1">Kelola popup peringatan.</p>
                         </button>
                         <button onclick="loadMassBroadcastForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
-                            <h3 class="font-bold text-xs text-slate-900">📡 Mass Broadcast[cite: 3]</h3>
+                            <h3 class="font-bold text-xs text-slate-900">📡 Mass Broadcast</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Kirim notif massal/terarah.</p>
                         </button>
                         <button onclick="showRenunganForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
@@ -208,10 +226,10 @@
 
         async function handleSaveNewAdmin(e) {
             e.preventDefault();
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const adminId = getSafeAdminId();
             const data = {
                 action: "addAdmin",
-                admin_id: admin.id,
+                admin_id: adminId,
                 nama: document.getElementById("newAdminNama").value,
                 role: document.getElementById("newAdminRole").value,
                 username: document.getElementById("newAdminUser").value,
@@ -235,11 +253,11 @@
 
         async function deleteAdminItem(targetId) {
             if (!confirm("Yakin ingin mencabut akses pengurus ini?")) return;
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const adminId = getSafeAdminId();
             try {
                 const res = await fetch(SCRIPT_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action: "deleteAdmin", admin_id: admin.id, target_id: targetId })
+                    body: JSON.stringify({ action: "deleteAdmin", admin_id: adminId, target_id: targetId })
                 });
                 const result = await res.json();
                 alert(result.message);
@@ -317,11 +335,11 @@
         }
 
         async function verifyUser(userId) {
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const adminId = getSafeAdminId();
             try {
                 const res = await fetch(SCRIPT_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action: "verifyUser", user_id: userId, admin_id: admin.id })
+                    body: JSON.stringify({ action: "verifyUser", user_id: userId, admin_id: adminId })
                 });
                 const result = await res.json();
                 alert(result.message);
@@ -377,11 +395,11 @@
         }
 
         async function approvePrayer(prayerId) {
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const adminId = getSafeAdminId();
             try {
                 const res = await fetch(SCRIPT_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action: "approvePrayer", prayer_id: prayerId, admin_id: admin.id })
+                    body: JSON.stringify({ action: "approvePrayer", prayer_id: prayerId, admin_id: adminId })
                 });
                 const result = await res.json();
                 alert(result.message);
@@ -392,11 +410,11 @@
         }
 
         async function takedownPrayer(prayerId) {
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const adminId = getSafeAdminId();
             try {
                 const res = await fetch(SCRIPT_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action: "takedownPrayer", prayer_id: prayerId, admin_id: admin.id })
+                    body: JSON.stringify({ action: "takedownPrayer", prayer_id: prayerId, admin_id: adminId })
                 });
                 const result = await res.json();
                 alert(result.message || "Doa berhasil diarsipkan.");
@@ -454,11 +472,11 @@
         }
 
         async function approveDonation(donationId) {
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const adminId = getSafeAdminId();
             try {
                 const res = await fetch(SCRIPT_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action: "approveDonation", donation_id: donationId, admin_id: admin.id })
+                    body: JSON.stringify({ action: "approveDonation", donation_id: donationId, admin_id: adminId })
                 });
                 const result = await res.json();
                 alert(result.message);
@@ -501,10 +519,10 @@
 
         async function handleSaveDonation(e) {
             e.preventDefault();
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const adminId = getSafeAdminId();
             const data = {
                 action: "addDonation",
-                admin_id: admin.id,
+                admin_id: adminId,
                 nama_donatur: document.getElementById("donNama").value,
                 jenis_donasi: document.getElementById("donJenis").value,
                 nominal: document.getElementById("donNominal").value,
@@ -559,10 +577,10 @@
 
         async function handleSaveEvent(e) {
             e.preventDefault();
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const adminId = getSafeAdminId();
             const data = {
                 action: "addEvent",
-                admin_id: admin.id,
+                admin_id: adminId,
                 nama_kegiatan: document.getElementById("evNama").value,
                 tanggal: document.getElementById("evTanggal").value,
                 waktu: document.getElementById("evWaktu").value,
@@ -652,7 +670,7 @@
             btn.disabled = true;
             btn.innerText = "Menyimpan...";
 
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const adminId = getSafeAdminId();
             const type = document.getElementById("notifType").value;
             let finalMessage = "";
 
@@ -670,7 +688,7 @@
 
             const data = {
                 action: "saveNotification",
-                admin_id: admin.id,
+                admin_id: adminId,
                 is_active: document.getElementById("notifStatus").value === "true",
                 message: finalMessage
             };
@@ -690,55 +708,52 @@
             }
         }
 
-        // --- FITUR BARU: MASS BROADCAST UPDATE ---
         async function loadMassBroadcastForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
                 <div class="max-w-2xl mx-auto space-y-4">
                     <div>
                         <h3 class="font-bold text-sm text-slate-900">Mass Broadcast Update</h3>
-                        <p class="text-xs text-slate-500">Kirimkan pemberitahuan massal atau terarah langsung ke jemaat[cite: 3].</p>
+                        <p class="text-xs text-slate-500">Kirimkan pemberitahuan massal atau terarah langsung ke jemaat.</p>
                     </div>
                     <form onsubmit="handleSendBroadcast(event)" class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Kategori Target Broadcast</label>
                             <select id="bcTargetType" onchange="toggleBroadcastTarget()" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
-                                <option value="global">Opsi Global (Untuk Semua Jemaat)[cite: 3]</option>
-                                <option value="users">Opsi Users (Target Spesifik / Jemaat Tertentu)[cite: 3]</option>
+                                <option value="global">Opsi Global (Untuk Semua Jemaat)</option>
+                                <option value="users">Opsi Users (Target Spesifik / Jemaat Tertentu)</option>
                             </select>
                         </div>
 
-                        <!-- Opsi Global -->
                         <div id="bcGlobalOptions" class="space-y-3">
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Pilihan Cepat Global</label>
                             <select id="bcGlobalCategory" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
-                                <option value="Liturgi diperbarui">Liturgi diperbarui[cite: 3]</option>
-                                <option value="Warta diperbarui">Warta diperbarui[cite: 3]</option>
-                                <option value="Kegiatan diperbarui">Kegiatan diperbarui[cite: 3]</option>
-                                <option value="Lainnya">Lainnya (Input teks bebas)[cite: 3]</option>
+                                <option value="Liturgi diperbarui">Liturgi diperbarui</option>
+                                <option value="Warta diperbarui">Warta diperbarui</option>
+                                <option value="Kegiatan diperbarui">Kegiatan diperbarui</option>
+                                <option value="Lainnya">Lainnya (Input teks bebas)</option>
                             </select>
                         </div>
 
-                        <!-- Opsi Users (Spesifik) -->
                         <div id="bcUsersOptions" class="space-y-3 hidden">
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Visibilitas[cite: 3]</label>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Visibilitas</label>
                                     <select id="bcVisibility" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
-                                        <option value="Private">Private[cite: 3]</option>
-                                        <option value="Global">Global[cite: 3]</option>
+                                        <option value="Private">Private</option>
+                                        <option value="Global">Global</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis Pemberitahuan[cite: 3]</label>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis Pemberitahuan</label>
                                     <select id="bcUserCategory" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
-                                        <option value="Status Verifikasi diperbarui">Status Verifikasi diperbarui[cite: 3]</option>
-                                        <option value="Lainnya">Lainnya[cite: 3]</option>
+                                        <option value="Status Verifikasi diperbarui">Status Verifikasi diperbarui</option>
+                                        <option value="Lainnya">Lainnya</option>
                                     </select>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Nama Jemaat (Mention)[cite: 3]</label>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Nama Jemaat (Mention)</label>
                                 <select id="bcTargetUserId" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
                                     <option value="">Memuat daftar jemaat...</option>
                                 </select>
@@ -785,66 +800,50 @@
             }
         }
 
-async function handleSendBroadcast(e) {
-    e.preventDefault();
-    
-    // Pengecekan pengaman mutlak untuk mencegah error .id is undefined
-    let rawAdmin = sessionStorage.getItem("admin_gereja");
-    let adminId = "SUPER_ADMIN"; // Fallback aman agar tidak pernah error
-    
-    if (rawAdmin) {
-        try {
-            let parsedAdmin = JSON.parse(rawAdmin);
-            if (parsedAdmin && parsedAdmin.id) {
-                adminId = parsedAdmin.id;
+        async function handleSendBroadcast(e) {
+            e.preventDefault();
+            const adminId = getSafeAdminId();
+            const targetType = document.getElementById("bcTargetType").value;
+            const messageInput = document.getElementById("bcMessage");
+            
+            if (!messageInput || !messageInput.value.trim()) {
+                alert("⚠️ Pesan broadcast tidak boleh kosong!");
+                return;
             }
-        } catch (err) {
-            console.warn("Format session admin tidak valid, menggunakan fallback ID.");
+
+            const payload = {
+                action: "sendBroadcast",
+                admin_id: adminId,
+                target_type: targetType,
+                message: messageInput.value.trim(),
+                category: targetType === 'global' ? document.getElementById("bcGlobalCategory").value : document.getElementById("bcUserCategory").value,
+                visibility: targetType === 'users' ? document.getElementById("bcVisibility").value : 'Global',
+                target_user_id: targetType === 'users' ? document.getElementById("bcTargetUserId").value : null
+            };
+
+            const btn = document.getElementById("btnSubmitBc");
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = "Mengirim Broadcast...";
+            }
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                alert(result.message || "Broadcast berhasil dikirim!");
+                messageInput.value = "";
+            } catch (err) {
+                alert("Gagal mengirim broadcast: " + err);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "Kirim Broadcast Sekarang 🚀";
+                }
+            }
         }
-    }
-
-    const targetType = document.getElementById("bcTargetType").value;
-    const messageInput = document.getElementById("bcMessage");
-    
-    if (!messageInput || !messageInput.value.trim()) {
-        alert("⚠️ Pesan broadcast tidak boleh kosong!");
-        return;
-    }
-
-    const payload = {
-        action: "sendBroadcast",
-        admin_id: adminId,
-        target_type: targetType,
-        message: messageInput.value.trim(),
-        category: targetType === 'global' ? document.getElementById("bcGlobalCategory").value : document.getElementById("bcUserCategory").value,
-        visibility: targetType === 'users' ? document.getElementById("bcVisibility").value : 'Global',
-        target_user_id: targetType === 'users' ? document.getElementById("bcTargetUserId").value : null
-    };
-
-    const btn = document.getElementById("btnSubmitBc");
-    if (btn) {
-        btn.disabled = true;
-        btn.innerText = "Mengirim Broadcast...";
-    }
-
-    try {
-        const res = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
-        const result = await res.json();
-        
-        alert(result.message || "Broadcast berhasil dikirim!");
-        messageInput.value = "";
-    } catch (err) {
-        alert("Gagal mengirim broadcast: " + err);
-    } finally {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerText = "Kirim Broadcast Sekarang 🚀";
-        }
-    }
-}
 
         async function showRenunganForm() {
             const contentArea = document.getElementById("adminContentArea");
@@ -959,13 +958,13 @@ async function handleSendBroadcast(e) {
         async function makeActiveRenungan(rowIndex, tanggal) {
             if (!confirm(`Yakin ingin menayangkan renungan untuk tanggal ${tanggal} ke aplikasi jemaat?`)) return;
 
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const adminId = getSafeAdminId();
             try {
                 const res = await fetch(SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({
                         action: "setActiveRenungan",
-                        admin_id: admin ? admin.id : "ADMIN",
+                        admin_id: adminId,
                         row_index: rowIndex
                     })
                 });
@@ -983,10 +982,10 @@ async function handleSendBroadcast(e) {
             btn.innerText = "Menyimpan...";
             btn.disabled = true;
 
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const adminId = getSafeAdminId();
             const payload = {
                 action: "addRenungan",
-                admin_id: admin ? admin.id : "ADMIN",
+                admin_id: adminId,
                 tanggal: document.getElementById("inputTanggal").value,
                 ayat_harian: document.getElementById("inputAyatHarian").value,
                 isi_ayat: document.getElementById("inputIsiAyat").value,
@@ -1070,7 +1069,7 @@ async function handleSendBroadcast(e) {
                 return;
             }
 
-            const adminSession = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
+            const adminId = getSafeAdminId();
             const btn = document.getElementById("btnSendReport");
             
             btn.disabled = true;
@@ -1079,7 +1078,7 @@ async function handleSendBroadcast(e) {
             try {
                 const payload = {
                     action: "sendManualReport",
-                    admin_id: adminSession.id || "SuperAdmin",
+                    admin_id: adminId,
                     email: email,
                     sheets: selectedSheets
                 };
