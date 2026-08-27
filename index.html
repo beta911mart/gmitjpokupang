@@ -142,13 +142,13 @@
         <nav id="bottomNav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex justify-around p-3 text-xs font-medium text-slate-400 shadow-lg transition-all duration-300">
             <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🏠 Beranda</button>
             
-            <button onclick="switchTab('notifikasi')" class="relative hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">
-                <span class="relative text-base inline-block leading-none">
+            <button onclick="switchTab('notifikasi')" class="relative hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition">
+                <span class="relative inline-block text-sm">
                     🔔
-                    <!-- Ukuran diperbesar dari w-2.5 h-2.5 menjadi w-3.5 h-3.5 -->
-                    <span id="unreadNotifBadge" class="absolute -top-1 -right-2 w-3.5 h-3.5 bg-rose-600 rounded-full border-2 border-slate-950 hidden animate-pulse"></span>
+                    <!-- Titik merah menyala yang sedikit lebih besar -->
+                    <span id="unreadNotifBadge" class="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-rose-600 rounded-full border-2 border-slate-950 hidden animate-pulse"></span>
                 </span>
-                <span class="text-[10px]">Notifikasi</span>
+                <span class="text-xs font-medium">Notifikasi</span>
             </button>
 
             <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 inline-flex items-center gap-1 transition">
