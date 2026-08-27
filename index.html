@@ -143,11 +143,12 @@
             <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🏠 Beranda</button>
             
             <button onclick="switchTab('notifikasi')" class="relative hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">
-                <span class="relative inline-block leading-none">
+                <span class="relative text-base inline-block leading-none">
                     🔔
-                    <span id="unreadNotifBadge" class="absolute -top-1 -right-2 w-2.5 h-2.5 bg-rose-600 rounded-full border-2 border-slate-950 hidden animate-pulse"></span>
+                    <!-- Ukuran diperbesar dari w-2.5 h-2.5 menjadi w-3.5 h-3.5 -->
+                    <span id="unreadNotifBadge" class="absolute -top-1 -right-2 w-3.5 h-3.5 bg-rose-600 rounded-full border-2 border-slate-950 hidden animate-pulse"></span>
                 </span>
-                <span class="leading-none">Notifikasi</span>
+                <span class="text-[10px]">Notifikasi</span>
             </button>
 
             <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 inline-flex items-center gap-1 transition">
