@@ -3,18 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMIT JPO Digital</title>
+    <!-- Judul yang muncul di Google -->
     <title>GMIT Jemaat Pniel Oebobo - Kupang</title>
+    <!-- Deskripsi singkat tentang gereja Anda -->
     <meta name="description" content="Website resmi GMIT Jemaat Pniel Oebobo, Kupang. Temukan informasi jadwal ibadah, warta jemaat, kegiatan pemuda, dan pelayanan kasih di sini.">
+    <!-- Kata kunci pencarian (Opsional) -->
     <meta name="keywords" content="Gereja Pniel Oebobo, GMIT Pniel Oebobo, GMit JPO Kupang, Jadwal Ibadah Pniel Oebobo">
     <meta name="google-site-verification" content="cC7ZUJE57oQGBvbN9gBkcYj51ADXa9GVsnGVrswXddY" />
+    <!-- Memanggil file manifest -->
     <link rel="manifest" href="manifest.json">
+    <!-- Tema warna browser HP -->
     <meta name="theme-color" content="#9333ea">
+    <!-- Khusus untuk iPhone / iOS -->
     <link rel="apple-touch-icon" href="download.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 untuk Kartu Informasi Akun yang Elegan -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
+        /* ==========================================================
+           1. ANIMASI HALUS & CANTIK (KUSTOM)
+           ========================================================== */
         @keyframes slideInFromTop {
             from { transform: translateY(-20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -24,15 +35,21 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
         
+        /* Kelas utilitas animasi untuk dipanggil di HTML & JS */
         .animate-slide-in { animation: slideInFromTop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-fade-in { animation: smoothFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        /* Animasi responsif tombol/kartu saat disentuh/hover */
         .animate-card-hover { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
         .animate-card-hover:active { transform: scale(0.94); }
 
+        /* ==========================================================
+           2. GAYA KHUSUS MODE LANSIA / SENIOR MODE
+           ========================================================== */
         body.senior-mode {
-            background-color: #fef3c7 !important; 
-            color: #1e293b !important; 
-            font-size: 1.15rem !important; 
+            background-color: #fef3c7 !important; /* Amber 50 (Krem hangat) */
+            color: #1e293b !important; /* Slate 800 (Gelap pekat) */
+            font-size: 1.15rem !important; /* Memperbesar seluruh teks dasar */
         }
         body.senior-mode .max-w-md,
         body.senior-mode .landscape\:max-w-3xl {
@@ -71,17 +88,27 @@
 </head>
 <body id="appBody" class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden">
 
+    <!-- ==========================================================
+         OVERLAYS & NOTIFICATIONS (MODALS, TOAST, DLL)
+         ========================================================== -->
+    <!-- PUSH NOTIFIKASI POPUP (URGENT/WARNING) -->
     <div id="pushNotifOverlay" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-slate-900 border-2 border-amber-500 rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.3)] p-6 max-w-xs w-full animate-slide-in relative">
-            <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-900 text-3xl rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-4 border-slate-900">⚠️</div>
+            <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-900 text-3xl rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-4 border-slate-900">
+                ⚠️
+            </div>
             <h3 class="font-bold text-amber-400 text-center mt-5 mb-3 uppercase tracking-wider text-sm">Syalom</h3>
             <div id="pushNotifMessage" class="text-xs text-slate-200 text-center mb-6 leading-relaxed whitespace-pre-line"></div>
-            <button onclick="closePushNotif()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 rounded-xl text-sm transition shadow-md cursor-pointer">Mengerti & Tutup</button>
+            <button onclick="closePushNotif()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 rounded-xl text-sm transition shadow-md cursor-pointer">
+                Mengerti & Tutup
+            </button>
         </div>
     </div>
 
+    <!-- TOAST NOTIFICATION DI TENGAH LAYAR -->
     <div id="toastContainer" class="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"></div>
 
+    <!-- SIDEBAR NAVIGASI SAMPING (MENU ☰) -->
     <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-50 hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar(false)"></div>
     <div id="sidebarMenu" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-300 flex flex-col p-5 shadow-2xl">
         <div class="flex justify-between items-center pb-4 border-b border-slate-800">
@@ -99,6 +126,7 @@
                     <button onclick="setTheme('sunset')" class="text-left px-3 py-2 rounded-xl text-xs bg-orange-950/40 border border-orange-900/50 hover:border-orange-500 transition">🌅 Warm Sunset</button>
                     <button onclick="setTheme('light')" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-100 text-slate-900 border border-slate-300 hover:border-slate-500 transition">☀️ Light Clean</button>
                     
+                    <!-- TOMBOL MODE LANSIA -->
                     <button onclick="toggleSeniorMode()" id="seniorModeBtn" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-400 transition flex items-center justify-between">
                         <span>👓 Mode Lansia / Senior</span>
                         <span>Aktifkan</span>
@@ -108,15 +136,24 @@
 
             <div class="pt-4 border-t border-slate-800">
                 <p class="text-xs font-semibold text-slate-400 mb-2">Akses Cepat:</p>
-                <button onclick="installPWA()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-md">📲 Tambahkan ke Beranda</button>
+                <button onclick="installPWA()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-md">
+                    📲 Tambahkan ke Beranda
+                </button>
             </div>
         </div>
 
-        <div class="pt-4 border-t border-slate-800 text-[10px] text-slate-500 text-center">GMIT JPO Digital v2.5 &bull; Pniel Oebobo</div>
+        <div class="pt-4 border-t border-slate-800 text-[10px] text-slate-500 text-center">
+            GMIT JPO Digital v2.5 &bull; Pniel Oebobo
+        </div>
     </div>
 
+    <!-- ==========================================================
+         LAYOUT UTAMA (HEADER, MAIN, FOOTER)
+         Dilengkapi class 'landscape:max-w-3xl' untuk dukungan rotasi layar
+         ========================================================== -->
     <div id="app" class="w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto bg-slate-950 min-h-screen flex flex-col shadow-2xl relative transition-all duration-300">
         
+        <!-- HEADER (FIXED) -->
         <header class="fixed top-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 bg-slate-950/95 backdrop-blur-md text-white p-4 flex justify-between items-center border-b border-purple-900/30 shadow-md transition-all duration-300">
             <button onclick="toggleSidebar(true)" class="text-xl p-1 hover:bg-slate-900 rounded-lg transition">☰</button>
             <h1 id="headerTitle" class="font-bold text-sm tracking-wide truncate px-2 text-center">GMIT Jemaat PNIEL Oebobo ⛪</h1>
@@ -126,18 +163,23 @@
             </div>
         </header>
 
+        <!-- KONTEN UTAMA (SCROLLABLE ANTARA HEADER & FOOTER) -->
+        <!-- animate-fade-in akan di-trigger ulang via JavaScript saat pindah menu -->
         <main class="flex-1 p-4 pt-20 pb-20 overflow-y-auto animate-fade-in w-full">
             <!-- Konten dimuat dinamis di sini -->
         </main>
 
+        <!-- NAVIGATION BAR BAWAH (FIXED) -->
         <nav id="bottomNav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex justify-around p-3 text-xs font-medium text-slate-400 shadow-lg transition-all duration-300">
             <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🏠 Beranda</button>
-            <button onclick="switchTab('notifikasi')" class="relative hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🔔Notifikasi</button>
-            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">👤Akun</button>
+            <button onclick="switchTab('doa')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🙏 Kotak Doa</button>
+            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 inline-flex items-center gap-1 transition">
+                <span>👤</span> <span id="accountNavText">Akun</span>
+            </button>
         </nav>
     </div>
 
-    <!-- MODAL LIRIK KJ -->
+    <!-- MODAL FULLSCREEN UNTUK LIRIK KIDUNG JEMAAT -->
     <div id="hymnModal" class="fixed inset-0 bg-black/95 z-[99999] hidden flex flex-col p-4 animate-fade-in">
         <div class="flex justify-between items-center pb-3 border-b border-slate-800 pt-2">
             <div>
@@ -154,28 +196,24 @@
         </div>
     </div>
 
-    <!-- MODAL LIGHTBOX -->
-    <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-[99999] hidden flex items-center justify-center p-4" onclick="closeLightbox(event)">
-        <div class="relative max-w-lg landscape:max-w-3xl w-full flex flex-col items-center justify-center" onclick="event.stopPropagation()">
-            <button onclick="closeLightbox()" class="absolute -top-6 right-0 bg-rose-600 hover:bg-rose-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-2xl border-2 border-white z-50 transition active:scale-95">✕</button>
-            <button onclick="slidePhoto(-1)" class="absolute -left-3 sm:-left-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition active:scale-95">❮</button>
-            <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-[75vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-slate-800 bg-black cursor-pointer">
-            <button onclick="slidePhoto(1)" class="absolute -right-3 sm:-right-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition active:scale-95">❯</button>
-            <p id="lightboxCaption" class="text-xs text-slate-300 mt-3 text-center font-medium px-2 truncate w-full"></p>
-        </div>
-    </div>
-
+    <!-- ==========================================================
+         SCRIPT & LOGIKA APLIKASI
+         ========================================================== -->
     <script>
+        // URL Backend Web App Anda
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
 
+        // --- SISTEM PEMICU ANIMASI TRANSISI HALAMAN ---
         function triggerPageTransition() {
             const main = document.querySelector("main");
             if (!main) return;
+            // Hapus kelas, paksa reflow browser, lalu tambahkan ulang untuk memicu animasi
             main.classList.remove("animate-fade-in");
             void main.offsetWidth; 
             main.classList.add("animate-fade-in");
         }
 
+        // --- HELPERS UNTUK HISTORI NAVIGASI (TOMBOL BACK HP) ---
         function pushNavState(funcName, args = []) {
             history.pushState({ func: funcName, args: args }, "", "");
         }
@@ -184,6 +222,7 @@
         }
 
         window.addEventListener('popstate', function (event) {
+            // 1. Cek apakah ada Modal yang sedang terbuka (misal lirik KJ, galeri)
             const hymnModal = document.getElementById("hymnModal");
             if (hymnModal && !hymnModal.classList.contains("hidden")) {
                 closeHymnModal(true); return;
@@ -199,11 +238,12 @@
                 closePushNotif(); return;
             }
 
+            // 2. Tangani mundur antar halaman (routing)
             if (event.state && event.state.func) {
                 const funcName = event.state.func;
                 const args = event.state.args || [];
                 if (typeof window[funcName] === 'function') {
-                    if (['switchTab', 'openExtendedProfileForm', 'openHymnModal', 'openLightbox', 'openPrayerMenu', 'openFormPrayer'].includes(funcName)) {
+                    if (['switchTab', 'openExtendedProfileForm', 'openHymnModal', 'openLightbox'].includes(funcName)) {
                         window[funcName](args[0], true);
                     } else {
                         window[funcName](true);
@@ -214,6 +254,7 @@
             }
         });
 
+        // --- PENDAFTARAN SERVICE WORKER (WAJIB UNTUK PWA) ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
@@ -228,6 +269,7 @@
             deferredPrompt = e;
         });
 
+        // --- TOAST ALERTS ---
         function showToast(message, type = "success") {
             const container = document.getElementById("toastContainer");
             container.innerHTML = ""; 
@@ -247,6 +289,7 @@
             }, 3000);
         }
 
+        // --- FITUR PUSH NOTIFIKASI ---
         async function checkPushNotification() {
             if (sessionStorage.getItem('notif_seen') === 'true') return;
 
@@ -271,12 +314,35 @@
                 console.log("Gagal memuat notifikasi", err);
             }
         }
-        
         function closePushNotif() {
             const overlay = document.getElementById('pushNotifOverlay');
             if (overlay) overlay.classList.add('hidden');
         }
 
+        // --- CEK NOTIFIKASI PERSONAL JEMAAT ---
+        async function checkUserPersonalNotifications() {
+            const savedUser = localStorage.getItem("user_gereja");
+            if (!savedUser) return;
+            const user = JSON.parse(savedUser);
+            if (sessionStorage.getItem('personal_notif_checked') === 'true') return;
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "getUserNotifications", user_id: user.id })
+                });
+                const result = await response.json();
+
+                if (result.status === "success" && result.notifications && result.notifications.length > 0) {
+                    result.notifications.forEach((notif, index) => {
+                        setTimeout(() => { showToast(`🔔 ${notif.text}`, "success"); }, index * 1500);
+                    });
+                    sessionStorage.setItem('personal_notif_checked', 'true');
+                }
+            } catch (err) { console.log("Gagal memuat notifikasi personal", err); }
+        }
+
+        // --- MONITORING STATUS ONLINE/OFFLINE ---
         function updateNetworkStatus() {
             const dot = document.getElementById("syncDot");
             const text = document.getElementById("syncText");
@@ -291,6 +357,7 @@
         window.addEventListener('online', updateNetworkStatus);
         window.addEventListener('offline', updateNetworkStatus);
 
+        // --- SIDEBAR & TEMA ---
         function toggleSidebar(show) {
             const sidebar = document.getElementById("sidebarMenu");
             const overlay = document.getElementById("sidebarOverlay");
@@ -307,6 +374,7 @@
             const app = document.getElementById("app");
             const body = document.getElementById("appBody");
             
+            // Simpan kelas responsif landscape agar tidak terhapus saat ganti tema
             const baseAppClass = "w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto min-h-screen flex flex-col shadow-2xl relative transition-all duration-300";
             
             if (theme === 'emerald') {
@@ -341,6 +409,7 @@
             }
         }
 
+        // --- SISTEM AUTENTIKASI (LOGIN/REGISTER) ---
         function checkAuthBeforeAction(actionCallback) {
             const savedUser = localStorage.getItem("user_gereja");
             if (savedUser) {
@@ -371,6 +440,7 @@
                         <button id="tabRegBtn" onclick="toggleAuthTab('register')" class="flex-1 pb-2 text-slate-500 text-xs">Daftar Baru</button>
                     </div>
 
+                    <!-- FORM LOGIN -->
                     <form id="formLogin" onsubmit="handleLoginForAction(event)" class="space-y-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Username Unik atau Nama Lengkap</label>
@@ -383,6 +453,7 @@
                         <button type="submit" id="btnLoginSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition">Masuk</button>
                     </form>
 
+                    <!-- FORM REGISTRASI -->
                     <form id="formRegister" onsubmit="handleRegisterForAction(event)" class="space-y-4 hidden">
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
@@ -476,7 +547,6 @@
             }
         }
 
-
         async function handleLoginForAction(e) {
             e.preventDefault();
             const btn = document.getElementById("btnLoginSubmit");
@@ -516,41 +586,8 @@
                 btn.innerHTML = "Masuk & Lanjutkan";
             }
         }
-function logout() {
-            // 1. Bersihkan semua penyimpanan lokal dan sesi browser secara total
-            localStorage.removeItem("user_gereja");
-            sessionStorage.clear();
-            window.currentUser = null;
-            
-            // 2. Beri tahu pengguna
-            showToast("Anda telah berhasil keluar.");
-            updateAuthNavText(); 
 
-            // 3. Paksa arahkan ke beranda dan muat ulang bersih
-            setTimeout(() => {
-                switchTab('home', false, true);
-            }, 300);
-        }
-
-        function checkAuthBeforeAction(actionCallback) {
-            const savedUser = localStorage.getItem("user_gereja");
-            if (savedUser && savedUser !== "undefined" && savedUser !== "null") {
-                try {
-                    window.currentUser = JSON.parse(savedUser);
-                    if (window.currentUser && window.currentUser.id) {
-                        actionCallback();
-                        return;
-                    }
-                } catch (e) {
-                    localStorage.removeItem("user_gereja");
-                }
-            }
-            
-            // Jika belum login atau data korup, arahkan ke halaman login
-            showToast("Silakan login atau daftar terlebih dahulu.", "error");
-            renderAuthPageForAction(actionCallback);
-        }
-
+        // --- MANAJEMEN TAB & HALAMAN UTAMA ---
         function switchTab(tab, isBack = false, isReplace = false) {
             if (!isBack) {
                 if (isReplace) replaceNavState('switchTab', [tab]);
@@ -558,58 +595,96 @@ function logout() {
             }
             
             const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "GMIT Jemaat PNIEL Oebobo ⛪";
+            
+            // Panggil trigger animasi
             triggerPageTransition();
 
             if (tab === 'home') {
-                document.getElementById("headerTitle").innerText = "GMIT Jemaat PNIEL Oebobo ⛪";
                 main.innerHTML = `
                     <div class="space-y-6 pt-2">
+                        <!-- Grid Ikon Bulat Utama (Ditambah efek hover) -->
                         <div class="grid grid-cols-4 gap-4 text-center">
-                            <div onclick="openAboutPage()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mb-1 overflow-hidden border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(6,182,212,0.7),_0_0_25px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.9),_0_0_50px_rgba(6,182,212,0.6)]">
-                                    <img src="jpo.ico" alt="Tentang JPO" class="w-full h-full object-cover">
-                                </div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-cyan-400 group-hover:drop-shadow-[0_0_6px_rgba(6,182,212,0.8)] transition-all duration-300">Tentang</span>
-                            </div>
+<!-- 1. Tentang -->
+<div onclick="openAboutPage()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+    <div class="relative w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mb-1 overflow-hidden border-2 border-white transition-all duration-300
+        shadow-[0_0_12px_rgba(6,182,212,0.7),_0_0_25px_rgba(6,182,212,0.4)] 
+        hover:shadow-[0_0_20px_rgba(6,182,212,0.9),_0_0_50px_rgba(6,182,212,0.6)]
+        active:after:opacity-30 after:content-[''] after:absolute after:inset-0 after:bg-white after:opacity-0 after:transition-opacity after:duration-100">
+        <img src="jpo.ico" alt="Tentang JPO" class="w-full h-full object-cover">
+    </div>
+    <span class="text-[11px] text-slate-300 font-medium group-hover:text-cyan-400 group-hover:drop-shadow-[0_0_6px_rgba(6,182,212,0.8)] transition-all duration-300">Tentang</span>
+</div>
 
-                            <div onclick="openDownloadCenter()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(245,158,11,0.7),_0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_20px_rgba(245,158,11,0.9),_0_0_50px_rgba(245,158,11,0.6)]">📥</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-amber-400 group-hover:drop-shadow-[0_0_6px_rgba(245,158,11,0.8)] transition-all duration-300">Download</span>
-                            </div>
+<!-- 2. Download -->
+<div onclick="openDownloadCenter()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+    <div class="relative w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300
+        shadow-[0_0_12px_rgba(245,158,11,0.7),_0_0_25px_rgba(245,158,11,0.4)] 
+        hover:shadow-[0_0_20px_rgba(245,158,11,0.9),_0_0_50px_rgba(245,158,11,0.6)]
+        active:after:opacity-30 after:content-[''] after:absolute after:inset-0 after:bg-white after:opacity-0 after:transition-opacity after:duration-100">📥</div>
+    <span class="text-[11px] text-slate-300 font-medium group-hover:text-amber-400 group-hover:drop-shadow-[0_0_6px_rgba(245,158,11,0.8)] transition-all duration-300">Download</span>
+</div>
 
-                            <div onclick="openLibraryMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(168,85,247,0.7),_0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_20px_rgba(168,85,247,0.9),_0_0_50px_rgba(168,85,247,0.6)]">📖</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-purple-300 group-hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.8)] transition-all duration-300">Alkitab & KJ</span>
-                            </div>
+<!-- 3. Alkitab & KJ -->
+<div onclick="openLibraryMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+    <div class="relative w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300
+        shadow-[0_0_12px_rgba(168,85,247,0.7),_0_0_25px_rgba(168,85,247,0.4)] 
+        hover:shadow-[0_0_20px_rgba(168,85,247,0.9),_0_0_50px_rgba(168,85,247,0.6)]
+        active:after:opacity-30 after:content-[''] after:absolute after:inset-0 after:bg-white after:opacity-0 after:transition-opacity after:duration-100">📖</div>
+    <span class="text-[11px] text-slate-300 font-medium group-hover:text-purple-300 group-hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.8)] transition-all duration-300">Alkitab & KJ</span>
+</div>
 
-                            <div onclick="openEventsList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(14,165,233,0.7),_0_0_25px_rgba(14,165,233,0.4)] hover:shadow-[0_0_20px_rgba(14,165,233,0.9),_0_0_50px_rgba(14,165,233,0.6)]">📅</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-sky-400 group-hover:drop-shadow-[0_0_6px_rgba(14,165,233,0.8)] transition-all duration-300">Kegiatan</span>
-                            </div>
+<!-- 4. Kegiatan -->
+<div onclick="openEventsList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+    <div class="relative w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300
+        shadow-[0_0_12px_rgba(14,165,233,0.7),_0_0_25px_rgba(14,165,233,0.4)] 
+        hover:shadow-[0_0_20px_rgba(14,165,233,0.9),_0_0_50px_rgba(14,165,233,0.6)]
+        active:after:opacity-30 after:content-[''] after:absolute after:inset-0 after:bg-white after:opacity-0 after:transition-opacity after:duration-100">📅</div>
+    <span class="text-[11px] text-slate-300 font-medium group-hover:text-sky-400 group-hover:drop-shadow-[0_0_6px_rgba(14,165,233,0.8)] transition-all duration-300">Kegiatan</span>
+</div>
 
-                            <div onclick="openChatRoom()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(236,72,153,0.7),_0_0_25px_rgba(236,72,153,0.4)] hover:shadow-[0_0_20px_rgba(236,72,153,0.9),_0_0_50px_rgba(236,72,153,0.6)]">💬</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-pink-400 group-hover:drop-shadow-[0_0_6px_rgba(236,72,153,0.8)] transition-all duration-300">Komunitas</span>
-                            </div>
+<!-- 5. Komunitas -->
+<div onclick="openChatRoom()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+    <div class="relative w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300
+        shadow-[0_0_12px_rgba(236,72,153,0.7),_0_0_25px_rgba(236,72,153,0.4)] 
+        hover:shadow-[0_0_20px_rgba(236,72,153,0.9),_0_0_50px_rgba(236,72,153,0.6)]
+        active:after:opacity-30 after:content-[''] after:absolute after:inset-0 after:bg-white after:opacity-0 after:transition-opacity after:duration-100">💬</div>
+    <span class="text-[11px] text-slate-300 font-medium group-hover:text-pink-400 group-hover:drop-shadow-[0_0_6px_rgba(236,72,153,0.8)] transition-all duration-300">Komunitas</span>
+</div>
 
-                            <div onclick="openBirthdayList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(52,211,153,0.7),_0_0_25px_rgba(52,211,153,0.4)] hover:shadow-[0_0_20px_rgba(52,211,153,0.9),_0_0_50px_rgba(52,211,153,0.6)]">🎂</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-emerald-400 group-hover:drop-shadow-[0_0_6px_rgba(52,211,153,0.8)] transition-all duration-300">Ulang Tahun</span>
-                            </div>
+<!-- 6. Ulang Tahun -->
+<div onclick="openBirthdayList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+    <div class="relative w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300
+        shadow-[0_0_12px_rgba(52,211,153,0.7),_0_0_25px_rgba(52,211,153,0.4)] 
+        hover:shadow-[0_0_20px_rgba(52,211,153,0.9),_0_0_50px_rgba(52,211,153,0.6)]
+        active:after:opacity-30 after:content-[''] after:absolute after:inset-0 after:bg-white after:opacity-0 after:transition-opacity after:duration-100">🎂</div>
+    <span class="text-[11px] text-slate-300 font-medium group-hover:text-emerald-400 group-hover:drop-shadow-[0_0_6px_rgba(52,211,153,0.8)] transition-all duration-300">Ulang Tahun</span>
+</div>
 
-                            <div onclick="openPrayerMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(110,231,183,0.7),_0_0_25px_rgba(110,231,183,0.4)] hover:shadow-[0_0_20px_rgba(110,231,183,0.9),_0_0_50px_rgba(110,231,183,0.6)]">🙏</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-green-400 group-hover:drop-shadow-[0_0_6px_rgba(110,231,183,0.8)] transition-all duration-300">Dukungan Doa</span>
-                            </div>
+<!-- 7. Dukungan Doa -->
+<div onclick="openPublicPrayerWall()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+    <div class="relative w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300
+        shadow-[0_0_12px_rgba(110,231,183,0.7),_0_0_25px_rgba(110,231,183,0.4)] 
+        hover:shadow-[0_0_20px_rgba(110,231,183,0.9),_0_0_50px_rgba(110,231,183,0.6)]
+        active:after:opacity-30 after:content-[''] after:absolute after:inset-0 after:bg-white after:opacity-0 after:transition-opacity after:duration-100">🙏</div>
+    <span class="text-[11px] text-slate-300 font-medium group-hover:text-green-400 group-hover:drop-shadow-[0_0_6px_rgba(110,231,183,0.8)] transition-all duration-300">Dukungan Doa</span>
+</div>
 
-                            <div onclick="openDonationList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-blue-400 to-indigo-600 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(96,165,250,0.7),_0_0_25px_rgba(96,165,250,0.4)] hover:shadow-[0_0_20px_rgba(96,165,250,0.9),_0_0_50px_rgba(96,165,250,0.6)]">🎁</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-blue-400 group-hover:drop-shadow-[0_0_6px_rgba(96,165,250,0.8)] transition-all duration-300">Persembahan</span>
-                            </div>
+<!-- 8. Persembahan -->
+<div onclick="openDonationList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+    <div class="relative w-14 h-14 bg-gradient-to-tr from-blue-400 to-indigo-600 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300
+        shadow-[0_0_12px_rgba(96,165,250,0.7),_0_0_25px_rgba(96,165,250,0.4)] 
+        hover:shadow-[0_0_20px_rgba(96,165,250,0.9),_0_0_50px_rgba(96,165,250,0.6)]
+        active:after:opacity-30 after:content-[''] after:absolute after:inset-0 after:bg-white after:opacity-0 after:transition-opacity after:duration-100">🎁</div>
+    <span class="text-[11px] text-slate-300 font-medium group-hover:text-blue-400 group-hover:drop-shadow-[0_0_6px_rgba(96,165,250,0.8)] transition-all duration-300">Persembahan</span>
+</div>
+
                         </div>
 
+                        <!-- 6 Menu Konten Media Utama -->
                         <div class="pt-2 space-y-2">
                             <h3 class="font-bold text-xs text-purple-400 uppercase tracking-wider">Media & Pustaka Jemaat</h3>
+                            <!-- Menggunakan grid dinamis: 3 kolom di portrait, 6 kolom saat landscape besar -->
                             <div class="grid grid-cols-3 landscape:sm:grid-cols-6 gap-3">
                                 <div onclick="openCategoriesMenu()" class="bg-slate-900 border border-amber-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-amber-400 transition animate-card-hover">
                                     <div class="h-16 bg-amber-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📝</div>
@@ -628,6 +703,7 @@ function logout() {
                                     <span class="text-xs font-semibold text-slate-200">Renungan</span>
                                 </div>
                                 <div id="livestream-card" onclick="openLivestreamsMenu()" class="bg-slate-900 border border-orange-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-orange-400 transition animate-card-hover relative">
+                                    <!-- Badge LIVE -->
                                     <div id="livestream-badge" class="absolute -top-2 -right-2 hidden">
                                         <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
                                     </div>
@@ -640,44 +716,67 @@ function logout() {
                                 </div>
                             </div>
                         </div>
+<!-- BANNER QUIZ & GAMES ALKITAB -->
+<div onclick="window.location.href='games.html'" class="w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 border border-purple-500/30 p-5 rounded-2xl shadow-xl cursor-pointer transition hover:border-purple-400 hover:shadow-purple-950/50 flex justify-between items-center group my-4">
+    <div class="space-y-1.5 pr-2">
+        <span class="bg-purple-600/40 text-purple-300 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-purple-400/30 inline-block">✨ Fitur Baru & Hiburan</span>
+        <h3 class="font-bold text-sm sm:text-base text-white group-hover:text-purple-200 transition">Tantangan Kuis Alkitab</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">Seberapa Kristenkah dirimu ?</p>
+    </div>
+    <div class="bg-slate-950/60 p-3.5 rounded-xl border border-purple-500/20 text-3xl group-hover:scale-110 transition flex-shrink-0 shadow-inner">
+        🏆
+    </div>
+</div>
 
-                        <div onclick="window.location.href='games.html'" class="w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 border border-purple-500/30 p-5 rounded-2xl shadow-xl cursor-pointer transition hover:border-purple-400 hover:shadow-purple-950/50 flex justify-between items-center group my-4">
-                            <div class="space-y-1.5 pr-2">
-                                <span class="bg-purple-600/40 text-purple-300 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-purple-400/30 inline-block">✨ Fitur Baru & Hiburan</span>
-                                <h3 class="font-bold text-sm sm:text-base text-white group-hover:text-purple-200 transition">Tantangan Kuis Alkitab</h3>
-                                <p class="text-xs text-slate-300 leading-relaxed">Seberapa Kristenkah dirimu ?</p>
-                            </div>
-                            <div class="bg-slate-950/60 p-3.5 rounded-xl border border-purple-500/20 text-3xl group-hover:scale-110 transition flex-shrink-0 shadow-inner">
-                                🏆
-                            </div>
-                        </div>
                     </div>
                 `;
-            } else if (tab === 'notifikasi') {
+            } else if (tab === 'doa') {
                 checkAuthBeforeAction(() => {
-                    document.getElementById("headerTitle").innerText = "Notifikasi & Kotak Masuk";
-                    const badge = document.getElementById("unreadNotifBadge");
-                    if(badge) badge.classList.add("hidden");
-
+                    const user = window.currentUser;
                     main.innerHTML = `
-                        <div class="space-y-3 pt-2">
-                            <div class="flex justify-between items-center mb-3">
-                                <p class="text-[11px] text-slate-400">Pemberitahuan warta, kegiatan & status Anda.</p>
-                                <button onclick="showToast('Semua pesan ditandai telah dibaca.')" class="text-[10px] text-purple-400 font-semibold hover:underline">Tandai Dibaca</button>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-bold text-base text-purple-400">Kirim Kotak Doa</h3>
+                                <button onclick="openPublicPrayerWall()" class="text-xs text-purple-300 bg-purple-900/50 px-3 py-1.5 rounded-lg border border-purple-800 transition">Lihat Dinding Doa ➔</button>
                             </div>
-                            <div id="notifListContainer" class="space-y-2">
-                                <p class="text-xs text-slate-400 text-center py-10 animate-pulse">Memuat notifikasi...</p>
-                            </div>
+                            <form onsubmit="handleSendPrayer(event)" class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-400 mb-1">Identitas Pengirim</label>
+                                    <select id="prayerSenderOption" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                                        <option value="name">Tampilkan Nama Saya (${user.nama_lengkap})</option>
+                                        <option value="anonymous">Kirim sebagai Anonim (Hamba Tuhan)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-400 mb-1">Kategori Doa</label>
+                                    <select id="prayerCategory" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                                        <option value="Doa Syukur">Doa Syukur</option>
+                                        <option value="Doa Pergumulan">Doa Pergumulan</option>
+                                        <option value="Doa Khusus">Doa Khusus</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-400 mb-1">Pokok Doa</label>
+                                    <textarea id="prayerContent" rows="4" required placeholder="Tuliskan pokok doa..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-400 mb-1">Privasi Doa</label>
+                                    <select id="prayerPrivacy" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                                        <option value="Publik">Publik (Ditampilkan di Dinding Doa setelah disetujui)</option>
+                                        <option value="Rahasia">Rahasia (Hanya Pendeta/Admin)</option>
+                                    </select>
+                                </div>
+                                <button type="submit" id="btnPrayerSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition">Kirim Doa</button>
+                            </form>
                         </div>
                     `;
-                    loadUserNotificationsPage();
                 });
             } else if (tab === 'profil') {
                 checkAuthBeforeAction(() => {
                     const user = window.currentUser;
                     const isAdmin = user.isAdmin || false;
+                    // Ambil role admin dengan aman dari objek user
                     const adminRole = user.adminRole || user.role || '';
-                    document.getElementById("headerTitle").innerText = "Akun Jemaat";
 
                     const profileImageHtml = user.foto_profil 
                         ? `<img src="${user.foto_profil}" class="w-full h-full object-cover">`
@@ -690,7 +789,7 @@ function logout() {
                         : `<span class="bg-amber-600/30 text-amber-400 border border-amber-500/30 text-[10px] px-2.5 py-1 rounded-full font-semibold inline-flex items-center gap-1 mt-1">⏳ Menunggu Verifikasi</span>`;
 
                     const verificationBanner = !user.is_verified 
-                        ? `<div class="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/30 p-3.5 rounded-2xl text-xs space-y-1 shadow-md mb-2 w-full text-left">
+                        ? `<div class="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/30 p-3.5 rounded-2xl text-xs space-y-1 shadow-md mb-2">
                                <p class="font-bold text-purple-200 flex items-center gap-1.5"><span>✨</span> Keanggotaan Pniel Oebobo</p>
                                <p class="text-[11px] text-slate-300 leading-relaxed">Lengkapi data diri dan alamat domisili Anda untuk mendapatkan lencana resmi <b>Centang Biru <img src="bedge.png" class="w-4 h-4 inline-block align-middle" alt="Verified"> (Terverifikasi)</b> dari gereja.</p>
                            </div>`
@@ -738,6 +837,7 @@ function logout() {
             }
         }
 
+        // --- DAFTAR KITAB ALKITAB LENGKAP ---
         const BIBLE_BOOKS = [
             {code: "GEN", name: "Kejadian", chapters: 50}, {code: "EXO", name: "Keluaran", chapters: 40},
             {code: "LEV", name: "Imamat", chapters: 27}, {code: "NUM", name: "Bilangan", chapters: 36},
@@ -910,6 +1010,7 @@ function logout() {
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                     
+                    <!-- KOTAK FILTER PENCARIAN -->
                     <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 text-xs shadow-sm">
                         <div class="grid grid-cols-2 gap-2">
                             <div>
@@ -943,8 +1044,26 @@ function logout() {
                         </div>
                     </div>
 
+                    <!-- GRID GALERI -->
                     <div id="galleryGrid" class="grid grid-cols-4 landscape:sm:grid-cols-6 gap-2">
                         <p class="col-span-full text-xs text-slate-400 text-center py-10 animate-pulse">Memuat galeri foto...</p>
+                    </div>
+                </div>
+
+                <!-- MODAL LIGHTBOX / POPUP MELAYANG -->
+                <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-[99999] hidden flex items-center justify-center p-4" onclick="closeLightbox(event)">
+                    <div class="relative max-w-lg landscape:max-w-3xl w-full flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+                        <button onclick="closeLightbox()" class="absolute -top-6 right-0 bg-rose-600 hover:bg-rose-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-2xl border-2 border-white z-50 transition active:scale-95">
+                            ✕
+                        </button>
+                        <button onclick="slidePhoto(-1)" class="absolute -left-3 sm:-left-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition active:scale-95">
+                            ❮
+                        </button>
+                        <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-[75vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-slate-800 bg-black cursor-pointer">
+                        <button onclick="slidePhoto(1)" class="absolute -right-3 sm:-right-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition active:scale-95">
+                            ❯
+                        </button>
+                        <p id="lightboxCaption" class="text-xs text-slate-300 mt-3 text-center font-medium px-2 truncate w-full"></p>
                     </div>
                 </div>
             `;
@@ -973,6 +1092,7 @@ function logout() {
 
             grid.innerHTML = photos.map((p, index) => {
                 const r = p.reactions || {}; 
+                // Image Proxy untuk optimasi memuat gambar di galeri
                 let safeUrl = p.url ? `https://wsrv.nl/?url=${encodeURIComponent(p.url)}&w=600&fit=cover` : '';
                 
                 return `
@@ -1009,6 +1129,7 @@ function logout() {
             currentPhotoIndex = index;
             const photo = currentActiveGallery[currentPhotoIndex];
             
+            // Proxy untuk resolusi besar di Lightbox
             let safeLargeUrl = photo.url ? `https://wsrv.nl/?url=${encodeURIComponent(photo.url)}&w=1200` : '';
             
             document.getElementById("lightboxImg").src = safeLargeUrl;
@@ -1020,7 +1141,7 @@ function logout() {
             if (!event || event.target.id === "lightboxModal" || event.target.tagName === "BUTTON") {
                 document.getElementById("lightboxModal").classList.add("hidden");
                 if (fromPopState !== true) {
-                    history.back();
+                    history.back(); // Pemicu otomatis dari UI
                 }
             }
         }
@@ -1038,7 +1159,7 @@ function logout() {
             document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
         }
 
-        async function openBibleMenu(isBack = false) {
+async function openBibleMenu(isBack = false) {
             if (!isBack) pushNavState('openBibleMenu');
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Renungan & Ayat Emas";
@@ -1058,6 +1179,7 @@ function logout() {
                 if (json.status === "success" && json.data) {
                     let item = json.data;
                     
+                    // --- PEMROSESAN TEKS: Baris 1 (Judul) & Baris Terakhir (Quote) ---
                     let rawText = item.renungan || "";
                     let lines = rawText.split("\n").filter(l => l.trim() !== "");
                     
@@ -1080,6 +1202,7 @@ function logout() {
                     } else {
                         formattedHtml = "Belum ada isi renungan.";
                     }
+                    // -------------------------------------------------------------
 
                     main.innerHTML = `
                         <div class="space-y-4">
@@ -1120,7 +1243,6 @@ function logout() {
                 `;
             }
         }
-
         function openLivestreamsMenu(isBack = false) {
             if (!isBack) pushNavState('openLivestreamsMenu');
             const main = document.querySelector("main");
@@ -1143,7 +1265,7 @@ function logout() {
             `;
         }
 
-        function openStatistikMenu(isBack = false) {
+function openStatistikMenu(isBack = false) {
             if (!isBack) pushNavState('openStatistikMenu');
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Statistik & Demografi Jemaat";
@@ -1172,6 +1294,7 @@ function logout() {
                 const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`);
                 const result = await res.json();
                 
+                // Mendukung berbagai format struktur respons dari Apps Script (users / data)
                 let rawData = result.users || result.data || [];
                 
                 if (rawData.length === 0) {
@@ -1181,8 +1304,12 @@ function logout() {
 
                 let dataList = [];
                 
+                // Cek apakah data berupa array of arrays (baris spreadsheet) atau array of objects
                 if (Array.isArray(rawData[0])) {
+                    // Jika berupa baris spreadsheet, baris pertama biasanya Header
                     let headers = rawData[0].map(h => String(h).trim().toLowerCase());
+                    
+                    // Cari indeks kolom secara otomatis berdasarkan nama header-nya
                     let idxVerified = headers.findIndex(h => h.includes('verif') || h.includes('status'));
                     let idxGender = headers.findIndex(h => h.includes('gender') || h.includes('kelamin'));
                     let idxLing = headers.findIndex(h => h.includes('lingkungan') || h.includes('ling'));
@@ -1200,6 +1327,7 @@ function logout() {
                         });
                     }
                 } else {
+                    // Jika sudah berupa array of objects
                     dataList = rawData.map(item => ({
                         is_verified: item.is_verified || item[13] || "",
                         jenis_kelamin: item.jenis_kelamin || item[16] || "",
@@ -1211,6 +1339,7 @@ function logout() {
 
                 const totalJemaat = dataList.length;
                 
+                // 1. Hitung Verifikasi
                 let verifiedCount = dataList.filter(item => {
                     let v = String(item.is_verified || "").trim().toLowerCase();
                     return v === "verified" || v === "true" || v === "terverifikasi";
@@ -1219,6 +1348,7 @@ function logout() {
                 let pendingCount = totalJemaat - verifiedCount;
                 let verifiedPercent = totalJemaat > 0 ? Math.round((verifiedCount / totalJemaat) * 100) : 0;
 
+                // 2. Hitung Demografi Jenis Kelamin
                 let genderMap = { "Laki-laki": 0, "Perempuan": 0, "Belum Diisi": 0 };
                 dataList.forEach(item => {
                     let g = String(item.jenis_kelamin || "").trim().toLowerCase();
@@ -1231,6 +1361,7 @@ function logout() {
                     }
                 });
 
+                // 3. Hitung Sebaran Lingkungan (1 sampai 16 + Belum Ditentukan)
                 let lingkunganMap = {};
                 for (let i = 1; i <= 16; i++) {
                     lingkunganMap["Lingkungan " + i] = 0;
@@ -1260,6 +1391,7 @@ function logout() {
                     }
                 });
 
+                // 4. Hitung Minat Pelayanan
                 let minatMap = {};
                 dataList.forEach(item => {
                     let minatRaw = String(item.minat_pelayanan || "").trim();
@@ -1275,6 +1407,7 @@ function logout() {
                     }
                 });
 
+                // Helper untuk membuat bar grafik visual HTML standar
                 function renderBar(label, count, total, colorClass = "bg-purple-600") {
                     let percent = total > 0 ? Math.round((count / total) * 100) : 0;
                     return `
@@ -1290,6 +1423,7 @@ function logout() {
                     `;
                 }
 
+                // Palet Warna untuk Sebaran Lingkungan
                 const warnaLingkungan = [
                     "bg-red-500", "bg-orange-500", "bg-amber-500", "bg-yellow-500",
                     "bg-lime-500", "bg-green-500", "bg-emerald-500", "bg-teal-500",
@@ -1330,6 +1464,7 @@ function logout() {
                 });
                 multiBarHtml += `</div></div>`;
 
+                // Render UI Utama ke dalam container
                 container.innerHTML = `
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm animate-card-hover">
@@ -1370,7 +1505,6 @@ function logout() {
                 container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Terjadi kesalahan koneksi server: ${err.message}</div>`;
             }
         }
-
         function openAboutPage(isBack = false) {
             if (!isBack) pushNavState('openAboutPage');
             const main = document.querySelector("main");
@@ -1686,6 +1820,43 @@ function logout() {
             }
         }
 
+        async function handleSendPrayer(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnPrayerSubmit");
+            btn.disabled = true;
+            btn.innerText = "Mengirim...";
+
+            const data = {
+                action: "addPrayer",
+                user_id: window.currentUser.id,
+                nama_pengirim: document.getElementById("prayerSenderOption").value === 'name' ? window.currentUser.nama_lengkap : "Hamba Tuhan / Anonim",
+                kategori_doa: document.getElementById("prayerCategory").value,
+                isi_doa: document.getElementById("prayerContent").value,
+                status_privasi: document.getElementById("prayerPrivacy").value
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showToast(result.message);
+                if (result.status === "success") switchTab('home');
+            } catch (err) {
+                showToast("Gagal mengirim doa.", "error");
+                btn.disabled = false;
+                btn.innerText = "Kirim Doa";
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("user_gereja");
+            showToast("Anda telah keluar.");
+            updateAuthNavText(); 
+            setTimeout(() => switchTab('home'), 500);
+        }
+
         async function openLibraryMenu(isBack = false) {
             if (!isBack) pushNavState('openLibraryMenu');
             const main = document.querySelector("main");
@@ -1910,109 +2081,7 @@ function logout() {
                 document.getElementById("birthdayContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data ulang tahun.</p>`;
             }
         }
-function openPrayerMenu(isBack = false) {
-            if (!isBack) pushNavState('openPrayerMenu');
-            const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
-            triggerPageTransition();
-            main.innerHTML = `
-                <div class="space-y-4 pt-2">
-                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <div class="grid grid-cols-1 gap-4">
-                        <div onclick="openFormPrayer()" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-500/50 cursor-pointer">
-                            <div>
-                                <h4 class="text-sm font-bold text-white flex items-center gap-2">📝 Kirim Pokok Doa</h4>
-                                <p class="text-[11px] text-slate-400 mt-1">Bagikan pergumulan / syukur untuk didoakan bersama.</p>
-                            </div>
-                            <span class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md ml-2 transition">Kirim</span>
-                        </div>
-                        <div onclick="openPublicPrayerWall()" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-500/50 cursor-pointer">
-                            <div>
-                                <h4 class="text-sm font-bold text-white flex items-center gap-2">🙏 Dinding Doa</h4>
-                                <p class="text-[11px] text-slate-400 mt-1">Dukung dan balas pokok doa publik jemaat lainnya.</p>
-                            </div>
-                            <span class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md ml-2 transition">Lihat</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
 
-        function openFormPrayer(isBack = false) {
-            if (!isBack) pushNavState('openFormPrayer');
-            checkAuthBeforeAction(() => {
-                const user = window.currentUser;
-                const main = document.querySelector("main");
-                document.getElementById("headerTitle").innerText = "Kirim Kotak Doa";
-                triggerPageTransition();
-                main.innerHTML = `
-                    <div class="space-y-4">
-                        <button onclick="openPrayerMenu()" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Dukungan Doa</button>
-                        <form onsubmit="handleSendPrayer(event)" class="space-y-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Identitas Pengirim</label>
-                                <select id="prayerSenderOption" class="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white outline-none focus:border-purple-500">
-                                    <option value="name">Tampilkan Nama Saya (${user.nama_lengkap})</option>
-                                    <option value="anonymous">Kirim sebagai Anonim</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Kategori Doa</label>
-                                <select id="prayerCategory" class="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white outline-none focus:border-purple-500">
-                                    <option value="Doa Syukur">Doa Syukur</option>
-                                    <option value="Doa Pergumulan">Doa Pergumulan</option>
-                                    <option value="Doa Khusus">Doa Khusus</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Pokok Doa</label>
-                                <textarea id="prayerContent" rows="4" required placeholder="Tuliskan pokok doa secara rinci..." class="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white outline-none focus:border-purple-500"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Privasi Doa</label>
-                                <select id="prayerPrivacy" class="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white outline-none focus:border-purple-500">
-                                    <option value="Publik">Publik (Tampil di Dinding Doa)</option>
-                                    <option value="Rahasia">Rahasia (Hanya Pendeta/Admin)</option>
-                                </select>
-                            </div>
-                            <button type="submit" id="btnPrayerSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition mt-2">Kirim Doa Sekarang</button>
-                        </form>
-                    </div>
-                `;
-            });
-        }
-
-        async function handleSendPrayer(e) {
-            e.preventDefault();
-            const btn = document.getElementById("btnPrayerSubmit");
-            btn.disabled = true; 
-            btn.innerText = "Mengirim...";
-            
-            const data = {
-                action: "addPrayer",
-                user_id: window.currentUser.id,
-                nama_pengirim: document.getElementById("prayerSenderOption").value === 'name' ? window.currentUser.nama_lengkap : "Hamba Tuhan / Anonim",
-                kategori_doa: document.getElementById("prayerCategory").value,
-                isi_doa: document.getElementById("prayerContent").value,
-                status_privasi: document.getElementById("prayerPrivacy").value
-            };
-            
-            try {
-                const response = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) });
-                const result = await response.json();
-                showToast(result.message);
-                if (result.status === "success") {
-                    openPublicPrayerWall();
-                } else {
-                    btn.disabled = false; 
-                    btn.innerText = "Kirim Doa Sekarang";
-                }
-            } catch (err) {
-                showToast("Gagal mengirim doa.", "error");
-                btn.disabled = false; 
-                btn.innerText = "Kirim Doa Sekarang";
-            }
-        }
         async function openPublicPrayerWall(isBack = false) {
             if (!isBack) pushNavState('openPublicPrayerWall');
             const savedUser = localStorage.getItem("user_gereja");
@@ -2040,7 +2109,7 @@ function openPrayerMenu(isBack = false) {
             triggerPageTransition();
             main.innerHTML = `
                 <div class="space-y-4">
-                    <button onclick="openPrayerMenu()" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Dukungan Doa</button>
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                     <div id="publicPrayerContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat dinding doa...</p></div>
                 </div>
             `;
@@ -2228,10 +2297,40 @@ function openPrayerMenu(isBack = false) {
                 btn.innerText = "Kirim Konfirmasi";
             }
         }
+        
+        function toggleSeniorMode() {
+            const body = document.body;
+            const isSenior = body.classList.toggle('senior-mode');
+            
+            if (isSenior) {
+                localStorage.setItem('gmit_senior_mode', 'true');
+                showToast("Mode Lansia Diaktifkan (Huruf & Tampilan Diperbesar)");
+                document.getElementById('seniorModeBtn').innerText = "🌙 Mode Normal";
+                document.getElementById('seniorModeBtn').className = "text-xs bg-purple-600 text-white px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition shadow-md";
+            } else {
+                localStorage.setItem('gmit_senior_mode', 'false');
+                showToast("Kembali ke Mode Normal");
+                document.getElementById('seniorModeBtn').innerText = "👓 Mode Lansia";
+                document.getElementById('seniorModeBtn').className = "text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition";
+            }
+        }
 
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedSeniorMode = localStorage.getItem('gmit_senior_mode');
+            if (savedSeniorMode === 'true') {
+                document.body.classList.add('senior-mode');
+                const btn = document.getElementById('seniorModeBtn');
+                if(btn) {
+                    btn.innerText = "🌙 Mode Normal";
+                    btn.className = "text-xs bg-purple-600 text-white px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition shadow-md";
+                }
+            }
+        });
+        
         async function handleReactionAndRefresh(tipe, idTarget, emoji) {
             const user = window.currentUser || { id: "Anonim" };
             
+            // 1. Update UI Instan
             const eventBtn = event.currentTarget;
             if (eventBtn) {
                 let badgeSpan = eventBtn.querySelector('span');
@@ -2248,6 +2347,7 @@ function openPrayerMenu(isBack = false) {
                 }
             }
 
+            // 2. Update lokal cache Galeri
             if (tipe === 'galeri' && window.allGalleryData) {
                 const photo = window.allGalleryData.find(p => p.id == idTarget);
                 if (photo) {
@@ -2258,6 +2358,7 @@ function openPrayerMenu(isBack = false) {
 
             showToast(`Memberikan reaksi ${emoji}`);
             
+            // 3. Kirim ke Server
             try {
                 await fetch(SCRIPT_URL, {
                     method: "POST",
@@ -2301,17 +2402,26 @@ function openPrayerMenu(isBack = false) {
             }
         }
 
-        async function loadUserNotificationsPage() {
-            const container = document.getElementById("notifListContainer");
-            container.innerHTML = `
-                <div class="text-center py-10 space-y-3">
-                    <div class="text-4xl opacity-50">📭</div>
-                    <p class="text-xs text-slate-400">Belum ada pesan / notifikasi sistem baru untuk saat ini.</p>
-                    <p class="text-[10px] text-slate-500 italic mt-2">Fitur Engine Broadcast sedang dipersiapkan.</p>
-                </div>
-            `;
-        }
+        document.addEventListener("DOMContentLoaded", () => {
+            updateNetworkStatus();
+            // Saat aplikasi pertama kali dimuat, replace state awal
+            switchTab('home', false, true); 
+            checkPushNotification();
+            updateAuthNavText();
+        });
 
+        function updateAuthNavText() {
+            const navText = document.getElementById("accountNavText");
+            if (!navText) return;
+            
+            const savedUser = localStorage.getItem("user_gereja");
+            if (savedUser) {
+                navText.innerText = "Akun";
+            } else {
+                navText.innerText = "Login";
+            }
+        }
+        
         async function checkLiveStatusForMenu() {
             const channelId = "UCZ3-3qhAyR8mDb6VTeJOXtA";
             try {
@@ -2332,6 +2442,7 @@ function openPrayerMenu(isBack = false) {
                         let now = new Date();
                         let hoursDifference = (now - pubDate) / (1000 * 60 * 60);
                         
+                        // Jika video diupload / disiarkan kurang dari 4 jam lalu
                         if (hoursDifference <= 4) {
                             const card = document.getElementById('livestream-card');
                             const badge = document.getElementById('livestream-badge');
@@ -2349,28 +2460,28 @@ function openPrayerMenu(isBack = false) {
             }
         }
 
-        function redirectToRolePanel() {
-            const userSession = JSON.parse(sessionStorage.getItem("user_gereja") || sessionStorage.getItem("admin_gereja") || "{}");
-            const role = String(userSession.adminRole || userSession.role || "").trim();
-            
-            if (role === "Sekretariat") {
-                window.location.href = "sekretariat.html";
-            } else if (role === "Petugas Sensus") {
-                window.location.href = "sensus.html";
-            } else if (role === "Admin Operator" || role === "Super Admin" || role === "") {
-                window.location.href = "admin.html";
-            } else {
-                window.location.href = "admin.html";
-            }
-        }
-
         document.addEventListener("DOMContentLoaded", () => {
-            updateNetworkStatus();
-            switchTab('home', false, true); 
-            checkPushNotification();
-            updateAuthNavText();
             checkLiveStatusForMenu();
         });
+function redirectToRolePanel() {
+    // Ambil data sesi pengguna/admin yang sedang aktif
+    const userSession = JSON.parse(sessionStorage.getItem("user_gereja") || sessionStorage.getItem("admin_gereja") || "{}");
+    
+    // Ambil nilai role (bisa dari adminRole atau role)
+    const role = String(userSession.adminRole || userSession.role || "").trim();
+    
+    // Arahkan berdasarkan role masing-masing
+    if (role === "Sekretariat") {
+        window.location.href = "sekretariat.html";
+    } else if (role === "Petugas Sensus") {
+        window.location.href = "sensus.html";
+    } else if (role === "Admin Operator" || role === "Super Admin" || role === "") {
+        window.location.href = "admin.html";
+    } else {
+        // Fallback default jika role tidak dikenali
+        window.location.href = "admin.html";
+    }
+}
     </script>
 </body>
 </html>
