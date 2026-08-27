@@ -516,15 +516,39 @@
                 btn.innerHTML = "Masuk & Lanjutkan";
             }
         }
-
-        function logout() {
+function logout() {
+            // 1. Bersihkan semua penyimpanan lokal dan sesi browser secara total
             localStorage.removeItem("user_gereja");
+            sessionStorage.clear();
             window.currentUser = null;
-            showToast("Anda telah keluar.");
+            
+            // 2. Beri tahu pengguna
+            showToast("Anda telah berhasil keluar.");
             updateAuthNavText(); 
+
+            // 3. Paksa arahkan ke beranda dan muat ulang bersih
             setTimeout(() => {
-                switchTab('home');
-            }, 400);
+                switchTab('home', false, true);
+            }, 300);
+        }
+
+        function checkAuthBeforeAction(actionCallback) {
+            const savedUser = localStorage.getItem("user_gereja");
+            if (savedUser && savedUser !== "undefined" && savedUser !== "null") {
+                try {
+                    window.currentUser = JSON.parse(savedUser);
+                    if (window.currentUser && window.currentUser.id) {
+                        actionCallback();
+                        return;
+                    }
+                } catch (e) {
+                    localStorage.removeItem("user_gereja");
+                }
+            }
+            
+            // Jika belum login atau data korup, arahkan ke halaman login
+            showToast("Silakan login atau daftar terlebih dahulu.", "error");
+            renderAuthPageForAction(actionCallback);
         }
 
         function switchTab(tab, isBack = false, isReplace = false) {
