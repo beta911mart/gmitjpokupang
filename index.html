@@ -641,8 +641,9 @@
                         </div>
                     </div>
                 `;
+            } 
             } else if (tab === 'notifikasi') {
-                checkAuthBeforeAction(() => {
+                checkAuthBeforeAction(async () => {
                     document.getElementById("headerTitle").innerText = "Notifikasi & Kotak Masuk";
                     const badge = document.getElementById("unreadNotifBadge");
                     if(badge) badge.classList.add("hidden");
@@ -655,13 +656,47 @@
                                 <button onclick="showToast('Semua pesan ditandai telah dibaca.')" class="text-[10px] text-purple-400 font-semibold hover:underline">Tandai Dibaca</button>
                             </div>
                             <div id="notifListContainer" class="space-y-2">
-                                <div class="text-center py-10 space-y-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-                                    <div class="text-3xl opacity-50">📭</div>
-                                    <p class="text-xs text-slate-400">Belum ada pesan global atau notifikasi khusus untuk Anda.</p>
+                                <div class="text-center py-10 space-y-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl animate-pulse">
+                                    <p class="text-xs text-slate-400">Memuat pemberitahuan...</p>
                                 </div>
                             </div>
                         </div>
                     `;
+
+                    // Ambil dan tampilkan notifikasi dari database
+                    try {
+                        const user = window.currentUser;
+                        const response = await fetch(SCRIPT_URL, {
+                            method: "POST",
+                            body: JSON.stringify({ action: "getUserNotifications", user_id: user.id })
+                        });
+                        const result = await response.json();
+                        const container = document.getElementById("notifListContainer");
+
+                        if (result.status === "success" && result.notifications && result.notifications.length > 0) {
+                            container.innerHTML = result.notifications.map(n => `
+                                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-sm animate-card-hover">
+                                    <div class="flex justify-between items-center">
+                                        <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded font-semibold">${n.category || 'Informasi'}</span>
+                                        <span class="text-[10px] text-slate-500">${n.timestamp ? new Date(n.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) : ''}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-200 leading-relaxed">${n.text}</p>
+                                </div>
+                            `).join('');
+                        } else {
+                            container.innerHTML = `
+                                <div class="text-center py-10 space-y-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                                    <div class="text-3xl opacity-50">📭</div>
+                                    <p class="text-xs text-slate-400">Belum ada pesan global atau notifikasi khusus untuk Anda.</p>
+                                </div>
+                            `;
+                        }
+                    } catch (err) {
+                        const container = document.getElementById("notifListContainer");
+                        if(container) {
+                            container.innerHTML = `<p class="text-xs text-rose-400 text-center py-6">Gagal memuat daftar notifikasi.</p>`;
+                        }
+                    }
                 });
             } else if (tab === 'profil') {
                 checkAuthBeforeAction(() => {
