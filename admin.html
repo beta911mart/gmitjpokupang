@@ -8,10 +8,8 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
 
-    <!-- Container Admin -->
     <div id="adminApp" class="max-w-6xl mx-auto p-4 min-h-screen flex flex-col">
         
-        <!-- HEADER ADMIN -->
         <header class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center shadow-md mb-6">
             <div class="flex items-center gap-3">
                 <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg text-xs transition" title="Kembali ke Aplikasi Jemaat">← Jemaat</a>
@@ -23,7 +21,6 @@
             <button id="logoutBtn" onclick="adminLogout()" class="hidden bg-rose-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-rose-700 transition">Keluar</button>
         </header>
 
-        <!-- KONTEN UTAMA ADMIN -->
         <main class="flex-1 flex flex-col">
             <!-- Konten dinamis dimuat di sini -->
         </main>
@@ -31,7 +28,6 @@
     </div>
 
     <script>
-        // --- URL WEB APP GOOGLE SCRIPT ANDA ---
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -43,7 +39,6 @@
             }
         });
 
-        // --- 1. HALAMAN LOGIN ADMIN ---
         function renderAdminLogin() {
             const main = document.querySelector("main");
             main.innerHTML = `
@@ -87,19 +82,16 @@
             }
         }
 
-        // --- 2. DASHBOARD ADMIN ---
         function renderAdminDashboard(admin) {
             document.getElementById("adminInfo").innerText = `Login: ${admin.nama} (${admin.role})`;
             document.getElementById("logoutBtn").classList.remove("hidden");
             
-            // Cek apakah Super Admin untuk menentukan jumlah kolom grid menu
             const isSuper = admin.role === "Super Admin";
 
             const main = document.querySelector("main");
             main.innerHTML = `
                 <div class="space-y-6">
-                    <!-- Menu Grid Admin (Dinamis berdasarkan Role) -->
-                    <div class="grid grid-cols-2 md:grid-cols-${isSuper ? '6' : '5'} gap-3">
+                    <div class="grid grid-cols-2 md:grid-cols-${isSuper ? '8' : '7'} gap-3">
                         <button onclick="loadSensusData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
                             <h3 class="font-bold text-xs text-slate-900">👥 Data Jemaat</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Daftar sensus & verifikasi.</p>
@@ -120,15 +112,17 @@
                             <h3 class="font-bold text-xs text-slate-900">📢 Push Notif</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Kelola popup peringatan.</p>
                         </button>
-                        <!-- Tombol Menu di Dashboard Admin -->
-                        <button onclick="showRenunganForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
-                            <h3 class="font-bold text-xs text-slate-900">📖 Input Renungan Baru</h3>
-                             <p class="text-[11px] text-slate-500 mt-1">Tambah ayat harian dan renungan.</p>
+                        <button onclick="loadMassBroadcastForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                            <h3 class="font-bold text-xs text-slate-900">📡 Mass Broadcast[cite: 3]</h3>
+                            <p class="text-[11px] text-slate-500 mt-1">Kirim notif massal/terarah.</p>
                         </button>
-                        <!-- Tombol Menu Kirim Laporan Manual di Dashboard Admin -->
+                        <button onclick="showRenunganForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                            <h3 class="font-bold text-xs text-slate-900">📖 Input Renungan</h3>
+                             <p class="text-[11px] text-slate-500 mt-1">Tambah ayat & renungan.</p>
+                        </button>
                         <button onclick="openManualReportMenu()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
-                            <h3 class="font-bold text-xs text-slate-900">📤 Kirim Laporan Manual</h3>
-                            <p class="text-[11px] text-slate-500 mt-1">Export dan kirim file Excel sheet pilihan ke email.</p>
+                            <h3 class="font-bold text-xs text-slate-900">📤 Laporan Manual</h3>
+                            <p class="text-[11px] text-slate-500 mt-1">Export Excel ke email.</p>
                         </button>
                         ${isSuper ? `
                         <button onclick="loadAdminManagement()" class="bg-purple-50 border border-purple-200 p-4 rounded-xl shadow-sm text-left hover:border-purple-400 transition">
@@ -145,7 +139,6 @@
             loadSensusData();
         }
 
-// --- KELOLA ADMIN (KHUSUS SUPER ADMIN) ---
         async function loadAdminManagement() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat daftar pengurus...</p>`;
@@ -157,7 +150,6 @@
 
                 area.innerHTML = `
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Form Tambah Admin / Pengurus Baru -->
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 h-fit">
                             <h3 class="font-bold text-xs text-slate-900 mb-2">➕ Tambah Pengurus Baru</h3>
                             <p class="text-[11px] text-slate-500 mb-4">Pilih hak akses role untuk akun pengurus yang akan dibuat.</p>
@@ -186,7 +178,6 @@
                             </form>
                         </div>
 
-                        <!-- Daftar Pengurus Aktif -->
                         <div class="md:col-span-2 space-y-3">
                             <h3 class="font-bold text-xs text-slate-900">Daftar Pengurus Gereja (${admins.length} Akun)</h3>
                             <div class="space-y-2">
@@ -222,7 +213,7 @@
                 action: "addAdmin",
                 admin_id: admin.id,
                 nama: document.getElementById("newAdminNama").value,
-                role: document.getElementById("newAdminRole").value, // Mengambil nilai dari dropdown role baru
+                role: document.getElementById("newAdminRole").value,
                 username: document.getElementById("newAdminUser").value,
                 password: document.getElementById("newAdminPass").value
             };
@@ -235,15 +226,15 @@
                 const result = await res.json();
                 alert(result.message);
                 if (result.status === "success") {
-                    loadAdminManagement(); // Refresh daftar
+                    loadAdminManagement();
                 }
             } catch (err) {
                 alert("Gagal menambahkan pengurus: " + err);
             }
         }
+
         async function deleteAdminItem(targetId) {
             if (!confirm("Yakin ingin mencabut akses pengurus ini?")) return;
-            
             const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
             try {
                 const res = await fetch(SCRIPT_URL, {
@@ -252,13 +243,12 @@
                 });
                 const result = await res.json();
                 alert(result.message);
-                loadAdminManagement(); // Refresh daftar
+                loadAdminManagement();
             } catch (err) {
                 alert("Gagal menghapus admin: " + err);
             }
         }
 
-        // --- 3. AMBIL & TAMPILKAN DATA SENSUS JEMAAT (DENGAN USERNAME & VERIFIKASI) ---
         async function loadSensusData() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat data jemaat...</p>`;
@@ -341,7 +331,6 @@
             }
         }
 
-        // --- 4. MODERASI & APPROVAL KOTAK DOA ---
         async function loadPrayerData() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat data kotak doa...</p>`;
@@ -417,7 +406,6 @@
             }
         }
 
-        // --- 5. KELOLA & APPROVAL DONASI ---
         async function loadDonationAdmin() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat data donasi...</p>`;
@@ -537,7 +525,6 @@
             }
         }
 
-        // --- 6. FORM KELOLA KEGIATAN ---
         function loadEventForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
@@ -596,7 +583,6 @@
             }
         }
 
-// --- 7. PENGATURAN PUSH NOTIFIKASI (MENGGUNAKAN LINK URL GAMBAR) ---
         async function loadNotificationAdmin() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat pengaturan notifikasi...</p>`;
@@ -606,7 +592,6 @@
                 const result = await res.json();
                 const notif = result.data || { is_active: false, message: "" };
                 
-                // Deteksi apakah pesan saat ini adalah sebuah link URL gambar
                 const isUrlImage = notif.message && (notif.message.startsWith('http://') || notif.message.startsWith('https://') || notif.message.match(/\.(jpeg|jpg|png|webp)$/i));
 
                 area.innerHTML = `
@@ -628,21 +613,15 @@
                             </select>
                         </div>
 
-                        <!-- INPUT JIKA TEKS -->
                         <div id="areaTeks" class="${isUrlImage ? 'hidden' : ''} bg-slate-50 border border-slate-200 p-3 rounded-xl">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Isi Pesan Notifikasi</label>
                             <textarea id="notifMessage" rows="4" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none placeholder-slate-400" placeholder="Contoh: Tersedia kotak persembahan khusus...">${!isUrlImage ? notif.message : ''}</textarea>
                         </div>
 
-                        <!-- INPUT JIKA LINK URL GAMBAR -->
                         <div id="areaGambar" class="${isUrlImage ? '' : 'hidden'} bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-2">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Link URL Gambar (URL Publik)</label>
                             <input type="url" id="notifImageUrl" value="${isUrlImage ? notif.message : ''}" class="w-full p-3 border border-slate-300 rounded-xl text-xs outline-none bg-white" placeholder="https://... (paste link gambar di sini)">
                             <p class="text-[10px] text-slate-500 italic">💡 Unggah gambar ke Google Drive (atur izin ke publik), Imgur, atau Postimages, lalu salin link gambarnya ke sini.</p>
-                            
-                            <div class="mt-2 flex justify-center bg-white border border-slate-200 rounded-xl p-2">
-                                <img id="previewUrlImg" src="${isUrlImage ? notif.message : ''}" class="max-h-40 object-contain rounded ${isUrlImage ? '' : 'hidden'}" alt="Preview">
-                            </div>
                         </div>
 
                         <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 px-4 py-3 rounded-xl text-xs font-bold transition shadow-sm mt-2">Simpan & Terapkan Notifikasi</button>
@@ -653,7 +632,6 @@
             }
         }
 
-        // Fungsi Toggle Jenis Input Teks / Gambar
         window.toggleNotifType = function() {
             const type = document.getElementById("notifType").value;
             const areaTeks = document.getElementById("areaTeks");
@@ -668,7 +646,6 @@
             }
         };
 
-        // Fungsi Simpan Notifikasi
         async function handleSaveNotification(e) {
             e.preventDefault();
             const btn = e.target.querySelector("button[type='submit']");
@@ -712,269 +689,392 @@
                 btn.innerText = "Simpan & Terapkan Notifikasi";
             }
         }
-async function showRenunganForm() {
-    const contentArea = document.getElementById("adminContentArea");
-    contentArea.innerHTML = `
-        <div class="space-y-6">
-            <!-- BAGIAN 1: FORM INPUT RENUNGAN BARU -->
-            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl max-w-2xl">
-                <h2 class="text-lg font-bold text-slate-100">Input Renungan & Ayat Emas Baru</h2>
-                <p class="text-xs text-slate-400 mb-4">Tambahkan stok renungan baru ke dalam database.</p>
-                
-                <form id="formAddRenungan" onsubmit="submitNewRenungan(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal Renungan</label>
-                        <input type="date" id="inputTanggal" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Referensi Ayat (Contoh: Filipi 4:13)</label>
-                        <input type="text" id="inputAyatHarian" placeholder="Misal: Yohanes 3:16" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Isi Ayat Alkitab</label>
-                        <textarea id="inputIsiAyat" rows="3" placeholder="Tuliskan ayat lengkap di sini..." required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Isi Pesan Renungan</label>
-                        <textarea id="inputRenungan" rows="5" placeholder="Tuliskan isi renungan harian di sini..." required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none"></textarea>
-                    </div>
-                    <button type="submit" id="btnSubmitRenungan" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-2.5 rounded-xl transition shadow-lg shadow-purple-600/30">
-                        Simpan ke Stok Renungan
-                    </button>
-                </form>
-            </div>
 
-            <!-- BAGIAN 2: TABEL STOK & PILIH TANGGAL TAYANG -->
-            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
-                <h3 class="font-bold text-sm text-slate-100 mb-1">Stok Arsip Renungan & Pilih Tanggal Tayang</h3>
-                <p class="text-xs text-slate-400 mb-4">Pilih salah satu tanggal di bawah ini dan klik "Tayangkan" agar tampil di aplikasi jemaat.</p>
-                
-                <div id="renunganStockLoading" class="text-xs text-slate-400 py-4 text-center">Memuat daftar stok renungan...</div>
-                
-                <div id="renunganTableWrapper" class="overflow-x-auto hidden">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead>
-                            <tr class="bg-slate-950 border-b border-slate-800 text-slate-400">
-                                <th class="p-3">Tanggal</th>
-                                <th class="p-3">Ayat Emas</th>
-                                <th class="p-3">Pratinjau Renungan</th>
-                                <th class="p-3 text-center">Aksi Tayang</th>
-                            </tr>
-                        </thead>
-                        <tbody id="renunganTableBody" class="divide-y divide-slate-800 text-slate-300">
-                            <!-- Diisi via JavaScript -->
-                        </tbody>
-                    </table>
+        // --- FITUR BARU: MASS BROADCAST UPDATE ---
+        async function loadMassBroadcastForm() {
+            const area = document.getElementById("adminContentArea");
+            area.innerHTML = `
+                <div class="max-w-2xl mx-auto space-y-4">
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-900">Mass Broadcast Update</h3>
+                        <p class="text-xs text-slate-500">Kirimkan pemberitahuan massal atau terarah langsung ke jemaat[cite: 3].</p>
+                    </div>
+                    <form onsubmit="handleSendBroadcast(event)" class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Kategori Target Broadcast</label>
+                            <select id="bcTargetType" onchange="toggleBroadcastTarget()" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
+                                <option value="global">Opsi Global (Untuk Semua Jemaat)[cite: 3]</option>
+                                <option value="users">Opsi Users (Target Spesifik / Jemaat Tertentu)[cite: 3]</option>
+                            </select>
+                        </div>
+
+                        <!-- Opsi Global -->
+                        <div id="bcGlobalOptions" class="space-y-3">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Pilihan Cepat Global</label>
+                            <select id="bcGlobalCategory" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
+                                <option value="Liturgi diperbarui">Liturgi diperbarui[cite: 3]</option>
+                                <option value="Warta diperbarui">Warta diperbarui[cite: 3]</option>
+                                <option value="Kegiatan diperbarui">Kegiatan diperbarui[cite: 3]</option>
+                                <option value="Lainnya">Lainnya (Input teks bebas)[cite: 3]</option>
+                            </select>
+                        </div>
+
+                        <!-- Opsi Users (Spesifik) -->
+                        <div id="bcUsersOptions" class="space-y-3 hidden">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Visibilitas[cite: 3]</label>
+                                    <select id="bcVisibility" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
+                                        <option value="Private">Private[cite: 3]</option>
+                                        <option value="Global">Global[cite: 3]</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis Pemberitahuan[cite: 3]</label>
+                                    <select id="bcUserCategory" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
+                                        <option value="Status Verifikasi diperbarui">Status Verifikasi diperbarui[cite: 3]</option>
+                                        <option value="Lainnya">Lainnya[cite: 3]</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Nama Jemaat (Mention)[cite: 3]</label>
+                                <select id="bcTargetUserId" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none">
+                                    <option value="">Memuat daftar jemaat...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Pesan / Konten Broadcast</label>
+                            <textarea id="bcMessage" rows="4" required placeholder="Tulis isi pemberitahuan di sini..." class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none"></textarea>
+                        </div>
+
+                        <button type="submit" id="btnSubmitBc" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl text-xs font-semibold transition shadow-sm">
+                            Kirim Broadcast Sekarang 🚀
+                        </button>
+                    </form>
                 </div>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById("inputTanggal").valueAsDate = new Date();
-    loadRenunganStock(); // Muat tabel stok
-}
+            `;
 
-// Fungsi untuk memuat data tabel stok
-async function loadRenunganStock() {
-    try {
-        const res = await fetch(`${SCRIPT_URL}?action=getAdminRenunganList`);
-        const result = await res.json();
-        const list = result.renunganList || [];
-        
-        document.getElementById("renunganStockLoading").classList.add("hidden");
-        document.getElementById("renunganTableWrapper").classList.remove("hidden");
-        
-        const tbody = document.getElementById("renunganTableBody");
-        if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Belum ada stok renungan. Silakan input di atas.</td></tr>`;
-            return;
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`);
+                const result = await res.json();
+                const selectUser = document.getElementById("bcTargetUserId");
+                if (result.users && result.users.length > 0) {
+                    selectUser.innerHTML = result.users.map(u => `<option value="${u.id}">${u.nama_lengkap} (${u.username || 'Tanpa Username'})</option>`).join('');
+                } else {
+                    selectUser.innerHTML = `<option value="">Tidak ada jemaat ditemukan</option>`;
+                }
+            } catch (err) {
+                console.error("Gagal memuat list user untuk broadcast");
+            }
         }
 
-        // Urutkan dari tanggal terbaru ke terlama
-        list.reverse();
+        function toggleBroadcastTarget() {
+            const type = document.getElementById("bcTargetType").value;
+            const globalOpt = document.getElementById("bcGlobalOptions");
+            const usersOpt = document.getElementById("bcUsersOptions");
 
-tbody.innerHTML = list.map(item => {
-            // Ubah format YYYY-MM-DD menjadi Tanggal Indonesia (Cth: 26 Agustus 2026)
-            let displayDate = item.tanggal;
-            if (item.tanggal) {
-                let parts = item.tanggal.split("-");
-                if (parts.length === 3) {
-                    let tahun = parts[0];
-                    let bulanIndo = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                    let bulan = bulanIndo[parseInt(parts[1], 10)] || parts[1];
-                    let hari = parseInt(parts[2], 10);
-                    displayDate = `${hari} ${bulan} ${tahun}`;
-                }
+            if (type === 'global') {
+                globalOpt.classList.remove("hidden");
+                usersOpt.classList.add("hidden");
+            } else {
+                globalOpt.classList.add("hidden");
+                usersOpt.classList.remove("hidden");
             }
+        }
 
-            return `
-                <tr class="hover:bg-slate-800/50 transition">
-                    <td class="p-3 font-bold text-purple-400 whitespace-nowrap">${displayDate}</td>
-                    <td class="p-3">
-                        <div class="font-semibold text-slate-200">${item.ayat_harian}</div>
-                        <div class="text-[10px] text-slate-400 italic truncate max-w-xs">"${item.isi_ayat}"</div>
-                    </td>
-                    <td class="p-3 text-slate-400 text-[11px] truncate max-w-xs">${item.renungan}</td>
-                    <td class="p-3 text-center whitespace-nowrap">
-                        <button onclick="makeActiveRenungan(${item.row_index}, '${displayDate}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-md">
-                            🚀 Tayangkan
-                        </button>
-                    </td>
-                </tr>
+        async function handleSendBroadcast(e) {
+            e.preventDefault();
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
+            const targetType = document.getElementById("bcTargetType").value;
+            
+            const payload = {
+                action: "sendBroadcast",
+                admin_id: admin.id || "ADMIN",
+                target_type: targetType,
+                message: document.getElementById("bcMessage").value,
+                category: targetType === 'global' ? document.getElementById("bcGlobalCategory").value : document.getElementById("bcUserCategory").value,
+                visibility: targetType === 'users' ? document.getElementById("bcVisibility").value : 'Global',
+                target_user_id: targetType === 'users' ? document.getElementById("bcTargetUserId").value : null
+            };
+
+            const btn = document.getElementById("btnSubmitBc");
+            btn.disabled = true;
+            btn.innerText = "Mengirim Broadcast...";
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                alert(result.message || "Broadcast berhasil dikirim!");
+                document.getElementById("bcMessage").value = "";
+            } catch (err) {
+                alert("Gagal mengirim broadcast: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Kirim Broadcast Sekarang 🚀";
+            }
+        }
+
+        async function showRenunganForm() {
+            const contentArea = document.getElementById("adminContentArea");
+            contentArea.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl max-w-2xl">
+                        <h2 class="text-lg font-bold text-slate-100">Input Renungan & Ayat Emas Baru</h2>
+                        <p class="text-xs text-slate-400 mb-4">Tambahkan stok renungan baru ke dalam database.</p>
+                        
+                        <form id="formAddRenungan" onsubmit="submitNewRenungan(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal Renungan</label>
+                                <input type="date" id="inputTanggal" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Referensi Ayat (Contoh: Filipi 4:13)</label>
+                                <input type="text" id="inputAyatHarian" placeholder="Misal: Yohanes 3:16" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Isi Ayat Alkitab</label>
+                                <textarea id="inputIsiAyat" rows="3" placeholder="Tuliskan ayat lengkap di sini..." required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Isi Pesan Renungan</label>
+                                <textarea id="inputRenungan" rows="5" placeholder="Tuliskan isi renungan harian di sini..." required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none"></textarea>
+                            </div>
+                            <button type="submit" id="btnSubmitRenungan" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-2.5 rounded-xl transition shadow-lg shadow-purple-600/30">
+                                Simpan ke Stok Renungan
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                        <h3 class="font-bold text-sm text-slate-100 mb-1">Stok Arsip Renungan & Pilih Tanggal Tayang</h3>
+                        <p class="text-xs text-slate-400 mb-4">Pilih salah satu tanggal di bawah ini dan klik "Tayangkan" agar tampil di aplikasi jemaat.</p>
+                        
+                        <div id="renunganStockLoading" class="text-xs text-slate-400 py-4 text-center">Memuat daftar stok renungan...</div>
+                        
+                        <div id="renunganTableWrapper" class="overflow-x-auto hidden">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-950 border-b border-slate-800 text-slate-400">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Ayat Emas</th>
+                                        <th class="p-3">Pratinjau Renungan</th>
+                                        <th class="p-3 text-center">Aksi Tayang</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="renunganTableBody" class="divide-y divide-slate-800 text-slate-300">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             `;
-        }).join('');
-    } catch (err) {
-        document.getElementById("renunganStockLoading").innerText = "Gagal memuat daftar stok renungan.";
-    }
-}
+            
+            document.getElementById("inputTanggal").valueAsDate = new Date();
+            loadRenunganStock();
+        }
 
-// Fungsi saat tombol "Tayangkan" diklik admin
-async function makeActiveRenungan(rowIndex, tanggal) {
-    if (!confirm(`Yakin ingin menayangkan renungan untuk tanggal ${tanggal} ke aplikasi jemaat?`)) return;
+        async function loadRenunganStock() {
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getAdminRenunganList`);
+                const result = await res.json();
+                const list = result.renunganList || [];
+                
+                document.getElementById("renunganStockLoading").classList.add("hidden");
+                document.getElementById("renunganTableWrapper").classList.remove("hidden");
+                
+                const tbody = document.getElementById("renunganTableBody");
+                if (list.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Belum ada stok renungan. Silakan input di atas.</td></tr>`;
+                    return;
+                }
 
-    const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
-    try {
-        const res = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify({
-                action: "setActiveRenungan",
+                list.reverse();
+
+                tbody.innerHTML = list.map(item => {
+                    let displayDate = item.tanggal;
+                    if (item.tanggal) {
+                        let parts = item.tanggal.split("-");
+                        if (parts.length === 3) {
+                            let tahun = parts[0];
+                            let bulanIndo = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                            let bulan = bulanIndo[parseInt(parts[1], 10)] || parts[1];
+                            let hari = parseInt(parts[2], 10);
+                            displayDate = `${hari} ${bulan} ${tahun}`;
+                        }
+                    }
+
+                    return `
+                        <tr class="hover:bg-slate-800/50 transition">
+                            <td class="p-3 font-bold text-purple-400 whitespace-nowrap">${displayDate}</td>
+                            <td class="p-3">
+                                <div class="font-semibold text-slate-200">${item.ayat_harian}</div>
+                                <div class="text-[10px] text-slate-400 italic truncate max-w-xs">"${item.isi_ayat}"</div>
+                            </td>
+                            <td class="p-3 text-slate-400 text-[11px] truncate max-w-xs">${item.renungan}</td>
+                            <td class="p-3 text-center whitespace-nowrap">
+                                <button onclick="makeActiveRenungan(${item.row_index}, '${displayDate}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-md">
+                                    🚀 Tayangkan
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                document.getElementById("renunganStockLoading").innerText = "Gagal memuat daftar stok renungan.";
+            }
+        }
+
+        async function makeActiveRenungan(rowIndex, tanggal) {
+            if (!confirm(`Yakin ingin menayangkan renungan untuk tanggal ${tanggal} ke aplikasi jemaat?`)) return;
+
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "setActiveRenungan",
+                        admin_id: admin ? admin.id : "ADMIN",
+                        row_index: rowIndex
+                    })
+                });
+                const result = await res.json();
+                alert(result.message);
+                loadRenunganStock();
+            } catch (err) {
+                alert("Gagal mengubah status tayang: " + err);
+            }
+        }
+
+        async function submitNewRenungan(event) {
+            event.preventDefault();
+            const btn = document.getElementById("btnSubmitRenungan");
+            btn.innerText = "Menyimpan...";
+            btn.disabled = true;
+
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const payload = {
+                action: "addRenungan",
                 admin_id: admin ? admin.id : "ADMIN",
-                row_index: rowIndex
-            })
-        });
-        const result = await res.json();
-        alert(result.message);
-        loadRenunganStock(); // Refresh tabel
-    } catch (err) {
-        alert("Gagal mengubah status tayang: " + err);
-    }
-}
+                tanggal: document.getElementById("inputTanggal").value,
+                ayat_harian: document.getElementById("inputAyatHarian").value,
+                isi_ayat: document.getElementById("inputIsiAyat").value,
+                renungan: document.getElementById("inputRenungan").value
+            };
 
-// Fungsi Submit Form Input Stok Baru
-async function submitNewRenungan(event) {
-    event.preventDefault();
-    const btn = document.getElementById("btnSubmitRenungan");
-    btn.innerText = "Menyimpan...";
-    btn.disabled = true;
+            try {
+                let res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                let json = await res.json();
+                alert(json.message || "Renungan berhasil disimpan ke stok!");
+                document.getElementById("formAddRenungan").reset();
+                document.getElementById("inputTanggal").valueAsDate = new Date();
+                loadRenunganStock();
+            } catch (err) {
+                alert("Gagal mengirim data: " + err);
+            } finally {
+                btn.innerText = "Simpan ke Stok Renungan";
+                btn.disabled = false;
+            }
+        }
 
-    const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
-    const payload = {
-        action: "addRenungan",
-        admin_id: admin ? admin.id : "ADMIN",
-        tanggal: document.getElementById("inputTanggal").value,
-        ayat_harian: document.getElementById("inputAyatHarian").value,
-        isi_ayat: document.getElementById("inputIsiAyat").value,
-        renungan: document.getElementById("inputRenungan").value
-    };
-
-    try {
-        let res = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
-        let json = await res.json();
-        alert(json.message || "Renungan berhasil disimpan ke stok!");
-        document.getElementById("formAddRenungan").reset();
-        document.getElementById("inputTanggal").valueAsDate = new Date();
-        loadRenunganStock(); // Refresh tabel otomatis agar data baru langsung muncul
-    } catch (err) {
-        alert("Gagal mengirim data: " + err);
-    } finally {
-        btn.innerText = "Simpan ke Stok Renungan";
-        btn.disabled = false;
-    }
-}
-        // --- 8. LOGOUT ADMIN ---
         function adminLogout() {
             sessionStorage.removeItem("admin_gereja");
             window.location.reload();
         }
-// --- 9. KIRIM MANUAL LAPORAN ---
+
         function openManualReportMenu() {
-    const area = document.getElementById("adminContentArea") || document.querySelector("main");
-    if (!area) return;
+            const area = document.getElementById("adminContentArea") || document.querySelector("main");
+            if (!area) return;
 
-    area.innerHTML = `
-        <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <div class="flex justify-between items-center border-b pb-3">
-                <div>
-                    <h3 class="font-bold text-sm text-slate-900">📤 Kirim Laporan & Backup Manual</h3>
-                    <p class="text-[11px] text-slate-500">Pilih sheet data yang ingin diexport ke format Excel dan masukkan email tujuannya.</p>
-                </div>
-                <button onclick="location.reload()" class="text-xs text-slate-500 hover:text-slate-800 font-semibold">✕ Tutup</button>
-            </div>
-
-            <form onsubmit="handleSendManualReport(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">E-mail Tujuan Laporan</label>
-                    <input type="email" id="reportEmail" required placeholder="Cth: sekretariat@gmitjpo.org" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-purple-600">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-2">Pilih Sheet yang Akan Diexport:</label>
-                    <div class="grid grid-cols-2 gap-2 text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Users" checked class="rounded text-purple-600"> Users (Jemaat)</label>
-                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Donations" checked class="rounded text-purple-600"> Donations (Keuangan)</label>
-                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Prayers" checked class="rounded text-purple-600"> Prayers (Doa)</label>
-                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Events" class="rounded text-purple-600"> Events (Agenda)</label>
-                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Renungan" class="rounded text-purple-600"> Renungan</label>
-                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Logs" class="rounded text-purple-600"> Logs Aktivitas</label>
+            area.innerHTML = `
+                <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b pb-3">
+                        <div>
+                            <h3 class="font-bold text-sm text-slate-900">📤 Kirim Laporan & Backup Manual</h3>
+                            <p class="text-[11px] text-slate-500">Pilih sheet data yang ingin diexport ke format Excel dan masukkan email tujuannya.</p>
+                        </div>
+                        <button onclick="location.reload()" class="text-xs text-slate-500 hover:text-slate-800 font-semibold">✕ Tutup</button>
                     </div>
+
+                    <form onsubmit="handleSendManualReport(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">E-mail Tujuan Laporan</label>
+                            <input type="email" id="reportEmail" required placeholder="Cth: sekretariat@gmitjpo.org" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:border-purple-600">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-2">Pilih Sheet yang Akan Diexport:</label>
+                            <div class="grid grid-cols-2 gap-2 text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Users" checked class="rounded text-purple-600"> Users (Jemaat)</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Donations" checked class="rounded text-purple-600"> Donations (Keuangan)</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Prayers" checked class="rounded text-purple-600"> Prayers (Doa)</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Events" class="rounded text-purple-600"> Events (Agenda)</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Renungan" class="rounded text-purple-600"> Renungan</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="sheetOption" value="Logs" class="rounded text-purple-600"> Logs Aktivitas</label>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 pt-2">
+                            <button type="submit" id="btnSendReport" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl text-xs font-semibold transition shadow-sm">
+                                Kirim Berkas Laporan Sekarang 🚀
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="flex gap-2 pt-2">
-                    <button type="submit" id="btnSendReport" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl text-xs font-semibold transition shadow-sm">
-                        Kirim Berkas Laporan Sekarang 🚀
-                    </button>
-                </div>
-            </form>
-        </div>
-    `;
-}
-
-async function handleSendManualReport(e) {
-    e.preventDefault();
-    const email = document.getElementById("reportEmail").value;
-    
-    const checkboxes = document.querySelectorAll('input[name="sheetOption"]:checked');
-    const selectedSheets = Array.from(checkboxes).map(cb => cb.value);
-
-    if (selectedSheets.length === 0) {
-        alert("Pilih minimal satu sheet untuk dikirim!");
-        return;
-    }
-
-    const adminSession = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
-    const btn = document.getElementById("btnSendReport");
-    
-    btn.disabled = true;
-    btn.innerText = "Sedang meracik file Excel & mengirim email...";
-
-    try {
-        const payload = {
-            action: "sendManualReport",
-            admin_id: adminSession.id || "SuperAdmin",
-            email: email,
-            sheets: selectedSheets
-        };
-
-        const res = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
-        const result = await res.json();
-
-        alert(result.message);
-        if (result.status === "success") {
-            document.getElementById("reportEmail").value = "";
+            `;
         }
-    } catch (err) {
-        alert("Terjadi kesalahan koneksi: " + err.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerText = "Kirim Berkas Laporan Sekarang 🚀";
-    }
-}
+
+        async function handleSendManualReport(e) {
+            e.preventDefault();
+            const email = document.getElementById("reportEmail").value;
+            
+            const checkboxes = document.querySelectorAll('input[name="sheetOption"]:checked');
+            const selectedSheets = Array.from(checkboxes).map(cb => cb.value);
+
+            if (selectedSheets.length === 0) {
+                alert("Pilih minimal satu sheet untuk dikirim!");
+                return;
+            }
+
+            const adminSession = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
+            const btn = document.getElementById("btnSendReport");
+            
+            btn.disabled = true;
+            btn.innerText = "Sedang meracik file Excel & mengirim email...";
+
+            try {
+                const payload = {
+                    action: "sendManualReport",
+                    admin_id: adminSession.id || "SuperAdmin",
+                    email: email,
+                    sheets: selectedSheets
+                };
+
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                alert(result.message);
+                if (result.status === "success") {
+                    document.getElementById("reportEmail").value = "";
+                }
+            } catch (err) {
+                alert("Terjadi kesalahan koneksi: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Kirim Berkas Laporan Sekarang 🚀";
+            }
+        }
     </script>
 </body>
 </html>
