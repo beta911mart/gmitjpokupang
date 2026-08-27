@@ -170,13 +170,22 @@
         </main>
 
         <!-- NAVIGATION BAR BAWAH (FIXED) -->
-        <nav id="bottomNav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex justify-around p-3 text-xs font-medium text-slate-400 shadow-lg transition-all duration-300">
-            <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🏠 Beranda</button>
-            <button onclick="switchTab('doa')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🙏 Kotak Doa</button>
-            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 inline-flex items-center gap-1 transition">
-                <span>👤</span> <span id="accountNavText">Akun</span>
-            </button>
-        </nav>
+<nav id="bottomNav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex justify-around p-3 text-xs font-medium text-slate-400 shadow-lg transition-all duration-300">
+    <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🏠 Beranda</button>
+    
+    <!-- Kotak Doa dipindah, diganti Notifikasi -->
+    <button onclick="switchTab('notifikasi')" class="relative hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">
+        <span class="relative text-base leading-none">
+            🔔
+            <span id="unreadNotifBadge" class="absolute -top-1.5 -right-2 bg-rose-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+        </span>
+        <span>Notifikasi</span>
+    </button>
+
+    <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 inline-flex items-center gap-1 transition">
+        <span>👤</span> <span id="accountNavText">Akun</span>
+    </button>
+</nav>
     </div>
 
     <!-- MODAL FULLSCREEN UNTUK LIRIK KIDUNG JEMAAT -->
@@ -662,7 +671,7 @@
 </div>
 
 <!-- 7. Dukungan Doa -->
-<div onclick="openPublicPrayerWall()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+<div onclick="openPrayerMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
     <div class="relative w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300
         shadow-[0_0_12px_rgba(110,231,183,0.7),_0_0_25px_rgba(110,231,183,0.4)] 
         hover:shadow-[0_0_20px_rgba(110,231,183,0.9),_0_0_50px_rgba(110,231,183,0.6)]
@@ -730,47 +739,28 @@
 
                     </div>
                 `;
-            } else if (tab === 'doa') {
-                checkAuthBeforeAction(() => {
-                    const user = window.currentUser;
-                    main.innerHTML = `
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <h3 class="font-bold text-base text-purple-400">Kirim Kotak Doa</h3>
-                                <button onclick="openPublicPrayerWall()" class="text-xs text-purple-300 bg-purple-900/50 px-3 py-1.5 rounded-lg border border-purple-800 transition">Lihat Dinding Doa ➔</button>
-                            </div>
-                            <form onsubmit="handleSendPrayer(event)" class="space-y-3">
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">Identitas Pengirim</label>
-                                    <select id="prayerSenderOption" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                        <option value="name">Tampilkan Nama Saya (${user.nama_lengkap})</option>
-                                        <option value="anonymous">Kirim sebagai Anonim (Hamba Tuhan)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">Kategori Doa</label>
-                                    <select id="prayerCategory" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                        <option value="Doa Syukur">Doa Syukur</option>
-                                        <option value="Doa Pergumulan">Doa Pergumulan</option>
-                                        <option value="Doa Khusus">Doa Khusus</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">Pokok Doa</label>
-                                    <textarea id="prayerContent" rows="4" required placeholder="Tuliskan pokok doa..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none"></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-400 mb-1">Privasi Doa</label>
-                                    <select id="prayerPrivacy" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                        <option value="Publik">Publik (Ditampilkan di Dinding Doa setelah disetujui)</option>
-                                        <option value="Rahasia">Rahasia (Hanya Pendeta/Admin)</option>
-                                    </select>
-                                </div>
-                                <button type="submit" id="btnPrayerSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition">Kirim Doa</button>
-                            </form>
-                        </div>
-                    `;
-                });
+            } else if (tab === 'notifikasi') {
+             checkAuthBeforeAction(() => {
+                 document.getElementById("headerTitle").innerText = "Notifikasi & Kotak Masuk";
+                 const badge = document.getElementById("unreadNotifBadge");
+                 if(badge) badge.classList.add("hidden");
+
+                 const main = document.querySelector("main");
+                 main.innerHTML = `
+                     <div class="space-y-3 pt-2">
+                         <div class="flex justify-between items-center mb-3">
+                             <p class="text-[11px] text-slate-400">Pemberitahuan warta, kegiatan & status Anda.</p>
+                             <button onclick="showToast('Semua pesan ditandai telah dibaca.')" class="text-[10px] text-purple-400 font-semibold hover:underline">Tandai Dibaca</button>
+                         </div>
+                         <div id="notifListContainer" class="space-y-2">
+                             <div class="text-center py-10 space-y-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                                 <div class="text-3xl opacity-50">📭</div>
+                                 <p class="text-xs text-slate-400">Belum ada pesan global atau notifikasi khusus untuk Anda.</p>
+                             </div>
+                         </div>
+                     </div>
+                 `;
+             });
             } else if (tab === 'profil') {
                 checkAuthBeforeAction(() => {
                     const user = window.currentUser;
@@ -2482,6 +2472,33 @@ function redirectToRolePanel() {
         window.location.href = "admin.html";
     }
 }
+        function openPrayerMenu(isBack = false) {
+         if (!isBack) pushNavState('openPrayerMenu');
+         const main = document.querySelector("main");
+         document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
+         triggerPageTransition();
+         main.innerHTML = `
+             <div class="space-y-4 pt-2">
+                 <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                 <div class="grid grid-cols-1 gap-4">
+                     <div onclick="switchTab('doa')" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-500/50 cursor-pointer">
+                         <div>
+                             <h4 class="text-sm font-bold text-white flex items-center gap-2">📝 Kirim Pokok Doa</h4>
+                             <p class="text-[11px] text-slate-400 mt-1">Kirim doa syukur atau pergumulan ke kotak doa.</p>
+                         </div>
+                         <span class="bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md ml-2">Kirim</span>
+                     </div>
+                     <div onclick="openPublicPrayerWall()" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-500/50 cursor-pointer">
+                         <div>
+                             <h4 class="text-sm font-bold text-white flex items-center gap-2">🙏 Dinding Doa</h4>
+                             <p class="text-[11px] text-slate-400 mt-1">Lihat dan dukung doa publik jemaat lainnya.</p>
+                         </div>
+                         <span class="bg-purple-600 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md ml-2">Lihat</span>
+                     </div>
+                 </div>
+             </div>
+         `;
+     }
     </script>
 </body>
 </html>
