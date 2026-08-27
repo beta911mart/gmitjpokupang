@@ -142,7 +142,13 @@
         <nav id="bottomNav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex justify-around p-3 text-xs font-medium text-slate-400 shadow-lg transition-all duration-300">
             <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🏠 Beranda</button>
             
-            <button onclick="switchTab('notifikasi')" class="relative hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">🔔Notifikasi</button>
+            <button onclick="switchTab('notifikasi')" class="relative hover:text-purple-400 focus:text-purple-400 flex flex-col items-center gap-1 transition">
+                <span class="relative">
+                    🔔
+                    <span id="unreadNotifBadge" class="absolute -top-1 -right-2 w-2.5 h-2.5 bg-rose-600 rounded-full border-2 border-slate-950 hidden animate-pulse"></span>
+                </span>
+                Notifikasi
+            </button>
 
             <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 inline-flex items-center gap-1 transition">
                 <span>👤</span> <span id="accountNavText">Akun</span>
