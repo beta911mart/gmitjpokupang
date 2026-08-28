@@ -691,7 +691,7 @@
                             // Simpan ID notifikasi terbaru ke localStorage agar badge titik merah tidak menyala terus
                             const latestNotifId = result.notifications[result.notifications.length - 1].id;
                             localStorage.setItem("last_seen_notif_id", latestNotifId);
-
+                            
                             container.innerHTML = result.notifications.map(n => `
                                 <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-sm animate-card-hover">
                                     <div class="flex justify-between items-center">
