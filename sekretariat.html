@@ -879,14 +879,14 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
             btn.disabled = true;
             btn.innerText = "Mengirim Broadcast...";
 
+            // Payload disesuaikan dengan parameter fungsi sendBroadcast(data) di backend
             const payload = {
-                action: "sendBroadcast", // Menyesuaikan aksi backend Apps Script broadcast yang sudah ada
-                target: "Global",
-                kategori: "Sekretariat",
-                pesan: pesan,
-                admin_id: admin ? admin.id : "SEKRETARIAT",
-                admin_nama: admin ? admin.nama : "Sekretariat JPO",
-                catatan_log: `Mengirim Mess Broadcast Global oleh Sekretariat: "${pesan.substring(0, 30)}..."`
+                action: "sendBroadcast",
+                target_type: "global",       // Sesuai dengan backend: targetType = data.target_type
+                category: "Sekretariat",     // Sesuai dengan backend: category = data.category
+                message: pesan,              // Sesuai dengan backend: message = data.message
+                visibility: "Global",
+                admin_id: admin ? admin.id : "SEKRETARIAT"
             };
 
             try {
@@ -896,7 +896,7 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                 });
                 const result = await res.json();
                 
-                alert(result.message || "Broadcast berhasil dikirim!");
+                alert(result.message || "Mess Broadcast berhasil dikirim!");
                 document.getElementById("broadcastMessage").value = "";
             } catch (err) {
                 alert("Gagal mengirim broadcast: " + err);
