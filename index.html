@@ -2470,7 +2470,7 @@
                 </div>
             `;
         }
-// 1. Fungsi Pemutar Suara Notifikasi
+// Fungsi Pemutar Suara Notifikasi yang Aman
         function playNotificationSound() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -2490,11 +2490,11 @@
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + 0.4);
             } catch (e) {
-                console.log("Audio dibatasi oleh browser sebelum ada interaksi.", e);
+                console.log("Audio dibatasi oleh browser:", e);
             }
         }
 
-        // 2. Fungsi Cek Notifikasi Belum Dibaca & Suara
+        // Fungsi Cek Notifikasi Belum Dibaca (Tahan dari data ganda)
         async function checkUnreadNotifications() {
             const savedUser = localStorage.getItem("user_gereja");
             if (!savedUser) return;
@@ -2508,32 +2508,25 @@
                 const result = await response.json();
 
                 if (result.status === "success" && result.notifications && result.notifications.length > 0) {
-                    const latestNotifId = String(result.notifications[result.notifications.length - 1].id);
+                    const notifs = result.notifications;
+                    const latestNotif = notifs[notifs.length - 1];
+                    const latestNotifId = String(latestNotif.id || latestNotif.timestamp);
+                    
                     const lastSeenNotifId = localStorage.getItem("last_seen_notif_id");
+                    const badge = document.getElementById("unreadNotifBadge");
 
-                    // Jika ada ID notif terbaru yang belum sama dengan yang terakhir dilihat
+                    // Jika ada notifikasi baru yang belum dibaca
                     if (latestNotifId !== lastSeenNotifId) {
-                        const badge = document.getElementById("unreadNotifBadge");
                         if (badge) badge.classList.remove("hidden");
-                        
-                        // Bunyikan suara notifikasi
-                        playNotificationSound();
+                        playNotificationSound(); // Bunyikan suara
+                    } else {
+                        if (badge) badge.classList.add("hidden");
                     }
                 }
             } catch (err) {
                 console.log("Gagal mengecek notifikasi baru", err);
             }
         }
-
-        // 3. Inisialisasi Tunggal Saat Halaman Dimuat
-        document.addEventListener("DOMContentLoaded", () => {
-            updateNetworkStatus();
-            switchTab('home', false, true); 
-            checkPushNotification();
-            updateAuthNavText();
-            checkLiveStatusForMenu();
-            checkUnreadNotifications();
-        });
     </script>
 </body>
 </html>
