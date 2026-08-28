@@ -2372,10 +2372,10 @@
             }
         }
 
-        async function handleReplyPrayer(prayerId) {
+async function handleReplyPrayer(prayerId, adminNama) {
             const replyText = prompt("Masukkan balasan pastoral Anda untuk doa ini:");
             if (replyText && replyText.trim() !== "") {
-                showToast("Balasan sedang diproses...", "success");
+                showToast("Mengirim balasan pastoral...", "success");
                 
                 try {
                     const response = await fetch(SCRIPT_URL, {
@@ -2383,7 +2383,8 @@
                         body: JSON.stringify({
                             action: "replyPrayer",
                             prayer_id: prayerId,
-                            reply_text: replyText.trim()
+                            reply_text: replyText.trim(),
+                            admin_nama: adminNama
                         })
                     });
                     const result = await response.json();
