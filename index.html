@@ -805,6 +805,12 @@ container.innerHTML = result.notifications.map(n => {
                                 </button>
                                 ${isAdmin ? `<button onclick="redirectToRolePanel()" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">🔒 Masuk ke Panel Pengurus Gereja (${adminRole || 'Admin'})</button>` : ''}
                             </div>
+                            <!-- Letakkan di bagian bawah dalam tab Profil Jemaat -->
+                            <div class="mt-8 pt-4 border-t border-slate-800 text-center space-y-1">
+                                <p class="text-[11px] font-semibold text-slate-400">GMIT JPO Digital v1.0</p>
+                                <p class="text-[10px] text-slate-500">Ⓒ Copyright by MulMedJPO ℗ 2026</p>
+                                <p class="text-[10px] text-purple-400 font-medium">Supported by ToDek™</p>
+                            </div>
                         </div>
                     `;
                 });
@@ -1566,12 +1572,6 @@ container.innerHTML = result.notifications.map(n => {
                         </div>
                     </div>
                 </div>
-<!-- Letakkan di bagian bawah dalam tab Profil Jemaat -->
-<div class="mt-8 pt-4 border-t border-slate-800 text-center space-y-1">
-    <p class="text-[11px] font-semibold text-slate-400">GMIT JPO Digital v1.0</p>
-    <p class="text-[10px] text-slate-500">Ⓒ Copyright by MulMedJPO ℗ 2026</p>
-    <p class="text-[10px] text-purple-400 font-medium">Supported by ToDek™</p>
-</div>
             `;
         }
 
