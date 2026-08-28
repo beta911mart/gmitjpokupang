@@ -129,6 +129,11 @@
                              <p class="text-[11px] text-slate-500 mt-1">Tambah ayat & renungan.</p>
                         </button>
 
+                        <button onclick="loadSimpleBroadcastForm()" class="bg-purple-900 text-white p-4 rounded-xl border border-purple-800 shadow-sm text-left hover:bg-purple-800 transition">
+                            <h3 class="font-bold text-xs">📢 Broadcast informasi</h3>
+                            <p class="text-[11px] text-purple-300 mt-1">Kirim pesan siaran cepat ke jemaat.</p>
+                        </button>
+                        
                         <button onclick="loadActivityLogs()" class="bg-slate-900 text-white p-4 rounded-xl border border-slate-800 shadow-sm text-left hover:bg-slate-800 transition">
                             <h3 class="font-bold text-xs">📋 Log Aktivitas</h3>
                              <p class="text-[11px] text-slate-400 mt-1">Riwayat aksi sekretariat.</p>
@@ -833,6 +838,72 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
         function adminLogout() {
             sessionStorage.removeItem("admin_gereja");
             window.location.reload();
+        }
+        // --- 10. MESS BROADCAST SEDERHANA (TARGET GLOBAL / SEKRETARIAT) ---
+        function loadSimpleBroadcastForm() {
+            const area = document.getElementById("adminContentArea");
+            area.innerHTML = `
+                <div class="space-y-4 max-w-xl">
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-900">Kirim Mess Broadcast</h3>
+                        <p class="text-xs text-slate-500">Pesan siaran langsung dikirim ke seluruh jemaat secara global.</p>
+                    </div>
+
+                    <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl text-xs text-amber-800 space-y-1">
+                        <p class="font-bold">ℹ️ Informasi Sistem:</p>
+                        <p>• Kategori Target: <b>Global (Semua Jemaat)</b></p>
+                        <p>• Pengirim / Pilihan Cepat: <b>Sekretariat</b></p>
+                    </div>
+
+                    <form onsubmit="handleSendSimpleBroadcast(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Ketik Pesan Broadcast</label>
+                            <textarea id="broadcastMessage" rows="5" required placeholder="Tuliskan isi pengumuman atau pesan siaran di sini..." class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-slate-900"></textarea>
+                        </div>
+                        <button type="submit" id="btnSendBroadcast" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-semibold text-xs transition shadow-md">
+                            🚀 Kirim Broadcast Sekarang
+                        </button>
+                    </form>
+                </div>
+            `;
+        }
+
+        async function handleSendSimpleBroadcast(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnSendBroadcast");
+            const pesan = document.getElementById("broadcastMessage").value.trim();
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+
+            if (!pesan) return alert("Pesan tidak boleh kosong!");
+
+            btn.disabled = true;
+            btn.innerText = "Mengirim Broadcast...";
+
+            const payload = {
+                action: "sendBroadcast", // Menyesuaikan aksi backend Apps Script broadcast yang sudah ada
+                target: "Global",
+                kategori: "Sekretariat",
+                pesan: pesan,
+                admin_id: admin ? admin.id : "SEKRETARIAT",
+                admin_nama: admin ? admin.nama : "Sekretariat JPO",
+                catatan_log: `Mengirim Mess Broadcast Global oleh Sekretariat: "${pesan.substring(0, 30)}..."`
+            };
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                
+                alert(result.message || "Broadcast berhasil dikirim!");
+                document.getElementById("broadcastMessage").value = "";
+            } catch (err) {
+                alert("Gagal mengirim broadcast: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "🚀 Kirim Broadcast Sekarang";
+            }
         }
     </script>
 </body>
