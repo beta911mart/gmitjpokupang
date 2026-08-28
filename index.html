@@ -692,15 +692,41 @@
                             const latestNotifId = result.notifications[result.notifications.length - 1].id;
                             localStorage.setItem("last_seen_notif_id", latestNotifId);
                             
-                            container.innerHTML = result.notifications.map(n => `
-                                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-sm animate-card-hover">
-                                    <div class="flex justify-between items-center">
-                                        <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded font-semibold">${n.category || 'Informasi'}</span>
-                                        <span class="text-[10px] text-slate-500">${n.timestamp ? new Date(n.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) : ''}</span>
-                                    </div>
-                                    <p class="text-xs text-slate-200 leading-relaxed">${n.text}</p>
-                                </div>
-                            `).join('');
+                            container.innerHTML = result.notifications.map(n => {
+    // Mengubah teks [Cek disini] otomatis menjadi link merah berkedip interaktif berdasarkan kategori notifikasi
+    let formattedText = n.text;
+    let targetAction = "switchTab('home')"; // Default ke beranda
+
+    if (n.category && n.category.toLowerCase().includes('liturgi')) {
+        targetAction = "openDownloadCenter()";
+    } else if (n.category && n.category.toLowerCase().includes('warta')) {
+        targetAction = "openDownloadCenter()";
+    } else if (n.category && n.category.toLowerCase().includes('kegiatan')) {
+        targetAction = "openEventsList()";
+    } else if (n.category && n.category.toLowerCase().includes('doa')) {
+        targetAction = "openPublicPrayerWall()";
+    } else if (n.category && n.category.toLowerCase().includes('persembahan')) {
+        targetAction = "openDonationList()";
+    } else if (n.category && n.category.toLowerCase().includes('verifikasi')) {
+        targetAction = "switchTab('profil')";
+    }
+
+    // Mengganti teks [Cek disini] dengan tombol/link merah berkedip
+    formattedText = formattedText.replace(
+        "[Cek disini]", 
+        `<a href="javascript:void(0)" onclick="${targetAction}" class="text-rose-600 font-bold animate-pulse underline ml-1">[Cek disini]</a>`
+    );
+
+    return `
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-sm animate-card-hover">
+            <div class="flex justify-between items-center">
+                <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded font-semibold">${n.category || 'Informasi'}</span>
+                <span class="text-[10px] text-slate-500">${n.timestamp ? new Date(n.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) : ''}</span>
+            </div>
+            <p class="text-xs text-slate-200 leading-relaxed">${formattedText}</p>
+        </div>
+    `;
+}).join('');
                         } else {
                             container.innerHTML = `
                                 <div class="text-center py-10 space-y-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
@@ -2094,35 +2120,39 @@
                     return;
                 }
 
-                const isPengurus = ['Pendeta', 'Majelis', 'Admin', 'Sekretariat'].includes(user.status_pelayanan);
+// Cek apakah user yang login merupakan Pendeta atau Pengurus berhak akses khusus
+                const userRole = String(user.status_pelayanan || user.adminRole || "").toLowerCase();
+                const isPendetaOrAdmin = user.isAdmin || userRole.includes('pendeta') || userRole.includes('super admin');
 
                 container.innerHTML = prayers.map(p => {
-                        const r = p.reactions || {};
-                        return `
-                            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-sm animate-card-hover">
-                                <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
-                                <p class="text-xs text-slate-200 italic mt-1">"${p.isi_doa}"</p>
-                                <p class="text-[10px] text-slate-400">Oleh: ${p.nama_pengirim}</p>
-                                
-                                ${p.balasan ? `
-                                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl mt-2">
-                                        <p class="text-[10px] font-bold text-amber-400 mb-1">Balasan Pastoral:</p>
-                                        <p class="text-[11px] text-slate-300 italic">${p.balasan}</p>
-                                    </div>
-                                ` : ''}
-
-                                <div class="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-2">
-                                    <div class="flex gap-1.5 flex-wrap">
-                                        <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
-                                        <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
-                                        <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
-                                        <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
-                                    </div>
-                                    ${isPengurus ? `<button onclick="handleReplyPrayer('${p.id}')" class="text-[10px] font-semibold text-purple-400 hover:text-purple-300">Balas 💬</button>` : ''}
+                    const r = p.reactions || {};
+                    return `
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-sm animate-card-hover">
+                            <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
+                            <p class="text-xs text-slate-200 italic mt-1">"${p.isi_doa}"</p>
+                            <p class="text-[10px] text-slate-400">Oleh: ${p.nama_pengirim}</p>
+                            
+                            ${p.balasan ? `
+                                <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl mt-2">
+                                    <p class="text-[10px] font-bold text-amber-400 mb-1">Balasan Pastoral:</p>
+                                    <p class="text-[11px] text-slate-300 italic whitespace-pre-line">${p.balasan}</p>
                                 </div>
+                            ` : ''}
+
+                            <div class="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-2">
+                                <div class="flex gap-1.5 flex-wrap">
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
+                                </div>
+                                
+                                <!-- Tombol Balas hanya muncul untuk Pendeta / Super Admin -->
+                                ${isPendetaOrAdmin ? `<button onclick="handleReplyPrayer('${p.id}', '${user.nama_lengkap || user.nama || 'Pendeta'}')" class="text-[10px] font-semibold text-purple-400 hover:text-purple-300">Balas 💬</button>` : ''}
                             </div>
-                        `;
-                    }).join('');
+                        </div>
+                    `;
+                }).join('');
             } catch (err) {
                 document.getElementById("publicPrayerContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat dinding doa.</p>`;
             }
