@@ -692,26 +692,30 @@
                             const latestNotifId = result.notifications[result.notifications.length - 1].id;
                             localStorage.setItem("last_seen_notif_id", latestNotifId);
                             
-                            container.innerHTML = result.notifications.map(n => {
-    // Mengubah teks [Cek disini] otomatis menjadi link merah berkedip interaktif berdasarkan kategori notifikasi
+container.innerHTML = result.notifications.map(n => {
     let formattedText = n.text;
-    let targetAction = "switchTab('home')"; // Default ke beranda
+    let targetAction = "switchTab('home')"; // Default
+    
+    // Ubah menjadi huruf kecil agar pencarian kata kunci lebih akurat
+    const cat = (n.category || "").toLowerCase();
+    const textLower = (n.text || "").toLowerCase();
 
-    if (n.category && n.category.toLowerCase().includes('liturgi')) {
+    // Deteksi berdasarkan kategori atau isi teks notifikasi
+    if (cat.includes('liturgi') || textLower.includes('liturgi')) {
         targetAction = "openDownloadCenter()";
-    } else if (n.category && n.category.toLowerCase().includes('warta')) {
+    } else if (cat.includes('warta') || textLower.includes('warta')) {
         targetAction = "openDownloadCenter()";
-    } else if (n.category && n.category.toLowerCase().includes('kegiatan')) {
+    } else if (cat.includes('kegiatan') || cat.includes('agenda') || textLower.includes('kegiatan')) {
         targetAction = "openEventsList()";
-    } else if (n.category && n.category.toLowerCase().includes('doa')) {
+    } else if (cat.includes('doa') || cat.includes('balasan') || textLower.includes('doa')) {
         targetAction = "openPublicPrayerWall()";
-    } else if (n.category && n.category.toLowerCase().includes('persembahan')) {
+    } else if (cat.includes('persembahan') || cat.includes('donasi') || textLower.includes('donasi')) {
         targetAction = "openDonationList()";
-    } else if (n.category && n.category.toLowerCase().includes('verifikasi')) {
+    } else if (cat.includes('verifikasi') || textLower.includes('akun')) {
         targetAction = "switchTab('profil')";
     }
 
-    // Mengganti teks [Cek disini] dengan tombol/link merah berkedip
+    // Mengganti [Cek disini] dengan tombol/link merah berkedip interaktif
     formattedText = formattedText.replace(
         "[Cek disini]", 
         `<a href="javascript:void(0)" onclick="${targetAction}" class="text-rose-600 font-bold animate-pulse underline ml-1">[Cek disini]</a>`
