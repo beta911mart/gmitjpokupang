@@ -2425,7 +2425,16 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            updateNetworkStatus();
+            switchTab('home', false, true); 
+            checkPushNotification();
+            updateAuthNavText();
             checkLiveStatusForMenu();
+            
+            // TAMBAHKAN INI: Jalankan pengecekan notifikasi & suara saat aplikasi dimuat
+            checkUnreadNotifications();
+            // Opsional: Cek berkala setiap 2 menit (120000 ms)
+            setInterval(checkUnreadNotifications, 120000); 
         });
 
         function redirectToRolePanel() {
