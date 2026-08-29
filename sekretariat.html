@@ -910,20 +910,20 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
             }
         }
 
-        // --- 11. UPLOAD WARTA / LITURGI (SISTEM TIMPA FILE / LINK TETAP SAMA) ---
+// --- 11. UPLOAD WARTA / LITURGI KE GITHUB VIA BACKEND ---
         function loadUploadDokumenForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
                 <div class="space-y-4 w-full">
                     <div>
-                        <h3 class="font-bold text-sm text-slate-900">📤 Unggah / Perbarui Warta & Liturgi</h3>
-                        <p class="text-xs text-slate-500">File baru akan menimpa file lama otomatis. Link akses jemaat tetap sama abadi.</p>
+                        <h3 class="font-bold text-sm text-slate-900">📤 Unggah / Perbarui Warta & Liturgi (GitHub)</h3>
+                        <p class="text-xs text-slate-500">File baru akan otomatis menimpa file lama di GitHub. Link akses jemaat tetap sama abadi.</p>
                     </div>
 
                     <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl text-xs text-emerald-800 space-y-1">
                         <p class="font-bold">ℹ️ Tips Penting:</p>
                         <p>• Unggah format file berjenis <b>PDF</b>.</p>
-                        <p>• Jika nama file sama dengan minggu lalu, file lama di Google Drive akan otomatis tertimpa versi terbaru.</p>
+                        <p>• Jika nama file sama dengan minggu lalu, file di repository akan otomatis diperbarui versinya.</p>
                     </div>
 
                     <form onsubmit="handleUploadDokumen(event)" class="space-y-3 w-full">
@@ -936,21 +936,53 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Judul / Keterangan File</label>
-                            <input type="text" id="upJudul" required placeholder="Cth: Warta Jemaat Minggu Ini" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Dokumen</label>
+                            <select id="upKategori" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
+                                <option value="Warta Jemaat">Warta Jemaat</option>
+                                <option value="Liturgi Ibadah">Liturgi Ibadah</option>
+                                <option value="Surat Edaran">Surat Edaran</option>
+                            </select>
+                        </div>
+
+                        <!-- DROPDOWN PILIHAN JUDUL RUTIN -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Judul / Jenis File</label>
+                            <select id="upPilihanJudul" onchange="cekPilihanJudul(this.value)" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
+                                <option value="Warta Minggu Ini">Warta Minggu Ini</option>
+                                <option value="Liturgi Minggu Ini">Liturgi Minggu Ini</option>
+                                <option value="Lainnya">Lainnya (Ketik Manual)</option>
+                            </select>
+                        </div>
+
+                        <!-- KOTAK KETIK MANUAL (AWALNYA DISEMBUNYIKAN) -->
+                        <div id="wrapperJudulManual" class="hidden">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Ketik Nama / Judul Dokumen</label>
+                            <input type="text" id="upJudulManual" placeholder="Cth: Panduan Perayaan Natal 2026" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih File PDF</label>
                             <input type="file" id="upFile" accept=".pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer">
                         </div>
                         <button type="submit" id="btnUpload" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-semibold text-xs transition shadow-md">
-                            🚀 Unggah & Perbarui File
+                            🚀 Unggah ke GitHub Sekarang
                         </button>
                     </form>
                 </div>
             `;
         }
-
+        function cekPilihanJudul(nilai) {
+            const wrapperManual = document.getElementById("wrapperJudulManual");
+            const inputManual = document.getElementById("upJudulManual");
+            
+            if (nilai === "Lainnya") {
+                wrapperManual.classList.remove("hidden");
+                inputManual.required = true;
+            } else {
+                wrapperManual.classList.add("hidden");
+                inputManual.required = false;
+                inputManual.value = ""; // Bersihkan isi jika ditutup
+            }
+        }
         async function handleUploadDokumen(e) {
             e.preventDefault();
             const btn = document.getElementById("btnUpload");
@@ -960,7 +992,7 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
             if (!file) return alert("Pilih file terlebih dahulu!");
 
             btn.disabled = true;
-            btn.innerText = "Mengunggah ke Google Drive...";
+            btn.innerText = "Mengunggah ke GitHub...";
 
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -969,7 +1001,7 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                 const admin = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
 
                 const payload = {
-                    action: "uploadDokumen",
+                    action: "uploadDokumen", // Akan diarahkan ke fungsi uploadToGitHub di Apps Script
                     kategori: document.getElementById("upKategori").value,
                     judul: document.getElementById("upJudul").value,
                     fileName: file.name,
@@ -977,7 +1009,7 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                     fileData: base64Data,
                     admin_id: admin.id || "SEKRETARIAT",
                     admin_nama: admin.nama || "Sekretariat",
-                    catatan_log: `Mengunggah/Memperbarui dokumen: ${document.getElementById("upJudul").value}`
+                    catatan_log: `Mengunggah dokumen ke GitHub: ${document.getElementById("upJudul").value}`
                 };
 
                 try {
@@ -987,7 +1019,7 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                     });
                     const result = await res.json();
                     
-                    alert(result.message || "Dokumen berhasil diperbarui!");
+                    alert(result.message || "Dokumen berhasil diunggah!");
                     if(result.status === "success") {
                         e.target.reset();
                     }
@@ -995,7 +1027,7 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                     alert("Gagal mengunggah file: " + err);
                 } finally {
                     btn.disabled = false;
-                    btn.innerText = "🚀 Unggah & Perbarui File";
+                    btn.innerText = "🚀 Unggah ke GitHub Sekarang";
                 }
             };
         }
