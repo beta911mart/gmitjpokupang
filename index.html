@@ -2566,20 +2566,35 @@ async function handleReplyPrayer(prayerId, adminNama) {
         });
 
         function redirectToRolePanel() {
-            // Ambil data admin / session dari sessionStorage (sesuaikan dengan key penyimpanan Anda, cth: "admin_gereja" atau "user_session")
-            const adminData = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
-            const role = (adminData.role || adminRole || "").toLowerCase().trim();
+            // Ambil langsung dari penyimpanan sesi browser
+            const sessionData = sessionStorage.getItem("admin_gereja") || sessionStorage.getItem("admin");
+            
+            if (!sessionData) {
+                alert("Sesi pengurus tidak ditemukan. Silakan login ulang.");
+                window.location.href = "index.html";
+                return;
+            }
 
-            // Pemetaan tujuan berdasarkan role
-            if (role.includes("super")) {
+            let adminData = {};
+            try {
+                adminData = JSON.parse(sessionData);
+            } catch (e) {
+                console.error("Gagal membaca data session:", e);
+            }
+
+            // Ambil role secara aman dari properti objek sesi
+            const role = (adminData.role || adminData.jabatan || "").toLowerCase().trim();
+            console.log("Role aktif:", role);
+
+            // Pemetaan tujuan halaman berdasarkan role
+            if (role.includes("super") || role.includes("admin")) {
                 window.location.href = "admin.html";
-            } else if (role.includes("sekretariat") || role.includes("pendeta")) {
+            } else if (role.includes("sekretariat") || role.includes("pendeta") || role.includes("sekre")) {
                 window.location.href = "sekretariat.html";
-            } else if (role.includes("sensus") || role.includes("petugas sensus")) {
+            } else if (role.includes("sensus") || role.includes("petugas")) {
                 window.location.href = "sensus.html";
             } else {
-                // Fallback / Pengaman jika role tidak dikenali tapi dia berstatus admin
-                alert("Role Anda: " + role + ". Mengarahkan ke panel utama.");
+                // Pengaman terakhir jika rolenya tidak teridentifikasi
                 window.location.href = "admin.html";
             }
         }
