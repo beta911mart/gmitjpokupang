@@ -920,10 +920,13 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                         <p class="text-xs text-slate-500">File baru akan otomatis menimpa file lama di GitHub. Link akses jemaat tetap sama abadi.</p>
                     </div>
 
-                    <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl text-xs text-emerald-800 space-y-1">
-                        <p class="font-bold">ℹ️ Tips Penting:</p>
-                        <p>• Unggah format file berjenis <b>PDF</b>.</p>
-                        <p>• Jika nama file sama dengan minggu lalu, file di repository akan otomatis diperbarui versinya.</p>
+                    <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl text-xs text-emerald-800 space-y-1.5">
+                        <p class="font-bold text-emerald-900">ℹ️ Tips & Panduan Penting untuk Sekretariat:</p>
+                        <p>• Format file wajib berjenis <b>PDF</b>.</p>
+                        <p>• <b>Aturan Penamaan File di Komputer (Rename sebelum upload):</b></p>
+                        <p class="pl-2">• Warta: Selalu gunakan nama tetap, cth: <code class="bg-emerald-100 px-1 py-0.5 rounded font-mono text-emerald-900">warta-terbaru.pdf</code></p>
+                        <p class="pl-2">• Liturgi: Selalu gunakan nama tetap, cth: <code class="bg-emerald-100 px-1 py-0.5 rounded font-mono text-emerald-900">liturgi-terbaru.pdf</code></p>
+                        <p>• <i>Dengan nama file yang konsisten setiap minggu, sistem GitHub akan otomatis menimpa file lama dan link jemaat dijamin tetap sama abadi tanpa berubah-ubah!</i></p>
                     </div>
 
                     <form onsubmit="handleUploadDokumen(event)" class="space-y-3 w-full">
@@ -947,11 +950,18 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                         <!-- KATEGORI DOKUMEN -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Dokumen</label>
-                            <select id="upKategori" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
+                            <select id="upPilihanKategori" onchange="cekPilihanKategori(this.value)" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
                                 <option value="Warta Jemaat">Warta Jemaat</option>
                                 <option value="Liturgi Ibadah">Liturgi Ibadah</option>
                                 <option value="Surat Edaran">Surat Edaran</option>
+                                <option value="Lainnya">Lainnya (Ketik Manual)</option>
                             </select>
+                        </div>
+
+                        <!-- KOTAK KETIK MANUAL KATEGORI (AWALNYA DISEMBUNYIKAN) -->
+                        <div id="wrapperKategoriManual" class="hidden">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Ketik Nama Kategori Baru</label>
+                            <input type="text" id="upKategoriManual" placeholder="Cth: Laporan Keuangan" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
                         </div>
 
                         <!-- FILE PDF -->
@@ -982,7 +992,19 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                 inputManual.value = ""; // Bersihkan isi jika ditutup
             }
         }
-
+        function cekPilihanKategori(nilai) {
+            const wrapperKategoriManual = document.getElementById("wrapperKategoriManual");
+            const inputKategoriManual = document.getElementById("upKategoriManual");
+            
+            if (nilai === "Lainnya") {
+                wrapperKategoriManual.classList.remove("hidden");
+                inputKategoriManual.required = true;
+            } else {
+                wrapperKategoriManual.classList.add("hidden");
+                inputKategoriManual.required = false;
+                inputKategoriManual.value = ""; // Bersihkan isi jika ditutup
+            }
+        }
         // FUNGSI EKSEKUSI UPLOAD KE BACKEND
         async function handleUploadDokumen(e) {
             e.preventDefault();
@@ -992,6 +1014,12 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
             
             if (!file) return alert("Pilih file terlebih dahulu!");
 
+            // Menentukan kategori: jika pilih "Lainnya", ambil dari input manual. Jika tidak, ambil dari dropdown.
+            const pilihanKategoriDropdown = document.getElementById("upPilihanKategori").value;
+            const kategoriFinal = (pilihanKategoriDropdown === "Lainnya") 
+                ? document.getElementById("upKategoriManual").value 
+                : pilihanKategoriDropdown;
+            
             // Ambil judul: jika pilih "Lainnya", ambil dari input teks manual. Jika tidak, ambil dari dropdown.
             const pilihanDropdown = document.getElementById("upPilihanJudul").value;
             const judulFinal = (pilihanDropdown === "Lainnya") 
@@ -1009,14 +1037,14 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
 
                 const payload = {
                     action: "uploadDokumen", 
-                    kategori: document.getElementById("upKategori").value,
-                    judul: judulFinal, // Menggunakan judul yang sudah disaring
+                    kategori: kategoriFinal, // <--- Sudah diperbaiki menggunakan variabel kategoriFinal
+                    judul: judulFinal,       // <--- Menggunakan judul yang sudah disaring
                     fileName: file.name,
                     mimeType: file.type,
                     fileData: base64Data,
                     admin_id: admin.id || "SEKRETARIAT",
                     admin_nama: admin.nama || "Sekretariat",
-                    catatan_log: `Mengunggah dokumen ke GitHub: ${judulFinal}`
+                    catatan_log: `Mengunggah dokumen ke GitHub: ${judulFinal} (${kategoriFinal})`
                 };
 
                 try {
@@ -1029,7 +1057,8 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                     alert(result.message || "Dokumen berhasil diunggah!");
                     if(result.status === "success") {
                         e.target.reset();
-                        cekPilihanJudul("Warta Minggu Ini"); // Reset tampilan dropdown ke awal
+                        cekPilihanJudul("Warta Minggu Ini");
+                        cekPilihanKategori("Warta Jemaat"); // Reset tampilan dropdown kategori ke awal
                     }
                 } catch (err) {
                     alert("Gagal mengunggah file: " + err);
