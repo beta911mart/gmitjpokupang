@@ -2566,12 +2566,28 @@ async function handleReplyPrayer(prayerId, adminNama) {
         });
 
         function redirectToRolePanel() {
-            // Ambil langsung dari penyimpanan sesi browser
-            const sessionData = sessionStorage.getItem("admin_gereja") || sessionStorage.getItem("admin");
+            // Cek berbagai kemungkinan nama key sesi login di browser
+            const sessionData = sessionStorage.getItem("admin_gereja") || 
+                                sessionStorage.getItem("admin") || 
+                                sessionStorage.getItem("user_login") || 
+                                sessionStorage.getItem("pengurus");
             
             if (!sessionData) {
-                alert("Sesi pengurus tidak ditemukan. Silakan login ulang.");
-                window.location.href = "index.html";
+                // Jika masih kosong, coba cek apakah role tersimpan di variabel global atau localStorage
+                const fallbackRole = (typeof currentRole !== 'undefined' ? currentRole : "").toLowerCase();
+                
+                if (fallbackRole.includes("super") || fallbackRole.includes("admin")) {
+                    window.location.href = "admin.html";
+                    return;
+                } else if (fallbackRole.includes("sekretariat") || fallbackRole.includes("pendeta")) {
+                    window.location.href = "sekretariat.html";
+                    return;
+                } else if (fallbackRole.includes("sensus")) {
+                    window.location.href = "sensus.html";
+                    return;
+                }
+
+                alert("Sesi pengurus tidak ditemukan. Silakan login ulang melalui menu login khusus pengurus.");
                 return;
             }
 
@@ -2579,12 +2595,13 @@ async function handleReplyPrayer(prayerId, adminNama) {
             try {
                 adminData = JSON.parse(sessionData);
             } catch (e) {
-                console.error("Gagal membaca data session:", e);
+                // Jikalau data di sessionStorage tersimpan sebagai teks biasa (bukan objek JSON)
+                adminData = { role: sessionData };
             }
 
-            // Ambil role secara aman dari properti objek sesi
+            // Ambil role secara aman
             const role = (adminData.role || adminData.jabatan || "").toLowerCase().trim();
-            console.log("Role aktif:", role);
+            console.log("Role aktif yang terbaca:", role);
 
             // Pemetaan tujuan halaman berdasarkan role
             if (role.includes("super") || role.includes("admin")) {
@@ -2594,11 +2611,10 @@ async function handleReplyPrayer(prayerId, adminNama) {
             } else if (role.includes("sensus") || role.includes("petugas")) {
                 window.location.href = "sensus.html";
             } else {
-                // Pengaman terakhir jika rolenya tidak teridentifikasi
+                // Default pengaman jika rolenya tidak terbaca teksnya
                 window.location.href = "admin.html";
             }
         }
-
         function openPrayerMenu(isBack = false) {
             if (!isBack) pushNavState('openPrayerMenu');
             const main = document.querySelector("main");
