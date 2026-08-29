@@ -860,8 +860,17 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
 
         // --- 9. LOGOUT ---
         function adminLogout() {
+            // Hapus data sesi dari semua kemungkinan penyimpanan Satu Pintu
+            sessionStorage.removeItem("user_gereja");
+            localStorage.removeItem("user_gereja");
+            
+            // Jaga-jaga jika masih ada sisa kunci lama
             sessionStorage.removeItem("admin_gereja");
-            window.location.reload();
+            localStorage.removeItem("admin_gereja");
+
+            // Beritahu pengurus dan arahkan kembali ke halaman utama (index.html)
+            alert("Anda telah keluar dari Panel Sekretariat.");
+            window.location.href = "index.html";
         }
 
         // --- 10. MESS BROADCAST SEDERHANA (TARGET GLOBAL / SEKRETARIAT) ---
