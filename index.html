@@ -1603,10 +1603,9 @@ container.innerHTML = result.notifications.map(n => {
                 const result = await res.json();
                 const list = (result.status === "success") ? result.data : [];
 
-                // Cari apakah Warta Minggu Ini & Liturgi Minggu Ini ada di sheet
-                const wartaDok = list.find(d => d.judul.toLowerCase().includes("warta minggu ini") || d.judul.toLowerCase().includes("warta jemaat"));
-                const liturgiDok = list.find(d => d.judul.toLowerCase().includes("liturgi minggu ini") || d.judul.toLowerCase().includes("liturgi ibadah"));
-
+				// Mencari dokumen apa saja yang mengandung kata "warta" atau "liturgi"
+				const wartaDok = list.find(d => d.kategori.toLowerCase().includes("warta") || d.judul.toLowerCase().includes("warta"));
+				const liturgiDok = list.find(d => d.kategori.toLowerCase().includes("liturgi") || d.judul.toLowerCase().includes("liturgi"));
                 // Filter dokumen lain (di luar warta & liturgi rutin utama jika ingin dipisah, atau tampilkan semua)
                 const dokumenLainnya = list.filter(d => d !== wartaDok && d !== liturgiDok);
 
