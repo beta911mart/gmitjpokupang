@@ -27,6 +27,7 @@
             <!-- Konten dinamis dimuat di sini -->
         </main>
     </div>
+
     <script>
         // --- URL WEB APP GOOGLE SCRIPT ANDA ---
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
@@ -39,6 +40,7 @@
                 renderAdminLogin();
             }
         });
+
         // --- 1. HALAMAN LOGIN SEKRETARIAT ---
         function renderAdminLogin() {
             const main = document.querySelector("main");
@@ -96,49 +98,54 @@
             const main = document.querySelector("main");
             main.innerHTML = `
                 <div class="space-y-6">
-                    <!-- Menu Grid Sekretariat -->
+                    <!-- Menu Grid Sekretariat (Semua Tombol Warna Putih) -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <button onclick="loadSensusData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                        <button onclick="loadSensusData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">👥 Data Jemaat</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Daftar sensus & verifikasi.</p>
                         </button>
-                        <button onclick="loadPrayerData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                        <button onclick="loadPrayerData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">🙏 Moderasi Doa</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Approval kotak doa.</p>
                         </button>
-                        <button onclick="loadDonationAdmin()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                        <button onclick="loadDonationAdmin()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">🎁 Kelola Donasi</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Verifikasi persembahan.</p>
                         </button>
-                        <button onclick="loadEventForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                        <button onclick="loadEventForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">📅 Kelola Kegiatan</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Tambah jadwal acara.</p>
                         </button>
                         
                         <!-- Menu Beralih ke Statistik -->
-                        <button onclick="window.location.href='statistik.html'" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                        <button onclick="window.location.href='statistik.html'" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">📊 Statistik</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Lihat demografi jemaat.</p>
                         </button>
                         
-                        <button onclick="showRenunganForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 transition">
+                        <button onclick="showRenunganForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">📖 Input Renungan</h3>
                              <p class="text-[11px] text-slate-500 mt-1">Tambah ayat & renungan.</p>
                         </button>
 
-                        <button onclick="loadSimpleBroadcastForm()" class="bg-purple-900 text-white p-4 rounded-xl border border-purple-800 shadow-sm text-left hover:bg-purple-800 transition">
-                            <h3 class="font-bold text-xs">📢 Broadcast informasi</h3>
-                            <p class="text-[11px] text-purple-300 mt-1">Kirim pesan siaran cepat ke jemaat.</p>
+                        <button onclick="loadSimpleBroadcastForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
+                            <h3 class="font-bold text-xs text-slate-900">📢 Broadcast Informasi</h3>
+                            <p class="text-[11px] text-slate-500 mt-1">Kirim pesan siaran cepat ke jemaat.</p>
+                        </button>
+
+                        <button onclick="loadUploadDokumenForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
+                            <h3 class="font-bold text-xs text-slate-900">📤 Unggah Warta/Liturgi</h3>
+                            <p class="text-[11px] text-slate-500 mt-1">Update file PDF (Link tetap sama).</p>
                         </button>
                         
-                        <button onclick="loadActivityLogs()" class="bg-slate-900 text-white p-4 rounded-xl border border-slate-800 shadow-sm text-left hover:bg-slate-800 transition">
-                            <h3 class="font-bold text-xs">📋 Log Aktivitas</h3>
-                             <p class="text-[11px] text-slate-400 mt-1">Riwayat aksi sekretariat.</p>
+                        <button onclick="loadActivityLogs()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition col-span-2 md:col-span-4">
+                            <h3 class="font-bold text-xs text-slate-900">📋 Log Aktivitas Pengurus</h3>
+                             <p class="text-[11px] text-slate-500 mt-1">Riwayat aksi sekretariat dan pengurus.</p>
                         </button>
                     </div>
 
-                    <!-- Area Konten Dinamis -->
-                    <div id="adminContentArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm min-h-[350px]">
+                    <!-- Area Konten Dinamis (Lebar Penuh) -->
+                    <div id="adminContentArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm w-full min-h-[350px]">
                         <div class="text-center py-16 space-y-2">
                             <div class="text-3xl">👋</div>
                             <h3 class="font-bold text-sm text-slate-700">Selamat Datang, ${admin.nama}</h3>
@@ -148,7 +155,6 @@
                 </div>
             `;
         }
-
 
         // --- 3. AMBIL & TAMPILKAN DATA SENSUS JEMAAT (VERIFIKASI) ---
         async function loadSensusData() {
@@ -166,12 +172,12 @@
                 }
 
                 area.innerHTML = `
-                    <div class="space-y-4">
+                    <div class="space-y-4 w-full">
                         <div>
                             <h3 class="font-bold text-sm">Daftar Sensus Jemaat (${users.length} Jiwa)</h3>
                             <p class="text-xs text-slate-500">Data lengkap, username unik, dan verifikasi centang biru jemaat.</p>
                         </div>
-                        <div class="overflow-x-auto">
+                        <div class="overflow-x-auto w-full">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead>
                                     <tr class="bg-slate-100 border-b border-slate-200 text-slate-600">
@@ -255,14 +261,14 @@
                 }
 
                 area.innerHTML = `
-                    <div class="space-y-4">
+                    <div class="space-y-4 w-full">
                         <div>
                             <h3 class="font-bold text-sm mb-1">Moderasi Kotak Doa Jemaat</h3>
                             <p class="text-xs text-slate-500">Setujui pokok doa berstatus publik agar tampil otomatis di Dinding Doa jemaat.</p>
                         </div>
-                        <div class="space-y-3">
+                        <div class="space-y-3 w-full">
                             ${prayers.map(p => `
-                                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3 w-full">
                                     <div class="space-y-1 flex-1">
                                         <div class="flex items-center gap-2">
                                             <span class="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded font-semibold">${p.kategori_doa}</span>
@@ -342,7 +348,7 @@
                 const donations = result.donations || [];
 
                 area.innerHTML = `
-                    <div class="space-y-4">
+                    <div class="space-y-4 w-full">
                         <div class="flex justify-between items-center">
                             <div>
                                 <h3 class="font-bold text-sm">Verifikasi & Pencatatan Donasi</h3>
@@ -350,10 +356,10 @@
                             </div>
                             <button onclick="loadDonationForm()" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">➕ Input Donasi Manual</button>
                         </div>
-                        <div class="space-y-3">
+                        <div class="space-y-3 w-full">
                             ${donations.length === 0 ? `<p class="text-center text-slate-500 text-sm py-6">Belum ada riwayat donasi.</p>` : 
                                 donations.map(d => `
-                                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex justify-between items-center">
+                                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex justify-between items-center w-full">
                                         <div class="space-y-0.5">
                                             <div class="flex items-center gap-2">
                                                 <h4 class="text-xs font-bold text-slate-900">${d.nama_donatur}</h4>
@@ -426,13 +432,13 @@
         function loadDonationForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
-                <div class="space-y-4">
+                <div class="space-y-4 w-full">
                     <button onclick="loadDonationAdmin()" class="text-xs text-purple-600 font-semibold block">← Kembali ke Daftar Donasi</button>
                     <div>
                         <h3 class="font-bold text-sm text-slate-900">Pencatatan Donasi Manual oleh Pengurus</h3>
                         <p class="text-xs text-slate-500">Catat persembahan kasih secara langsung dari sekretariat.</p>
                     </div>
-                    <form onsubmit="handleSaveDonation(event)" class="space-y-3 max-w-lg">
+                    <form onsubmit="handleSaveDonation(event)" class="space-y-3 w-full">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Donatur</label>
                             <input type="text" id="donNama" required placeholder="Cth: Bpk. Budi / Anonim" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
@@ -453,7 +459,7 @@
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan / Peruntukan</label>
                             <input type="text" id="donKet" required placeholder="Cth: Pembangunan Gedung / Diakonia" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
                         </div>
-                        <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan & Langsung Setujui Donasi</button>
+                        <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition w-full">Simpan & Langsung Setujui Donasi</button>
                     </form>
                 </div>
             `;
@@ -491,12 +497,12 @@
         function loadEventForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
-                <div class="space-y-4">
+                <div class="space-y-4 w-full">
                     <div>
                         <h3 class="font-bold text-sm text-slate-900">Tambah Agenda Kegiatan Baru</h3>
                         <p class="text-xs text-slate-500">Masukkan detail jadwal acara atau kegiatan gereja.</p>
                     </div>
-                    <form onsubmit="handleSaveEvent(event)" class="space-y-3 max-w-lg">
+                    <form onsubmit="handleSaveEvent(event)" class="space-y-3 w-full">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Kegiatan / Acara</label>
                             <input type="text" id="evNama" required placeholder="Cth: Perayaan Natal Rayon 2" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
@@ -519,7 +525,7 @@
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Tambahan</label>
                             <textarea id="evKet" rows="3" placeholder="Catatan atau dresscode jika ada..." class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none"></textarea>
                         </div>
-                        <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition">Simpan Kegiatan</button>
+                        <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition w-full">Simpan Kegiatan</button>
                     </form>
                 </div>
             `;
@@ -556,16 +562,16 @@
         async function showRenunganForm() {
             const contentArea = document.getElementById("adminContentArea");
             contentArea.innerHTML = `
-                <div class="space-y-6">
+                <div class="space-y-6 w-full">
                     <!-- BAGIAN 1: FORM INPUT RENUNGAN BARU -->
-                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl max-w-2xl">
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full">
                         <div class="flex justify-between items-center mb-1">
                             <h2 class="text-lg font-bold text-slate-100" id="formRenunganTitle">Input Renungan & Ayat Emas Baru</h2>
                             <button type="button" id="btnCancelEdit" onclick="resetRenunganForm()" class="hidden text-xs bg-rose-950/50 text-rose-400 border border-rose-900/50 px-2.5 py-1 rounded-lg transition">Batal Edit</button>
                         </div>
                         <p class="text-xs text-slate-400 mb-4" id="formRenunganSubtitle">Tambahkan stok renungan baru ke dalam database.</p>
                         
-                        <form id="formAddRenungan" onsubmit="submitNewRenungan(event)" class="space-y-4">
+                        <form id="formAddRenungan" onsubmit="submitNewRenungan(event)" class="space-y-4 w-full">
                             <input type="hidden" id="editRowIndex" value="">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal Renungan</label>
@@ -597,13 +603,13 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                     </div>
      
                     <!-- BAGIAN 2: TABEL STOK & PILIH TANGGAL TAYANG -->
-                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full">
                         <h3 class="font-bold text-sm text-slate-100 mb-1">Stok Arsip Renungan & Pilih Tanggal Tayang</h3>
                         <p class="text-xs text-slate-400 mb-4">Pilih salah satu tanggal di bawah ini untuk ditayangkan atau diedit ulang.</p>
                         
                         <div id="renunganStockLoading" class="text-xs text-slate-400 py-4 text-center">Memuat daftar stok renungan...</div>
                         
-                        <div id="renunganTableWrapper" class="overflow-x-auto hidden">
+                        <div id="renunganTableWrapper" class="overflow-x-auto hidden w-full">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead>
                                     <tr class="bg-slate-950 border-b border-slate-800 text-slate-400">
@@ -792,12 +798,12 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                 }
 
                 area.innerHTML = `
-                    <div class="space-y-4">
+                    <div class="space-y-4 w-full">
                         <div>
                             <h3 class="font-bold text-sm">Riwayat Aktivitas Pengurus / Sekretariat</h3>
                             <p class="text-xs text-slate-500">Mencatat siapa yang melakukan approve, verifikasi, atau input data penting.</p>
                         </div>
-                        <div class="overflow-x-auto bg-slate-50 border border-slate-200 rounded-xl max-h-[500px] overflow-y-auto">
+                        <div class="overflow-x-auto bg-slate-50 border border-slate-200 rounded-xl max-h-[500px] overflow-y-auto w-full">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead class="sticky top-0 bg-slate-200 shadow-sm text-slate-700">
                                     <tr>
@@ -836,11 +842,12 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
             sessionStorage.removeItem("admin_gereja");
             window.location.reload();
         }
+
         // --- 10. MESS BROADCAST SEDERHANA (TARGET GLOBAL / SEKRETARIAT) ---
         function loadSimpleBroadcastForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
-                <div class="space-y-4 max-w-xl">
+                <div class="space-y-4 w-full">
                     <div>
                         <h3 class="font-bold text-sm text-slate-900">Kirim Mess Broadcast</h3>
                         <p class="text-xs text-slate-500">Pesan siaran langsung dikirim ke seluruh jemaat secara global.</p>
@@ -852,7 +859,7 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                         <p>• Pengirim / Pilihan Cepat: <b>Sekretariat</b></p>
                     </div>
 
-                    <form onsubmit="handleSendSimpleBroadcast(event)" class="space-y-3">
+                    <form onsubmit="handleSendSimpleBroadcast(event)" class="space-y-3 w-full">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Ketik Pesan Broadcast</label>
                             <textarea id="broadcastMessage" rows="5" required placeholder="Tuliskan isi pengumuman atau pesan siaran di sini..." class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-slate-900"></textarea>
@@ -876,14 +883,14 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
             btn.disabled = true;
             btn.innerText = "Mengirim Broadcast...";
 
-            // Payload disesuaikan dengan parameter fungsi sendBroadcast(data) di backend
             const payload = {
                 action: "sendBroadcast",
-                target_type: "global",       // Sesuai dengan backend: targetType = data.target_type
-                category: "Sekretariat",     // Sesuai dengan backend: category = data.category
-                message: pesan,              // Sesuai dengan backend: message = data.message
+                target_type: "global",
+                category: "Sekretariat",
+                message: pesan,
                 visibility: "Global",
-                admin_id: admin ? admin.id : "SEKRETARIAT"
+                admin_id: admin ? admin.id : "SEKRETARIAT",
+                admin_nama: admin ? admin.nama : "Sekretariat"
             };
 
             try {
@@ -901,6 +908,96 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                 btn.disabled = false;
                 btn.innerText = "🚀 Kirim Broadcast Sekarang";
             }
+        }
+
+        // --- 11. UPLOAD WARTA / LITURGI (SISTEM TIMPA FILE / LINK TETAP SAMA) ---
+        function loadUploadDokumenForm() {
+            const area = document.getElementById("adminContentArea");
+            area.innerHTML = `
+                <div class="space-y-4 w-full">
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-900">📤 Unggah / Perbarui Warta & Liturgi</h3>
+                        <p class="text-xs text-slate-500">File baru akan menimpa file lama otomatis. Link akses jemaat tetap sama abadi.</p>
+                    </div>
+
+                    <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl text-xs text-emerald-800 space-y-1">
+                        <p class="font-bold">ℹ️ Tips Penting:</p>
+                        <p>• Unggah format file berjenis <b>PDF</b>.</p>
+                        <p>• Jika nama file sama dengan minggu lalu, file lama di Google Drive akan otomatis tertimpa versi terbaru.</p>
+                    </div>
+
+                    <form onsubmit="handleUploadDokumen(event)" class="space-y-3 w-full">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Dokumen</label>
+                            <select id="upKategori" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
+                                <option value="Warta Jemaat">Warta Jemaat</option>
+                                <option value="Liturgi Ibadah">Liturgi Ibadah</option>
+                                <option value="Surat Edaran">Surat Edaran</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Judul / Keterangan File</label>
+                            <input type="text" id="upJudul" required placeholder="Cth: Warta Jemaat Minggu Ini" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih File PDF</label>
+                            <input type="file" id="upFile" accept=".pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer">
+                        </div>
+                        <button type="submit" id="btnUpload" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-semibold text-xs transition shadow-md">
+                            🚀 Unggah & Perbarui File
+                        </button>
+                    </form>
+                </div>
+            `;
+        }
+
+        async function handleUploadDokumen(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnUpload");
+            const fileInput = document.getElementById("upFile");
+            const file = fileInput.files[0];
+            
+            if (!file) return alert("Pilih file terlebih dahulu!");
+
+            btn.disabled = true;
+            btn.innerText = "Mengunggah ke Google Drive...";
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async function () {
+                const base64Data = reader.result.split(',')[1];
+                const admin = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
+
+                const payload = {
+                    action: "uploadDokumen",
+                    kategori: document.getElementById("upKategori").value,
+                    judul: document.getElementById("upJudul").value,
+                    fileName: file.name,
+                    mimeType: file.type,
+                    fileData: base64Data,
+                    admin_id: admin.id || "SEKRETARIAT",
+                    admin_nama: admin.nama || "Sekretariat",
+                    catatan_log: `Mengunggah/Memperbarui dokumen: ${document.getElementById("upJudul").value}`
+                };
+
+                try {
+                    const res = await fetch(SCRIPT_URL, {
+                        method: "POST",
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await res.json();
+                    
+                    alert(result.message || "Dokumen berhasil diperbarui!");
+                    if(result.status === "success") {
+                        e.target.reset();
+                    }
+                } catch (err) {
+                    alert("Gagal mengunggah file: " + err);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = "🚀 Unggah & Perbarui File";
+                }
+            };
         }
     </script>
 </body>
