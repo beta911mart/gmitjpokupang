@@ -2566,11 +2566,11 @@ async function handleReplyPrayer(prayerId, adminNama) {
         });
 
         function redirectToRolePanel() {
-            // Ambil data dari penyimpanan sesi satu pintu ("user_gereja")
-            const sessionData = sessionStorage.getItem("user_gereja");
+            // Cek di sessionStorage ATAU localStorage (karena login menyimpannya di localStorage)
+            const sessionData = sessionStorage.getItem("user_gereja") || localStorage.getItem("user_gereja");
             
             if (!sessionData) {
-                alert("Sesi pengurus tidak ditemukan. Silakan login terlebih dahulu melalui akun pengurus Anda.");
+                alert("Sesi tidak ditemukan. Silakan login terlebih dahulu.");
                 return;
             }
 
@@ -2583,11 +2583,11 @@ async function handleReplyPrayer(prayerId, adminNama) {
                 return;
             }
 
-            // Ambil role langsung dari kolom role yang dikirim backend
+            // Ambil role langsung dari properti user
             const role = (userData.role || userData.status_pelayanan || "").toLowerCase().trim();
             console.log("Role aktif yang terbaca:", role);
 
-            // Pemetaan tujuan halaman berdasarkan role di sheet
+            // Pemetaan tujuan halaman berdasarkan role
             if (role.includes("super") || role.includes("admin")) {
                 window.location.href = "admin.html";
             } else if (role.includes("sekretariat") || role.includes("pendeta")) {
@@ -2597,33 +2597,6 @@ async function handleReplyPrayer(prayerId, adminNama) {
             } else {
                 alert("Akses ditolak. Role Anda tercatat sebagai: " + (userData.role || "Jemaat"));
             }
-        }
-        function openPrayerMenu(isBack = false) {
-            if (!isBack) pushNavState('openPrayerMenu');
-            const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
-            triggerPageTransition();
-            main.innerHTML = `
-                <div class="space-y-4 pt-2">
-                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <div class="grid grid-cols-1 gap-4">
-                        <div onclick="openFormPrayer()" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-500/50 cursor-pointer">
-                            <div>
-                                <h4 class="text-sm font-bold text-white flex items-center gap-2">📝 Kirim Pokok Doa</h4>
-                                <p class="text-[11px] text-slate-400 mt-1">Kirim doa syukur atau pergumulan ke kotak doa.</p>
-                            </div>
-                            <span class="bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md ml-2">Kirim</span>
-                        </div>
-                        <div onclick="openPublicPrayerWall()" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-500/50 cursor-pointer">
-                            <div>
-                                <h4 class="text-sm font-bold text-white flex items-center gap-2">🙏 Dinding Doa</h4>
-                                <p class="text-[11px] text-slate-400 mt-1">Lihat dan dukung doa publik jemaat lainnya.</p>
-                            </div>
-                            <span class="bg-purple-600 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md ml-2">Lihat</span>
-                        </div>
-                    </div>
-                </div>
-            `;
         }
 // Fungsi Pemutar Suara Notifikasi yang Aman
         function playNotificationSound() {
