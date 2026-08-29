@@ -33,12 +33,33 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
 
         document.addEventListener("DOMContentLoaded", () => {
-            const savedAdmin = sessionStorage.getItem("admin_gereja");
-            if (savedAdmin) {
-                renderAdminDashboard(JSON.parse(savedAdmin));
-            } else {
-                renderAdminLogin();
+            // Cek data dari sistem Satu Pintu (bisa dari sessionStorage atau localStorage)
+            const sessionData = sessionStorage.getItem("user_gereja") || localStorage.getItem("user_gereja");
+            
+            if (sessionData) {
+                try {
+                    const user = JSON.parse(sessionData);
+                    const role = (user.role || user.status_pelayanan || user.adminRole || "").toLowerCase();
+                    
+                    // Pastikan yang masuk benar-benar memiliki hak akses Sekretariat atau Super Admin
+                    if (user.isAdmin || role.includes("sekretariat") || role.includes("sekertariat") || role.includes("super")) {
+                        // Ubah format objek user agar kompatibel dengan variabel 'admin' di dashboard sekretariat
+                        const adminObj = {
+                            id: user.id,
+                            nama: user.nama_lengkap || user.nama,
+                            role: user.adminRole || user.role || "Sekretariat"
+                        };
+                        renderAdminDashboard(adminObj);
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Gagal parse data sesi:", e);
+                }
             }
+            
+            // Jika tidak ada sesi atau bukan hak akses sekretariat, arahkan kembali ke login utama
+            alert("Akses ditolak! Silakan login terlebih dahulu melalui halaman utama jemaat.");
+            window.location.href = "index.html";
         });
 
         // --- 1. HALAMAN LOGIN SEKRETARIAT ---
