@@ -806,14 +806,14 @@ container.innerHTML = result.notifications.map(n => {
                             </div>
 
                             <div class="space-y-2">
-                                <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition flex items-center justify-center gap-1.5">
-                                    <span>✏️</span> Lengkapi / Perbarui Data Diri
-                                </button>
-                                <button onclick="logout()" class="w-full bg-rose-950/50 hover:bg-rose-900/40 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition">
-                                    Keluar (Logout)
-                                </button>
-                                ${isAdmin ? `<button onclick="redirectToRolePanel()" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">🔒 Masuk ke Panel Pengurus Gereja (${adminRole || 'Admin'})</button>` : ''}
-                            </div>
+    							<button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition flex items-center justify-center gap-1.5">
+        							<span>✏️</span> Lengkapi / Perbarui Data Diri
+    							</button>
+    							<button onclick="logout()" class="w-full bg-rose-950/50 hover:bg-rose-900/40 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition">
+        							Keluar (Logout)
+    							</button>
+    							${isAdmin ? `<button onclick="redirectToRolePanel()" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">🔒 Masuk ke Panel ${adminRole || 'Pengurus'}</button>` : ''}
+							</div>
                         </div>
                     `;
                 });
@@ -2566,16 +2566,20 @@ async function handleReplyPrayer(prayerId, adminNama) {
         });
 
         function redirectToRolePanel() {
-            const userSession = JSON.parse(sessionStorage.getItem("user_gereja") || sessionStorage.getItem("admin_gereja") || "{}");
-            const role = String(userSession.adminRole || userSession.role || "").trim();
-            
-            if (role === "Sekretariat") {
-                window.location.href = "sekretariat.html";
-            } else if (role === "Petugas Sensus") {
-                window.location.href = "sensus.html";
-            } else if (role === "Admin Operator" || role === "Super Admin" || role === "") {
+            // Ambil data admin / session dari sessionStorage (sesuaikan dengan key penyimpanan Anda, cth: "admin_gereja" atau "user_session")
+            const adminData = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
+            const role = (adminData.role || adminRole || "").toLowerCase().trim();
+
+            // Pemetaan tujuan berdasarkan role
+            if (role.includes("super")) {
                 window.location.href = "admin.html";
+            } else if (role.includes("sekretariat") || role.includes("pendeta")) {
+                window.location.href = "sekretariat.html";
+            } else if (role.includes("sensus") || role.includes("petugas sensus")) {
+                window.location.href = "sensus.html";
             } else {
+                // Fallback / Pengaman jika role tidak dikenali tapi dia berstatus admin
+                alert("Role Anda: " + role + ". Mengarahkan ke panel utama.");
                 window.location.href = "admin.html";
             }
         }
