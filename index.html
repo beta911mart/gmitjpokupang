@@ -1577,49 +1577,126 @@ container.innerHTML = result.notifications.map(n => {
                 </div>
             `;
         }
-
-        function openDownloadCenter(isBack = false) {
+	async function openDownloadCenter(isBack = false) {
             if (!isBack) pushNavState('openDownloadCenter');
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Pusat Dokumen PDF";
             triggerPageTransition();
+
+            // Tampilkan skeleton/loading sementara mengambil data dari sheet
             main.innerHTML = `
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                     <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
                         <p class="text-xs text-purple-200">Lihat warta mingguan, lembar liturgi, dan dokumen penting gereja secara langsung.</p>
                     </div>
-                    <div class="space-y-3">
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50">
-                            <div>
-                                <h4 class="text-xs font-bold text-white">Warta Jemaat Minggu Ini</h4>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Format PDF &bull; Dokumen Gereja</p>
-                            </div>
-                            <a href="https://drive.google.com/file/d/1EUp278X4-vIYYj-YiE2ojna8U1B0fhhq/preview" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Tampilkan</a>
-                        </div>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50">
-                            <div>
-                                <h4 class="text-xs font-bold text-white">Liturgi Minggu Ini</h4>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Format PDF &bull; Dokumen Gereja</p>
-                            </div>
-                            <a href="https://drive.google.com/file/d/1obNymOMTjqMSflQvTfBMN7RIy7VcO-zI/preview" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Tampilkan</a>
-                        </div>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50">
-                            <div>
-                                <h4 class="text-xs font-bold text-white">Liturgi Ekspresif bulan Ini</h4>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Format PDF &bull; Dokumen Gereja</p>
-                            </div>
-                            <a href="https://drive.google.com/file/d/1-_0oUG1XBw9LDGH5ZAdJWM3JoDMuBfRj/preview" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Tampilkan</a>
-                        </div>
-                    </div>
+                    <div class="text-center py-8 text-xs text-slate-400 animate-pulse">Memuat data dokumen terbaru...</div>
                 </div>
             `;
-        }
 
+            try {
+                // Ambil data dari backend (ArsipDokumen)
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "getDaftarDokumen" })
+                });
+                const result = await res.json();
+                const list = (result.status === "success") ? result.data : [];
+
+                // Cari apakah Warta Minggu Ini & Liturgi Minggu Ini ada di sheet
+                const wartaDok = list.find(d => d.judul.toLowerCase().includes("warta minggu ini") || d.judul.toLowerCase().includes("warta jemaat"));
+                const liturgiDok = list.find(d => d.judul.toLowerCase().includes("liturgi minggu ini") || d.judul.toLowerCase().includes("liturgi ibadah"));
+
+                // Filter dokumen lain (di luar warta & liturgi rutin utama jika ingin dipisah, atau tampilkan semua)
+                const dokumenLainnya = list.filter(d => d !== wartaDok && d !== liturgiDok);
+
+                let htmlContent = `
+                    <div class="space-y-4">
+                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                        <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
+                            <p class="text-xs text-purple-200">Lihat warta mingguan, lembar liturgi, dan dokumen penting gereja secara langsung.</p>
+                        </div>
+                        <div class="space-y-3">
+                `;
+
+                // 1. RENDER KARTU RUTIN: WARTA MINGGU INI
+                if (wartaDok) {
+                    htmlContent += `
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">${wartaDok.judul}</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5">${wartaDok.kategori} &bull; Tersedia</p>
+                            </div>
+                            <a href="${wartaDok.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Tampilkan</a>
+                        </div>
+                    `;
+                } else {
+                    htmlContent += `
+                        <div class="bg-slate-900/60 border border-slate-800/60 p-4 rounded-2xl flex items-center justify-between opacity-60">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-400">Warta Minggu Ini</h4>
+                                <p class="text-[10px] text-amber-400 mt-0.5">Belum diunggah oleh sekretariat</p>
+                            </div>
+                            <button disabled class="bg-slate-800 text-slate-500 px-3 py-2 rounded-xl text-xs font-semibold cursor-not-allowed">Kosong</button>
+                        </div>
+                    `;
+                }
+
+                // 2. RENDER KARTU RUTIN: LITURGI MINGGU INI
+                if (liturgiDok) {
+                    htmlContent += `
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">${liturgiDok.judul}</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5">${liturgiDok.kategori} &bull; Tersedia</p>
+                            </div>
+                            <a href="${liturgiDok.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Tampilkan</a>
+                        </div>
+                    `;
+                } else {
+                    htmlContent += `
+                        <div class="bg-slate-900/60 border border-slate-800/60 p-4 rounded-2xl flex items-center justify-between opacity-60">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-400">Liturgi Minggu Ini</h4>
+                                <p class="text-[10px] text-amber-400 mt-0.5">Belum diunggah oleh sekretariat</p>
+                            </div>
+                            <button disabled class="bg-slate-800 text-slate-500 px-3 py-2 rounded-xl text-xs font-semibold cursor-not-allowed">Kosong</button>
+                        </div>
+                    `;
+                }
+
+                // 3. RENDER OTOMATIS DOKUMEN TAMBAHAN / LAINNYA (JIKA ADA BARU)
+                if (dokumenLainnya.length > 0) {
+                    htmlContent += `<div class="pt-2"><p class="text-[11px] font-semibold text-slate-400 mb-2">📁 Dokumen & Arsip Lainnya</p></div>`;
+                    dokumenLainnya.forEach(doc => {
+                        htmlContent += `
+                            <div class="space-y-3">
+                                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50">
+                                    <div>
+                                        <h4 class="text-xs font-bold text-white">${doc.judul}</h4>
+                                        <p class="text-[10px] text-slate-400 mt-0.5">${doc.kategori} &bull; Format PDF</p>
+                                    </div>
+                                    <a href="${doc.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Tampilkan</a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                htmlContent += `</div></div>`;
+                main.innerHTML = htmlContent;
+
+            } catch (err) {
+                main.innerHTML = `
+                    <div class="space-y-4">
+                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                        <div class="bg-red-950/40 border border-red-900/40 p-4 rounded-xl text-xs text-red-200">
+                            Gagal memuat daftar dokumen: ${err}
+                        </div>
+                    </div>
+                `;
+            }
+        }
         function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
