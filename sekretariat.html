@@ -927,15 +927,6 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                     </div>
 
                     <form onsubmit="handleUploadDokumen(event)" class="space-y-3 w-full">
-                        <!-- KATEGORI DOKUMEN -->
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Dokumen</label>
-                            <select id="upKategori" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
-                                <option value="Warta Jemaat">Warta Jemaat</option>
-                                <option value="Liturgi Ibadah">Liturgi Ibadah</option>
-                                <option value="Surat Edaran">Surat Edaran</option>
-                            </select>
-                        </div>
 
                         <!-- DROPDOWN PILIHAN JUDUL RUTIN -->
                         <div>
@@ -951,6 +942,16 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                         <div id="wrapperJudulManual" class="hidden">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Ketik Nama / Judul Dokumen</label>
                             <input type="text" id="upJudulManual" placeholder="Cth: Panduan Perayaan Natal 2026" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        </div>
+                        
+                        <!-- KATEGORI DOKUMEN -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Dokumen</label>
+                            <select id="upKategori" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
+                                <option value="Warta Jemaat">Warta Jemaat</option>
+                                <option value="Liturgi Ibadah">Liturgi Ibadah</option>
+                                <option value="Surat Edaran">Surat Edaran</option>
+                            </select>
                         </div>
 
                         <!-- FILE PDF -->
