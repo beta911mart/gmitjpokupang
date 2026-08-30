@@ -969,12 +969,16 @@ function openSuratForm(jenisSurat) {
     document.getElementById("headerTitle").innerText = "Form " + jenisSurat;
     triggerPageTransition();
 
-    // Pastikan mengambil dari objek sesi user yang sedang aktif
-    // Sesuaikan 'window.currentUser' dengan variabel sesi yang Anda gunakan di aplikasi Anda
-    const user = window.currentUser || {}; 
-
-    // Debugging sementara untuk memastikan data user ada (bisa dihapus jika sudah normal)
-    console.log("Data User Aktif:", user);
+    // Mengambil data dari localStorage
+    let user = {};
+    try {
+        const savedUser = localStorage.getItem("currentUser");
+        if (savedUser) {
+            user = JSON.parse(savedUser);
+        }
+    } catch (e) {
+        console.error("Gagal membaca data user:", e);
+    }
 
     main.innerHTML = `
         <div class="space-y-4">
@@ -987,6 +991,7 @@ function openSuratForm(jenisSurat) {
                 
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">Nama Lengkap</label>
+                    <!-- Perhatikan valuenya sekarang memanggil user.nama_lengkap -->
                     <input type="text" id="inputNama" value="${user.nama_lengkap || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" readonly>
                 </div>
 
@@ -1007,26 +1012,30 @@ function openSuratForm(jenisSurat) {
         </div>
     `;
 }
-
 // Fungsi Eksekusi: Simpan ke Backend lalu Buka WA
 function submitAndRedirectWA() {
     const jenisSurat = document.getElementById("jenisSuratVal").value;
     const nama = document.getElementById("inputNama").value;
     const wa = document.getElementById("inputWa").value;
     const keterangan = document.getElementById("inputKeterangan").value;
-    const currentUser = window.currentUser || {};
+    
+    // Mengambil data user untuk ID
+    let user = {};
+    try {
+        const savedUser = localStorage.getItem("currentUser");
+        if (savedUser) user = JSON.parse(savedUser);
+    } catch (e) {}
 
     if (!wa || !keterangan) {
         alert("Mohon lengkapi nomor WhatsApp dan keterangan keperluan Anda.");
         return;
     }
 
-    // Tampilkan indikator loading sederhana
     alert("Menyimpan data pengajuan ke database...");
 
     const payload = {
         action: "submitSuratRequest",
-        id_user: currentUser.id || "Tamu",
+        id_user: user.id || "Tamu",
         nama_lengkap: nama,
         jenis_surat: jenisSurat,
         keterangan: keterangan,
@@ -1037,6 +1046,7 @@ function submitAndRedirectWA() {
     google.script.run
         .withSuccessHandler(function(response) {
             if (response.status === "success") {
+				localStorage.setItem("currentUser", JSON.stringify(response.user));
                 // Format pesan otomatis untuk WhatsApp Sekretariat
                 let pesanWa = `Shalom Sekretariat Gereja,%0A%0ASaya ingin mengajukan permohonan surat:%0A` +
                               `- *Jenis*: ${encodeURIComponent(jenisSurat)}%0A` +
