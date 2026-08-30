@@ -31,6 +31,16 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
         
+        @keyframes churchSpin3D {
+            0% { transform: rotateY(0deg); }
+            20% { transform: rotateY(360deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        .animate-church-spin {
+            animation: churchSpin3D 3s infinite ease-in-out;
+            transform-style: preserve-3d;
+        }
+
         .animate-slide-in { animation: slideInFromTop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-fade-in { animation: smoothFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-card-hover { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -118,8 +128,8 @@
                     <button onclick="setTheme('emerald')" class="text-left px-3 py-2 rounded-xl text-xs bg-emerald-900/60 text-emerald-100 border border-emerald-700/60 hover:border-emerald-400 transition duration-300">🌿 Emerald Nature (Segar)</button>
                     <button onclick="setTheme('purple')" class="text-left px-3 py-2 rounded-xl text-xs bg-fuchsia-900/60 text-fuchsia-100 border border-fuchsia-700/60 hover:border-fuchsia-400 transition duration-300">🍇 Royal Purple (Elegan)</button>
                     <button onclick="setTheme('sunset')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-900/60 text-amber-100 border border-amber-700/60 hover:border-amber-400 transition duration-300">🌅 Warm Sunset (Hangat)</button>
-                    <button onclick="setTheme('christmas')" class="text-left px-3 py-2 rounded-xl text-xs bg-red-950/60 border border-red-900/70 hover:border-red-500 transition duration-300 flex items-center justify-between"><span>🎄 Tema Natal (Kepingan Salju)</span><span>⭐</span></button>
-                    <button onclick="setTheme('easter')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-950/60 border border-amber-900/70 hover:border-amber-500 transition duration-300 flex items-center justify-between"><span>✝️ Tema Paskah (Bentuk Telur)</span><span>🕊️</span></button>
+                    <button onclick="setTheme('christmas')" class="text-left px-3 py-2 rounded-xl text-xs bg-red-950/60 border border-red-900/70 hover:border-red-500 transition duration-300 flex items-center justify-between"><span>🎄 Tema Natal (Salju)</span><span>⭐</span></button>
+                    <button onclick="setTheme('easter')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-950/60 border border-amber-900/70 hover:border-amber-500 transition duration-300 flex items-center justify-between"><span>✝️ Tema Paskah (Telur)</span><span>🕊️</span></button>
                     <button onclick="setTheme('light')" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-100 text-slate-900 border border-slate-300 hover:border-slate-500 transition duration-300">☀️ Light Clean</button>
                     
                     <button onclick="toggleSeniorMode()" id="seniorModeBtn" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-400 transition duration-300 flex items-center justify-between">
@@ -149,7 +159,7 @@
         <header class="bg-slate-800/80 backdrop-blur-md p-4 fixed top-0 left-0 right-0 z-40 max-w-md landscape:max-w-3xl md:max-w-md mx-auto border-b border-slate-700 flex justify-between items-center shadow-lg">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar(true)" class="w-10 h-10 bg-purple-600 hover:bg-purple-700 rounded-full flex items-center justify-center font-bold text-white shadow-lg shadow-purple-500/30 transition duration-300 cursor-pointer" title="Buka Menu Pengaturan">
-                    <i class="fa-solid fa-church"></i>
+                    <i id="headerChurchIcon" class="fa-solid fa-church"></i>
                 </button>
                 <div>
                     <h1 id="headerTitle" class="text-sm font-bold leading-tight">GMIT Pniel Oebobo</h1>
@@ -400,7 +410,7 @@
                 if (bannerContainer) {
                     bannerContainer.innerHTML = `
                         <div class="bg-emerald-900 text-amber-300 text-[11px] font-bold text-center py-1 px-2 border-b border-amber-500/40 flex items-center justify-center gap-2 shadow-inner">
-                            <span>🎄</span> <span>Selamat Hari Natal & Sukacita Damai Sejahtera! (Tombol: Kepingan Salju)</span> <span>❄️</span>
+                            <span>🎄</span> <span>Selamat Hari Natal & Sukacita Damai Sejahtera!</span> <span>❄️</span>
                         </div>
                     `;
                 }
@@ -411,7 +421,7 @@
                 if (bannerContainer) {
                     bannerContainer.innerHTML = `
                         <div class="bg-purple-900 text-amber-200 text-[11px] font-bold text-center py-1 px-2 border-b border-purple-500/40 flex items-center justify-center gap-2 shadow-inner">
-                            <span>✝️</span> <span>Selamat Paskah - Kristus Telah Bangkit! (Tombol: Bentuk Telur)</span> <span>🕊️</span>
+                            <span>✝️</span> <span>Selamat Paskah - Kristus Telah Bangkit!</span> <span>🕊️</span>
                         </div>
                     `;
                 }
@@ -2722,6 +2732,18 @@
             }
         }
 
+        function initChurchSpinTimer() {
+            setInterval(() => {
+                const icon = document.getElementById('headerChurchIcon');
+                if (icon) {
+                    icon.classList.add('animate-church-spin');
+                    setTimeout(() => {
+                        icon.classList.remove('animate-church-spin');
+                    }, 3000);
+                }
+            }, 10000);
+        }
+
         function showInstallGuideModal() {
             const modalHTML = `
                 <div id="installGuideOverlay" class="fixed inset-0 bg-black/85 z-[9999] flex items-center justify-center p-4 backdrop-blur-md animate-fade-in">
@@ -2842,13 +2864,13 @@
                 setTheme(savedTheme, true);
             }
             
-            // FIX: Selalu render halaman beranda pada saat muat ulang aplikasi agar tidak blank
             switchTab('home', false, true); 
 
             checkPushNotification();
             updateAuthNavText();
             checkLiveStatusForMenu();
             checkInstallOnboarding();
+            initChurchSpinTimer();
             
             const savedSeniorMode = localStorage.getItem('gmit_senior_mode');
             if (savedSeniorMode === 'true') {
