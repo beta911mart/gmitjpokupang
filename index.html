@@ -2466,7 +2466,33 @@ container.innerHTML = result.notifications.map(n => {
                 showToast("Gagal mencatat reaksi ke server", "error");
             }
         }
-
+		
+function openPrayerMenu(isBack = false) {
+    if (!isBack) pushNavState('openPrayerMenu');
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
+    triggerPageTransition();
+    
+    main.innerHTML = `
+        <div class="space-y-4">
+            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <div onclick="openPublicPrayerWall()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition shadow-sm animate-card-hover">
+                    <div class="text-3xl mb-2">🌍</div>
+                    <h4 class="font-bold text-xs text-white">Dinding Doa Publik</h4>
+                    <p class="text-[10px] text-slate-400 mt-1">Lihat & dukung doa jemaat</p>
+                </div>
+                
+                <div onclick="openFormPrayer()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition shadow-sm animate-card-hover">
+                    <div class="text-3xl mb-2">✍️</div>
+                    <h4 class="font-bold text-xs text-white">Kirim Pokok Doa</h4>
+                    <p class="text-[10px] text-slate-400 mt-1">Bagikan pergumulan Anda</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
 async function handleReplyPrayer(prayerId, adminNama) {
             const replyText = prompt("Masukkan balasan pastoral Anda untuk doa ini:");
             if (replyText && replyText.trim() !== "") {
