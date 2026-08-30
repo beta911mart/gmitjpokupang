@@ -918,156 +918,143 @@ container.innerHTML = result.notifications.map(n => {
         }
 
 function openCategoriesMenu(isBack = false) {
-    if (!isBack) pushNavState('openCategoriesMenu');
-    const main = document.querySelector("main");
-    document.getElementById("headerTitle").innerText = "Layanan Sekretariat";
-    triggerPageTransition();
-    
-    main.innerHTML = `
-        <div class="space-y-4">
-            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+            if (!isBack) pushNavState('openCategoriesMenu');
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Layanan Sekretariat";
+            triggerPageTransition();
             
-            <div class="bg-amber-950/40 border border-amber-900/40 p-3 rounded-xl">
-                <p class="text-xs text-amber-200">Pilih jenis layanan surat menyurat yang Anda butuhkan di bawah ini.</p>
-            </div>
-
-            <div class="space-y-3">
-                <!-- Pilihan 1: Surat Keterangan / Pindah -->
-                <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm hover:border-amber-500/50 transition">
-                    <div>
-                        <h4 class="text-xs font-bold text-white">✉️ Surat Keterangan Jemaat / Pindah</h4>
-                        <p class="text-[10px] text-slate-400">Pengajuan surat aktif, pindah gereja, dll.</p>
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    
+                    <div class="bg-amber-950/40 border border-amber-900/40 p-3 rounded-xl">
+                        <p class="text-xs text-amber-200">Pilih jenis layanan surat menyurat yang Anda butuhkan di bawah ini.</p>
                     </div>
-                    <button onclick="openSuratForm('Surat Keterangan / Pindah')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Buat Pengajuan</button>
-                </div>
 
-                <!-- Pilihan 2: Pengantar Nikah / Baptis / Sidi -->
-                <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm hover:border-amber-500/50 transition">
-                    <div>
-                        <h4 class="text-xs font-bold text-white">⛪ Pengantar Sakramen & Nikah</h4>
-                        <p class="text-[10px] text-slate-400">Pendaftaran Baptis, Sidi, atau Pemberkatan.</p>
+                    <div class="space-y-3">
+                        <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">✉️ Surat Keterangan Jemaat / Pindah</h4>
+                                <p class="text-[10px] text-slate-400">Pengajuan surat aktif, pindah gereja, dll.</p>
+                            </div>
+                            <button onclick="checkAuthBeforeAction(() => openSuratForm('Surat Keterangan / Pindah'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Buat Pengajuan</button>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">⛪ Pengantar Sakramen & Nikah</h4>
+                                <p class="text-[10px] text-slate-400">Pendaftaran Baptis, Sidi, atau Pemberkatan.</p>
+                            </div>
+                            <button onclick="checkAuthBeforeAction(() => openSuratForm('Pengantar Sakramen / Nikah'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Buat Pengajuan</button>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">📄 Surat Rekomendasi Umum</h4>
+                                <p class="text-[10px] text-slate-400">Keperluan beasiswa, urusan kampus, dll.</p>
+                            </div>
+                            <button onclick="checkAuthBeforeAction(() => openSuratForm('Surat Rekomendasi Umum'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Buat Pengajuan</button>
+                        </div>
                     </div>
-                    <button onclick="openSuratForm('Pengantar Sakramen / Nikah')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Buat Pengajuan</button>
                 </div>
-
-                <!-- Pilihan 3: Surat Rekomendasi / Lainnya -->
-                <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm hover:border-amber-500/50 transition">
-                    <div>
-                        <h4 class="text-xs font-bold text-white">📄 Surat Rekomendasi Umum</h4>
-                        <p class="text-[10px] text-slate-400">Keperluan beasiswa, urusan kampus, dll.</p>
-                    </div>
-                    <button onclick="openSuratForm('Surat Rekomendasi Umum')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Buat Pengajuan</button>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Fungsi untuk merender Form Dinamis Berdasarkan Jenis Surat
-function openSuratForm(jenisSurat) {
-    const main = document.querySelector("main");
-    document.getElementById("headerTitle").innerText = "Form " + jenisSurat;
-    triggerPageTransition();
-
-    // Mengambil data dari localStorage
-    let user = {};
-    try {
-        const savedUser = localStorage.getItem("currentUser");
-        if (savedUser) {
-            user = JSON.parse(savedUser);
+            `;
         }
-    } catch (e) {
-        console.error("Gagal membaca data user:", e);
-    }
 
-    main.innerHTML = `
-        <div class="space-y-4">
-            <button onclick="openCategoriesMenu(true)" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Menu Sekretariat</button>
+        // Perbaikan: Mengambil nama lengkap user secara akurat ke form formulir surat
+        function openSuratForm(jenisSurat) {
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Form " + jenisSurat;
+            triggerPageTransition();
+
+            let user = {};
+            try {
+                const savedUser = localStorage.getItem("user_gereja") || localStorage.getItem("currentUser");
+                if (savedUser) {
+                    user = JSON.parse(savedUser);
+                }
+            } catch (e) {
+                console.error("Gagal membaca data user:", e);
+            }
+
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="openCategoriesMenu(true)" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Menu Sekretariat</button>
+                    
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3">
+                        <h3 class="text-sm font-bold text-white border-b border-slate-800 pb-2">Formulir ${jenisSurat}</h3>
+                        
+                        <input type="hidden" id="jenisSuratVal" value="${jenisSurat}">
+                        
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-1">Nama Lengkap</label>
+                            <input type="text" id="inputNama" value="${user.nama_lengkap || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" readonly>
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-1">Nomor WhatsApp Aktif</label>
+                            <input type="text" id="inputWa" value="${user.no_whatsapp || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" placeholder="Contoh: 08123456789">
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-1">Keterangan / Keperluan Detail</label>
+                            <textarea id="inputKeterangan" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" placeholder="Tuliskan detail atau tujuan pengajuan surat ini..."></textarea>
+                        </div>
+
+                        <button onclick="submitAndRedirectWA()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg transition">
+                            Simpan & Kirim Konfirmasi ke WA Sekretariat
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function submitAndRedirectWA() {
+            const jenisSurat = document.getElementById("jenisSuratVal").value;
+            const nama = document.getElementById("inputNama").value;
+            const wa = document.getElementById("inputWa").value;
+            const keterangan = document.getElementById("inputKeterangan").value;
             
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3">
-                <h3 class="text-sm font-bold text-white border-b border-slate-800 pb-2">Formulir ${jenisSurat}</h3>
-                
-                <input type="hidden" id="jenisSuratVal" value="${jenisSurat}">
-                
-                <div>
-                    <label class="text-[10px] text-slate-400 block mb-1">Nama Lengkap</label>
-                    <!-- Perhatikan valuenya sekarang memanggil user.nama_lengkap -->
-                    <input type="text" id="inputNama" value="${user.nama_lengkap || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" readonly>
-                </div>
+            let user = {};
+            try {
+                const savedUser = localStorage.getItem("user_gereja") || localStorage.getItem("currentUser");
+                if (savedUser) user = JSON.parse(savedUser);
+            } catch (e) {}
 
-                <div>
-                    <label class="text-[10px] text-slate-400 block mb-1">Nomor WhatsApp Aktif</label>
-                    <input type="text" id="inputWa" value="${user.no_whatsapp || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" placeholder="Contoh: 08123456789">
-                </div>
+            if (!wa || !keterangan) {
+                alert("Mohon lengkapi nomor WhatsApp dan keterangan keperluan Anda.");
+                return;
+            }
 
-                <div>
-                    <label class="text-[10px] text-slate-400 block mb-1">Keterangan / Keperluan Detail</label>
-                    <textarea id="inputKeterangan" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" placeholder="Tuliskan detail atau tujuan pengajuan surat ini..."></textarea>
-                </div>
+            showToast("Menyimpan data pengajuan...");
 
-                <button onclick="submitAndRedirectWA()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg transition">
-                    Simpan & Kirim Konfirmasi ke WA Sekretariat
-                </button>
-            </div>
-        </div>
-    `;
-}
-// Fungsi Eksekusi: Simpan ke Backend lalu Buka WA
-function submitAndRedirectWA() {
-    const jenisSurat = document.getElementById("jenisSuratVal").value;
-    const nama = document.getElementById("inputNama").value;
-    const wa = document.getElementById("inputWa").value;
-    const keterangan = document.getElementById("inputKeterangan").value;
-    
-    // Mengambil data user untuk ID
-    let user = {};
-    try {
-        const savedUser = localStorage.getItem("currentUser");
-        if (savedUser) user = JSON.parse(savedUser);
-    } catch (e) {}
+            const payload = {
+                action: "submitSuratRequest",
+                id_user: user.id || "Tamu",
+                nama_lengkap: nama,
+                jenis_surat: jenisSurat,
+                keterangan: keterangan,
+                no_whatsapp: wa
+            };
 
-    if (!wa || !keterangan) {
-        alert("Mohon lengkapi nomor WhatsApp dan keterangan keperluan Anda.");
-        return;
-    }
-
-    alert("Menyimpan data pengajuan ke database...");
-
-    const payload = {
-        action: "submitSuratRequest",
-        id_user: user.id || "Tamu",
-        nama_lengkap: nama,
-        jenis_surat: jenisSurat,
-        keterangan: keterangan,
-        no_whatsapp: wa
-    };
-
-    // Kirim ke Google Apps Script Backend
-    google.script.run
-        .withSuccessHandler(function(response) {
-            if (response.status === "success") {
-				localStorage.setItem("currentUser", JSON.stringify(response.user));
-                // Format pesan otomatis untuk WhatsApp Sekretariat
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(response => {
                 let pesanWa = `Shalom Sekretariat Gereja,%0A%0ASaya ingin mengajukan permohonan surat:%0A` +
                               `- *Jenis*: ${encodeURIComponent(jenisSurat)}%0A` +
                               `- *Nama*: ${encodeURIComponent(nama)}%0A` +
                               `- *No WA*: ${encodeURIComponent(wa)}%0A` +
                               `- *Keterangan*: ${encodeURIComponent(keterangan)}%0A%0AMohon bantuannya untuk diproses. Terima kasih.`;
                 
-                // Buka link WhatsApp Sekretariat
                 window.open(`https://wa.me/${waNomorSekretariat}?text=${pesanWa}`, '_blank');
-                
-                // Kembalikan ke menu utama atau beranda
                 switchTab('home');
-            } else {
-                alert("Gagal: " + response.message);
-            }
-        })
-        .withFailureHandler(function(error) {
-            alert("Terjadi kesalahan koneksi: " + error.message);
-        })
-        .submitSuratRequest(payload);
-}
+            })
+            .catch(error => {
+                showToast("Gagal mengirim data.", "error");
+            });
+        }
         function openVideosMenu(isBack = false) {
             if (!isBack) pushNavState('openVideosMenu');
             const main = document.querySelector("main");
