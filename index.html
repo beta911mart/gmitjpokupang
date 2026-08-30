@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="GMIT Jemaat Pniel Oebobo - JPO Digital">
     <meta property="og:description" content="WebApp digital GMIT Jemaat Pniel Oebobo. Jadwal ibadah, warta, renungan, dan pelayanan kasih.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/beta911mart/gmitjpokupang/refs/heads/main/jpo-1.png"> <!-- Ganti dengan URL publik gambar Anda -->
+    <meta property="og:image" content="https://raw.githubusercontent.com/beta911mart/gmitjpokupang/refs/heads/main/jpo-1.png">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#9333ea">
@@ -20,6 +20,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         @keyframes slideInFromTop {
@@ -35,6 +36,16 @@
         .animate-fade-in { animation: smoothFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-card-hover { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
         .animate-card-hover:active { transform: scale(0.94); }
+
+        /* Theme button shapes */
+        .theme-shape-default { border-radius: 9999px !important; }
+        .theme-shape-christmas {
+            border-radius: 35% 65% 35% 65% / 40% 40% 60% 60% !important;
+            clip-path: polygon(50% 0%, 65% 15%, 100% 35%, 80% 65%, 85% 100%, 50% 80%, 15% 100%, 20% 65%, 0% 35%, 35% 15%);
+        }
+        .theme-shape-easter {
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40% !important;
+        }
 
         body.senior-mode {
             background-color: #fef3c7 !important; 
@@ -93,8 +104,8 @@
 
     <div id="toastContainer" class="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"></div>
 
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-50 hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar(false)"></div>
-    <div id="sidebarMenu" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-300 flex flex-col p-5 shadow-2xl">
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/70 z-[100] hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar(false)"></div>
+    <div id="sidebarMenu" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-slate-800 z-[105] transform -translate-x-full transition-transform duration-300 flex flex-col p-5 shadow-2xl">
         <div class="flex justify-between items-center pb-4 border-b border-slate-800">
             <h3 class="font-bold text-sm text-purple-400">Pengaturan & Tema</h3>
             <button onclick="toggleSidebar(false)" class="text-slate-400 hover:text-white text-lg">✕</button>
@@ -108,6 +119,8 @@
                     <button onclick="setTheme('emerald')" class="text-left px-3 py-2 rounded-xl text-xs bg-emerald-950/40 border border-emerald-900/50 hover:border-emerald-500 transition">🌿 Emerald Nature</button>
                     <button onclick="setTheme('purple')" class="text-left px-3 py-2 rounded-xl text-xs bg-purple-950/40 border border-purple-900/50 hover:border-purple-500 transition">🍇 Royal Purple</button>
                     <button onclick="setTheme('sunset')" class="text-left px-3 py-2 rounded-xl text-xs bg-orange-950/40 border border-orange-900/50 hover:border-orange-500 transition">🌅 Warm Sunset</button>
+                    <button onclick="setTheme('christmas')" class="text-left px-3 py-2 rounded-xl text-xs bg-red-950/60 border border-red-900/70 hover:border-red-500 transition flex items-center justify-between"><span>🎄 Tema Natal (Kepingan Salju)</span><span>⭐</span></button>
+                    <button onclick="setTheme('easter')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-950/60 border border-amber-900/70 hover:border-amber-500 transition flex items-center justify-between"><span>✝️ Tema Paskah (Bentuk Telur)</span><span>🕊️</span></button>
                     <button onclick="setTheme('light')" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-100 text-slate-900 border border-slate-300 hover:border-slate-500 transition">☀️ Light Clean</button>
                     
                     <button onclick="toggleSeniorMode()" id="seniorModeBtn" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-400 transition flex items-center justify-between">
@@ -125,7 +138,6 @@
             </div>
         </div>
 
-        <!-- Letakkan di bagian bawah dalam tab Profil Jemaat -->
         <div class="mt-8 pt-4 border-t border-slate-800 text-center space-y-1">
             <p class="text-[11px] font-semibold text-slate-400">GMIT JPO Digital v1.0</p>
             <p class="text-[10px] text-slate-500">Ⓒ Copyright by MulMedJPO ℗ 2026</p>
@@ -135,28 +147,38 @@
 
     <div id="app" class="w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto bg-slate-950 min-h-screen flex flex-col shadow-2xl relative transition-all duration-300">
         
-        <header class="fixed top-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 bg-slate-950/95 backdrop-blur-md text-white p-4 flex justify-between items-center border-b border-purple-900/30 shadow-md transition-all duration-300">
-            <button onclick="toggleSidebar(true)" class="text-xl p-1 hover:bg-slate-900 rounded-lg transition">☰</button>
-            <h1 id="headerTitle" class="font-bold text-sm tracking-wide truncate px-2 text-center">GMIT Jemaat PNIEL Oebobo ⛪</h1>
+        <!-- App Header -->
+        <header class="bg-slate-800/80 backdrop-blur-md p-4 fixed top-0 left-0 right-0 z-40 max-w-md landscape:max-w-3xl md:max-w-md mx-auto border-b border-slate-700 flex justify-between items-center shadow-lg">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar(true)" class="w-10 h-10 bg-purple-600 hover:bg-purple-700 rounded-full flex items-center justify-center font-bold text-white shadow-lg shadow-purple-500/30 transition cursor-pointer" title="Buka Menu Pengaturan">
+                    <i class="fa-solid fa-church"></i>
+                </button>
+                <div>
+                    <h1 id="headerTitle" class="text-sm font-bold leading-tight">GMIT Pniel Oebobo</h1>
+                    <p class="text-xs text-slate-400">Digital App</p>
+                </div>
+            </div>
             <div id="syncIndicator" class="flex items-center gap-1 text-xs" title="Status Sinkronisasi Online">
                 <span id="syncDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span class="text-[10px] text-slate-400 hidden sm:inline" id="syncText">Online</span>
             </div>
         </header>
 
-        <main class="flex-1 p-4 pt-20 pb-20 overflow-y-auto animate-fade-in w-full">
-            <!-- Konten dimuat dinamis di sini -->
+        <!-- Theme Decoration Banner (Absolute below Header to prevent shifting content) -->
+        <div id="themeBannerContainer" class="absolute top-[73px] left-0 right-0 z-30 pointer-events-none"></div>
+
+        <!-- Dynamic Content View Area -->
+        <main class="flex-1 p-4 pt-28 pb-24 overflow-y-auto animate-fade-in w-full">
+            <!-- Dynamic view contents render here -->
         </main>
 
+        <!-- Fixed Bottom Navigation Bar -->
         <nav id="bottomNav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex justify-around items-center p-3 text-xs font-medium text-slate-400 shadow-lg transition-all duration-300">
-    
-            <!-- Tombol Beranda disamakan formatnya -->
             <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition">
                 <span class="text-sm">🏠</span>
                 <span class="text-xs font-medium">Beranda</span>
             </button>
-    
-            <!-- Tombol Notifikasi -->
+            
             <button onclick="switchTab('notifikasi')" class="relative hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition">
                 <span class="relative inline-block text-sm">
                     🔔
@@ -165,15 +187,14 @@
                 <span class="text-xs font-medium">Notifikasi</span>
             </button>
 
-            <!-- Tombol Akun disamakan formatnya -->
             <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition">
                 <span class="text-sm">👤</span> 
                 <span id="accountNavText" class="text-xs font-medium">Akun</span>
             </button>
-
         </nav>
     </div>
 
+    <!-- Hymn Fullscreen Lyrics Modal -->
     <div id="hymnModal" class="fixed inset-0 bg-black/95 z-[99999] hidden flex flex-col p-4 animate-fade-in">
         <div class="flex justify-between items-center pb-3 border-b border-slate-800 pt-2">
             <div>
@@ -192,8 +213,8 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
-		const waNomorSekretariat = "6281234567890"; // Ganti dengan nomor WA sekretariat (format internasional)
-		
+        const waNomorSekretariat = "6281234567890";
+        
         function triggerPageTransition() {
             const main = document.querySelector("main");
             if (!main) return;
@@ -325,14 +346,20 @@
         }
 
         function updateNetworkStatus() {
-            const dot = document.getElementById("syncDot");
-            const text = document.getElementById("syncText");
-            if (navigator.onLine) {
-                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
-                if(text) { text.innerText = "Online"; text.className = "text-[10px] text-emerald-400 hidden sm:inline"; }
+            const syncDot = document.getElementById("syncDot");
+            const syncText = document.getElementById("syncText");
+            if (!navigator.onLine) {
+                showToast("Koneksi internet terputus.", "error");
+                if (syncDot) {
+                    syncDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+                    syncDot.classList.remove("animate-pulse");
+                }
+                if (syncText) syncText.innerText = "Offline";
             } else {
-                dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
-                if(text) { text.innerText = "Offline"; text.className = "text-[10px] text-rose-400 hidden sm:inline"; }
+                if (syncDot) {
+                    syncDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                }
+                if (syncText) syncText.innerText = "Online";
             }
         }
         window.addEventListener('online', updateNetworkStatus);
@@ -356,6 +383,13 @@
             
             const baseAppClass = "w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto min-h-screen flex flex-col shadow-2xl relative transition-all duration-300";
             
+            const bannerContainer = document.getElementById('themeBannerContainer');
+            if (bannerContainer) bannerContainer.innerHTML = '';
+
+            window.currentThemeShape = 'theme-shape-default';
+            if (theme === 'christmas') window.currentThemeShape = 'theme-shape-christmas';
+            if (theme === 'easter') window.currentThemeShape = 'theme-shape-easter';
+
             if (theme === 'emerald') {
                 app.className = `${baseAppClass} bg-emerald-950 text-slate-100`;
                 body.className = "bg-emerald-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
@@ -365,6 +399,28 @@
             } else if (theme === 'sunset') {
                 app.className = `${baseAppClass} bg-stone-950 text-amber-50`;
                 body.className = "bg-stone-950 text-amber-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+            } else if (theme === 'christmas') {
+                app.className = `${baseAppClass} bg-red-950 text-red-50 border-4 border-emerald-600/60 shadow-[0_0_25px_rgba(220,38,38,0.4)]`;
+                body.className = "bg-stone-950 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                
+                if (bannerContainer) {
+                    bannerContainer.innerHTML = `
+                        <div class="bg-emerald-900 text-amber-300 text-[11px] font-bold text-center py-1 px-2 border-b border-amber-500/40 flex items-center justify-center gap-2 shadow-inner">
+                            <span>🎄</span> <span>Selamat Hari Natal & Sukacita Damai Sejahtera! (Tombol: Kepingan Salju)</span> <span>❄️</span>
+                        </div>
+                    `;
+                }
+            } else if (theme === 'easter') {
+                app.className = `${baseAppClass} bg-amber-950/90 text-amber-100 border-4 border-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.4)]`;
+                body.className = "bg-stone-900 text-amber-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                
+                if (bannerContainer) {
+                    bannerContainer.innerHTML = `
+                        <div class="bg-purple-900 text-amber-200 text-[11px] font-bold text-center py-1 px-2 border-b border-purple-500/40 flex items-center justify-center gap-2 shadow-inner">
+                            <span>✝️</span> <span>Selamat Paskah - Kristus Telah Bangkit! (Tombol: Bentuk Telur)</span> <span>🕊️</span>
+                        </div>
+                    `;
+                }
             } else if (theme === 'light') {
                 app.className = `${baseAppClass} bg-slate-50 text-slate-900`;
                 body.className = "bg-slate-200 text-slate-900 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
@@ -373,6 +429,12 @@
                 body.className = "bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
             }
             toggleSidebar(false);
+            
+            const headerTitle = document.getElementById("headerTitle");
+            if (headerTitle && headerTitle.innerText.includes("PNIEL Oebobo")) {
+                switchTab('home', true, true);
+            }
+            
             showToast("Tema berhasil diterapkan!");
         }
 
@@ -383,7 +445,7 @@
                 deferredPrompt = null;
                 toggleSidebar(false);
             } else {
-                showToast("Gunakan menu 'Tambahkan ke Beranda' / 'Add to Home Screen' di pengaturan browser Anda.");
+                showToast("Gunakan menu 'Tambahkan ke Beranda' di pengaturan browser Anda.");
                 toggleSidebar(false);
             }
         }
@@ -575,48 +637,49 @@
             triggerPageTransition();
 
             if (tab === 'home') {
+                const shapeClass = window.currentThemeShape || 'theme-shape-default';
                 main.innerHTML = `
                     <div class="space-y-6 pt-2">
                         <div class="grid grid-cols-4 gap-4 text-center">
                             <div onclick="openAboutPage()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mb-1 overflow-hidden border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(6,182,212,0.7),_0_0_25px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.9),_0_0_50px_rgba(6,182,212,0.6)]">
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-500 ${shapeClass} flex items-center justify-center mb-1 overflow-hidden border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(6,182,212,0.7),_0_0_25px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.9),_0_0_50px_rgba(6,182,212,0.6)]">
                                     <img src="jpo.ico" alt="Tentang JPO" class="w-full h-full object-cover">
                                 </div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-cyan-400 group-hover:drop-shadow-[0_0_6px_rgba(6,182,212,0.8)] transition-all duration-300">Tentang</span>
                             </div>
 
                             <div onclick="openDownloadCenter()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(245,158,11,0.7),_0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_20px_rgba(245,158,11,0.9),_0_0_50px_rgba(245,158,11,0.6)]">📥</div>
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(245,158,11,0.7),_0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_20px_rgba(245,158,11,0.9),_0_0_50px_rgba(245,158,11,0.6)]">📥</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-amber-400 group-hover:drop-shadow-[0_0_6px_rgba(245,158,11,0.8)] transition-all duration-300">Download</span>
                             </div>
 
                             <div onclick="openLibraryMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(168,85,247,0.7),_0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_20px_rgba(168,85,247,0.9),_0_0_50px_rgba(168,85,247,0.6)]">📖</div>
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(168,85,247,0.7),_0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_20px_rgba(168,85,247,0.9),_0_0_50px_rgba(168,85,247,0.6)]">📖</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-purple-300 group-hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.8)] transition-all duration-300">Alkitab & KJ</span>
                             </div>
 
                             <div onclick="openEventsList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(14,165,233,0.7),_0_0_25px_rgba(14,165,233,0.4)] hover:shadow-[0_0_20px_rgba(14,165,233,0.9),_0_0_50px_rgba(14,165,233,0.6)]">📅</div>
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(14,165,233,0.7),_0_0_25px_rgba(14,165,233,0.4)] hover:shadow-[0_0_20px_rgba(14,165,233,0.9),_0_0_50px_rgba(14,165,233,0.6)]">📅</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-sky-400 group-hover:drop-shadow-[0_0_6px_rgba(14,165,233,0.8)] transition-all duration-300">Kegiatan</span>
                             </div>
 
                             <div onclick="openChatRoom()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(236,72,153,0.7),_0_0_25px_rgba(236,72,153,0.4)] hover:shadow-[0_0_20px_rgba(236,72,153,0.9),_0_0_50px_rgba(236,72,153,0.6)]">💬</div>
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(236,72,153,0.7),_0_0_25px_rgba(236,72,153,0.4)] hover:shadow-[0_0_20px_rgba(236,72,153,0.9),_0_0_50px_rgba(236,72,153,0.6)]">💬</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-pink-400 group-hover:drop-shadow-[0_0_6px_rgba(236,72,153,0.8)] transition-all duration-300">Komunitas</span>
                             </div>
 
                             <div onclick="openBirthdayList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(52,211,153,0.7),_0_0_25px_rgba(52,211,153,0.4)] hover:shadow-[0_0_20px_rgba(52,211,153,0.9),_0_0_50px_rgba(52,211,153,0.6)]">🎂</div>
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(52,211,153,0.7),_0_0_25px_rgba(52,211,153,0.4)] hover:shadow-[0_0_20px_rgba(52,211,153,0.9),_0_0_50px_rgba(52,211,153,0.6)]">🎂</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-emerald-400 group-hover:drop-shadow-[0_0_6px_rgba(52,211,153,0.8)] transition-all duration-300">Ulang Tahun</span>
                             </div>
 
                             <div onclick="openPrayerMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(110,231,183,0.7),_0_0_25px_rgba(110,231,183,0.4)] hover:shadow-[0_0_20px_rgba(110,231,183,0.9),_0_0_50px_rgba(110,231,183,0.6)]">🙏</div>
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(110,231,183,0.7),_0_0_25px_rgba(110,231,183,0.4)] hover:shadow-[0_0_20px_rgba(110,231,183,0.9),_0_0_50px_rgba(110,231,183,0.6)]">🙏</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-green-400 group-hover:drop-shadow-[0_0_6px_rgba(110,231,183,0.8)] transition-all duration-300">Dukungan Doa</span>
                             </div>
 
                             <div onclick="openDonationList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-blue-400 to-indigo-600 rounded-full flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(96,165,250,0.7),_0_0_25px_rgba(96,165,250,0.4)] hover:shadow-[0_0_20px_rgba(96,165,250,0.9),_0_0_50px_rgba(96,165,250,0.6)]">🎁</div>
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-blue-400 to-indigo-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(96,165,250,0.7),_0_0_25px_rgba(96,165,250,0.4)] hover:shadow-[0_0_20px_rgba(96,165,250,0.9),_0_0_50px_rgba(96,165,250,0.6)]">🎁</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-blue-400 group-hover:drop-shadow-[0_0_6px_rgba(96,165,250,0.8)] transition-all duration-300">Persembahan</span>
                             </div>
                         </div>
@@ -687,7 +750,6 @@
                         </div>
                     `;
 
-                    // Ambil dan tampilkan notifikasi dari database
                     try {
                         const user = window.currentUser;
                         const response = await fetch(SCRIPT_URL, {
@@ -698,49 +760,44 @@
                         const container = document.getElementById("notifListContainer");
 
                         if (result.status === "success" && result.notifications && result.notifications.length > 0) {
-                            // Simpan ID notifikasi terbaru ke localStorage agar badge titik merah tidak menyala terus
                             const latestNotifId = result.notifications[result.notifications.length - 1].id;
                             localStorage.setItem("last_seen_notif_id", latestNotifId);
                             
-container.innerHTML = result.notifications.map(n => {
-    let formattedText = n.text;
-    let targetAction = "switchTab('home')"; // Default
-    
-    // Ubah menjadi huruf kecil agar pencarian kata kunci lebih akurat
-    const cat = (n.category || "").toLowerCase();
-    const textLower = (n.text || "").toLowerCase();
+                            container.innerHTML = result.notifications.map(n => {
+                                let formattedText = n.text;
+                                let targetAction = "switchTab('home')";
+                                const cat = (n.category || "").toLowerCase();
+                                const textLower = (n.text || "").toLowerCase();
 
-    // Deteksi berdasarkan kategori atau isi teks notifikasi
-    if (cat.includes('liturgi') || textLower.includes('liturgi')) {
-        targetAction = "openDownloadCenter()";
-    } else if (cat.includes('warta') || textLower.includes('warta')) {
-        targetAction = "openDownloadCenter()";
-    } else if (cat.includes('kegiatan') || cat.includes('agenda') || textLower.includes('kegiatan')) {
-        targetAction = "openEventsList()";
-    } else if (cat.includes('doa') || cat.includes('balasan') || textLower.includes('doa')) {
-        targetAction = "openPublicPrayerWall()";
-    } else if (cat.includes('persembahan') || cat.includes('donasi') || textLower.includes('donasi')) {
-        targetAction = "openDonationList()";
-    } else if (cat.includes('verifikasi') || textLower.includes('akun')) {
-        targetAction = "switchTab('profil')";
-    }
+                                if (cat.includes('liturgi') || textLower.includes('liturgi')) {
+                                    targetAction = "openDownloadCenter()";
+                                } else if (cat.includes('warta') || textLower.includes('warta')) {
+                                    targetAction = "openDownloadCenter()";
+                                } else if (cat.includes('kegiatan') || cat.includes('agenda') || textLower.includes('kegiatan')) {
+                                    targetAction = "openEventsList()";
+                                } else if (cat.includes('doa') || cat.includes('balasan') || textLower.includes('doa')) {
+                                    targetAction = "openPublicPrayerWall()";
+                                } else if (cat.includes('persembahan') || cat.includes('donasi') || textLower.includes('donasi')) {
+                                    targetAction = "openDonationList()";
+                                } else if (cat.includes('verifikasi') || textLower.includes('akun')) {
+                                    targetAction = "switchTab('profil')";
+                                }
 
-    // Mengganti [Cek disini] dengan tombol/link merah berkedip interaktif
-    formattedText = formattedText.replace(
-        "[Cek disini]", 
-        `<a href="javascript:void(0)" onclick="${targetAction}" class="text-rose-600 font-bold animate-pulse underline ml-1">[Cek disini]</a>`
-    );
+                                formattedText = formattedText.replace(
+                                    "[Cek disini]", 
+                                    `<a href="javascript:void(0)" onclick="${targetAction}" class="text-rose-600 font-bold animate-pulse underline ml-1">[Cek disini]</a>`
+                                );
 
-    return `
-        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-sm animate-card-hover">
-            <div class="flex justify-between items-center">
-                <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded font-semibold">${n.category || 'Informasi'}</span>
-                <span class="text-[10px] text-slate-500">${n.timestamp ? new Date(n.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) : ''}</span>
-            </div>
-            <p class="text-xs text-slate-200 leading-relaxed">${formattedText}</p>
-        </div>
-    `;
-}).join('');
+                                return `
+                                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-sm animate-card-hover">
+                                        <div class="flex justify-between items-center">
+                                            <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded font-semibold">${n.category || 'Informasi'}</span>
+                                            <span class="text-[10px] text-slate-500">${n.timestamp ? new Date(n.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) : ''}</span>
+                                        </div>
+                                        <p class="text-xs text-slate-200 leading-relaxed">${formattedText}</p>
+                                    </div>
+                                `;
+                            }).join('');
                         } else {
                             container.innerHTML = `
                                 <div class="text-center py-10 space-y-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
@@ -917,7 +974,7 @@ container.innerHTML = result.notifications.map(n => {
             }
         }
 
-function openCategoriesMenu(isBack = false) {
+        function openCategoriesMenu(isBack = false) {
             if (!isBack) pushNavState('openCategoriesMenu');
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Layanan Sekretariat";
@@ -960,7 +1017,6 @@ function openCategoriesMenu(isBack = false) {
             `;
         }
 
-        // Perbaikan: Mengambil nama lengkap user secara akurat ke form formulir surat
         function openSuratForm(jenisSurat) {
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Form " + jenisSurat;
@@ -1055,6 +1111,7 @@ function openCategoriesMenu(isBack = false) {
                 showToast("Gagal mengirim data.", "error");
             });
         }
+
         function openVideosMenu(isBack = false) {
             if (!isBack) pushNavState('openVideosMenu');
             const main = document.querySelector("main");
@@ -1091,6 +1148,28 @@ function openCategoriesMenu(isBack = false) {
                             <div class="relative w-[250px] aspect-[9/16] rounded-lg overflow-hidden bg-black">
                                 <iframe class="w-full h-full" src="https://www.youtube.com/embed/zFOv9Gy7Q7w" title="YouTube Shorts" frameborder="0" allowfullscreen></iframe>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openLivestreamsMenu(isBack = false) {
+            if (!isBack) pushNavState('openLivestreamsMenu');
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Siaran Langsung Ibadah";
+            triggerPageTransition();
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    <div class="bg-orange-950/40 border border-orange-900/40 p-3 rounded-xl flex justify-between items-center shadow-sm">
+                        <p class="text-xs text-orange-200">Video siaran langsung Ibadah Minggu akan mulai secara otomatis dan real-time pada setiap Ibadah Utama ke-2 Pukul 08:00 WITA.</p>
+                        <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl space-y-2 shadow-lg">
+                        <h4 class="text-xs font-bold text-white">Live Streaming Ibadah Minggu Pniel Oebobo</h4>
+                        <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
+                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/live_stream?channel=UCZ3-3qhAyR8mDb6VTeJOXtA" title="Live Stream" frameborder="0" allowfullscreen></iframe>
                         </div>
                     </div>
                 </div>
@@ -1221,7 +1300,6 @@ function openCategoriesMenu(isBack = false) {
             if (!isBack) pushNavState('openLightbox', [index]);
             currentPhotoIndex = index;
             const photo = currentActiveGallery[currentPhotoIndex];
-            
             let safeLargeUrl = photo.url ? `https://wsrv.nl/?url=${encodeURIComponent(photo.url)}&w=1200` : '';
             
             document.getElementById("lightboxImg").src = safeLargeUrl;
@@ -1270,7 +1348,6 @@ function openCategoriesMenu(isBack = false) {
                 
                 if (json.status === "success" && json.data) {
                     let item = json.data;
-                    
                     let rawText = item.renungan || "";
                     let lines = rawText.split("\n").filter(l => l.trim() !== "");
                     
@@ -1334,28 +1411,6 @@ function openCategoriesMenu(isBack = false) {
             }
         }
 
-        function openLivestreamsMenu(isBack = false) {
-            if (!isBack) pushNavState('openLivestreamsMenu');
-            const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Siaran Langsung Ibadah";
-            triggerPageTransition();
-            main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <div class="bg-orange-950/40 border border-orange-900/40 p-3 rounded-xl flex justify-between items-center shadow-sm">
-                        <p class="text-xs text-orange-200">Video siaran langsung Ibadah Minggu akan mulai secara otomatis dan real-time pada setiap Ibadah Utama ke-2 Pukul 08:00 WITA.</p>
-                        <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
-                    </div>
-                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl space-y-2 shadow-lg">
-                        <h4 class="text-xs font-bold text-white">Live Streaming Ibadah Minggu Pniel Oebobo</h4>
-                        <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
-                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/live_stream?channel=UCZ3-3qhAyR8mDb6VTeJOXtA" title="Live Stream" frameborder="0" allowfullscreen></iframe>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
         function openStatistikMenu(isBack = false) {
             if (!isBack) pushNavState('openStatistikMenu');
             const main = document.querySelector("main");
@@ -1393,7 +1448,6 @@ function openCategoriesMenu(isBack = false) {
                 }
 
                 let dataList = [];
-                
                 if (Array.isArray(rawData[0])) {
                     let headers = rawData[0].map(h => String(h).trim().toLowerCase());
                     let idxVerified = headers.findIndex(h => h.includes('verif') || h.includes('status'));
@@ -1423,7 +1477,6 @@ function openCategoriesMenu(isBack = false) {
                 }
 
                 const totalJemaat = dataList.length;
-                
                 let verifiedCount = dataList.filter(item => {
                     let v = String(item.is_verified || "").trim().toLowerCase();
                     return v === "verified" || v === "true" || v === "terverifikasi";
@@ -1667,38 +1720,16 @@ function openCategoriesMenu(isBack = false) {
                             <li class="flex justify-between"><span>Ibadah Sore / Pemuda:</span> <strong class="text-white">17:00 WITA</strong></li>
                         </ul>
                     </div>
-
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs shadow-sm">
-                        <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Daftar Koordinator Lingkungan / Rayon</h4>
-                        <div class="space-y-2 text-[11px]">
-                            <div>
-                                <span class="text-slate-400 font-semibold block">Lingkungan 1 - 4</span>
-                                <p class="text-slate-200">Pdt. Selviany A. Pollo-Milla, S.Si-Teol</p>
-                            </div>
-                            <div class="pt-1 border-t border-slate-800/60">
-                                <span class="text-slate-400 font-semibold block">Lingkungan 5 - 8</span>
-                                <p class="text-slate-200">Pdt. Tentremingtyas Messakh, S.Si</p>
-                            </div>
-                            <div class="pt-1 border-t border-slate-800/60">
-                                <span class="text-slate-400 font-semibold block">Lingkungan 9 - 12</span>
-                                <p class="text-slate-200">Pdt. Maria A. Litelnoni-Johannes</p>
-                            </div>
-                            <div class="pt-1 border-t border-slate-800/60">
-                                <span class="text-slate-400 font-semibold block">Lingkungan 13 - 16</span>
-                                <p class="text-slate-200">Pdt. Wempi M. Rini, S.Th</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             `;
         }
-async function openDownloadCenter(isBack = false) {
+
+        async function openDownloadCenter(isBack = false) {
             if (!isBack) pushNavState('openDownloadCenter');
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Pusat Dokumen PDF";
             triggerPageTransition();
 
-            // Tampilkan skeleton/loading sementara mengambil data dari sheet
             main.innerHTML = `
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
@@ -1710,7 +1741,6 @@ async function openDownloadCenter(isBack = false) {
             `;
 
             try {
-                // Ambil data dari backend (ArsipDokumen)
                 const res = await fetch(SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({ action: "getDaftarDokumen" })
@@ -1718,19 +1748,16 @@ async function openDownloadCenter(isBack = false) {
                 const result = await res.json();
                 const list = (result.status === "success") ? result.data : [];
                 
-                // Ambil dokumen PERTAMA yang kategorinya/judulnya mengandung kata "warta"
                 const wartaDok = list.find(d => 
                     (d.judul && d.judul.toLowerCase().includes("warta")) || 
                     (d.kategori && d.kategori.toLowerCase().includes("warta"))
                 );
                 
-                // Ambil dokumen PERTAMA yang kategorinya/judulnya mengandung kata "liturgi"
                 const liturgiDok = list.find(d => 
                     (d.judul && d.judul.toLowerCase().includes("liturgi")) || 
                     (d.kategori && d.kategori.toLowerCase().includes("liturgi"))
                 );
                 
-                // Filter dokumen lain
                 const dokumenLainnya = list.filter(d => d !== wartaDok && d !== liturgiDok);
 
                 let htmlContent = `
@@ -1742,7 +1769,6 @@ async function openDownloadCenter(isBack = false) {
                         <div class="space-y-3">
                 `;
 
-                // 1. RENDER KARTU RUTIN: WARTA MINGGU INI
                 if (wartaDok) {
                     htmlContent += `
                         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50 transition">
@@ -1760,7 +1786,6 @@ async function openDownloadCenter(isBack = false) {
                     `;
                 }
 
-                // 2. RENDER KARTU RUTIN: LEMBAR LITURGI
                 if (liturgiDok) {
                     htmlContent += `
                         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50 transition">
@@ -1778,7 +1803,6 @@ async function openDownloadCenter(isBack = false) {
                     `;
                 }
 
-                // 3. RENDER DOKUMEN LAINNYA
                 if (dokumenLainnya.length > 0) {
                     htmlContent += `<h5 class="font-bold text-xs text-purple-400 pt-2 uppercase tracking-wider">Arsip Dokumen Lainnya</h5>`;
                     dokumenLainnya.forEach(doc => {
@@ -1796,15 +1820,6 @@ async function openDownloadCenter(isBack = false) {
                     });
                 }
 
-                if (!wartaDok && !liturgiDok && dokumenLainnya.length === 0) {
-                    htmlContent += `
-                        <div class="text-center py-10 space-y-2 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-                            <div class="text-3xl opacity-50">📂</div>
-                            <p class="text-xs text-slate-400">Belum ada dokumen PDF yang diunggah ke sistem.</p>
-                        </div>
-                    `;
-                }
-
                 htmlContent += `</div></div>`;
                 main.innerHTML = htmlContent;
 
@@ -1820,6 +1835,7 @@ async function openDownloadCenter(isBack = false) {
                 `;
             }
         }
+
         function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1984,6 +2000,110 @@ async function openDownloadCenter(isBack = false) {
             }
         }
 
+        function openPrayerMenu(isBack = false) {
+            if (!isBack) pushNavState('openPrayerMenu');
+            const savedUser = localStorage.getItem("user_gereja");
+            
+            if (!savedUser) {
+                const main = document.querySelector("main");
+                document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
+                triggerPageTransition();
+                main.innerHTML = `
+                    <div class="space-y-4">
+                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
+                            <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
+                            <button onclick="renderAuthPageForAction(openPrayerMenu)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">Login</button>
+                            <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            window.currentUser = JSON.parse(savedUser);
+            const user = window.currentUser;
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
+            triggerPageTransition();
+            
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    
+                    <div onclick="openFormPrayer()" class="bg-gradient-to-r from-emerald-900/60 to-slate-900 border border-emerald-500/40 p-4 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-400 cursor-pointer">
+                        <div>
+                            <h4 class="text-xs font-bold text-white flex items-center gap-2">✍️ Kirim / Berbagi Pokok Doa</h4>
+                            <p class="text-[10px] text-slate-300 mt-0.5">Bagikan doa syukur, Doa pergumulan atau Doa Khusus Anda ke sesama atau pribadi.</p>
+                        </div>
+                        <span class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition ml-2 shrink-0">Kirim ➕</span>
+                    </div>
+
+                    <div class="pt-1">
+                        <h3 class="font-bold text-xs text-purple-400 uppercase tracking-wider mb-2">Dinding Doa Publik Jemaat</h3>
+                    </div>
+
+                    <div id="publicPrayerContainer" class="space-y-3">
+                        <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat dinding doa...</p>
+                    </div>
+                </div>
+            `;
+            
+            loadPublicPrayerListContent(user);
+        }
+
+        async function loadPublicPrayerListContent(user) {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getPrayers`);
+                const result = await response.json();
+                const container = document.getElementById("publicPrayerContainer");
+                if (!container) return;
+                
+                const prayers = result.prayers || [];
+                if (prayers.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 bg-slate-900 border border-slate-800 rounded-2xl">Belum ada pokok doa publik.</p>`;
+                    return;
+                }
+
+                const userRole = String(user.status_pelayanan || user.adminRole || "").toLowerCase();
+                const isPendetaOrAdmin = user.isAdmin || userRole.includes('pendeta') || userRole.includes('super admin');
+
+                container.innerHTML = prayers.map(p => {
+                    const r = p.reactions || {};
+                    return `
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-sm animate-card-hover">
+                            <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
+                            <p class="text-xs text-slate-200 italic mt-1">"${p.isi_doa}"</p>
+                            <p class="text-[10px] text-slate-400">Oleh: ${p.nama_pengirim}</p>
+                            
+                            ${p.balasan ? `
+                                <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl mt-2">
+                                    <p class="text-[10px] font-bold text-amber-400 mb-1">Balasan Pastoral:</p>
+                                    <p class="text-[11px] text-slate-300 italic whitespace-pre-line">${p.balasan}</p>
+                                </div>
+                            ` : ''}
+
+                            <div class="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-2">
+                                <div class="flex gap-1.5 flex-wrap">
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
+                                </div>
+                                
+                                ${isPendetaOrAdmin ? `<button onclick="handleReplyPrayer('${p.id}', '${user.nama_lengkap || user.nama || 'Pendeta'}')" class="text-[10px] font-semibold text-purple-400 hover:text-purple-300">Balas 💬</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                const container = document.getElementById("publicPrayerContainer");
+                if (container) {
+                    container.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">Gagal memuat dinding doa.</p>`;
+                }
+            }
+        }
+
         function openFormPrayer(isBack = false) {
             if (!isBack) pushNavState('openFormPrayer');
             checkAuthBeforeAction(() => {
@@ -2050,7 +2170,7 @@ async function openDownloadCenter(isBack = false) {
                 });
                 const result = await response.json();
                 showToast(result.message);
-                if (result.status === "success") openPublicPrayerWall();
+                if (result.status === "success") openPrayerMenu();
             } catch (err) {
                 showToast("Gagal mengirim doa.", "error");
                 btn.disabled = false;
@@ -2058,11 +2178,168 @@ async function openDownloadCenter(isBack = false) {
             }
         }
 
-        function logout() {
-            localStorage.removeItem("user_gereja");
-            showToast("Anda telah keluar.");
-            updateAuthNavText(); 
-            setTimeout(() => switchTab('home'), 500);
+        async function handleReplyPrayer(prayerId, adminNama) {
+            const replyText = prompt("Masukkan balasan pastoral Anda untuk doa ini:");
+            if (replyText && replyText.trim() !== "") {
+                showToast("Mengirim balasan pastoral...", "success");
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            action: "replyPrayer",
+                            prayer_id: prayerId,
+                            reply_text: replyText.trim(),
+                            admin_nama: adminNama
+                        })
+                    });
+                    const result = await response.json();
+                    showToast(result.message);
+                    if (result.status === "success") {
+                        openPrayerMenu(true);
+                    }
+                } catch (err) {
+                    showToast("Gagal mengirim balasan.", "error");
+                }
+            }
+        }
+
+        async function openDonationList(isBack = false) {
+            if (!isBack) pushNavState('openDonationList');
+            const savedUser = localStorage.getItem("user_gereja");
+            if (!savedUser) {
+                const main = document.querySelector("main");
+                document.getElementById("headerTitle").innerText = "Persembahan / Donasi";
+                triggerPageTransition();
+                main.innerHTML = `
+                    <div class="space-y-4">
+                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
+                            <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
+                            <button onclick="renderAuthPageForAction(openDonationList)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">Login</button>
+                            <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            window.currentUser = JSON.parse(savedUser);
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Persembahan / Donasi";
+            triggerPageTransition();
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    <button onclick="openFormDonation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md transition">➕ Konfirmasi / Catat Donasi Baru</button>
+                    <div id="donationContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat data donasi...</p></div>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getDonations`);
+                const result = await response.json();
+                const container = document.getElementById("donationContainer");
+                const list = result.donations || [];
+                
+                if (list.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada riwayat donasi.</p>`;
+                    return;
+                }
+                
+                container.innerHTML = list.map(d => {
+                    const r = d.reactions || {};
+                    return `
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm animate-card-hover">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h4 class="text-xs font-bold text-white">${d.nama_donatur}</h4>
+                                    <p class="text-[11px] text-slate-400">${d.keterangan}</p>
+                                </div>
+                                <span class="text-xs font-bold text-emerald-400">Rp ${Number(d.nominal).toLocaleString('id-ID')}</span>
+                            </div>
+                            <div class="flex gap-1.5 border-t border-slate-800/60 pt-2 mt-1">
+                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
+                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
+                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
+                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                document.getElementById("donationContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat donasi.</p>`;
+            }
+        }
+
+        function openFormDonation(isBack = false) {
+            if (!isBack) pushNavState('openFormDonation');
+            const main = document.querySelector("main");
+            const user = window.currentUser || {};
+            document.getElementById("headerTitle").innerText = "Form Kirim Donasi";
+            triggerPageTransition();
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="openDonationList()" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Daftar Donasi</button>
+                    <form onsubmit="handleSendDonation(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Opsi Tampilkan Nama</label>
+                            <select id="donNameOption" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                                <option value="full">Tampilkan Nama Lengkap (${user.nama_lengkap})</option>
+                                <option value="initial">Inisial Saja (Cth: B***)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Peruntukan</label>
+                            <input type="text" id="donKet" required placeholder="Cth: Pembangunan Gedung" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nominal (Rp)</label>
+                            <input type="number" id="donNominal" required placeholder="Cth: 100000" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                        </div>
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-sm shadow-md transition">Kirim Konfirmasi</button>
+                    </form>
+                </div>
+            `;
+        }
+
+        async function handleSendDonation(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector("button[type='submit']");
+            btn.disabled = true;
+            btn.innerText = "Memproses...";
+
+            const user = window.currentUser;
+            const nameOption = document.getElementById("donNameOption").value;
+            let finalName = nameOption === 'initial' ? user.nama_lengkap.charAt(0) + '***' : user.nama_lengkap;
+
+            const data = {
+                action: "addDonation",
+                user_id: user.id,
+                nama_donatur: finalName,
+                jenis_donasi: "Transfer",
+                keterangan: document.getElementById("donKet").value,
+                nominal: document.getElementById("donNominal").value,
+                tanggal: new Date()
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showToast(result.message);
+                if (result.status === "success") {
+                    openDonationList();
+                } else {
+                    btn.disabled = false;
+                    btn.innerText = "Kirim Konfirmasi";
+                }
+            } catch (err) {
+                showToast("Gagal mengirim donasi.", "error");
+                btn.disabled = false;
+                btn.innerText = "Kirim Konfirmasi";
+            }
         }
 
         async function openLibraryMenu(isBack = false) {
@@ -2290,226 +2567,13 @@ async function openDownloadCenter(isBack = false) {
             }
         }
 
-        async function openPublicPrayerWall(isBack = false) {
-            if (!isBack) pushNavState('openPublicPrayerWall');
-            const savedUser = localStorage.getItem("user_gereja");
-            if (!savedUser) {
-                const main = document.querySelector("main");
-                document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
-                triggerPageTransition();
-                main.innerHTML = `
-                    <div class="space-y-4">
-                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
-                            <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
-                            <button onclick="renderAuthPageForAction(openPublicPrayerWall)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">Login</button>
-                            <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            window.currentUser = JSON.parse(savedUser);
-            const user = window.currentUser;
-            const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
-            triggerPageTransition();
-            main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="openPrayerMenu()" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Dukungan Doa</button>
-                    <div id="publicPrayerContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat dinding doa...</p></div>
-                </div>
-            `;
-            
-            try {
-                const response = await fetch(`${SCRIPT_URL}?action=getPrayers`);
-                const result = await response.json();
-                const container = document.getElementById("publicPrayerContainer");
-                const prayers = result.prayers || [];
-                
-                if (prayers.length === 0) {
-                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada pokok doa publik.</p>`;
-                    return;
-                }
-
-// Cek apakah user yang login merupakan Pendeta atau Pengurus berhak akses khusus
-                const userRole = String(user.status_pelayanan || user.adminRole || "").toLowerCase();
-                const isPendetaOrAdmin = user.isAdmin || userRole.includes('pendeta') || userRole.includes('super admin');
-
-                container.innerHTML = prayers.map(p => {
-                    const r = p.reactions || {};
-                    return `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-sm animate-card-hover">
-                            <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
-                            <p class="text-xs text-slate-200 italic mt-1">"${p.isi_doa}"</p>
-                            <p class="text-[10px] text-slate-400">Oleh: ${p.nama_pengirim}</p>
-                            
-                            ${p.balasan ? `
-                                <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl mt-2">
-                                    <p class="text-[10px] font-bold text-amber-400 mb-1">Balasan Pastoral:</p>
-                                    <p class="text-[11px] text-slate-300 italic whitespace-pre-line">${p.balasan}</p>
-                                </div>
-                            ` : ''}
-
-                            <div class="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-2">
-                                <div class="flex gap-1.5 flex-wrap">
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
-                                </div>
-                                
-                                <!-- Tombol Balas hanya muncul untuk Pendeta / Super Admin -->
-                                ${isPendetaOrAdmin ? `<button onclick="handleReplyPrayer('${p.id}', '${user.nama_lengkap || user.nama || 'Pendeta'}')" class="text-[10px] font-semibold text-purple-400 hover:text-purple-300">Balas 💬</button>` : ''}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (err) {
-                document.getElementById("publicPrayerContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat dinding doa.</p>`;
-            }
+        function logout() {
+            localStorage.removeItem("user_gereja");
+            showToast("Anda telah keluar.");
+            updateAuthNavText(); 
+            setTimeout(() => switchTab('home'), 500);
         }
 
-        async function openDonationList(isBack = false) {
-            if (!isBack) pushNavState('openDonationList');
-            const savedUser = localStorage.getItem("user_gereja");
-            if (!savedUser) {
-                const main = document.querySelector("main");
-                document.getElementById("headerTitle").innerText = "Persembahan / Donasi";
-                triggerPageTransition();
-                main.innerHTML = `
-                    <div class="space-y-4">
-                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
-                            <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
-                            <button onclick="renderAuthPageForAction(openDonationList)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">Login</button>
-                            <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            window.currentUser = JSON.parse(savedUser);
-            const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Persembahan / Donasi";
-            triggerPageTransition();
-            main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <button onclick="openFormDonation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md transition">➕ Konfirmasi / Catat Donasi Baru</button>
-                    <div id="donationContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat data donasi...</p></div>
-                </div>
-            `;
-            
-            try {
-                const response = await fetch(`${SCRIPT_URL}?action=getDonations`);
-                const result = await response.json();
-                const container = document.getElementById("donationContainer");
-                const list = result.donations || [];
-                
-                if (list.length === 0) {
-                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada riwayat donasi.</p>`;
-                    return;
-                }
-                
-                container.innerHTML = list.map(d => {
-                    const r = d.reactions || {};
-                    return `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm animate-card-hover">
-                            <div class="flex items-center justify-between mb-2">
-                                <div>
-                                    <h4 class="text-xs font-bold text-white">${d.nama_donatur}</h4>
-                                    <p class="text-[11px] text-slate-400">${d.keterangan}</p>
-                                </div>
-                                <span class="text-xs font-bold text-emerald-400">Rp ${Number(d.nominal).toLocaleString('id-ID')}</span>
-                            </div>
-                            <div class="flex gap-1.5 border-t border-slate-800/60 pt-2 mt-1">
-                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
-                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
-                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
-                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (err) {
-                document.getElementById("donationContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat donasi.</p>`;
-            }
-        }
-
-        function openFormDonation(isBack = false) {
-            if (!isBack) pushNavState('openFormDonation');
-            const main = document.querySelector("main");
-            const user = window.currentUser || {};
-            document.getElementById("headerTitle").innerText = "Form Kirim Donasi";
-            triggerPageTransition();
-            main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="openDonationList()" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Daftar Donasi</button>
-                    <form onsubmit="handleSendDonation(event)" class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Opsi Tampilkan Nama</label>
-                            <select id="donNameOption" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                <option value="full">Tampilkan Nama Lengkap (${user.nama_lengkap})</option>
-                                <option value="initial">Inisial Saja (Cth: B***)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Peruntukan</label>
-                            <input type="text" id="donKet" required placeholder="Cth: Pembangunan Gedung" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nominal (Rp)</label>
-                            <input type="number" id="donNominal" required placeholder="Cth: 100000" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                        </div>
-                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-sm shadow-md transition">Kirim Konfirmasi</button>
-                    </form>
-                </div>
-            `;
-        }
-
-        async function handleSendDonation(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector("button[type='submit']");
-            btn.disabled = true;
-            btn.innerText = "Memproses...";
-
-            const user = window.currentUser;
-            const nameOption = document.getElementById("donNameOption").value;
-            let finalName = nameOption === 'initial' ? user.nama_lengkap.charAt(0) + '***' : user.nama_lengkap;
-
-            const data = {
-                action: "addDonation",
-                user_id: user.id,
-                nama_donatur: finalName,
-                jenis_donasi: "Transfer",
-                keterangan: document.getElementById("donKet").value,
-                nominal: document.getElementById("donNominal").value,
-                tanggal: new Date()
-            };
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-                showToast(result.message);
-                if (result.status === "success") {
-                    openDonationList();
-                } else {
-                    btn.disabled = false;
-                    btn.innerText = "Kirim Konfirmasi";
-                }
-            } catch (err) {
-                showToast("Gagal mengirim donasi.", "error");
-                btn.disabled = false;
-                btn.innerText = "Kirim Konfirmasi";
-            }
-        }
-        
         function toggleSeniorMode() {
             const body = document.body;
             const isSenior = body.classList.toggle('senior-mode');
@@ -2527,21 +2591,8 @@ async function openDownloadCenter(isBack = false) {
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedSeniorMode = localStorage.getItem('gmit_senior_mode');
-            if (savedSeniorMode === 'true') {
-                document.body.classList.add('senior-mode');
-                const btn = document.getElementById('seniorModeBtn');
-                if(btn) {
-                    btn.innerText = "🌙 Mode Normal";
-                    btn.className = "text-xs bg-purple-600 text-white px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition shadow-md";
-                }
-            }
-        });
-        
         async function handleReactionAndRefresh(tipe, idTarget, emoji) {
             const user = window.currentUser || { id: "Anonim" };
-            
             const eventBtn = event.currentTarget;
             if (eventBtn) {
                 let badgeSpan = eventBtn.querySelector('span');
@@ -2584,157 +2635,167 @@ async function openDownloadCenter(isBack = false) {
                 showToast("Gagal mencatat reaksi ke server", "error");
             }
         }
-		
-		function openPrayerMenu(isBack = false) {
-            if (!isBack) pushNavState('openPrayerMenu');
-            const savedUser = localStorage.getItem("user_gereja");
-            
-            // Cek autentikasi terlebih dahulu jika halaman ini dikhususkan bagi jemaat
-            if (!savedUser) {
-                const main = document.querySelector("main");
-                document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
-                triggerPageTransition();
-                main.innerHTML = `
-                    <div class="space-y-4">
-                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
-                            <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
-                            <button onclick="renderAuthPageForAction(openPrayerMenu)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">Login</button>
-                            <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
-                        </div>
-                    </div>
-                `;
+
+        function redirectToRolePanel() {
+            const sessionData = sessionStorage.getItem("user_gereja") || localStorage.getItem("user_gereja");
+            if (!sessionData) {
+                alert("Sesi tidak ditemukan. Silakan login terlebih dahulu.");
                 return;
             }
+
+            let userData = {};
+            try {
+                userData = JSON.parse(sessionData);
+            } catch (e) {
+                alert("Data sesi rusak. Silakan login ulang.");
+                return;
+            }
+
+            const role = (userData.role || userData.status_pelayanan || "").toLowerCase().trim();
+            if (role.includes("super") || role.includes("admin")) {
+                window.location.href = "admin.html";
+            } else if (role.includes("sekretariat") || role.includes("pendeta")) {
+                window.location.href = "sekretariat.html";
+            } else if (role.includes("sensus")) {
+                window.location.href = "sensus.html";
+            } else {
+                alert("Akses ditolak. Role Anda tercatat sebagai: " + (userData.role || "Jemaat"));
+            }
+        }
+
+        function playNotificationSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.4);
+            } catch (e) {
+                console.log("Audio dibatasi oleh browser:", e);
+            }
+        }
+
+        async function checkUnreadNotifications() {
+            const savedUser = localStorage.getItem("user_gereja");
+            if (!savedUser) return;
             
-            window.currentUser = JSON.parse(savedUser);
-            const user = window.currentUser;
-            const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
-            triggerPageTransition();
-            
-            // Tampilkan kerangka dengan tombol/form kirim di atas, diikuti kontainer list dinding doa di bawahnya
-            main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    
-                    <!-- Tombol / Kartu Kirim Doa di Paling Atas -->
-                    <div onclick="openFormPrayer()" class="bg-gradient-to-r from-emerald-900/60 to-slate-900 border border-emerald-500/40 p-4 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-400 cursor-pointer">
-                        <div>
-                            <h4 class="text-xs font-bold text-white flex items-center gap-2">✍️ Kirim / Berbagi Pokok Doa</h4>
-                            <p class="text-[10px] text-slate-300 mt-0.5">Bagikan doa syukur, Doa pergumulan atau Doa Khusus Anda ke sesama atau pribadi.</p>
+            try {
+                const user = JSON.parse(savedUser);
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "getUserNotifications", user_id: user.id })
+                });
+                const result = await response.json();
+
+                if (result.status === "success" && result.notifications && result.notifications.length > 0) {
+                    const notifs = result.notifications;
+                    const latestNotif = notifs[notifs.length - 1];
+                    const latestNotifId = String(latestNotif.id || latestNotif.timestamp);
+                    const lastSeenNotifId = localStorage.getItem("last_seen_notif_id");
+                    const badge = document.getElementById("unreadNotifBadge");
+
+                    if (latestNotifId !== lastSeenNotifId) {
+                        if (badge) badge.classList.remove("hidden");
+                        playNotificationSound();
+                    } else {
+                        if (badge) badge.classList.add("hidden");
+                    }
+                }
+            } catch (err) {
+                console.log("Gagal mengecek notifikasi baru", err);
+            }
+        }
+
+        function checkInstallOnboarding() {
+            const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            const tourDone = localStorage.getItem('gmit_install_prompted');
+            if (!isInstalled && !tourDone) {
+                setTimeout(showInstallGuideModal, 2000);
+            }
+        }
+
+        function showInstallGuideModal() {
+            const modalHTML = `
+                <div id="installGuideOverlay" class="fixed inset-0 bg-black/85 z-[9999] flex items-center justify-center p-4 backdrop-blur-md animate-fade-in">
+                    <div class="bg-slate-900 border-2 border-purple-500 rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-[0_0_40px_rgba(147,51,234,0.4)] relative">
+                        <div class="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-2xl mx-auto flex items-center justify-center text-3xl shadow-lg border-2 border-purple-400">
+                            ⛪
                         </div>
-                        <span class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition ml-2 shrink-0">Kirim ➕</span>
-                    </div>
+                        <div>
+                            <h3 class="font-bold text-base text-white">Biar Lebih Gampang & Cepat!</h3>
+                            <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                                Syalom! Agar tidak perlu repot mengetik link web berulang kali, pasang ikon <b>JPO Digital</b> langsung ke Beranda HP Anda.
+                            </p>
+                        </div>
 
-                    <!-- Garis Pemisah & Judul List -->
-                    <div class="pt-1">
-                        <h3 class="font-bold text-xs text-purple-400 uppercase tracking-wider mb-2">Dinding Doa Publik Jemaat</h3>
-                    </div>
+                        <div class="bg-slate-950 p-3.5 rounded-2xl text-left space-y-2 border border-slate-800 text-[11px] text-slate-300">
+                            <p class="font-bold text-purple-400">💡 Keuntungannya:</p>
+                            <p>⚡ Sekali ketuk langsung buka aplikasi</p>
+                            <p>🔔 Notifikasi warta & doa berbunyi otomatis</p>
+                            <p>📶 Bisa diakses dengan lebih stabil</p>
+                        </div>
 
-                    <!-- Kontainer List Doa -->
-                    <div id="publicPrayerContainer" class="space-y-3">
-                        <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat dinding doa...</p>
+                        <div class="space-y-2 pt-2">
+                            <button onclick="executeInstallAction()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 rounded-2xl text-xs transition shadow-lg shadow-purple-900/50 flex items-center justify-center gap-2">
+                                <span>📲</span> Pasang Sekarang
+                            </button>
+                            <button onclick="dismissInstallGuide()" class="w-full bg-transparent hover:bg-slate-800 text-slate-400 py-2.5 rounded-xl text-[11px] transition flex items-center justify-center gap-1.5">
+                                <span>🔙</span> Ingatkan Saya Nanti
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
-            
-            // Muat data dinding doa secara otomatis di bawahnya
-            loadPublicPrayerListContent(user);
+            const div = document.createElement('div');
+            div.innerHTML = modalHTML;
+            document.body.appendChild(div);
         }
 
-        // Fungsi pendukung untuk meload isi list doa ke dalam kontainer
-        async function loadPublicPrayerListContent(user) {
-            try {
-                const response = await fetch(`${SCRIPT_URL}?action=getPrayers`);
-                const result = await response.json();
-                const container = document.getElementById("publicPrayerContainer");
-                if (!container) return;
-                
-                const prayers = result.prayers || [];
-                
-                if (prayers.length === 0) {
-                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 bg-slate-900 border border-slate-800 rounded-2xl">Belum ada pokok doa publik.</p>`;
-                    return;
+        async function executeInstallAction() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    localStorage.setItem('gmit_install_prompted', 'true');
+                    showToast("Terima kasih telah memasang aplikasi!");
                 }
-
-                const userRole = String(user.status_pelayanan || user.adminRole || "").toLowerCase();
-                const isPendetaOrAdmin = user.isAdmin || userRole.includes('pendeta') || userRole.includes('super admin');
-
-                container.innerHTML = prayers.map(p => {
-                    const r = p.reactions || {};
-                    return `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-sm animate-card-hover">
-                            <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
-                            <p class="text-xs text-slate-200 italic mt-1">"${p.isi_doa}"</p>
-                            <p class="text-[10px] text-slate-400">Oleh: ${p.nama_pengirim}</p>
-                            
-                            ${p.balasan ? `
-                                <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl mt-2">
-                                    <p class="text-[10px] font-bold text-amber-400 mb-1">Balasan Pastoral:</p>
-                                    <p class="text-[11px] text-slate-300 italic whitespace-pre-line">${p.balasan}</p>
-                                </div>
-                            ` : ''}
-
-                            <div class="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-2">
-                                <div class="flex gap-1.5 flex-wrap">
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
-                                </div>
-                                
-                                ${isPendetaOrAdmin ? `<button onclick="handleReplyPrayer('${p.id}', '${user.nama_lengkap || user.nama || 'Pendeta'}')" class="text-[10px] font-semibold text-purple-400 hover:text-purple-300">Balas 💬</button>` : ''}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (err) {
-                const container = document.getElementById("publicPrayerContainer");
-                if (container) {
-                    container.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">Gagal memuat dinding doa.</p>`;
-                }
+                deferredPrompt = null;
+            } else {
+                Swal.fire({
+                    title: 'Cara Pasang Manual',
+                    html: `
+                        <p class="text-xs text-slate-300 text-left leading-relaxed">
+                            Ketuk ikon titik tiga (<b>⋮</b>) atau menu di pojok kanan atas browser HP Anda, lalu pilih <br><b>"Tambahkan ke Layar Utama"</b> atau <b>"Install App"</b>.
+                        </p>
+                    `,
+                    icon: 'info',
+                    confirmButtonColor: '#9333ea',
+                    confirmButtonText: 'Mengerti'
+                });
             }
-        }
-		async function handleReplyPrayer(prayerId, adminNama) {
-            const replyText = prompt("Masukkan balasan pastoral Anda untuk doa ini:");
-            if (replyText && replyText.trim() !== "") {
-                showToast("Mengirim balasan pastoral...", "success");
-                
-                try {
-                    const response = await fetch(SCRIPT_URL, {
-                        method: "POST",
-                        body: JSON.stringify({
-                            action: "replyPrayer",
-                            prayer_id: prayerId,
-                            reply_text: replyText.trim(),
-                            admin_nama: adminNama
-                        })
-                    });
-                    const result = await response.json();
-                    
-                    showToast(result.message);
-                    if (result.status === "success") {
-                        openPrayerMenu(true); // Memuat ulang tampilan menu doa utama secara sinkron
-                    }
-                } catch (err) {
-                    showToast("Gagal mengirim balasan.", "error");
-                }
-            }
+            dismissInstallGuide();
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            updateNetworkStatus();
-            switchTab('home', false, true); 
-            checkPushNotification();
-            updateAuthNavText();
-	checkInstallOnboarding();
-        });
+        function dismissInstallGuide() {
+            const overlay = document.getElementById('installGuideOverlay');
+            if (overlay) overlay.parentElement.remove();
+            localStorage.setItem('gmit_install_prompted', 'true');
+        }
 
         function updateAuthNavText() {
             const navText = document.getElementById("accountNavText");
             if (!navText) return;
-            
             const savedUser = localStorage.getItem("user_gereja");
             if (savedUser) {
                 navText.innerText = "Akun";
@@ -2753,20 +2814,16 @@ async function openDownloadCenter(isBack = false) {
                 if (data.status === 'ok' && data.items.length > 0) {
                     const latestVideo = data.items[0];
                     let videoId = "";
-                    
                     if (latestVideo.link.includes('v=')) {
                         videoId = latestVideo.link.split('v=')[1].split('&')[0];
                     }
-                    
                     if (videoId) {
                         let pubDate = new Date(latestVideo.pubDate);
                         let now = new Date();
                         let hoursDifference = (now - pubDate) / (1000 * 60 * 60);
-                        
                         if (hoursDifference <= 4) {
                             const card = document.getElementById('livestream-card');
                             const badge = document.getElementById('livestream-badge');
-                            
                             if (card && badge) {
                                 card.classList.remove('border-orange-200/40', 'hover:border-orange-400');
                                 card.classList.add('border-rose-600', 'shadow-lg', 'shadow-rose-600/30', 'hover:border-rose-500');
@@ -2786,189 +2843,21 @@ async function openDownloadCenter(isBack = false) {
             checkPushNotification();
             updateAuthNavText();
             checkLiveStatusForMenu();
-	checkInstallOnboarding();
+            checkInstallOnboarding();
             
-            // TAMBAHKAN INI: Jalankan pengecekan notifikasi & suara saat aplikasi dimuat
+            const savedSeniorMode = localStorage.getItem('gmit_senior_mode');
+            if (savedSeniorMode === 'true') {
+                document.body.classList.add('senior-mode');
+                const btn = document.getElementById('seniorModeBtn');
+                if(btn) {
+                    btn.innerText = "🌙 Mode Normal";
+                    btn.className = "text-xs bg-purple-600 text-white px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition shadow-md";
+                }
+            }
+
             checkUnreadNotifications();
-            // Opsional: Cek berkala setiap 2 menit (120000 ms)
             setInterval(checkUnreadNotifications, 120000); 
         });
-
-        function redirectToRolePanel() {
-            // Cek di sessionStorage ATAU localStorage (karena login menyimpannya di localStorage)
-            const sessionData = sessionStorage.getItem("user_gereja") || localStorage.getItem("user_gereja");
-            
-            if (!sessionData) {
-                alert("Sesi tidak ditemukan. Silakan login terlebih dahulu.");
-                return;
-            }
-
-            let userData = {};
-            try {
-                userData = JSON.parse(sessionData);
-            } catch (e) {
-                console.error("Gagal membaca data sesi:", e);
-                alert("Data sesi rusak. Silakan login ulang.");
-                return;
-            }
-
-            // Ambil role langsung dari properti user
-            const role = (userData.role || userData.status_pelayanan || "").toLowerCase().trim();
-            console.log("Role aktif yang terbaca:", role);
-
-            // Pemetaan tujuan halaman berdasarkan role
-            if (role.includes("super") || role.includes("admin")) {
-                window.location.href = "admin.html";
-            } else if (role.includes("sekretariat") || role.includes("pendeta")) {
-                window.location.href = "sekretariat.html";
-            } else if (role.includes("sensus")) {
-                window.location.href = "sensus.html";
-            } else {
-                alert("Akses ditolak. Role Anda tercatat sebagai: " + (userData.role || "Jemaat"));
-            }
-        }
-// Fungsi Pemutar Suara Notifikasi yang Aman
-        function playNotificationSound() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Nada D5
-                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // Nada A5
-
-                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 0.4);
-            } catch (e) {
-                console.log("Audio dibatasi oleh browser:", e);
-            }
-        }
-
-        // Fungsi Cek Notifikasi Belum Dibaca (Tahan dari data ganda)
-        async function checkUnreadNotifications() {
-            const savedUser = localStorage.getItem("user_gereja");
-            if (!savedUser) return;
-            
-            try {
-                const user = JSON.parse(savedUser);
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "getUserNotifications", user_id: user.id })
-                });
-                const result = await response.json();
-
-                if (result.status === "success" && result.notifications && result.notifications.length > 0) {
-                    const notifs = result.notifications;
-                    const latestNotif = notifs[notifs.length - 1];
-                    const latestNotifId = String(latestNotif.id || latestNotif.timestamp);
-                    
-                    const lastSeenNotifId = localStorage.getItem("last_seen_notif_id");
-                    const badge = document.getElementById("unreadNotifBadge");
-
-                    // Jika ada notifikasi baru yang belum dibaca
-                    if (latestNotifId !== lastSeenNotifId) {
-                        if (badge) badge.classList.remove("hidden");
-                        playNotificationSound(); // Bunyikan suara
-                    } else {
-                        if (badge) badge.classList.add("hidden");
-                    }
-                }
-            } catch (err) {
-                console.log("Gagal mengecek notifikasi baru", err);
-            }
-        }
-// Cek apakah user sudah menginstal atau melewati panduan
-function checkInstallOnboarding() {
-    const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    const tourDone = localStorage.getItem('gmit_install_prompted');
-
-    // Jika belum standalone (belum diinstal) dan belum pernah memproses prompt ini
-    if (!isInstalled && !tourDone) {
-        // Tampilkan modal pemandu setelah 2 detik
-        setTimeout(showInstallGuideModal, 2000);
-    }
-}
-
-function showInstallGuideModal() {
-    // Buat elemen modal secara dinamis atau tampilkan dari HTML
-    const modalHTML = `
-        <div id="installGuideOverlay" class="fixed inset-0 bg-black/85 z-[9999] flex items-center justify-center p-4 backdrop-blur-md animate-fade-in">
-            <div class="bg-slate-900 border-2 border-purple-500 rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-[0_0_40px_rgba(147,51,234,0.4)] relative">
-                <div class="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-2xl mx-auto flex items-center justify-center text-3xl shadow-lg border-2 border-purple-400">
-                    ⛪
-                </div>
-                <div>
-                    <h3 class="font-bold text-base text-white">Biar Lebih Gampang & Cepat!</h3>
-                    <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-                        Syalom! Agar tidak perlu repot mengetik link web berulang kali, pasang ikon <b>JPO Digital</b> langsung ke Beranda HP Anda.
-                    </p>
-                </div>
-
-                <div class="bg-slate-950 p-3.5 rounded-2xl text-left space-y-2 border border-slate-800 text-[11px] text-slate-300">
-                    <p class="font-bold text-purple-400">💡 Keuntungannya:</p>
-                    <p>⚡ Sekali ketuk langsung buka aplikasi</p>
-                    <p>🔔 Notifikasi warta & doa berbunyi otomatis</p>
-                    <p>📶 Bisa diakses dengan lebih stabil</p>
-                </div>
-
-                <div class="space-y-2 pt-2">
-<button onclick="executeInstallAction()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 rounded-2xl text-xs transition shadow-lg shadow-purple-900/50 flex items-center justify-center gap-2">
-                        <span>📲</span> Pasang Sekarang
-                    </button>
-                    <button onclick="dismissInstallGuide()" class="w-full bg-transparent hover:bg-slate-800 text-slate-400 py-2.5 rounded-xl text-[11px] transition flex items-center justify-center gap-1.5">
-                        <span>🔙</span> Ingatkan Saya Nanti
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Suntikkan ke body
-    const div = document.createElement('div');
-    div.innerHTML = modalHTML;
-    document.body.appendChild(div);
-}
-
-// Eksekusi tombol pasang
-async function executeInstallAction() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            localStorage.setItem('gmit_install_prompted', 'true');
-            showToast("Terima kasih telah memasang aplikasi!");
-        }
-        deferredPrompt = null;
-    } else {
-        // Panduan manual jika browser tidak mendukung prompt otomatis
-        Swal.fire({
-            title: 'Cara Pasang Manual',
-            html: `
-                <p class="text-xs text-slate-300 text-left leading-relaxed">
-                    Ketuk ikon titik tiga (<b>⋮</b>) atau menu di pojok kanan atas browser HP Anda, lalu pilih <br><b>"Tambahkan ke Layar Utama"</b> atau <b>"Install App"</b>.
-                </p>
-            `,
-            icon: 'info',
-            confirmButtonColor: '#9333ea',
-            confirmButtonText: 'Mengerti'
-        });
-    }
-    dismissInstallGuide();
-}
-
-function dismissInstallGuide() {
-    const overlay = document.getElementById('installGuideOverlay');
-    if (overlay) overlay.parentElement.remove();
-    // Simpan ke localStorage agar tidak mengganggu terus-menerus setiap detik
-    localStorage.setItem('gmit_install_prompted', 'true');
-}
     </script>
 </body>
 </html>
