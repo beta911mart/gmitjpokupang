@@ -1705,7 +1705,7 @@ function submitAndRedirectWA() {
                 </div>
             `;
         }
-	async function openDownloadCenter(isBack = false) {
+async function openDownloadCenter(isBack = false) {
             if (!isBack) pushNavState('openDownloadCenter');
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Pusat Dokumen PDF";
@@ -1730,17 +1730,20 @@ function submitAndRedirectWA() {
                 });
                 const result = await res.json();
                 const list = (result.status === "success") ? result.data : [];
-// Ambil dokumen PERTAMA yang kategorinya/judulnya mengandung kata "warta" (otomatis yang paling baru di-upload!)
-				const wartaDok = list.find(d => 
+                
+                // Ambil dokumen PERTAMA yang kategorinya/judulnya mengandung kata "warta"
+                const wartaDok = list.find(d => 
                     (d.judul && d.judul.toLowerCase().includes("warta")) || 
                     (d.kategori && d.kategori.toLowerCase().includes("warta"))
                 );
-// Ambil dokumen PERTAMA yang kategorinya/judulnya mengandung kata "liturgi" (otomatis yang paling baru di-upload!)
+                
+                // Ambil dokumen PERTAMA yang kategorinya/judulnya mengandung kata "liturgi"
                 const liturgiDok = list.find(d => 
                     (d.judul && d.judul.toLowerCase().includes("liturgi")) || 
                     (d.kategori && d.kategori.toLowerCase().includes("liturgi"))
                 );
-                // Filter dokumen lain (di luar warta & liturgi rutin utama jika ingin dipisah, atau tampilkan semua)
+                
+                // Filter dokumen lain
                 const dokumenLainnya = list.filter(d => d !== wartaDok && d !== liturgiDok);
 
                 let htmlContent = `
@@ -1755,65 +1758,64 @@ function submitAndRedirectWA() {
                 // 1. RENDER KARTU RUTIN: WARTA MINGGU INI
                 if (wartaDok) {
                     htmlContent += `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50">
-                            <div>
-                                <h4 class="text-xs font-bold text-white">${wartaDok.judul}</h4>
-                                <p class="text-[10px] text-slate-400 mt-0.5">${wartaDok.kategori} &bull; Tersedia</p>
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50 transition">
+                            <div class="space-y-1">
+                                <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded font-semibold">Warta Jemaat Terbaru</span>
+                                <h4 class="text-xs font-bold text-white">${wartaDok.judul || 'Warta Jemaat'}</h4>
+                                <p class="text-[10px] text-slate-400">${wartaDok.tanggal || ''}</p>
                             </div>
-                            <a href="${wartaDok.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Download</a>
-                        </div>
-                    `;
-                } else {
-                    htmlContent += `
-                        <div class="bg-slate-900/60 border border-slate-800/60 p-4 rounded-2xl flex items-center justify-between opacity-60">
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-400">Warta Minggu Ini</h4>
-                                <p class="text-[10px] text-amber-400 mt-0.5">Belum diunggah oleh sekretariat</p>
+                            <div class="flex gap-2">
+                                <a href="${wartaDok.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition flex items-center gap-1">
+                                    <span>👁️</span> Lihat / Unduh
+                                </a>
                             </div>
-                            <button disabled class="bg-slate-800 text-slate-500 px-3 py-2 rounded-xl text-xs font-semibold cursor-not-allowed">Kosong</button>
                         </div>
                     `;
                 }
 
-                // 2. RENDER KARTU RUTIN: LITURGI MINGGU INI
+                // 2. RENDER KARTU RUTIN: LEMBAR LITURGI
                 if (liturgiDok) {
                     htmlContent += `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50">
-                            <div>
-                                <h4 class="text-xs font-bold text-white">${liturgiDok.judul}</h4>
-                                <p class="text-[10px] text-slate-400 mt-0.5">${liturgiDok.kategori} &bull; Tersedia</p>
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50 transition">
+                            <div class="space-y-1">
+                                <span class="bg-emerald-900/60 text-emerald-300 text-[10px] px-2 py-0.5 rounded font-semibold">Lembar Liturgi Terbaru</span>
+                                <h4 class="text-xs font-bold text-white">${liturgiDok.judul || 'Lembar Liturgi'}</h4>
+                                <p class="text-[10px] text-slate-400">${liturgiDok.tanggal || ''}</p>
                             </div>
-                            <a href="${liturgiDok.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Download</a>
-                        </div>
-                    `;
-                } else {
-                    htmlContent += `
-                        <div class="bg-slate-900/60 border border-slate-800/60 p-4 rounded-2xl flex items-center justify-between opacity-60">
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-400">Liturgi Minggu Ini</h4>
-                                <p class="text-[10px] text-amber-400 mt-0.5">Belum diunggah oleh sekretariat</p>
+                            <div class="flex gap-2">
+                                <a href="${liturgiDok.url}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition flex items-center gap-1">
+                                    <span>👁️</span> Lihat / Unduh
+                                </a>
                             </div>
-                            <button disabled class="bg-slate-800 text-slate-500 px-3 py-2 rounded-xl text-xs font-semibold cursor-not-allowed">Kosong</button>
                         </div>
                     `;
                 }
 
-                // 3. RENDER OTOMATIS DOKUMEN TAMBAHAN / LAINNYA (JIKA ADA BARU)
+                // 3. RENDER DOKUMEN LAINNYA
                 if (dokumenLainnya.length > 0) {
-                    htmlContent += `<div class="pt-2"><p class="text-[11px] font-semibold text-slate-400 mb-2">📁 Dokumen & Arsip Lainnya</p></div>`;
+                    htmlContent += `<h5 class="font-bold text-xs text-purple-400 pt-2 uppercase tracking-wider">Arsip Dokumen Lainnya</h5>`;
                     dokumenLainnya.forEach(doc => {
                         htmlContent += `
-                            <div class="space-y-3">
-                                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50">
-                                    <div>
-                                        <h4 class="text-xs font-bold text-white">${doc.judul}</h4>
-                                        <p class="text-[10px] text-slate-400 mt-0.5">${doc.kategori} &bull; Format PDF</p>
-                                    </div>
-                                    <a href="${doc.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Tampilkan</a>
+                            <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover">
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block">${doc.kategori || 'Dokumen'}</span>
+                                    <h5 class="text-xs font-bold text-white">${doc.judul || 'Tanpa Judul'}</h5>
                                 </div>
+                                <a href="${doc.url}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-purple-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition">
+                                    Unduh
+                                </a>
                             </div>
                         `;
                     });
+                }
+
+                if (!wartaDok && !liturgiDok && dokumenLainnya.length === 0) {
+                    htmlContent += `
+                        <div class="text-center py-10 space-y-2 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                            <div class="text-3xl opacity-50">📂</div>
+                            <p class="text-xs text-slate-400">Belum ada dokumen PDF yang diunggah ke sistem.</p>
+                        </div>
+                    `;
                 }
 
                 htmlContent += `</div></div>`;
@@ -1823,8 +1825,9 @@ function submitAndRedirectWA() {
                 main.innerHTML = `
                     <div class="space-y-4">
                         <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                        <div class="bg-red-950/40 border border-red-900/40 p-4 rounded-xl text-xs text-red-200">
-                            Gagal memuat daftar dokumen: ${err}
+                        <div class="text-center py-10 space-y-2 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                            <p class="text-xs text-rose-400">Gagal memuat daftar dokumen dari server.</p>
+                            <button onclick="openDownloadCenter()" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-semibold">Coba Lagi</button>
                         </div>
                     </div>
                 `;
