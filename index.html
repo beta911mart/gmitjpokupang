@@ -2468,31 +2468,116 @@ container.innerHTML = result.notifications.map(n => {
         }
 		
 function openPrayerMenu(isBack = false) {
-    if (!isBack) pushNavState('openPrayerMenu');
-    const main = document.querySelector("main");
-    document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
-    triggerPageTransition();
-    
-    main.innerHTML = `
-        <div class="space-y-4">
-            <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+            if (!isBack) pushNavState('openPrayerMenu');
+            const savedUser = localStorage.getItem("user_gereja");
             
-            <div class="grid grid-cols-2 gap-3">
-                <div onclick="openPublicPrayerWall()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition shadow-sm animate-card-hover">
-                    <div class="text-3xl mb-2">🌍</div>
-                    <h4 class="font-bold text-xs text-white">Dinding Doa Publik</h4>
-                    <p class="text-[10px] text-slate-400 mt-1">Lihat & dukung doa jemaat</p>
+            // Cek autentikasi terlebih dahulu jika halaman ini dikhususkan bagi jemaat
+            if (!savedUser) {
+                const main = document.querySelector("main");
+                document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
+                triggerPageTransition();
+                main.innerHTML = `
+                    <div class="space-y-4">
+                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
+                            <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
+                            <button onclick="renderAuthPageForAction(openPrayerMenu)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">Login</button>
+                            <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            window.currentUser = JSON.parse(savedUser);
+            const user = window.currentUser;
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
+            triggerPageTransition();
+            
+            // Tampilkan kerangka dengan tombol/form kirim di atas, diikuti kontainer list dinding doa di bawahnya
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    
+                    <!-- Tombol / Kartu Kirim Doa di Paling Atas -->
+                    <div onclick="openFormPrayer()" class="bg-gradient-to-r from-emerald-900/60 to-slate-900 border border-emerald-500/40 p-4 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-400 cursor-pointer">
+                        <div>
+                            <h4 class="text-xs font-bold text-white flex items-center gap-2">✍️ Tulis & Kirim Pokok Doa Baru</h4>
+                            <p class="text-[10px] text-slate-300 mt-0.5">Bagikan doa syukur atau pergumulan Anda ke dinding doa.</p>
+                        </div>
+                        <span class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition ml-2 shrink-0">Kirim ➕</span>
+                    </div>
+
+                    <!-- Garis Pemisah & Judul List -->
+                    <div class="pt-1">
+                        <h3 class="font-bold text-xs text-purple-400 uppercase tracking-wider mb-2">Dinding Doa Publik Jemaat</h3>
+                    </div>
+
+                    <!-- Kontainer List Doa -->
+                    <div id="publicPrayerContainer" class="space-y-3">
+                        <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat dinding doa...</p>
+                    </div>
                 </div>
+            `;
+            
+            // Muat data dinding doa secara otomatis di bawahnya
+            loadPublicPrayerListContent(user);
+        }
+
+        // Fungsi pendukung untuk meload isi list doa ke dalam kontainer
+        async function loadPublicPrayerListContent(user) {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getPrayers`);
+                const result = await response.json();
+                const container = document.getElementById("publicPrayerContainer");
+                if (!container) return;
                 
-                <div onclick="openFormPrayer()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition shadow-sm animate-card-hover">
-                    <div class="text-3xl mb-2">✍️</div>
-                    <h4 class="font-bold text-xs text-white">Kirim Pokok Doa</h4>
-                    <p class="text-[10px] text-slate-400 mt-1">Bagikan pergumulan Anda</p>
-                </div>
-            </div>
-        </div>
-    `;
-}
+                const prayers = result.prayers || [];
+                
+                if (prayers.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 bg-slate-900 border border-slate-800 rounded-2xl">Belum ada pokok doa publik.</p>`;
+                    return;
+                }
+
+                const userRole = String(user.status_pelayanan || user.adminRole || "").toLowerCase();
+                const isPendetaOrAdmin = user.isAdmin || userRole.includes('pendeta') || userRole.includes('super admin');
+
+                container.innerHTML = prayers.map(p => {
+                    const r = p.reactions || {};
+                    return `
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-sm animate-card-hover">
+                            <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
+                            <p class="text-xs text-slate-200 italic mt-1">"${p.isi_doa}"</p>
+                            <p class="text-[10px] text-slate-400">Oleh: ${p.nama_pengirim}</p>
+                            
+                            ${p.balasan ? `
+                                <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl mt-2">
+                                    <p class="text-[10px] font-bold text-amber-400 mb-1">Balasan Pastoral:</p>
+                                    <p class="text-[11px] text-slate-300 italic whitespace-pre-line">${p.balasan}</p>
+                                </div>
+                            ` : ''}
+
+                            <div class="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-2">
+                                <div class="flex gap-1.5 flex-wrap">
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
+                                </div>
+                                
+                                ${isPendetaOrAdmin ? `<button onclick="handleReplyPrayer('${p.id}', '${user.nama_lengkap || user.nama || 'Pendeta'}')" class="text-[10px] font-semibold text-purple-400 hover:text-purple-300">Balas 💬</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                const container = document.getElementById("publicPrayerContainer");
+                if (container) {
+                    container.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">Gagal memuat dinding doa.</p>`;
+                }
+            }
+        }
 async function handleReplyPrayer(prayerId, adminNama) {
             const replyText = prompt("Masukkan balasan pastoral Anda untuk doa ini:");
             if (replyText && replyText.trim() !== "") {
