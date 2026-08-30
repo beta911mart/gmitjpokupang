@@ -371,7 +371,7 @@
             }
         }
 
-        function setTheme(theme) {
+        function setTheme(theme, isInitialLoad = false) {
             const app = document.getElementById("app");
             const body = document.getElementById("appBody");
             
@@ -426,12 +426,13 @@
             
             localStorage.setItem('gmit_selected_theme', theme);
             
-            const headerTitle = document.getElementById("headerTitle");
-            if (headerTitle && headerTitle.innerText.includes("PNIEL Oebobo")) {
-                switchTab('home', true, true);
+            if (!isInitialLoad) {
+                const headerTitle = document.getElementById("headerTitle");
+                if (headerTitle && headerTitle.innerText.toLowerCase().includes("pniel")) {
+                    switchTab('home', true, true);
+                }
+                showToast("Tema berhasil diterapkan!");
             }
-            
-            showToast("Tema berhasil diterapkan!");
         }
 
         async function installPWA() {
@@ -2838,10 +2839,11 @@
             
             const savedTheme = localStorage.getItem('gmit_selected_theme');
             if (savedTheme) {
-                setTheme(savedTheme);
-            } else {
-                switchTab('home', false, true); 
+                setTheme(savedTheme, true);
             }
+            
+            // FIX: Selalu render halaman beranda pada saat muat ulang aplikasi agar tidak blank
+            switchTab('home', false, true); 
 
             checkPushNotification();
             updateAuthNavText();
