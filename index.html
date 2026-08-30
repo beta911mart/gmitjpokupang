@@ -969,8 +969,12 @@ function openSuratForm(jenisSurat) {
     document.getElementById("headerTitle").innerText = "Form " + jenisSurat;
     triggerPageTransition();
 
-    // Mengambil data user yang sedang login (sesuaikan variabel session Anda jika berbeda)
-    const currentUser = window.currentUser || {}; 
+    // Pastikan mengambil dari objek sesi user yang sedang aktif
+    // Sesuaikan 'window.currentUser' dengan variabel sesi yang Anda gunakan di aplikasi Anda
+    const user = window.currentUser || {}; 
+
+    // Debugging sementara untuk memastikan data user ada (bisa dihapus jika sudah normal)
+    console.log("Data User Aktif:", user);
 
     main.innerHTML = `
         <div class="space-y-4">
@@ -983,12 +987,12 @@ function openSuratForm(jenisSurat) {
                 
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">Nama Lengkap</label>
-                    <input type="text" id="inputNama" value="${currentUser.nama_lengkap || ''}" class="w-true w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" readonly>
+                    <input type="text" id="inputNama" value="${user.nama_lengkap || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" readonly>
                 </div>
 
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">Nomor WhatsApp Aktif</label>
-                    <input type="text" id="inputWa" value="${currentUser.no_whatsapp || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" placeholder="Contoh: 08123456789">
+                    <input type="text" id="inputWa" value="${user.no_whatsapp || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" placeholder="Contoh: 08123456789">
                 </div>
 
                 <div>
