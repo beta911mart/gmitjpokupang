@@ -2467,7 +2467,7 @@ container.innerHTML = result.notifications.map(n => {
             }
         }
 		
-function openPrayerMenu(isBack = false) {
+		function openPrayerMenu(isBack = false) {
             if (!isBack) pushNavState('openPrayerMenu');
             const savedUser = localStorage.getItem("user_gereja");
             
@@ -2503,8 +2503,8 @@ function openPrayerMenu(isBack = false) {
                     <!-- Tombol / Kartu Kirim Doa di Paling Atas -->
                     <div onclick="openFormPrayer()" class="bg-gradient-to-r from-emerald-900/60 to-slate-900 border border-emerald-500/40 p-4 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-400 cursor-pointer">
                         <div>
-                            <h4 class="text-xs font-bold text-white flex items-center gap-2">✍️ Tulis & Kirim Pokok Doa Baru</h4>
-                            <p class="text-[10px] text-slate-300 mt-0.5">Bagikan doa syukur atau pergumulan Anda ke dinding doa.</p>
+                            <h4 class="text-xs font-bold text-white flex items-center gap-2">✍️ Kirim / Berbagi Pokok Doa</h4>
+                            <p class="text-[10px] text-slate-300 mt-0.5">Bagikan doa syukur, Doa pergumulan atau Doa Khusus Anda ke sesama atau pribadi.</p>
                         </div>
                         <span class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition ml-2 shrink-0">Kirim ➕</span>
                     </div>
@@ -2578,7 +2578,7 @@ function openPrayerMenu(isBack = false) {
                 }
             }
         }
-async function handleReplyPrayer(prayerId, adminNama) {
+		async function handleReplyPrayer(prayerId, adminNama) {
             const replyText = prompt("Masukkan balasan pastoral Anda untuk doa ini:");
             if (replyText && replyText.trim() !== "") {
                 showToast("Mengirim balasan pastoral...", "success");
@@ -2597,7 +2597,7 @@ async function handleReplyPrayer(prayerId, adminNama) {
                     
                     showToast(result.message);
                     if (result.status === "success") {
-                        openPublicPrayerWall();
+                        openPrayerMenu(true); // Memuat ulang tampilan menu doa utama secara sinkron
                     }
                 } catch (err) {
                     showToast("Gagal mengirim balasan.", "error");
