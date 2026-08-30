@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GMIT JPO Digital</title>
     <meta name="description" content="WebApp GMIT Jemaat Pniel Oebobo, Kupang. Temukan informasi jadwal ibadah, warta jemaat, kegiatan pemuda, dan pelayanan kasih di sini.">
     <meta name="keywords" content="Gereja Pniel Oebobo, GMIT Pniel Oebobo, GMit JPO Kupang, Jadwal Ibadah Pniel Oebobo">
     <meta name="google-site-verification" content="cC7ZUJE57oQGBvbN9gBkcYj51ADXa9GVsnGVrswXddY" />
     
-    <!-- Open Graph / Social Media Preview Thumbnail Tags -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="GMIT Jemaat Pniel Oebobo - JPO Digital">
     <meta property="og:description" content="WebApp digital GMIT Jemaat Pniel Oebobo. Jadwal ibadah, warta, renungan, dan pelayanan kasih.">
@@ -32,9 +31,9 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
         
-        .animate-slide-in { animation: slideInFromTop 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-fade-in { animation: smoothFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .animate-slide-in { animation: slideInFromTop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-fade-in { animation: smoothFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-card-hover { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         .animate-card-hover:active { transform: scale(0.94); }
 
         /* Theme button shapes */
@@ -89,7 +88,7 @@
 </head>
 <body id="appBody" class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden">
 
-    <div id="pushNotifOverlay" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <div id="pushNotifOverlay" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-500">
         <div class="bg-slate-900 border-2 border-amber-500 rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.3)] p-6 max-w-xs w-full animate-slide-in relative">
             <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-900 text-3xl rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-4 border-slate-900">
                 ⚠️
@@ -104,8 +103,8 @@
 
     <div id="toastContainer" class="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"></div>
 
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/70 z-[100] hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar(false)"></div>
-    <div id="sidebarMenu" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-slate-800 z-[105] transform -translate-x-full transition-transform duration-300 flex flex-col p-5 shadow-2xl">
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/70 z-[100] hidden backdrop-blur-sm transition-opacity duration-500" onclick="toggleSidebar(false)"></div>
+    <div id="sidebarMenu" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-slate-800 z-[105] transform -translate-x-full transition-transform duration-500 flex flex-col p-5 shadow-2xl">
         <div class="flex justify-between items-center pb-4 border-b border-slate-800">
             <h3 class="font-bold text-sm text-purple-400">Pengaturan & Tema</h3>
             <button onclick="toggleSidebar(false)" class="text-slate-400 hover:text-white text-lg">✕</button>
@@ -115,15 +114,15 @@
             <div>
                 <p class="text-xs font-semibold text-slate-400 mb-2">Pilih Tema Aplikasi:</p>
                 <div class="grid grid-cols-1 gap-2">
-                    <button onclick="setTheme('slate')" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-900 border border-slate-800 hover:border-purple-500 transition">🌙 Slate Dark (Default)</button>
-                    <button onclick="setTheme('emerald')" class="text-left px-3 py-2 rounded-xl text-xs bg-emerald-950/40 border border-emerald-900/50 hover:border-emerald-500 transition">🌿 Emerald Nature</button>
-                    <button onclick="setTheme('purple')" class="text-left px-3 py-2 rounded-xl text-xs bg-purple-950/40 border border-purple-900/50 hover:border-purple-500 transition">🍇 Royal Purple</button>
-                    <button onclick="setTheme('sunset')" class="text-left px-3 py-2 rounded-xl text-xs bg-orange-950/40 border border-orange-900/50 hover:border-orange-500 transition">🌅 Warm Sunset</button>
-                    <button onclick="setTheme('christmas')" class="text-left px-3 py-2 rounded-xl text-xs bg-red-950/60 border border-red-900/70 hover:border-red-500 transition flex items-center justify-between"><span>🎄 Tema Natal (Kepingan Salju)</span><span>⭐</span></button>
-                    <button onclick="setTheme('easter')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-950/60 border border-amber-900/70 hover:border-amber-500 transition flex items-center justify-between"><span>✝️ Tema Paskah (Bentuk Telur)</span><span>🕊️</span></button>
-                    <button onclick="setTheme('light')" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-100 text-slate-900 border border-slate-300 hover:border-slate-500 transition">☀️ Light Clean</button>
+                    <button onclick="setTheme('slate')" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-900 border border-slate-800 hover:border-purple-500 transition duration-300">🌙 Slate Dark (Default)</button>
+                    <button onclick="setTheme('emerald')" class="text-left px-3 py-2 rounded-xl text-xs bg-emerald-900/60 text-emerald-100 border border-emerald-700/60 hover:border-emerald-400 transition duration-300">🌿 Emerald Nature (Segar)</button>
+                    <button onclick="setTheme('purple')" class="text-left px-3 py-2 rounded-xl text-xs bg-fuchsia-900/60 text-fuchsia-100 border border-fuchsia-700/60 hover:border-fuchsia-400 transition duration-300">🍇 Royal Purple (Elegan)</button>
+                    <button onclick="setTheme('sunset')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-900/60 text-amber-100 border border-amber-700/60 hover:border-amber-400 transition duration-300">🌅 Warm Sunset (Hangat)</button>
+                    <button onclick="setTheme('christmas')" class="text-left px-3 py-2 rounded-xl text-xs bg-red-950/60 border border-red-900/70 hover:border-red-500 transition duration-300 flex items-center justify-between"><span>🎄 Tema Natal (Kepingan Salju)</span><span>⭐</span></button>
+                    <button onclick="setTheme('easter')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-950/60 border border-amber-900/70 hover:border-amber-500 transition duration-300 flex items-center justify-between"><span>✝️ Tema Paskah (Bentuk Telur)</span><span>🕊️</span></button>
+                    <button onclick="setTheme('light')" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-100 text-slate-900 border border-slate-300 hover:border-slate-500 transition duration-300">☀️ Light Clean</button>
                     
-                    <button onclick="toggleSeniorMode()" id="seniorModeBtn" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-400 transition flex items-center justify-between">
+                    <button onclick="toggleSeniorMode()" id="seniorModeBtn" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-400 transition duration-300 flex items-center justify-between">
                         <span>👓 Mode Lansia / Senior</span>
                         <span>Aktifkan</span>
                     </button>
@@ -132,7 +131,7 @@
 
             <div class="pt-4 border-t border-slate-800">
                 <p class="text-xs font-semibold text-slate-400 mb-2">Akses Cepat:</p>
-                <button onclick="installPWA()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-md">
+                <button onclick="installPWA()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 px-3 rounded-xl text-xs font-semibold transition duration-300 flex items-center justify-center gap-2 shadow-md">
                     📲 Tambahkan ke Beranda
                 </button>
             </div>
@@ -145,12 +144,11 @@
         </div>
     </div>
 
-    <div id="app" class="w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto bg-slate-950 min-h-screen flex flex-col shadow-2xl relative transition-all duration-300">
+    <div id="app" class="w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto bg-slate-950 min-h-screen flex flex-col shadow-2xl relative transition-all duration-500">
         
-        <!-- App Header -->
         <header class="bg-slate-800/80 backdrop-blur-md p-4 fixed top-0 left-0 right-0 z-40 max-w-md landscape:max-w-3xl md:max-w-md mx-auto border-b border-slate-700 flex justify-between items-center shadow-lg">
             <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar(true)" class="w-10 h-10 bg-purple-600 hover:bg-purple-700 rounded-full flex items-center justify-center font-bold text-white shadow-lg shadow-purple-500/30 transition cursor-pointer" title="Buka Menu Pengaturan">
+                <button onclick="toggleSidebar(true)" class="w-10 h-10 bg-purple-600 hover:bg-purple-700 rounded-full flex items-center justify-center font-bold text-white shadow-lg shadow-purple-500/30 transition duration-300 cursor-pointer" title="Buka Menu Pengaturan">
                     <i class="fa-solid fa-church"></i>
                 </button>
                 <div>
@@ -164,22 +162,19 @@
             </div>
         </header>
 
-        <!-- Theme Decoration Banner (Absolute below Header to prevent shifting content) -->
         <div id="themeBannerContainer" class="absolute top-[73px] left-0 right-0 z-30 pointer-events-none"></div>
 
-        <!-- Dynamic Content View Area -->
         <main class="flex-1 p-4 pt-28 pb-24 overflow-y-auto animate-fade-in w-full">
             <!-- Dynamic view contents render here -->
         </main>
 
-        <!-- Fixed Bottom Navigation Bar -->
-        <nav id="bottomNav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex justify-around items-center p-3 text-xs font-medium text-slate-400 shadow-lg transition-all duration-300">
-            <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition">
+        <nav id="bottomNav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex justify-around items-center p-3 text-xs font-medium text-slate-400 shadow-lg transition-all duration-500">
+            <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition duration-300">
                 <span class="text-sm">🏠</span>
                 <span class="text-xs font-medium">Beranda</span>
             </button>
             
-            <button onclick="switchTab('notifikasi')" class="relative hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition">
+            <button onclick="switchTab('notifikasi')" class="relative hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition duration-300">
                 <span class="relative inline-block text-sm">
                     🔔
                     <span id="unreadNotifBadge" class="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-rose-600 rounded-full border-2 border-slate-950 hidden animate-pulse"></span>
@@ -187,27 +182,26 @@
                 <span class="text-xs font-medium">Notifikasi</span>
             </button>
 
-            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition">
+            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition duration-300">
                 <span class="text-sm">👤</span> 
                 <span id="accountNavText" class="text-xs font-medium">Akun</span>
             </button>
         </nav>
     </div>
 
-    <!-- Hymn Fullscreen Lyrics Modal -->
     <div id="hymnModal" class="fixed inset-0 bg-black/95 z-[99999] hidden flex flex-col p-4 animate-fade-in">
         <div class="flex justify-between items-center pb-3 border-b border-slate-800 pt-2">
             <div>
                 <span id="modalHymnNo" class="text-xs font-bold text-purple-400"></span>
                 <h3 id="modalHymnTitle" class="text-sm font-bold text-white truncate max-w-[280px]"></h3>
             </div>
-            <button onclick="closeHymnModal()" class="bg-rose-600 hover:bg-rose-700 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-md transition">✕</button>
+            <button onclick="closeHymnModal()" class="bg-rose-600 hover:bg-rose-700 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-md transition duration-300">✕</button>
         </div>
         <div class="flex-1 overflow-y-auto py-4">
             <p id="modalHymnContent" class="text-[13px] sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed font-sans px-1 pb-10"></p>
         </div>
         <div class="pt-3 border-t border-slate-800 text-center pb-2">
-            <button onclick="closeHymnModal()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md">Tutup Lirik</button>
+            <button onclick="closeHymnModal()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition duration-300">Tutup Lirik</button>
         </div>
     </div>
 
@@ -289,9 +283,9 @@
             setTimeout(() => {
                 toast.style.opacity = "0";
                 toast.style.transform = "scale(0.9)";
-                toast.style.transition = "all 0.3s ease";
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+                toast.style.transition = "all 0.5s ease";
+                setTimeout(() => toast.remove(), 500);
+            }, 3500);
         }
 
         async function checkPushNotification() {
@@ -381,7 +375,7 @@
             const app = document.getElementById("app");
             const body = document.getElementById("appBody");
             
-            const baseAppClass = "w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto min-h-screen flex flex-col shadow-2xl relative transition-all duration-300";
+            const baseAppClass = "w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto min-h-screen flex flex-col shadow-2xl relative transition-all duration-500";
             
             const bannerContainer = document.getElementById('themeBannerContainer');
             if (bannerContainer) bannerContainer.innerHTML = '';
@@ -391,14 +385,14 @@
             if (theme === 'easter') window.currentThemeShape = 'theme-shape-easter';
 
             if (theme === 'emerald') {
-                app.className = `${baseAppClass} bg-emerald-950 text-slate-100`;
-                body.className = "bg-emerald-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                app.className = `${baseAppClass} bg-[#062c1e] text-[#ecfdf5]`;
+                body.className = "bg-[#021c12] text-[#ecfdf5] font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
             } else if (theme === 'purple') {
-                app.className = `${baseAppClass} bg-purple-950 text-slate-100`;
-                body.className = "bg-purple-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                app.className = `${baseAppClass} bg-[#32145a] text-[#fdf4ff]`;
+                body.className = "bg-[#1e0a38] text-[#fdf4ff] font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
             } else if (theme === 'sunset') {
-                app.className = `${baseAppClass} bg-stone-950 text-amber-50`;
-                body.className = "bg-stone-950 text-amber-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                app.className = `${baseAppClass} bg-[#4a1c0d] text-[#fffbeb]`;
+                body.className = "bg-[#2d0f06] text-[#fffbeb] font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
             } else if (theme === 'christmas') {
                 app.className = `${baseAppClass} bg-red-950 text-red-50 border-4 border-emerald-600/60 shadow-[0_0_25px_rgba(220,38,38,0.4)]`;
                 body.className = "bg-stone-950 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
@@ -406,7 +400,7 @@
                 if (bannerContainer) {
                     bannerContainer.innerHTML = `
                         <div class="bg-emerald-900 text-amber-300 text-[11px] font-bold text-center py-1 px-2 border-b border-amber-500/40 flex items-center justify-center gap-2 shadow-inner">
-                            <span>🎄</span> <span>Selamat Hari Natal & Sukacita Damai Sejahtera!</span> <span>❄️</span>
+                            <span>🎄</span> <span>Selamat Hari Natal & Sukacita Damai Sejahtera! (Tombol: Kepingan Salju)</span> <span>❄️</span>
                         </div>
                     `;
                 }
@@ -417,7 +411,7 @@
                 if (bannerContainer) {
                     bannerContainer.innerHTML = `
                         <div class="bg-purple-900 text-amber-200 text-[11px] font-bold text-center py-1 px-2 border-b border-purple-500/40 flex items-center justify-center gap-2 shadow-inner">
-                            <span>✝️</span> <span>Selamat Paskah - Kristus Telah Bangkit!</span> <span>🕊️</span>
+                            <span>✝️</span> <span>Selamat Paskah - Kristus Telah Bangkit! (Tombol: Bentuk Telur)</span> <span>🕊️</span>
                         </div>
                     `;
                 }
@@ -429,6 +423,8 @@
                 body.className = "bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
             }
             toggleSidebar(false);
+            
+            localStorage.setItem('gmit_selected_theme', theme);
             
             const headerTitle = document.getElementById("headerTitle");
             if (headerTitle && headerTitle.innerText.includes("PNIEL Oebobo")) {
@@ -489,7 +485,7 @@
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Password / 4 Digit No. WhatsApp</label>
                             <input type="password" maxlength="4" id="loginPin" required placeholder="Cth: 7899" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none focus:border-purple-500">
                         </div>
-                        <button type="submit" id="btnLoginSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition">Masuk</button>
+                        <button type="submit" id="btnLoginSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition duration-300">Masuk</button>
                     </form>
 
                     <form id="formRegister" onsubmit="handleRegisterForAction(event)" class="space-y-4 hidden">
@@ -502,7 +498,7 @@
                             <input type="tel" id="regWa" required placeholder="Contoh: 081234567899" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                             <p class="text-[10px] text-slate-400 mt-1">Password 4 digit akan otomatis dibuat dari nomor WA Anda.</p>
                         </div>
-                        <button type="submit" id="btnRegSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition mt-2">Daftar Akun Baru</button>
+                        <button type="submit" id="btnRegSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition duration-300 mt-2">Daftar Akun Baru</button>
                     </form>
                 </div>
             `;
@@ -641,45 +637,45 @@
                 main.innerHTML = `
                     <div class="space-y-6 pt-2">
                         <div class="grid grid-cols-4 gap-4 text-center">
-                            <div onclick="openAboutPage()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-500 ${shapeClass} flex items-center justify-center mb-1 overflow-hidden border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(6,182,212,0.7),_0_0_25px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.9),_0_0_50px_rgba(6,182,212,0.6)]">
+                            <div onclick="openAboutPage()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-500 ${shapeClass} flex items-center justify-center mb-1 overflow-hidden border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(6,182,212,0.7),_0_0_25px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.9),_0_0_50px_rgba(6,182,212,0.6)]">
                                     <img src="jpo.ico" alt="Tentang JPO" class="w-full h-full object-cover">
                                 </div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-cyan-400 group-hover:drop-shadow-[0_0_6px_rgba(6,182,212,0.8)] transition-all duration-300">Tentang</span>
                             </div>
 
-                            <div onclick="openDownloadCenter()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(245,158,11,0.7),_0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_20px_rgba(245,158,11,0.9),_0_0_50px_rgba(245,158,11,0.6)]">📥</div>
+                            <div onclick="openDownloadCenter()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(245,158,11,0.7),_0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_20px_rgba(245,158,11,0.9),_0_0_50px_rgba(245,158,11,0.6)]">📥</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-amber-400 group-hover:drop-shadow-[0_0_6px_rgba(245,158,11,0.8)] transition-all duration-300">Download</span>
                             </div>
 
-                            <div onclick="openLibraryMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(168,85,247,0.7),_0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_20px_rgba(168,85,247,0.9),_0_0_50px_rgba(168,85,247,0.6)]">📖</div>
+                            <div onclick="openLibraryMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(168,85,247,0.7),_0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_20px_rgba(168,85,247,0.9),_0_0_50px_rgba(168,85,247,0.6)]">📖</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-purple-300 group-hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.8)] transition-all duration-300">Alkitab & KJ</span>
                             </div>
 
-                            <div onclick="openEventsList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(14,165,233,0.7),_0_0_25px_rgba(14,165,233,0.4)] hover:shadow-[0_0_20px_rgba(14,165,233,0.9),_0_0_50px_rgba(14,165,233,0.6)]">📅</div>
+                            <div onclick="openEventsList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(14,165,233,0.7),_0_0_25px_rgba(14,165,233,0.4)] hover:shadow-[0_0_20px_rgba(14,165,233,0.9),_0_0_50px_rgba(14,165,233,0.6)]">📅</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-sky-400 group-hover:drop-shadow-[0_0_6px_rgba(14,165,233,0.8)] transition-all duration-300">Kegiatan</span>
                             </div>
 
-                            <div onclick="openChatRoom()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(236,72,153,0.7),_0_0_25px_rgba(236,72,153,0.4)] hover:shadow-[0_0_20px_rgba(236,72,153,0.9),_0_0_50px_rgba(236,72,153,0.6)]">💬</div>
+                            <div onclick="openChatRoom()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(236,72,153,0.7),_0_0_25px_rgba(236,72,153,0.4)] hover:shadow-[0_0_20px_rgba(236,72,153,0.9),_0_0_50px_rgba(236,72,153,0.6)]">💬</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-pink-400 group-hover:drop-shadow-[0_0_6px_rgba(236,72,153,0.8)] transition-all duration-300">Komunitas</span>
                             </div>
 
-                            <div onclick="openBirthdayList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(52,211,153,0.7),_0_0_25px_rgba(52,211,153,0.4)] hover:shadow-[0_0_20px_rgba(52,211,153,0.9),_0_0_50px_rgba(52,211,153,0.6)]">🎂</div>
+                            <div onclick="openBirthdayList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(52,211,153,0.7),_0_0_25px_rgba(52,211,153,0.4)] hover:shadow-[0_0_20px_rgba(52,211,153,0.9),_0_0_50px_rgba(52,211,153,0.6)]">🎂</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-emerald-400 group-hover:drop-shadow-[0_0_6px_rgba(52,211,153,0.8)] transition-all duration-300">Ulang Tahun</span>
                             </div>
 
-                            <div onclick="openPrayerMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(110,231,183,0.7),_0_0_25px_rgba(110,231,183,0.4)] hover:shadow-[0_0_20px_rgba(110,231,183,0.9),_0_0_50px_rgba(110,231,183,0.6)]">🙏</div>
+                            <div onclick="openPrayerMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(110,231,183,0.7),_0_0_25px_rgba(110,231,183,0.4)] hover:shadow-[0_0_20px_rgba(110,231,183,0.9),_0_0_50px_rgba(110,231,183,0.6)]">🙏</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-green-400 group-hover:drop-shadow-[0_0_6px_rgba(110,231,183,0.8)] transition-all duration-300">Dukungan Doa</span>
                             </div>
 
-                            <div onclick="openDonationList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-blue-400 to-indigo-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-300 shadow-[0_0_12px_rgba(96,165,250,0.7),_0_0_25px_rgba(96,165,250,0.4)] hover:shadow-[0_0_20px_rgba(96,165,250,0.9),_0_0_50px_rgba(96,165,250,0.6)]">🎁</div>
+                            <div onclick="openDonationList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
+                                <div class="relative w-14 h-14 bg-gradient-to-tr from-blue-400 to-indigo-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(96,165,250,0.7),_0_0_25px_rgba(96,165,250,0.4)] hover:shadow-[0_0_20px_rgba(96,165,250,0.9),_0_0_50px_rgba(96,165,250,0.6)]">🎁</div>
                                 <span class="text-[11px] text-slate-300 font-medium group-hover:text-blue-400 group-hover:drop-shadow-[0_0_6px_rgba(96,165,250,0.8)] transition-all duration-300">Persembahan</span>
                             </div>
                         </div>
@@ -687,43 +683,43 @@
                         <div class="pt-2 space-y-2">
                             <h3 class="font-bold text-xs text-purple-400 uppercase tracking-wider">Media & Pustaka Jemaat</h3>
                             <div class="grid grid-cols-3 landscape:sm:grid-cols-6 gap-3">
-                                <div onclick="openCategoriesMenu()" class="bg-slate-900 border border-amber-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-amber-400 transition animate-card-hover">
+                                <div onclick="openCategoriesMenu()" class="bg-slate-900 border border-amber-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-amber-400 transition duration-300 animate-card-hover">
                                     <div class="h-16 bg-amber-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📝</div>
                                     <span class="text-xs font-semibold text-slate-200">Sekretariat</span>
                                 </div>
-                                <div onclick="openVideosMenu()" class="bg-slate-900 border border-sky-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-sky-400 transition animate-card-hover">
+                                <div onclick="openVideosMenu()" class="bg-slate-900 border border-sky-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-sky-400 transition duration-300 animate-card-hover">
                                     <div class="h-16 bg-sky-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">▶️</div>
                                     <span class="text-xs font-semibold text-slate-200">Youtube</span>
                                 </div>
-                                <div onclick="openGaleryMenu()" class="bg-slate-900 border border-yellow-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-yellow-400 transition animate-card-hover">
+                                <div onclick="openGaleryMenu()" class="bg-slate-900 border border-yellow-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-yellow-400 transition duration-300 animate-card-hover">
                                     <div class="h-16 bg-yellow-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">🖼️</div>
                                     <span class="text-[11px] font-semibold text-slate-200">Galeri</span>
                                 </div>
-                                <div onclick="openBibleMenu()" class="bg-slate-900 border border-emerald-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-emerald-400 transition animate-card-hover">
+                                <div onclick="openBibleMenu()" class="bg-slate-900 border border-emerald-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-emerald-400 transition duration-300 animate-card-hover">
                                     <div class="h-16 bg-emerald-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">✝️</div>
                                     <span class="text-xs font-semibold text-slate-200">Renungan</span>
                                 </div>
-                                <div id="livestream-card" onclick="openLivestreamsMenu()" class="bg-slate-900 border border-orange-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-orange-400 transition animate-card-hover relative">
+                                <div id="livestream-card" onclick="openLivestreamsMenu()" class="bg-slate-900 border border-orange-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-orange-400 transition duration-300 animate-card-hover relative">
                                     <div id="livestream-badge" class="absolute -top-2 -right-2 hidden">
                                         <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
                                     </div>
                                     <div class="h-16 bg-orange-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📺</div>
                                     <span class="text-[11px] font-semibold text-slate-200">Livestreams</span>
                                 </div>
-                                <div onclick="openStatistikMenu()" class="bg-slate-900 border border-pink-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-pink-400 transition animate-card-hover">
+                                <div onclick="openStatistikMenu()" class="bg-slate-900 border border-pink-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-pink-400 transition duration-300 animate-card-hover">
                                     <div class="h-16 bg-pink-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📊</div>
                                     <span class="text-xs font-semibold text-slate-200">Statistik</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div onclick="window.location.href='games.html'" class="w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 border border-purple-500/30 p-5 rounded-2xl shadow-xl cursor-pointer transition hover:border-purple-400 hover:shadow-purple-950/50 flex justify-between items-center group my-4">
+                        <div onclick="window.location.href='games.html'" class="w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 border border-purple-500/30 p-5 rounded-2xl shadow-xl cursor-pointer transition duration-300 hover:border-purple-400 hover:shadow-purple-950/50 flex justify-between items-center group my-4">
                             <div class="space-y-1.5 pr-2">
                                 <span class="bg-purple-600/40 text-purple-300 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-purple-400/30 inline-block">✨ Fitur Baru & Hiburan</span>
-                                <h3 class="font-bold text-sm sm:text-base text-white group-hover:text-purple-200 transition">Tantangan Kuis Alkitab</h3>
+                                <h3 class="font-bold text-sm sm:text-base text-white group-hover:text-purple-200 transition duration-300">Tantangan Kuis Alkitab</h3>
                                 <p class="text-xs text-slate-300 leading-relaxed">Seberapa Kristenkah dirimu ?</p>
                             </div>
-                            <div class="bg-slate-950/60 p-3.5 rounded-xl border border-purple-500/20 text-3xl group-hover:scale-110 transition flex-shrink-0 shadow-inner">
+                            <div class="bg-slate-950/60 p-3.5 rounded-xl border border-purple-500/20 text-3xl group-hover:scale-110 transition duration-300 flex-shrink-0 shadow-inner">
                                 🏆
                             </div>
                         </div>
@@ -864,13 +860,13 @@
                             </div>
 
                             <div class="space-y-2">
-    							<button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition flex items-center justify-center gap-1.5">
+    							<button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition duration-300 flex items-center justify-center gap-1.5">
         							<span>✏️</span> Lengkapi / Perbarui Data Diri
     							</button>
-    							<button onclick="logout()" class="w-full bg-rose-950/50 hover:bg-rose-900/40 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition">
+    							<button onclick="logout()" class="w-full bg-rose-950/50 hover:bg-rose-900/40 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition duration-300">
         							Keluar (Logout)
     							</button>
-    							${isAdmin ? `<button onclick="redirectToRolePanel()" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">🔒 Masuk ke Panel ${adminRole || 'Pengurus'}</button>` : ''}
+    							${isAdmin ? `<button onclick="redirectToRolePanel()" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition duration-300 font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">🔒 Masuk ke Panel ${adminRole || 'Pengurus'}</button>` : ''}
 							</div>
                         </div>
                     `;
@@ -929,7 +925,7 @@
                             ${BIBLE_BOOKS.map(b => `<option value="${b.code}">${b.name}</option>`).join('')}
                         </select>
                         <input type="number" id="bibleChapter" value="1" min="1" max="150" class="w-16 p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none text-center" placeholder="Pasal">
-                        <button onclick="fetchBibleVerse()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2.5 rounded-xl text-xs font-semibold transition whitespace-nowrap">Muat</button>
+                        <button onclick="fetchBibleVerse()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2.5 rounded-xl text-xs font-semibold transition duration-300 whitespace-nowrap">Muat</button>
                     </div>
 
                     <div id="bibleResult" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-xs text-slate-300 leading-relaxed min-h-[250px] shadow-sm">
@@ -1056,7 +1052,7 @@
                             <textarea id="inputKeterangan" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" placeholder="Tuliskan detail atau tujuan pengajuan surat ini..."></textarea>
                         </div>
 
-                        <button onclick="submitAndRedirectWA()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg transition">
+                        <button onclick="submitAndRedirectWA()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg transition duration-300">
                             Simpan & Kirim Konfirmasi ke WA Sekretariat
                         </button>
                     </div>
@@ -1123,7 +1119,7 @@
                     
                     <div class="bg-sky-950/40 border border-sky-900/40 p-3 rounded-xl mb-4 flex items-center justify-between gap-3">
                         <p class="text-xs text-sky-200">Selengkapnya kunjungi channel JPO</p>
-                        <a href="https://www.youtube.com/@GMITPNIELOebobo" target="_blank" class="shrink-0 hover:scale-105 transition-transform duration-200">
+                        <a href="https://www.youtube.com/@GMITPNIELOebobo" target="_blank" class="shrink-0 hover:scale-105 transition-transform duration-300">
                             <img src="button.ico" alt="Buka YouTube" class="h-14 w-auto object-contain animate-bounce">
                         </a>
                     </div>
@@ -1274,7 +1270,7 @@
                     </div>
                     <p class="text-[9px] text-slate-800 font-serif text-center truncate mt-1 px-0.5">${p.judul}</p>
                     <div class="mt-1 pt-1 border-t border-slate-100 flex justify-center">
-                        <button onclick="handleReactionAndRefresh('galeri', '${p.id}', '❤️')" class="text-[10px] bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 px-2 py-1 rounded-lg transition flex items-center justify-center border border-slate-200 hover:border-rose-200 w-full">
+                        <button onclick="handleReactionAndRefresh('galeri', '${p.id}', '❤️')" class="text-[10px] bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 px-2 py-1 rounded-lg transition duration-300 flex items-center justify-center border border-slate-200 hover:border-rose-200 w-full">
                             ❤️ ${r["❤️"] ? `<span class="text-[10px] font-bold text-rose-500 ml-1">${r["❤️"]}</span>` : '<span class="ml-1">Suka</span>'}
                         </button>
                     </div>
@@ -1771,14 +1767,14 @@
 
                 if (wartaDok) {
                     htmlContent += `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50 transition">
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50 transition duration-300">
                             <div class="space-y-1">
                                 <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded font-semibold">Warta Jemaat Terbaru</span>
                                 <h4 class="text-xs font-bold text-white">${wartaDok.judul || 'Warta Jemaat'}</h4>
                                 <p class="text-[10px] text-slate-400">${wartaDok.tanggal || ''}</p>
                             </div>
                             <div class="flex gap-2">
-                                <a href="${wartaDok.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition flex items-center gap-1">
+                                <a href="${wartaDok.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-300 flex items-center gap-1">
                                     <span>👁️</span> Lihat / Unduh
                                 </a>
                             </div>
@@ -1788,14 +1784,14 @@
 
                 if (liturgiDok) {
                     htmlContent += `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50 transition">
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50 transition duration-300">
                             <div class="space-y-1">
                                 <span class="bg-emerald-900/60 text-emerald-300 text-[10px] px-2 py-0.5 rounded font-semibold">Lembar Liturgi Terbaru</span>
                                 <h4 class="text-xs font-bold text-white">${liturgiDok.judul || 'Lembar Liturgi'}</h4>
                                 <p class="text-[10px] text-slate-400">${liturgiDok.tanggal || ''}</p>
                             </div>
                             <div class="flex gap-2">
-                                <a href="${liturgiDok.url}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition flex items-center gap-1">
+                                <a href="${liturgiDok.url}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-300 flex items-center gap-1">
                                     <span>👁️</span> Lihat / Unduh
                                 </a>
                             </div>
@@ -1812,7 +1808,7 @@
                                     <span class="text-[10px] text-slate-400 block">${doc.kategori || 'Dokumen'}</span>
                                     <h5 class="text-xs font-bold text-white">${doc.judul || 'Tanpa Judul'}</h5>
                                 </div>
-                                <a href="${doc.url}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-purple-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition">
+                                <a href="${doc.url}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-purple-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition duration-300">
                                     Unduh
                                 </a>
                             </div>
@@ -1903,7 +1899,7 @@
                                     <img id="previewFoto" src="${user.foto_profil || ''}" class="w-full h-full object-cover ${user.foto_profil ? '' : 'hidden'}" alt="Foto">
                                     <span class="text-2xl text-slate-500 ${user.foto_profil ? 'hidden' : ''}">👤</span>
                                 </div>
-                                <input type="file" id="extFoto" accept="image/*" onchange="previewImage(event)" class="text-[10px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-purple-900/50 file:text-purple-300 hover:file:bg-purple-900 transition outline-none cursor-pointer">
+                                <input type="file" id="extFoto" accept="image/*" onchange="previewImage(event)" class="text-[10px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-purple-900/50 file:text-purple-300 hover:file:bg-purple-900 transition duration-300 outline-none cursor-pointer">
                             </div>
                             <input type="hidden" id="fotoBase64" value="${user.foto_profil || ''}">
                         </div>
@@ -1945,7 +1941,7 @@
                                 <option value="Sekolah Minggu" ${user.minat_pelayanan === 'Sekolah Minggu' ? 'selected' : ''}>Sekolah Minggu</option>
                             </select>
                         </div>
-                        <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition mt-2">Simpan Data Lanjutan</button>
+                        <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition duration-300 mt-2">Simpan Data Lanjutan</button>
                     </form>
                 </div>
             `;
@@ -2013,7 +2009,7 @@
                         <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
                             <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
-                            <button onclick="renderAuthPageForAction(openPrayerMenu)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">Login</button>
+                            <button onclick="renderAuthPageForAction(openPrayerMenu)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition duration-300">Login</button>
                             <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
                         </div>
                     </div>
@@ -2036,7 +2032,7 @@
                             <h4 class="text-xs font-bold text-white flex items-center gap-2">✍️ Kirim / Berbagi Pokok Doa</h4>
                             <p class="text-[10px] text-slate-300 mt-0.5">Bagikan doa syukur, Doa pergumulan atau Doa Khusus Anda ke sesama atau pribadi.</p>
                         </div>
-                        <span class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition ml-2 shrink-0">Kirim ➕</span>
+                        <span class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-300 ml-2 shrink-0">Kirim ➕</span>
                     </div>
 
                     <div class="pt-1">
@@ -2085,10 +2081,10 @@
 
                             <div class="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-2">
                                 <div class="flex gap-1.5 flex-wrap">
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
+                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
                                 </div>
                                 
                                 ${isPendetaOrAdmin ? `<button onclick="handleReplyPrayer('${p.id}', '${user.nama_lengkap || user.nama || 'Pendeta'}')" class="text-[10px] font-semibold text-purple-400 hover:text-purple-300">Balas 💬</button>` : ''}
@@ -2141,7 +2137,7 @@
                                     <option value="Rahasia">Rahasia (Hanya Pendeta/Admin)</option>
                                 </select>
                             </div>
-                            <button type="submit" id="btnPrayerSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition mt-2">Kirim Doa Sekarang</button>
+                            <button type="submit" id="btnPrayerSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition duration-300 mt-2">Kirim Doa Sekarang</button>
                         </form>
                     </div>
                 `;
@@ -2215,7 +2211,7 @@
                         <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
                             <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
-                            <button onclick="renderAuthPageForAction(openDonationList)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">Login</button>
+                            <button onclick="renderAuthPageForAction(openDonationList)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition duration-300">Login</button>
                             <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
                         </div>
                     </div>
@@ -2230,7 +2226,7 @@
             main.innerHTML = `
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <button onclick="openFormDonation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md transition">➕ Konfirmasi / Catat Donasi Baru</button>
+                    <button onclick="openFormDonation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md transition duration-300">➕ Konfirmasi / Catat Donasi Baru</button>
                     <div id="donationContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat data donasi...</p></div>
                 </div>
             `;
@@ -2258,10 +2254,10 @@
                                 <span class="text-xs font-bold text-emerald-400">Rp ${Number(d.nominal).toLocaleString('id-ID')}</span>
                             </div>
                             <div class="flex gap-1.5 border-t border-slate-800/60 pt-2 mt-1">
-                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
-                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
-                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
-                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
+                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
+                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
+                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
+                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
                             </div>
                         </div>
                     `;
@@ -2296,7 +2292,7 @@
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Nominal (Rp)</label>
                             <input type="number" id="donNominal" required placeholder="Cth: 100000" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                         </div>
-                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-sm shadow-md transition">Kirim Konfirmasi</button>
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-sm shadow-md transition duration-300">Kirim Konfirmasi</button>
                     </form>
                 </div>
             `;
@@ -2351,12 +2347,12 @@
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                     <div class="grid grid-cols-2 gap-3">
-                        <div onclick="openBibleSearch()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition shadow-sm animate-card-hover">
+                        <div onclick="openBibleSearch()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-300 shadow-sm animate-card-hover">
                             <div class="text-3xl mb-2">✝️</div>
                             <h4 class="font-bold text-xs text-white">Pustaka Alkitab</h4>
                             <p class="text-[10px] text-slate-400 mt-1">Lengkap 66 Kitab</p>
                         </div>
-                        <div onclick="openHymnsList()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition shadow-sm animate-card-hover">
+                        <div onclick="openHymnsList()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-300 shadow-sm animate-card-hover">
                             <div class="text-3xl mb-2">📖</div>
                             <h4 class="font-bold text-xs text-white">Kidung Jemaat</h4>
                             <p class="text-[10px] text-slate-400 mt-1">Cari lirik lagu pujian</p>
@@ -2399,7 +2395,7 @@
                 return;
             }
             container.innerHTML = hymns.map((h, idx) => `
-                <div onclick="openHymnModal(${idx})" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-3.5 rounded-xl cursor-pointer transition shadow-sm">
+                <div onclick="openHymnModal(${idx})" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-3.5 rounded-xl cursor-pointer transition duration-300 shadow-sm">
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-xs font-bold text-purple-400">KJ No. ${h.nomor}</span>
                         <span class="text-[10px] text-slate-400 bg-slate-950 px-2 py-0.5 rounded">Ketuk baca ↗</span>
@@ -2514,7 +2510,7 @@
                         <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
                             <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
-                            <button onclick="renderAuthPageForAction(openBirthdayList)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">Login</button>
+                            <button onclick="renderAuthPageForAction(openBirthdayList)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition duration-300">Login</button>
                             <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
                         </div>
                     </div>
@@ -2558,7 +2554,7 @@
                                     <p class="text-[11px] text-slate-400">Lingkungan ${b.lingkungan} &bull; Rayon ${b.rayon}</p>
                                 </div>
                             </div>
-                            <a href="https://api.whatsapp.com/send?phone=${b.no_whatsapp}&text=Syalom%20${encodeURIComponent(b.nama_lengkap)},%20Selamat%20Ulang%20Tahun!" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition">💬 Ucapan</a>
+                            <a href="https://api.whatsapp.com/send?phone=${b.no_whatsapp}&text=Syalom%20${encodeURIComponent(b.nama_lengkap)},%20Selamat%20Ulang%20Tahun!" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-300">💬 Ucapan</a>
                         </div>
                     `;
                 }).join('');
@@ -2582,12 +2578,12 @@
                 localStorage.setItem('gmit_senior_mode', 'true');
                 showToast("Mode Lansia Diaktifkan (Huruf & Tampilan Diperbesar)");
                 document.getElementById('seniorModeBtn').innerText = "🌙 Mode Normal";
-                document.getElementById('seniorModeBtn').className = "text-xs bg-purple-600 text-white px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition shadow-md";
+                document.getElementById('seniorModeBtn').className = "text-xs bg-purple-600 text-white px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition duration-300 shadow-md";
             } else {
                 localStorage.setItem('gmit_senior_mode', 'false');
                 showToast("Kembali ke Mode Normal");
                 document.getElementById('seniorModeBtn').innerText = "👓 Mode Lansia";
-                document.getElementById('seniorModeBtn').className = "text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition";
+                document.getElementById('seniorModeBtn').className = "text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition duration-300";
             }
         }
 
@@ -2747,10 +2743,10 @@
                         </div>
 
                         <div class="space-y-2 pt-2">
-                            <button onclick="executeInstallAction()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 rounded-2xl text-xs transition shadow-lg shadow-purple-900/50 flex items-center justify-center gap-2">
+                            <button onclick="executeInstallAction()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 rounded-2xl text-xs transition duration-300 shadow-lg shadow-purple-900/50 flex items-center justify-center gap-2">
                                 <span>📲</span> Pasang Sekarang
                             </button>
-                            <button onclick="dismissInstallGuide()" class="w-full bg-transparent hover:bg-slate-800 text-slate-400 py-2.5 rounded-xl text-[11px] transition flex items-center justify-center gap-1.5">
+                            <button onclick="dismissInstallGuide()" class="w-full bg-transparent hover:bg-slate-800 text-slate-400 py-2.5 rounded-xl text-[11px] transition duration-300 flex items-center justify-center gap-1.5">
                                 <span>🔙</span> Ingatkan Saya Nanti
                             </button>
                         </div>
@@ -2839,7 +2835,14 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             updateNetworkStatus();
-            switchTab('home', false, true); 
+            
+            const savedTheme = localStorage.getItem('gmit_selected_theme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            } else {
+                switchTab('home', false, true); 
+            }
+
             checkPushNotification();
             updateAuthNavText();
             checkLiveStatusForMenu();
@@ -2851,7 +2854,7 @@
                 const btn = document.getElementById('seniorModeBtn');
                 if(btn) {
                     btn.innerText = "🌙 Mode Normal";
-                    btn.className = "text-xs bg-purple-600 text-white px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition shadow-md";
+                    btn.className = "text-xs bg-purple-600 text-white px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition duration-300 shadow-md";
                 }
             }
 
