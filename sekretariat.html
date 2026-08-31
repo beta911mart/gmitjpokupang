@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Sekretariat - JPO Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulseRed {
+            0%, 100% { background-color: rgb(239 68 68); color: white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); }
+            50% { background-color: rgb(185 28 28); color: white; box-shadow: 0 0 5px rgba(185, 28, 28, 0.4); }
+        }
+        .animate-blink-red {
+            animation: pulseRed 1s infinite ease-in-out;
+        }
+    </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
 
@@ -19,7 +28,10 @@
                     <p id="adminInfo" class="text-[10px] text-slate-400">Silakan login</p>
                 </div>
             </div>
-            <button id="logoutBtn" onclick="adminLogout()" class="hidden bg-rose-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-rose-700 transition">Keluar</button>
+            <div class="flex items-center gap-3">
+                <div id="audioStatusBadge" class="hidden text-[10px] bg-emerald-800 text-emerald-100 px-2 py-1 rounded-md font-medium">🔊 Notifikasi Audio Aktif</div>
+                <button id="logoutBtn" onclick="adminLogout()" class="hidden bg-rose-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-rose-700 transition">Keluar</button>
+            </div>
         </header>
 
         <!-- KONTEN UTAMA SEKRETARIAT -->
@@ -28,12 +40,36 @@
         </main>
     </div>
 
+    <!-- AUDIO NOTIFIKASI DI-EMBED SECARA PROGRAMATIK -->
+    <audio id="notifAudio" preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
         // --- URL WEB APP GOOGLE SCRIPT ANDA ---
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
+        
+        let lastPrayerCount = null;
+        let lastDonationCount = null;
+        let pollInterval = null;
+        let audioUnlocked = false;
+
+        document.addEventListener("click", () => {
+            if (!audioUnlocked) {
+                const audio = document.getElementById("notifAudio");
+                if (audio) {
+                    audio.play().then(() => {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        audioUnlocked = true;
+                        const badge = document.getElementById("audioStatusBadge");
+                        if (badge) badge.classList.remove("hidden");
+                    }).catch(e => {});
+                }
+            }
+        }, { once: true });
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Cek data dari sistem Satu Pintu (bisa dari sessionStorage atau localStorage)
             const sessionData = sessionStorage.getItem("user_gereja") || localStorage.getItem("user_gereja");
             
             if (sessionData) {
@@ -41,15 +77,14 @@
                     const user = JSON.parse(sessionData);
                     const role = (user.role || user.status_pelayanan || user.adminRole || "").toLowerCase();
                     
-                    // Pastikan yang masuk benar-benar memiliki hak akses Sekretariat atau Super Admin
                     if (user.isAdmin || role.includes("sekretariat") || role.includes("sekertariat") || role.includes("super")) {
-                        // Ubah format objek user agar kompatibel dengan variabel 'admin' di dashboard sekretariat
                         const adminObj = {
                             id: user.id,
                             nama: user.nama_lengkap || user.nama,
                             role: user.adminRole || user.role || "Sekretariat"
                         };
                         renderAdminDashboard(adminObj);
+                        startRealtimePolling();
                         return;
                     }
                 } catch (e) {
@@ -57,9 +92,7 @@
                 }
             }
             
-            // Jika tidak ada sesi atau bukan hak akses sekretariat, arahkan kembali ke login utama
-            alert("Akses ditolak! Silakan login terlebih dahulu melalui halaman utama jemaat.");
-            window.location.href = "index.html";
+            renderAdminLogin();
         });
 
         // --- 1. HALAMAN LOGIN SEKRETARIAT ---
@@ -100,6 +133,7 @@
                     if (userRole === "sekretariat" || userRole === "sekertariat") {
                         sessionStorage.setItem("admin_gereja", JSON.stringify(result.admin));
                         renderAdminDashboard(result.admin);
+                        startRealtimePolling();
                     } else {
                         alert("Akses Ditolak: Halaman ini hanya diperuntukkan bagi role Sekretariat.");
                     }
@@ -119,26 +153,28 @@
             const main = document.querySelector("main");
             main.innerHTML = `
                 <div class="space-y-6">
-                    <!-- Menu Grid Sekretariat (Semua Tombol Warna Putih) -->
+                    <!-- Menu Grid Sekretariat -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <button onclick="loadSensusData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">👥 Data Jemaat</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Daftar sensus & verifikasi.</p>
                         </button>
-                        <button onclick="loadPrayerData()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
+                        
+                        <button id="btnNavPrayer" onclick="loadPrayerData(); clearPrayerBlink();" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">🙏 Moderasi Doa</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Approval kotak doa.</p>
                         </button>
-                        <button onclick="loadDonationAdmin()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
+                        
+                        <button id="btnNavDonation" onclick="loadDonationAdmin(); clearDonationBlink();" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">🎁 Kelola Donasi</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Verifikasi persembahan.</p>
                         </button>
+
                         <button onclick="loadEventForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">📅 Kelola Kegiatan</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Tambah jadwal acara.</p>
                         </button>
                         
-                        <!-- Menu Beralih ke Statistik -->
                         <button onclick="window.location.href='statistik.html'" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">📊 Statistik</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Lihat demografi jemaat.</p>
@@ -165,7 +201,7 @@
                         </button>
                     </div>
 
-                    <!-- Area Konten Dinamis (Lebar Penuh) -->
+                    <!-- Area Konten Dinamis -->
                     <div id="adminContentArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm w-full min-h-[350px]">
                         <div class="text-center py-16 space-y-2">
                             <div class="text-3xl">👋</div>
@@ -177,7 +213,79 @@
             `;
         }
 
-        // --- 3. AMBIL & TAMPILKAN DATA SENSUS JEMAAT (VERIFIKASI) ---
+        // --- REAL-TIME POLLING & AUDIO ALERTS ---
+        function startRealtimePolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(checkNewPostings, 15000);
+        }
+
+        async function checkNewPostings() {
+            try {
+                const resPrayer = await fetch(`${SCRIPT_URL}?action=getAdminPrayers`);
+                const jsonPrayer = await resPrayer.json();
+                const prayers = jsonPrayer.prayers || [];
+                
+                if (lastPrayerCount !== null && prayers.length > lastPrayerCount) {
+                    triggerNewPostAlert("🙏 Ada Pokok Doa Baru dari Jemaat!", "btnNavPrayer");
+                }
+                lastPrayerCount = prayers.length;
+
+                const resDonation = await fetch(`${SCRIPT_URL}?action=getAdminDonations`);
+                const jsonDonation = await resDonation.json();
+                const donations = jsonDonation.donations || [];
+
+                if (lastDonationCount !== null && donations.length > lastDonationCount) {
+                    triggerNewPostAlert("🎁 Ada Konfirmasi Donasi Baru!", "btnNavDonation");
+                }
+                lastDonationCount = donations.length;
+
+            } catch (err) {
+                console.log("Gagal melakukan background polling:", err);
+            }
+        }
+
+        function triggerNewPostAlert(message, buttonId) {
+            const audio = document.getElementById("notifAudio");
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log("Audio play blocked:", e));
+            }
+
+            const btn = document.getElementById(buttonId);
+            if (btn) btn.classList.add("animate-blink-red");
+
+            showToastBanner(message);
+        }
+
+        function showToastBanner(text) {
+            let existing = document.getElementById("realtimeToastBanner");
+            if (existing) existing.remove();
+
+            const toast = document.createElement("div");
+            toast.id = "realtimeToastBanner";
+            toast.className = "fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 z-50 text-xs flex items-center gap-3 animate-bounce";
+            toast.innerHTML = `
+                <span>🔔</span>
+                <div>
+                    <p class="font-bold text-amber-400">Notifikasi Sekretariat</p>
+                    <p class="text-[11px] text-slate-200">${text}</p>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => { if (toast) toast.remove(); }, 6000);
+        }
+
+        function clearPrayerBlink() {
+            const btn = document.getElementById("btnNavPrayer");
+            if (btn) btn.classList.remove("animate-blink-red");
+        }
+
+        function clearDonationBlink() {
+            const btn = document.getElementById("btnNavDonation");
+            if (btn) btn.classList.remove("animate-blink-red");
+        }
+
+        // --- 3. DATA SENSUS JEMAAT ---
         async function loadSensusData() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat data jemaat...</p>`;
@@ -266,8 +374,9 @@
             }
         }
 
-        // --- 4. MODERASI & APPROVAL KOTAK DOA ---
+        // --- 4. MODERASI KOTAK DOA ---
         async function loadPrayerData() {
+            clearPrayerBlink();
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat data kotak doa...</p>`;
 
@@ -275,6 +384,7 @@
                 const res = await fetch(`${SCRIPT_URL}?action=getAdminPrayers`);
                 const result = await res.json();
                 const prayers = result.prayers || [];
+                lastPrayerCount = prayers.length;
 
                 if (prayers.length === 0) {
                     area.innerHTML = `<p class="text-center text-slate-500 text-sm py-10">Belum ada pokok doa dari jemaat.</p>`;
@@ -358,8 +468,9 @@
             }
         }
 
-        // --- 5. KELOLA & APPROVAL DONASI ---
+        // --- 5. KELOLA DONASI ---
         async function loadDonationAdmin() {
+            clearDonationBlink();
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat data donasi...</p>`;
 
@@ -367,6 +478,7 @@
                 const res = await fetch(`${SCRIPT_URL}?action=getAdminDonations`);
                 const result = await res.json();
                 const donations = result.donations || [];
+                lastDonationCount = donations.length;
 
                 area.innerHTML = `
                     <div class="space-y-4 w-full">
@@ -473,7 +585,7 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah / Nominal (Angka atau Deskripsi Barang)</label>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah / Nominal</label>
                             <input type="text" id="donNominal" required placeholder="Cth: 250000 atau 5 Sak Semen" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
                         </div>
                         <div>
@@ -514,51 +626,137 @@
             }
         }
 
-        // --- 6. FORM KELOLA KEGIATAN ---
-        function loadEventForm() {
+        // --- 6. KELOLA KEGIATAN (DENGAN LIST, EDIT & HAPUS) ---
+        async function loadEventForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
-                <div class="space-y-4 w-full">
-                    <div>
-                        <h3 class="font-bold text-sm text-slate-900">Tambah Agenda Kegiatan Baru</h3>
-                        <p class="text-xs text-slate-500">Masukkan detail jadwal acara atau kegiatan gereja.</p>
+                <div class="space-y-6 w-full">
+                    <!-- BAGIAN 1: DAFTAR KEGIATAN YANG SUDAH ADA -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm w-full space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900">Daftar Agenda Kegiatan Tersimpan</h3>
+                                <p class="text-xs text-slate-500">Kelola, ubah, atau hapus agenda kegiatan gereja.</p>
+                            </div>
+                            <button onclick="loadEventForm()" class="text-xs text-purple-600 font-bold hover:underline">🔄 Muat Ulang</button>
+                        </div>
+                        
+                        <div id="eventsListLoading" class="text-xs text-slate-400 py-4 text-center">Memuat daftar kegiatan...</div>
+                        <div id="eventsListWrapper" class="space-y-3 hidden max-h-[300px] overflow-y-auto"></div>
                     </div>
-                    <form onsubmit="handleSaveEvent(event)" class="space-y-3 w-full">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Kegiatan / Acara</label>
-                            <input type="text" id="evNama" required placeholder="Cth: Perayaan Natal Rayon 2" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+
+                    <!-- BAGIAN 2: FORM TAMBAH / EDIT AGENDA KEGIATAN -->
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-sm text-slate-100" id="formEventTitle">Tambah Agenda Kegiatan Baru</h3>
+                            <button type="button" id="btnCancelEditEvent" onclick="resetEventForm()" class="hidden text-xs bg-rose-950/50 text-rose-400 border border-rose-900/50 px-2.5 py-1 rounded-lg transition">Batal Edit</button>
                         </div>
-                        <div class="flex gap-2">
-                            <div class="flex-1">
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
-                                <input type="date" id="evTanggal" required class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        <p class="text-xs text-slate-400 mb-4" id="formEventSubtitle">Masukkan detail jadwal acara atau kegiatan gereja.</p>
+                        
+                        <form id="formAddEvent" onsubmit="handleSaveEvent(event)" class="space-y-3 w-full">
+                            <input type="hidden" id="editEventId" value="">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Kegiatan / Acara</label>
+                                <input type="text" id="evNama" required placeholder="Cth: Perayaan Natal Rayon 2" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
                             </div>
-                            <div class="flex-1">
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Waktu</label>
-                                <input type="text" id="evWaktu" placeholder="Cth: 18.30 WITA" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                            <div class="flex gap-2">
+                                <div class="flex-1">
+                                    <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal</label>
+                                    <input type="date" id="evTanggal" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-xs font-semibold text-slate-300 mb-1">Waktu</label>
+                                    <input type="text" id="evWaktu" placeholder="Cth: 18.30 WITA" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                                </div>
                             </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Lokasi / Tempat</label>
-                            <input type="text" id="evLokasi" placeholder="Cth: Gedung Gereja Induk" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Tambahan</label>
-                            <textarea id="evKet" rows="3" placeholder="Catatan atau dresscode jika ada..." class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none"></textarea>
-                        </div>
-                        <button type="submit" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 transition w-full">Simpan Kegiatan</button>
-                    </form>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Lokasi / Tempat</label>
+                                <input type="text" id="evLokasi" placeholder="Cth: Gedung Gereja Induk" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Keterangan Tambahan</label>
+                                <textarea id="evKet" rows="3" placeholder="Catatan atau dresscode jika ada..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500"></textarea>
+                            </div>
+                            <button type="submit" id="btnSubmitEvent" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-bold text-xs transition shadow-lg">Simpan Kegiatan</button>
+                        </form>
+                    </div>
                 </div>
             `;
+            fetchEventsForAdmin();
+        }
+
+        async function fetchEventsForAdmin() {
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getEvents`);
+                const result = await res.json();
+                const events = result.events || [];
+                window.eventsCacheList = events;
+
+                document.getElementById("eventsListLoading").classList.add("hidden");
+                const wrapper = document.getElementById("eventsListWrapper");
+                wrapper.classList.remove("hidden");
+
+                if (events.length === 0) {
+                    wrapper.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Belum ada agenda kegiatan tersimpan.</p>`;
+                    return;
+                }
+
+                wrapper.innerHTML = events.map(ev => `
+                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex justify-between items-center gap-3">
+                        <div class="space-y-0.5 flex-1">
+                            <h4 class="text-xs font-bold text-slate-900">${ev.nama_kegiatan}</h4>
+                            <p class="text-[11px] text-slate-600">📅 ${ev.tanggal || '-'} ${ev.waktu ? '• ⏰ ' + ev.waktu : ''} • 📍 ${ev.lokasi || '-'}</p>
+                            ${ev.keterangan ? `<p class="text-[10px] text-slate-500 italic">"${ev.keterangan}"</p>` : ''}
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button onclick="prepareEditEvent('${ev.id}')" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">✏️ Edit</button>
+                            <button onclick="deleteEvent('${ev.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">🗑️ Hapus</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById("eventsListLoading").innerText = "Gagal memuat daftar kegiatan.";
+            }
+        }
+
+        function prepareEditEvent(eventId) {
+            const target = (window.eventsCacheList || []).find(e => e.id === eventId);
+            if (!target) return alert("Kegiatan tidak ditemukan.");
+
+            document.getElementById("editEventId").value = target.id;
+            document.getElementById("evNama").value = target.nama_kegiatan || "";
+            document.getElementById("evTanggal").value = target.tanggal || "";
+            document.getElementById("evWaktu").value = target.waktu || "";
+            document.getElementById("evLokasi").value = target.lokasi || "";
+            document.getElementById("evKet").value = target.keterangan || "";
+
+            document.getElementById("formEventTitle").innerText = "Edit Agenda Kegiatan";
+            document.getElementById("formEventSubtitle").innerText = `Memperbarui agenda: ${target.nama_kegiatan}`;
+            document.getElementById("btnSubmitEvent").innerText = "Perbarui Kegiatan";
+            document.getElementById("btnCancelEditEvent").classList.remove("hidden");
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function resetEventForm() {
+            document.getElementById("formAddEvent").reset();
+            document.getElementById("editEventId").value = "";
+            document.getElementById("formEventTitle").innerText = "Tambah Agenda Kegiatan Baru";
+            document.getElementById("formEventSubtitle").innerText = "Masukkan detail jadwal acara atau kegiatan gereja.";
+            document.getElementById("btnSubmitEvent").innerText = "Simpan Kegiatan";
+            document.getElementById("btnCancelEditEvent").classList.add("hidden");
         }
 
         async function handleSaveEvent(e) {
             e.preventDefault();
             const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            const editId = document.getElementById("editEventId").value;
+            
             const data = {
-                action: "addEvent",
+                action: editId ? "updateEvent" : "addEvent",
+                event_id: editId,
                 admin_id: admin.id,
                 admin_nama: admin.nama,
+                catatan_log: editId ? "Memperbarui agenda kegiatan" : "Menambahkan agenda kegiatan baru",
                 nama_kegiatan: document.getElementById("evNama").value,
                 tanggal: document.getElementById("evTanggal").value,
                 waktu: document.getElementById("evWaktu").value,
@@ -573,18 +771,40 @@
                 });
                 const result = await res.json();
                 alert(result.message);
-                loadEventForm();
+                resetEventForm();
+                fetchEventsForAdmin();
             } catch (err) {
                 alert("Gagal menyimpan kegiatan: " + err);
             }
         }
 
-        // --- 7. INPUT RENUNGAN & AYAT EMAS ---
+        async function deleteEvent(eventId) {
+            if (!confirm("Yakin ingin menghapus agenda kegiatan ini?")) return;
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "deleteEvent",
+                        event_id: eventId,
+                        admin_id: admin.id,
+                        admin_nama: admin.nama,
+                        catatan_log: "Menghapus agenda kegiatan"
+                    })
+                });
+                const result = await res.json();
+                alert(result.message || "Kegiatan berhasil dihapus.");
+                fetchEventsForAdmin();
+            } catch (err) {
+                alert("Gagal menghapus kegiatan: " + err);
+            }
+        }
+
+        // --- 7. INPUT RENUNGAN ---
         async function showRenunganForm() {
             const contentArea = document.getElementById("adminContentArea");
             contentArea.innerHTML = `
                 <div class="space-y-6 w-full">
-                    <!-- BAGIAN 1: FORM INPUT RENUNGAN BARU -->
                     <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full">
                         <div class="flex justify-between items-center mb-1">
                             <h2 class="text-lg font-bold text-slate-100" id="formRenunganTitle">Input Renungan & Ayat Emas Baru</h2>
@@ -609,13 +829,8 @@
                             <div>
                                 <label class="block text-xs font-semibold text-slate-300 mb-1">Isi Pesan Renungan</label>
                                 <textarea id="inputRenungan" rows="6" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-none" placeholder="Baris 1: Ketik Judul Renungan
-Ketik isi paragraf renungan di baris-baris tengah...
-Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
-                                <div class="mt-1.5 p-2 bg-purple-950/30 border border-purple-900/40 rounded-lg text-[11px] text-purple-300 space-y-0.5">
-                                    <p class="font-bold">⚠️ Perhatian Format Pengetikan:</p>
-                                    <p>• <b>Baris pertama</b> otomatis akan dibaca dan dicetak sebagai <b>JUDUL RENUNGAN</b>.</p>
-                                    <p>• <b>Baris terakhir</b> otomatis akan dibaca dan dicetak sebagai <b>QUOTE RENUNGAN</b> (Miring).</p>
-                                </div>
+Ketik isi paragraf renungan...
+Baris Terakhir: Ketik Quote penutup"></textarea>
                             </div>
                            <button type="submit" id="btnSubmitRenungan" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-2.5 rounded-xl transition shadow-lg shadow-purple-600/30">
                                 Simpan ke Stok Renungan
@@ -623,10 +838,9 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                         </form>
                     </div>
      
-                    <!-- BAGIAN 2: TABEL STOK & PILIH TANGGAL TAYANG -->
                     <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full">
                         <h3 class="font-bold text-sm text-slate-100 mb-1">Stok Arsip Renungan & Pilih Tanggal Tayang</h3>
-                        <p class="text-xs text-slate-400 mb-4">Pilih salah satu tanggal di bawah ini untuk ditayangkan atau diedit ulang.</p>
+                        <p class="text-xs text-slate-400 mb-4">Pilih tanggal di bawah ini untuk ditayangkan atau diedit ulang.</p>
                         
                         <div id="renunganStockLoading" class="text-xs text-slate-400 py-4 text-center">Memuat daftar stok renungan...</div>
                         
@@ -640,9 +854,7 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                                         <th class="p-3 text-center">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody id="renunganTableBody" class="divide-y divide-slate-800 text-slate-300">
-                                    <!-- Diisi via JavaScript -->
-                                </tbody>
+                                <tbody id="renunganTableBody" class="divide-y divide-slate-800 text-slate-300"></tbody>
                             </table>
                        </div>
                     </div>
@@ -658,7 +870,6 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                 const res = await fetch(`${SCRIPT_URL}?action=getAdminRenunganList`);
                 const result = await res.json();
                 const list = result.renunganList || [];
-                
                 window.renunganCacheList = list;
                 
                 document.getElementById("renunganStockLoading").classList.add("hidden");
@@ -671,20 +882,8 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                 }
       
                 let reversedList = [...list].reverse();
-      
                 tbody.innerHTML = reversedList.map(item => {
                      let displayDate = item.tanggal;
-                     if (item.tanggal) {
-                         let parts = item.tanggal.split("-");
-                         if (parts.length === 3) {
-                             let tahun = parts[0];
-                             let bulanIndo = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                             let bulan = bulanIndo[parseInt(parts[1], 10)] || parts[1];
-                             let hari = parseInt(parts[2], 10);
-                             displayDate = `${hari} ${bulan} ${tahun}`;
-                         }
-                     }
-      
                      return `
                          <tr class="hover:bg-slate-800/50 transition">
                              <td class="p-3 font-bold text-purple-400 whitespace-nowrap">${displayDate}</td>
@@ -694,12 +893,8 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                              </td>
                              <td class="p-3 text-slate-400 text-[11px] truncate max-w-xs">${item.renungan}</td>
                              <td class="p-3 text-center whitespace-nowrap space-x-1">
-                                 <button onclick="prepareEditRenungan(${item.row_index})" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition shadow-md" title="Muat ulang ke form input">
-                                     ✏️ Edit
-                                 </button>
-                                 <button onclick="makeActiveRenungan(${item.row_index}, '${displayDate}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-md">
-                                     🚀 Tayangkan
-                                 </button>
+                                 <button onclick="prepareEditRenungan(${item.row_index})" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition shadow-md">✏️ Edit</button>
+                                 <button onclick="makeActiveRenungan(${item.row_index}, '${displayDate}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-md">🚀 Tayangkan</button>
                              </td>
                          </tr>
                      `;
@@ -711,10 +906,7 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
       
         function prepareEditRenungan(rowIndex) {
             const target = (window.renunganCacheList || []).find(r => r.row_index === rowIndex);
-            if (!target) {
-                alert("Data renungan tidak ditemukan di cache.");
-                return;
-            }
+            if (!target) return alert("Data renungan tidak ditemukan.");
 
             document.getElementById("editRowIndex").value = target.row_index;
             document.getElementById("inputTanggal").value = target.tanggal || "";
@@ -723,10 +915,8 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
             document.getElementById("inputRenungan").value = target.renungan || "";
 
             document.getElementById("formRenunganTitle").innerText = "Edit / Perbarui Stok Renungan";
-            document.getElementById("formRenunganSubtitle").innerText = `Sedang mengedit baris data ke-${rowIndex}. Klik Simpan untuk memperbarui.`;
             document.getElementById("btnSubmitRenungan").innerText = "Perbarui Stok Renungan";
             document.getElementById("btnCancelEdit").classList.remove("hidden");
-
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -734,16 +924,13 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
             document.getElementById("formAddRenungan").reset();
             document.getElementById("editRowIndex").value = "";
             document.getElementById("inputTanggal").valueAsDate = new Date();
-            
             document.getElementById("formRenunganTitle").innerText = "Input Renungan & Ayat Emas Baru";
-            document.getElementById("formRenunganSubtitle").innerText = "Tambahkan stok renungan baru ke dalam database.";
             document.getElementById("btnSubmitRenungan").innerText = "Simpan ke Stok Renungan";
             document.getElementById("btnCancelEdit").classList.add("hidden");
         }
       
         async function makeActiveRenungan(rowIndex, tanggal) {
-            if (!confirm(`Yakin ingin menayangkan renungan untuk tanggal ${tanggal} ke aplikasi jemaat?`)) return;
-      
+            if (!confirm(`Yakin ingin menayangkan renungan untuk tanggal ${tanggal}?`)) return;
             const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
             try {
                 const res = await fetch(SCRIPT_URL, {
@@ -752,7 +939,7 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                          action: "setActiveRenungan",
                          admin_id: admin ? admin.id : "ADMIN",
                          admin_nama: admin ? admin.nama : "Admin",
-                         catatan_log: `Menayangkan renungan untuk tanggal ${tanggal}`,
+                         catatan_log: `Menayangkan renungan tanggal ${tanggal}`,
                          row_index: rowIndex
                      })
                 });
@@ -767,7 +954,6 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
         async function submitNewRenungan(event) {
             event.preventDefault();
             const btn = document.getElementById("btnSubmitRenungan");
-            const originalBtnText = btn.innerText;
             btn.innerText = "Menyimpan...";
             btn.disabled = true;
       
@@ -778,7 +964,7 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                 action: "addRenungan",
                 admin_id: admin ? admin.id : "ADMIN",
                 admin_nama: admin ? admin.nama : "Admin",
-                catatan_log: editIndex ? `Memperbarui stok renungan baris ${editIndex}` : "Input renungan dan ayat emas baru",
+                catatan_log: editIndex ? `Memperbarui renungan baris ${editIndex}` : "Input renungan baru",
                 tanggal: document.getElementById("inputTanggal").value,
                 ayat_harian: document.getElementById("inputAyatHarian").value,
                 isi_ayat: document.getElementById("inputIsiAyat").value,
@@ -786,19 +972,15 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
             };
       
             try {
-                let res = await fetch(SCRIPT_URL, {
-                     method: "POST",
-                     body: JSON.stringify(payload)
-                });
+                let res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
                 let json = await res.json();
-                alert(json.message || "Renungan berhasil disimpan ke stok!");
-                
+                alert(json.message || "Berhasil disimpan!");
                 resetRenunganForm();
                 loadRenunganStock();
             } catch (err) {
                 alert("Gagal mengirim data: " + err);
             } finally {
-                btn.innerText = originalBtnText;
+                btn.innerText = "Simpan ke Stok Renungan";
                 btn.disabled = false;
             }
         }
@@ -813,34 +995,27 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                 const result = await res.json();
                 const logs = result.logs || [];
 
-                if (logs.length === 0) {
-                    area.innerHTML = `<p class="text-center text-slate-500 text-sm py-10">Belum ada riwayat catatan log aktivitas.</p>`;
-                    return;
-                }
-
                 area.innerHTML = `
                     <div class="space-y-4 w-full">
                         <div>
                             <h3 class="font-bold text-sm">Riwayat Aktivitas Pengurus / Sekretariat</h3>
-                            <p class="text-xs text-slate-500">Mencatat siapa yang melakukan approve, verifikasi, atau input data penting.</p>
+                            <p class="text-xs text-slate-500">Mencatat aksi approve, verifikasi, atau input data.</p>
                         </div>
                         <div class="overflow-x-auto bg-slate-50 border border-slate-200 rounded-xl max-h-[500px] overflow-y-auto w-full">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead class="sticky top-0 bg-slate-200 shadow-sm text-slate-700">
                                     <tr>
                                         <th class="p-3 whitespace-nowrap">Waktu</th>
-                                        <th class="p-3">Nama Pengurus / User</th>
-                                        <th class="p-3">Aktivitas (Log)</th>
+                                        <th class="p-3">Nama Pengurus</th>
+                                        <th class="p-3">Aktivitas</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-200">
                                     ${logs.map(l => `
                                         <tr class="hover:bg-white transition">
-                                            <td class="p-3 whitespace-nowrap text-[10px] font-mono text-slate-500">
-                                                ${new Date(l.timestamp).toLocaleString('id-ID')}
-                                            </td>
+                                            <td class="p-3 whitespace-nowrap text-[10px] font-mono text-slate-500">${new Date(l.timestamp).toLocaleString('id-ID')}</td>
                                             <td class="p-3 font-semibold text-slate-800">${l.admin_nama || '-'}</td>
-                                            <td class="p-3 text-slate-600">${l.catatan_log || l.action_type || '-'}</td>
+                                            <td class="p-3 text-slate-600">${l.catatan_log || '-'}</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -849,54 +1024,36 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
                     </div>
                 `;
             } catch (err) {
-                area.innerHTML = `
-                    <div class="text-center py-10 space-y-2">
-                        <p class="text-rose-500 text-sm font-semibold">Gagal memuat log aktivitas.</p>
-                        <p class="text-xs text-slate-400">Pastikan endpoint <code class="bg-slate-200 px-1 rounded">getActivityLogs</code> sudah ditambahkan pada Google Apps Script Anda.</p>
-                    </div>
-                `;
+                area.innerHTML = `<p class="text-center text-rose-500 text-sm">Gagal memuat log aktivitas.</p>`;
             }
         }
 
         // --- 9. LOGOUT ---
         function adminLogout() {
-            // Hapus data sesi dari semua kemungkinan penyimpanan Satu Pintu
+            if (pollInterval) clearInterval(pollInterval);
             sessionStorage.removeItem("user_gereja");
             localStorage.removeItem("user_gereja");
-            
-            // Jaga-jaga jika masih ada sisa kunci lama
             sessionStorage.removeItem("admin_gereja");
             localStorage.removeItem("admin_gereja");
-
-            // Beritahu pengurus dan arahkan kembali ke halaman utama (index.html)
             alert("Anda telah keluar dari Panel Sekretariat.");
             window.location.href = "index.html";
         }
 
-        // --- 10. MESS BROADCAST SEDERHANA (TARGET GLOBAL / SEKRETARIAT) ---
+        // --- 10. BROADCAST ---
         function loadSimpleBroadcastForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
                 <div class="space-y-4 w-full">
                     <div>
                         <h3 class="font-bold text-sm text-slate-900">Kirim Mess Broadcast</h3>
-                        <p class="text-xs text-slate-500">Pesan siaran langsung dikirim ke seluruh jemaat secara global.</p>
+                        <p class="text-xs text-slate-500">Pesan siaran langsung dikirim ke seluruh jemaat.</p>
                     </div>
-
-                    <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl text-xs text-amber-800 space-y-1">
-                        <p class="font-bold">ℹ️ Informasi Sistem:</p>
-                        <p>• Kategori Target: <b>Global (Semua Jemaat)</b></p>
-                        <p>• Pengirim / Pilihan Cepat: <b>Sekretariat</b></p>
-                    </div>
-
                     <form onsubmit="handleSendSimpleBroadcast(event)" class="space-y-3 w-full">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Ketik Pesan Broadcast</label>
-                            <textarea id="broadcastMessage" rows="5" required placeholder="Tuliskan isi pengumuman atau pesan siaran di sini..." class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-slate-900"></textarea>
+                            <textarea id="broadcastMessage" rows="5" required placeholder="Tuliskan isi pengumuman..." class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none"></textarea>
                         </div>
-                        <button type="submit" id="btnSendBroadcast" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-semibold text-xs transition shadow-md">
-                            🚀 Kirim Broadcast Sekarang
-                        </button>
+                        <button type="submit" id="btnSendBroadcast" class="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold text-xs transition">🚀 Kirim Broadcast Sekarang</button>
                     </form>
                 </div>
             `;
@@ -908,190 +1065,239 @@ Baris Terakhir: Ketik Quote / Kutipan penutup"></textarea>
             const pesan = document.getElementById("broadcastMessage").value.trim();
             const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
 
-            if (!pesan) return alert("Pesan tidak boleh kosong!");
-
             btn.disabled = true;
-            btn.innerText = "Mengirim Broadcast...";
-
-            const payload = {
-                action: "sendBroadcast",
-                target_type: "global",
-                category: "Sekretariat",
-                message: pesan,
-                visibility: "Global",
-                admin_id: admin ? admin.id : "SEKRETARIAT",
-                admin_nama: admin ? admin.nama : "Sekretariat"
-            };
-
+            btn.innerText = "Mengirim...";
             try {
-                const res = await fetch(SCRIPT_URL, {
+                await fetch(SCRIPT_URL, {
                     method: "POST",
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        action: "sendBroadcast",
+                        target_type: "global",
+                        category: "Sekretariat",
+                        message: pesan,
+                        visibility: "Global",
+                        admin_id: admin ? admin.id : "SEKRETARIAT",
+                        admin_nama: admin ? admin.nama : "Sekretariat"
+                    })
                 });
-                const result = await res.json();
-                
-                alert(result.message || "Mess Broadcast berhasil dikirim!");
+                alert("Broadcast berhasil dikirim!");
                 document.getElementById("broadcastMessage").value = "";
             } catch (err) {
-                alert("Gagal mengirim broadcast: " + err);
+                alert("Gagal kirim: " + err);
             } finally {
                 btn.disabled = false;
                 btn.innerText = "🚀 Kirim Broadcast Sekarang";
             }
         }
 
-// --- 11. UPLOAD WARTA / LITURGI KE GITHUB VIA BACKEND ---
-        function loadUploadDokumenForm() {
+        // --- 11. UPLOAD WARTA / LITURGI ---
+        async function loadUploadDokumenForm() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `
-                <div class="space-y-4 w-full">
-                    <div>
-                        <h3 class="font-bold text-sm text-slate-900">📤 Unggah / Perbarui Warta & Liturgi (GitHub)</h3>
-                        <p class="text-xs text-slate-500">File baru akan otomatis menimpa file lama di GitHub. Link akses jemaat tetap sama abadi.</p>
-                    </div>
-
-                    <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl text-xs text-emerald-800 space-y-1.5">
-                        <p class="font-bold text-emerald-900">ℹ️ Tips & Panduan Penting untuk Sekretariat:</p>
-                        <p>• Format file wajib berjenis <b>PDF</b>.</p>
-                        <p>• <b>Aturan Penamaan File di Komputer (Rename sebelum upload):</b></p>
-                        <p class="pl-2">• Warta: Selalu gunakan nama tetap, cth: <code class="bg-emerald-100 px-1 py-0.5 rounded font-mono text-emerald-900">warta-terbaru.pdf</code></p>
-                        <p class="pl-2">• Liturgi: Selalu gunakan nama tetap, cth: <code class="bg-emerald-100 px-1 py-0.5 rounded font-mono text-emerald-900">liturgi-terbaru.pdf</code></p>
-                        <p>• <i>Dengan nama file yang konsisten setiap minggu, sistem GitHub akan otomatis menimpa file lama dan link jemaat dijamin tetap sama abadi tanpa berubah-ubah!</i></p>
-                    </div>
-
-                    <form onsubmit="handleUploadDokumen(event)" class="space-y-3 w-full">
-
-                        <!-- DROPDOWN PILIHAN JUDUL RUTIN -->
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Judul / Jenis File</label>
-                            <select id="upPilihanJudul" onchange="cekPilihanJudul(this.value)" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
-                                <option value="Warta Minggu Ini">Warta Minggu Ini</option>
-                                <option value="Liturgi Minggu Ini">Liturgi Minggu Ini</option>
-                                <option value="Lainnya">Lainnya (Ketik Manual)</option>
-                            </select>
-                        </div>
-
-                        <!-- KOTAK KETIK MANUAL (MUNCUL JIKA PILIH LAINNYA) -->
-                        <div id="wrapperJudulManual" class="hidden">
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Ketik Nama / Judul Dokumen</label>
-                            <input type="text" id="upJudulManual" placeholder="Cth: Panduan Perayaan Natal 2026" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                <div class="space-y-6 w-full">
+                    <!-- BAGIAN 1: DAFTAR DOKUMEN ARSIP DOKUMEN -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm w-full space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900">Daftar Arsip Dokumen (ArsipDokumen)</h3>
+                                <p class="text-xs text-slate-500">Daftar file warta dan liturgi yang telah diunggah.</p>
+                            </div>
+                            <button onclick="loadUploadDokumenForm()" class="text-xs text-purple-600 font-bold hover:underline">🔄 Muat Ulang</button>
                         </div>
                         
-                        <!-- KATEGORI DOKUMEN -->
+                        <div id="docsListLoading" class="text-xs text-slate-400 py-4 text-center">Memuat daftar dokumen...</div>
+                        <div id="docsListWrapper" class="space-y-3 hidden max-h-[250px] overflow-y-auto"></div>
+                    </div>
+
+                    <!-- BAGIAN 2: FORM UNGGAH DOKUMEN -->
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Dokumen</label>
-                            <select id="upPilihanKategori" onchange="cekPilihanKategori(this.value)" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none bg-white">
-                                <option value="Warta Jemaat">Warta Jemaat</option>
-                                <option value="Liturgi Ibadah">Liturgi Ibadah</option>
-                                <option value="Surat Edaran">Surat Edaran</option>
-                                <option value="Lainnya">Lainnya (Ketik Manual)</option>
-                            </select>
+                            <h3 class="font-bold text-sm text-slate-100">📤 Unggah / Perbarui Warta & Liturgi (GitHub)</h3>
+                            <p class="text-xs text-slate-400 mb-2">File baru akan otomatis menimpa file lama di GitHub. Link akses jemaat tetap sama abadi.</p>
                         </div>
 
-                        <!-- KOTAK KETIK MANUAL KATEGORI (AWALNYA DISEMBUNYIKAN) -->
-                        <div id="wrapperKategoriManual" class="hidden">
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Ketik Nama Kategori Baru</label>
-                            <input type="text" id="upKategoriManual" placeholder="Cth: Laporan Keuangan" class="w-full p-3 border border-slate-300 rounded-xl text-sm outline-none">
+                        <!-- TIPS & PANDUAN PENTING -->
+                        <div class="bg-emerald-950/60 border border-emerald-800/60 p-3.5 rounded-xl text-xs text-emerald-200 space-y-1.5">
+                            <p class="font-bold text-emerald-100">ℹ️ Tips & Panduan Penting untuk Sekretariat:</p>
+                            <p>• Format file wajib berjenis <b>PDF</b>.</p>
+                            <p>• <b>Aturan Penamaan File di Komputer (Rename sebelum upload):</b></p>
+                            <p class="pl-2">• Warta: Selalu gunakan nama tetap, cth: <code class="bg-emerald-900 px-1 py-0.5 rounded font-mono text-emerald-100">warta-terbaru.pdf</code></p>
+                            <p class="pl-2">• Liturgi: Selalu gunakan nama tetap, cth: <code class="bg-emerald-900 px-1 py-0.5 rounded font-mono text-emerald-100">liturgi-terbaru.pdf</code></p>
+                            <p>• <i>Dengan nama file yang konsisten setiap minggu, sistem GitHub akan otomatis menimpa file lama dan link jemaat dijamin tetap sama abadi tanpa berubah-ubah!</i></p>
                         </div>
 
-                        <!-- FILE PDF -->
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih File PDF</label>
-                            <input type="file" id="upFile" accept=".pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer">
-                        </div>
+                        <form onsubmit="handleUploadDokumen(event)" class="space-y-3 w-full">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Judul / Jenis File</label>
+                                <select id="upPilihanJudul" onchange="cekPilihanJudul(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none">
+                                    <option value="Warta Minggu Ini">Warta Minggu Ini</option>
+                                    <option value="Liturgi Minggu Ini">Liturgi Minggu Ini</option>
+                                    <option value="Lainnya">Lainnya (Ketik Manual)</option>
+                                </select>
+                            </div>
+                            
+                            <div id="wrapperJudulManual" class="hidden">
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Ketik Judul Dokumen</label>
+                                <input type="text" id="upJudulManual" placeholder="Cth: Panduan Perayaan Natal" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none">
+                            </div>
 
-                        <button type="submit" id="btnUpload" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-semibold text-xs transition shadow-md">
-                            🚀 Unggah ke GitHub Sekarang
-                        </button>
-                    </form>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Kategori Dokumen</label>
+                                <select id="upPilihanKategori" onchange="cekPilihanKategori(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none">
+                                    <option value="Warta Jemaat">Warta Jemaat</option>
+                                    <option value="Liturgi Ibadah">Liturgi Ibadah</option>
+                                    <option value="Surat Edaran">Surat Edaran</option>
+                                    <option value="Lainnya">Lainnya (Ketik Manual)</option>
+                                </select>
+                            </div>
+
+                            <div id="wrapperKategoriManual" class="hidden">
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Ketik Nama Kategori Baru</label>
+                                <input type="text" id="upKategoriManual" placeholder="Cth: Laporan Keuangan" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Pilih File PDF</label>
+                                <input type="file" id="upFile" accept=".pdf" required class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer">
+                            </div>
+                            
+                            <button type="submit" id="btnUpload" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-bold text-xs transition shadow-lg">🚀 Unggah ke GitHub Sekarang</button>
+                        </form>
+                    </div>
                 </div>
             `;
+            fetchDocumentsForAdmin();
         }
 
-        // FUNGSI UNTUK MENAMPILKAN / MENYEMBUNYIKAN INPUT MANUAL
-        function cekPilihanJudul(nilai) {
-            const wrapperManual = document.getElementById("wrapperJudulManual");
-            const inputManual = document.getElementById("upJudulManual");
-            
-            if (nilai === "Lainnya") {
-                wrapperManual.classList.remove("hidden");
-                inputManual.required = true;
-            } else {
-                wrapperManual.classList.add("hidden");
-                inputManual.required = false;
-                inputManual.value = ""; // Bersihkan isi jika ditutup
+        async function fetchDocumentsForAdmin() {
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "getDaftarDokumen" })
+                });
+                const result = await res.json();
+                const docs = result.data || [];
+
+                document.getElementById("docsListLoading").classList.add("hidden");
+                const wrapper = document.getElementById("docsListWrapper");
+                wrapper.classList.remove("hidden");
+
+                if (docs.length === 0) {
+                    wrapper.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Belum ada dokumen tersimpan di ArsipDokumen.</p>`;
+                    return;
+                }
+
+                wrapper.innerHTML = docs.map((doc, idx) => `
+                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex justify-between items-center gap-3">
+                        <div class="space-y-0.5 flex-1">
+                            <span class="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded font-semibold">${doc.kategori || 'Dokumen'}</span>
+                            <h4 class="text-xs font-bold text-slate-900 mt-1">${doc.judul}</h4>
+                            <p class="text-[10px] text-slate-400">${doc.timestamp ? new Date(doc.timestamp).toLocaleString('id-ID') : ''}</p>
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <a href="${doc.url}" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">👁️ Lihat</a>
+                            <button onclick="deleteDokumen('${doc.id || doc.judul}')" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">🗑️ Hapus</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById("docsListLoading").innerText = "Gagal memuat daftar dokumen.";
             }
         }
-        function cekPilihanKategori(nilai) {
-            const wrapperKategoriManual = document.getElementById("wrapperKategoriManual");
-            const inputKategoriManual = document.getElementById("upKategoriManual");
-            
-            if (nilai === "Lainnya") {
-                wrapperKategoriManual.classList.remove("hidden");
-                inputKategoriManual.required = true;
-            } else {
-                wrapperKategoriManual.classList.add("hidden");
-                inputKategoriManual.required = false;
-                inputKategoriManual.value = ""; // Bersihkan isi jika ditutup
+
+        async function deleteDokumen(docIdOrTitle) {
+            if (!confirm("Yakin ingin menghapus dokumen arsip ini?")) return;
+            const admin = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "deleteDokumen",
+                        doc_id: docIdOrTitle,
+                        admin_id: admin.id || "SEKRETARIAT",
+                        admin_nama: admin.nama || "Sekretariat",
+                        catatan_log: "Menghapus dokumen arsip: " + docIdOrTitle
+                    })
+                });
+                const result = await res.json();
+                alert(result.message || "Dokumen berhasil dihapus.");
+                fetchDocumentsForAdmin();
+            } catch (err) {
+                alert("Gagal menghapus dokumen: " + err);
             }
         }
-        // FUNGSI EKSEKUSI UPLOAD KE BACKEND
+
+        function cekPilihanJudul(val) {
+            const w = document.getElementById("wrapperJudulManual");
+            const katSelect = document.getElementById("upPilihanKategori");
+            const katManualWrapper = document.getElementById("wrapperKategoriManual");
+
+            if (val === "Warta Minggu Ini") {
+                w.classList.add("hidden");
+                katSelect.value = "Warta Jemaat";
+                katSelect.disabled = true;
+                katManualWrapper.classList.add("hidden");
+            } else if (val === "Liturgi Minggu Ini") {
+                w.classList.add("hidden");
+                katSelect.value = "Liturgi Ibadah";
+                katSelect.disabled = true;
+                katManualWrapper.classList.add("hidden");
+            } else if (val === "Lainnya") {
+                w.classList.remove("hidden");
+                katSelect.disabled = false;
+            } else {
+                w.classList.add("hidden");
+                katSelect.disabled = false;
+            }
+        }
+
+        function cekPilihanKategori(val) {
+            const w = document.getElementById("wrapperKategoriManual");
+            if (val === "Lainnya") w.classList.remove("hidden");
+            else w.classList.add("hidden");
+        }
+
         async function handleUploadDokumen(e) {
             e.preventDefault();
             const btn = document.getElementById("btnUpload");
-            const fileInput = document.getElementById("upFile");
-            const file = fileInput.files[0];
-            
-            if (!file) return alert("Pilih file terlebih dahulu!");
+            const file = document.getElementById("upFile").files[0];
+            if (!file) return alert("Pilih file!");
 
-            // Menentukan kategori: jika pilih "Lainnya", ambil dari input manual. Jika tidak, ambil dari dropdown.
-            const pilihanKategoriDropdown = document.getElementById("upPilihanKategori").value;
-            const kategoriFinal = (pilihanKategoriDropdown === "Lainnya") 
-                ? document.getElementById("upKategoriManual").value 
-                : pilihanKategoriDropdown;
-            
-            // Ambil judul: jika pilih "Lainnya", ambil dari input teks manual. Jika tidak, ambil dari dropdown.
-            const pilihanDropdown = document.getElementById("upPilihanJudul").value;
-            const judulFinal = (pilihanDropdown === "Lainnya") 
+            const judul = document.getElementById("upPilihanJudul").value === "Lainnya" 
                 ? document.getElementById("upJudulManual").value 
-                : pilihanDropdown;
+                : document.getElementById("upPilihanJudul").value;
+
+            const katSelect = document.getElementById("upPilihanKategori");
+            katSelect.disabled = false; // Aktifkan sebentar untuk mengambil nilainya
+            const kategori = katSelect.value === "Lainnya" 
+                ? document.getElementById("upKategoriManual").value 
+                : katSelect.value;
 
             btn.disabled = true;
-            btn.innerText = "Mengunggah ke GitHub...";
+            btn.innerText = "Mengunggah...";
 
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = async function () {
-                const base64Data = reader.result.split(',')[1];
-                const admin = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
-
-                const payload = {
-                    action: "uploadDokumen", 
-                    kategori: kategoriFinal, // <--- Sudah diperbaiki menggunakan variabel kategoriFinal
-                    judul: judulFinal,       // <--- Menggunakan judul yang sudah disaring
-                    fileName: file.name,
-                    mimeType: file.type,
-                    fileData: base64Data,
-                    admin_id: admin.id || "SEKRETARIAT",
-                    admin_nama: admin.nama || "Sekretariat",
-                    catatan_log: `Mengunggah dokumen ke GitHub: ${judulFinal} (${kategoriFinal})`
-                };
-
+            reader.onload = async function() {
                 try {
+                    const admin = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
                     const res = await fetch(SCRIPT_URL, {
                         method: "POST",
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify({
+                            action: "uploadDokumen",
+                            kategori, judul,
+                            fileName: file.name,
+                            mimeType: file.type,
+                            fileData: reader.result.split(',')[1],
+                            admin_id: admin.id || "SEKRETARIAT",
+                            admin_nama: admin.nama || "Sekretariat"
+                        })
                     });
                     const result = await res.json();
-                    
-                    alert(result.message || "Dokumen berhasil diunggah!");
-                    if(result.status === "success") {
-                        e.target.reset();
-                        cekPilihanJudul("Warta Minggu Ini");
-                        cekPilihanKategori("Warta Jemaat"); // Reset tampilan dropdown kategori ke awal
-                    }
+                    alert(result.message || "Berhasil!");
+                    loadUploadDokumenForm();
                 } catch (err) {
-                    alert("Gagal mengunggah file: " + err);
+                    alert("Gagal: " + err);
                 } finally {
                     btn.disabled = false;
                     btn.innerText = "🚀 Unggah ke GitHub Sekarang";
