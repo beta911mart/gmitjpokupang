@@ -42,7 +42,7 @@
             100% { transform: rotateY(360deg); }
         }
         .animate-church-spin {
-            animation: churchSpin3D 3s infinite ease-in-out;
+            animation: churchSpin3D 9s infinite ease-in-out;
             transform-style: preserve-3d;
         }
 
@@ -147,7 +147,7 @@
 
     <div id="app" class="w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto bg-slate-950 min-h-screen flex flex-col shadow-2xl relative transition-all duration-500">
         
-        <header class="bg-slate-800/90 backdrop-blur-md p-4 fixed top-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 border-b border-slate-700 flex justify-between items-center shadow-md transition-all duration-500">
+        <header class="bg-slate-800/90 backdrop-blur-md px-4 py-2 fixed top-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 border-b border-slate-700 flex justify-between items-center shadow-md transition-all duration-500">
             <!-- Tombol Sidebar Drawer dengan ikon Gereja berputar 3D -->
             <button onclick="toggleSidebar(true)" class="text-xl p-1 text-slate-200 hover:text-purple-400 rounded-lg transition duration-500 flex items-center justify-center focus:outline-none" title="Buka Pengaturan & Tema">
                 <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center font-bold shadow-lg shadow-purple-500/30">
@@ -219,9 +219,9 @@
                 icon.classList.add("animate-church-spin");
                 setTimeout(() => {
                     icon.classList.remove("animate-church-spin");
-                }, 3000);
+                }, 1000);
             }
-        }, 10000);
+        }, 5000);
 
         function setTransitionStyle(style) {
             localStorage.setItem('gmit_transition_style', style);
