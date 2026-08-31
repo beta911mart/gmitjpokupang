@@ -8,6 +8,7 @@
     <meta name="keywords" content="Gereja Pniel Oebobo, GMIT Pniel Oebobo, GMit JPO Kupang, Jadwal Ibadah Pniel Oebobo">
     <meta name="google-site-verification" content="cC7ZUJE57oQGBvbN9gBkcYj51ADXa9GVsnGVrswXddY" />
     
+    <!-- Open Graph / Social Media Preview Thumbnail Tags -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="GMIT Jemaat Pniel Oebobo - JPO Digital">
     <meta property="og:description" content="WebApp digital GMIT Jemaat Pniel Oebobo. Jadwal ibadah, warta, renungan, dan pelayanan kasih.">
@@ -27,8 +28,12 @@
             to { transform: translateY(0); opacity: 1; }
         }
         @keyframes smoothFadeIn {
-            from { opacity: 0; transform: translateY(20px) scale(0.97); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes zoomInTransition {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
         }
         
         @keyframes churchSpin3D {
@@ -43,18 +48,9 @@
 
         .animate-slide-in { animation: slideInFromTop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-fade-in { animation: smoothFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-zoom-in { animation: zoomInTransition 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-card-hover { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         .animate-card-hover:active { transform: scale(0.94); }
-
-        /* Theme button shapes */
-        .theme-shape-default { border-radius: 9999px !important; }
-        .theme-shape-christmas {
-            border-radius: 35% 65% 35% 65% / 40% 40% 60% 60% !important;
-            clip-path: polygon(50% 0%, 65% 15%, 100% 35%, 80% 65%, 85% 100%, 50% 80%, 15% 100%, 20% 65%, 0% 35%, 35% 15%);
-        }
-        .theme-shape-easter {
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40% !important;
-        }
 
         body.senior-mode {
             background-color: #fef3c7 !important; 
@@ -81,24 +77,11 @@
             color: #0f172a !important;
             font-weight: 800 !important;
         }
-        body.senior-mode input, body.senior-mode select, body.senior-mode textarea {
-            background-color: #ffffff !important;
-            border: 2px solid #94a3b8 !important;
-            color: #0f172a !important;
-            font-size: 1rem !important;
-            padding: 12px !important;
-        }
-        body.senior-mode button {
-            font-size: 1rem !important;
-            font-weight: bold !important;
-            padding-top: 12px !important;
-            padding-bottom: 12px !important;
-        }
     </style>
 </head>
 <body id="appBody" class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden">
 
-    <div id="pushNotifOverlay" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-500">
+    <div id="pushNotifOverlay" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-slate-900 border-2 border-amber-500 rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.3)] p-6 max-w-xs w-full animate-slide-in relative">
             <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-amber-500 text-slate-900 text-3xl rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-4 border-slate-900">
                 ⚠️
@@ -113,8 +96,8 @@
 
     <div id="toastContainer" class="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"></div>
 
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/70 z-[100] hidden backdrop-blur-sm transition-opacity duration-500" onclick="toggleSidebar(false)"></div>
-    <div id="sidebarMenu" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-slate-800 z-[105] transform -translate-x-full transition-transform duration-500 flex flex-col p-5 shadow-2xl">
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-[100] hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar(false)"></div>
+    <div id="sidebarMenu" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-slate-800 z-[100] transform -translate-x-full transition-transform duration-500 flex flex-col p-5 shadow-2xl">
         <div class="flex justify-between items-center pb-4 border-b border-slate-800">
             <h3 class="font-bold text-sm text-purple-400">Pengaturan & Tema</h3>
             <button onclick="toggleSidebar(false)" class="text-slate-400 hover:text-white text-lg">✕</button>
@@ -124,15 +107,15 @@
             <div>
                 <p class="text-xs font-semibold text-slate-400 mb-2">Pilih Tema Aplikasi:</p>
                 <div class="grid grid-cols-1 gap-2">
-                    <button onclick="setTheme('slate')" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-900 border border-slate-800 hover:border-purple-500 transition duration-300">🌙 Slate Dark (Default)</button>
-                    <button onclick="setTheme('emerald')" class="text-left px-3 py-2 rounded-xl text-xs bg-emerald-900/60 text-emerald-100 border border-emerald-700/60 hover:border-emerald-400 transition duration-300">🌿 Emerald Nature (Segar)</button>
-                    <button onclick="setTheme('purple')" class="text-left px-3 py-2 rounded-xl text-xs bg-fuchsia-900/60 text-fuchsia-100 border border-fuchsia-700/60 hover:border-fuchsia-400 transition duration-300">🍇 Royal Purple (Elegan)</button>
-                    <button onclick="setTheme('sunset')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-900/60 text-amber-100 border border-amber-700/60 hover:border-amber-400 transition duration-300">🌅 Warm Sunset (Hangat)</button>
-                    <button onclick="setTheme('christmas')" class="text-left px-3 py-2 rounded-xl text-xs bg-red-950/60 border border-red-900/70 hover:border-red-500 transition duration-300 flex items-center justify-between"><span>🎄 Tema Natal (Salju)</span><span>⭐</span></button>
-                    <button onclick="setTheme('easter')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-950/60 border border-amber-900/70 hover:border-amber-500 transition duration-300 flex items-center justify-between"><span>✝️ Tema Paskah (Telur)</span><span>🕊️</span></button>
-                    <button onclick="setTheme('light')" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-100 text-slate-900 border border-slate-300 hover:border-slate-500 transition duration-300">☀️ Light Clean</button>
+                    <button onclick="setTheme('slate')" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-900 border border-slate-800 hover:border-purple-500 transition duration-500">🌙 Slate Dark (Default)</button>
+                    <button onclick="setTheme('emerald')" class="text-left px-3 py-2 rounded-xl text-xs bg-emerald-700/60 text-emerald-100 border border-emerald-500/60 hover:border-emerald-300 transition duration-500">🌿 Emerald Nature (Segar)</button>
+                    <button onclick="setTheme('purple')" class="text-left px-3 py-2 rounded-xl text-xs bg-fuchsia-700/60 text-fuchsia-100 border border-fuchsia-500/60 hover:border-fuchsia-300 transition duration-500">🍇 Royal Purple (Elegan)</button>
+                    <button onclick="setTheme('sunset')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-700/60 text-amber-100 border border-amber-500/60 hover:border-amber-300 transition duration-500">🌅 Warm Sunset (Hangat)</button>
+                    <button onclick="setTheme('christmas')" class="text-left px-3 py-2 rounded-xl text-xs bg-red-950/60 border border-red-900/70 hover:border-red-500 transition duration-500 flex items-center justify-between"><span>🎄 Tema Natal (Kepingan Salju)</span><span>⭐</span></button>
+                    <button onclick="setTheme('easter')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-950/60 border border-amber-900/70 hover:border-amber-500 transition duration-500 flex items-center justify-between"><span>✝️ Tema Paskah (Bentuk Telur)</span><span>🕊️</span></button>
+                    <button onclick="setTheme('light')" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-100 text-slate-900 border border-slate-300 hover:border-slate-500 transition duration-500">☀️ Light Clean</button>
                     
-                    <button onclick="toggleSeniorMode()" id="seniorModeBtn" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-400 transition duration-300 flex items-center justify-between">
+                    <button onclick="toggleSeniorMode()" id="seniorModeBtn" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-400 transition duration-500 flex items-center justify-between">
                         <span>👓 Mode Lansia / Senior</span>
                         <span>Aktifkan</span>
                     </button>
@@ -140,8 +123,16 @@
             </div>
 
             <div class="pt-4 border-t border-slate-800">
+                <p class="text-xs font-semibold text-slate-400 mb-2">Model Transisi Halaman:</p>
+                <div class="grid grid-cols-1 gap-2">
+                    <button onclick="setTransitionStyle('fade')" id="transFadeBtn" class="text-left px-3 py-2 rounded-xl text-xs bg-purple-600 text-white border border-purple-500 transition duration-500">✨ Model 1: Smooth Fade & Slide</button>
+                    <button onclick="setTransitionStyle('zoom')" id="transZoomBtn" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-900 text-slate-300 border border-slate-800 hover:border-purple-500 transition duration-500">🔍 Model 2: Scale & Zoom In</button>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-800">
                 <p class="text-xs font-semibold text-slate-400 mb-2">Akses Cepat:</p>
-                <button onclick="installPWA()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 px-3 rounded-xl text-xs font-semibold transition duration-300 flex items-center justify-center gap-2 shadow-md">
+                <button onclick="installPWA()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 px-3 rounded-xl text-xs font-semibold transition duration-500 flex items-center justify-center gap-2 shadow-md">
                     📲 Tambahkan ke Beranda
                 </button>
             </div>
@@ -156,43 +147,44 @@
 
     <div id="app" class="w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto bg-slate-950 min-h-screen flex flex-col shadow-2xl relative transition-all duration-500">
         
-        <header class="bg-slate-800/80 backdrop-blur-md p-4 fixed top-0 left-0 right-0 z-40 max-w-md landscape:max-w-3xl md:max-w-md mx-auto border-b border-slate-700 flex justify-between items-center shadow-lg">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar(true)" class="w-10 h-10 bg-purple-600 hover:bg-purple-700 rounded-full flex items-center justify-center font-bold text-white shadow-lg shadow-purple-500/30 transition duration-300 cursor-pointer" title="Buka Menu Pengaturan">
-                    <i id="headerChurchIcon" class="fa-solid fa-church"></i>
-                </button>
-                <div>
-                    <h1 id="headerTitle" class="text-sm font-bold leading-tight">GMIT Pniel Oebobo</h1>
-                    <p class="text-xs text-slate-400">Digital App</p>
+        <header class="bg-slate-800/90 backdrop-blur-md p-4 fixed top-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 border-b border-slate-700 flex justify-between items-center shadow-md transition-all duration-500">
+            <!-- Tombol Sidebar Drawer dengan ikon Gereja berputar 3D -->
+            <button onclick="toggleSidebar(true)" class="text-xl p-1 text-slate-200 hover:text-purple-400 rounded-lg transition duration-500 flex items-center justify-center focus:outline-none" title="Buka Pengaturan & Tema">
+                <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center font-bold shadow-lg shadow-purple-500/30">
+                    <i id="churchIconSpin" class="fa-solid fa-church"></i>
                 </div>
+            </button>
+            
+            <div class="absolute left-1/2 transform -translate-x-1/2 text-center pointer-events-none">
+                <h1 id="headerTitle" class="text-sm font-bold leading-tight">GMIT Pniel Oebobo</h1>
+                <p class="text-[10px] text-slate-400">Digital App</p>
             </div>
-            <div id="syncIndicator" class="flex items-center gap-1 text-xs" title="Status Sinkronisasi Online">
+            
+            <div id="syncIndicator" class="flex items-center gap-1.5 text-xs bg-slate-900/80 px-2.5 py-1 rounded-full border border-slate-700" title="Status Sinkronisasi Online">
                 <span id="syncDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-[10px] text-slate-400 hidden sm:inline" id="syncText">Online</span>
+                <span class="text-[10px] text-slate-300 font-medium hidden sm:inline" id="syncText">Online</span>
             </div>
         </header>
 
-        <div id="themeBannerContainer" class="absolute top-[73px] left-0 right-0 z-30 pointer-events-none"></div>
+        <div id="seasonalBannerContainer"></div>
 
-        <main class="flex-1 p-4 pt-28 pb-24 overflow-y-auto animate-fade-in w-full">
-            <!-- Dynamic view contents render here -->
+        <main class="flex-1 p-4 pt-24 pb-24 overflow-y-auto animate-fade-in w-full">
+            <!-- Konten halaman dinamis dimuat di sini -->
         </main>
 
         <nav id="bottomNav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex justify-around items-center p-3 text-xs font-medium text-slate-400 shadow-lg transition-all duration-500">
-            <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition duration-300">
+            <button onclick="switchTab('home')" class="hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition duration-500">
                 <span class="text-sm">🏠</span>
                 <span class="text-xs font-medium">Beranda</span>
             </button>
-            
-            <button onclick="switchTab('notifikasi')" class="relative hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition duration-300">
+            <button onclick="switchTab('notifikasi')" class="relative hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition duration-500">
                 <span class="relative inline-block text-sm">
                     🔔
                     <span id="unreadNotifBadge" class="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-rose-600 rounded-full border-2 border-slate-950 hidden animate-pulse"></span>
                 </span>
                 <span class="text-xs font-medium">Notifikasi</span>
             </button>
-
-            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition duration-300">
+            <button onclick="switchTab('profil')" class="hover:text-purple-400 focus:text-purple-400 flex items-center gap-1.5 py-1 px-2 transition duration-500">
                 <span class="text-sm">👤</span> 
                 <span id="accountNavText" class="text-xs font-medium">Akun</span>
             </button>
@@ -205,13 +197,13 @@
                 <span id="modalHymnNo" class="text-xs font-bold text-purple-400"></span>
                 <h3 id="modalHymnTitle" class="text-sm font-bold text-white truncate max-w-[280px]"></h3>
             </div>
-            <button onclick="closeHymnModal()" class="bg-rose-600 hover:bg-rose-700 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-md transition duration-300">✕</button>
+            <button onclick="closeHymnModal()" class="bg-rose-600 hover:bg-rose-700 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-md transition duration-500">✕</button>
         </div>
         <div class="flex-1 overflow-y-auto py-4">
             <p id="modalHymnContent" class="text-[13px] sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed font-sans px-1 pb-10"></p>
         </div>
         <div class="pt-3 border-t border-slate-800 text-center pb-2">
-            <button onclick="closeHymnModal()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition duration-300">Tutup Lirik</button>
+            <button onclick="closeHymnModal()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition duration-500">Tutup Lirik</button>
         </div>
     </div>
 
@@ -219,12 +211,43 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
         const waNomorSekretariat = "6281234567890";
         
+        let backPressCount = 0;
+
+        setInterval(() => {
+            const icon = document.getElementById("churchIconSpin");
+            if (icon) {
+                icon.classList.add("animate-church-spin");
+                setTimeout(() => {
+                    icon.classList.remove("animate-church-spin");
+                }, 3000);
+            }
+        }, 10000);
+
+        function setTransitionStyle(style) {
+            localStorage.setItem('gmit_transition_style', style);
+            const fadeBtn = document.getElementById('transFadeBtn');
+            const zoomBtn = document.getElementById('transZoomBtn');
+            if (style === 'zoom') {
+                if (fadeBtn) fadeBtn.className = "text-left px-3 py-2 rounded-xl text-xs bg-slate-900 text-slate-300 border border-slate-800 hover:border-purple-500 transition duration-500";
+                if (zoomBtn) zoomBtn.className = "text-left px-3 py-2 rounded-xl text-xs bg-purple-600 text-white border border-purple-500 transition duration-500";
+                showToast("Model transisi Scale & Zoom diaktifkan!");
+            } else {
+                if (fadeBtn) fadeBtn.className = "text-left px-3 py-2 rounded-xl text-xs bg-purple-600 text-white border border-purple-500 transition duration-500";
+                if (zoomBtn) zoomBtn.className = "text-left px-3 py-2 rounded-xl text-xs bg-slate-900 text-slate-300 border border-slate-800 hover:border-purple-500 transition duration-500";
+                showToast("Model transisi Smooth Fade & Slide diaktifkan!");
+            }
+            toggleSidebar(false);
+        }
+
         function triggerPageTransition() {
             const main = document.querySelector("main");
             if (!main) return;
-            main.classList.remove("animate-fade-in");
+            const style = localStorage.getItem('gmit_transition_style') || 'fade';
+            const animClass = style === 'zoom' ? 'animate-zoom-in' : 'animate-fade-in';
+            
+            main.classList.remove("animate-fade-in", "animate-zoom-in");
             void main.offsetWidth; 
-            main.classList.add("animate-fade-in");
+            main.classList.add(animClass);
         }
 
         function pushNavState(funcName, args = []) {
@@ -261,7 +284,18 @@
                     }
                 }
             } else {
-                switchTab('home', true);
+                const activeTabHeader = document.getElementById("headerTitle").innerText;
+                if (activeTabHeader.includes("PNIEL Oebobo")) {
+                    backPressCount++;
+                    if (backPressCount === 1) {
+                        showToast("Tekan sekali lagi untuk keluar aplikasi");
+                        setTimeout(() => { backPressCount = 0; }, 2500);
+                    } else if (backPressCount >= 2) {
+                        window.close();
+                    }
+                } else {
+                    switchTab('home', true);
+                }
             }
         });
 
@@ -295,7 +329,7 @@
                 toast.style.transform = "scale(0.9)";
                 toast.style.transition = "all 0.5s ease";
                 setTimeout(() => toast.remove(), 500);
-            }, 3500);
+            }, 3000);
         }
 
         async function checkPushNotification() {
@@ -327,43 +361,16 @@
             if (overlay) overlay.classList.add('hidden');
         }
 
-        async function checkUserPersonalNotifications() {
-            const savedUser = localStorage.getItem("user_gereja");
-            if (!savedUser) return;
-            const user = JSON.parse(savedUser);
-            if (sessionStorage.getItem('personal_notif_checked') === 'true') return;
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "getUserNotifications", user_id: user.id })
-                });
-                const result = await response.json();
-
-                if (result.status === "success" && result.notifications && result.notifications.length > 0) {
-                    result.notifications.forEach((notif, index) => {
-                        setTimeout(() => { showToast(`🔔 ${notif.text}`, "success"); }, index * 1500);
-                    });
-                    sessionStorage.setItem('personal_notif_checked', 'true');
-                }
-            } catch (err) { console.log("Gagal memuat notifikasi personal", err); }
-        }
-
         function updateNetworkStatus() {
-            const syncDot = document.getElementById("syncDot");
-            const syncText = document.getElementById("syncText");
-            if (!navigator.onLine) {
-                showToast("Koneksi internet terputus.", "error");
-                if (syncDot) {
-                    syncDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
-                    syncDot.classList.remove("animate-pulse");
-                }
-                if (syncText) syncText.innerText = "Offline";
+            const dot = document.getElementById("syncDot");
+            const text = document.getElementById("syncText");
+            if (!dot) return;
+            if (navigator.onLine) {
+                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                if(text) { text.innerText = "Online"; text.className = "text-[10px] text-slate-300 font-medium hidden sm:inline"; }
             } else {
-                if (syncDot) {
-                    syncDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
-                }
-                if (syncText) syncText.innerText = "Online";
+                dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+                if(text) { text.innerText = "Offline"; text.className = "text-[10px] text-rose-400 hidden sm:inline"; }
             }
         }
         window.addEventListener('online', updateNetworkStatus);
@@ -384,63 +391,65 @@
         function setTheme(theme, isInitialLoad = false) {
             const app = document.getElementById("app");
             const body = document.getElementById("appBody");
+            const bannerContainer = document.getElementById("seasonalBannerContainer");
             
             const baseAppClass = "w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto min-h-screen flex flex-col shadow-2xl relative transition-all duration-500";
             
-            const bannerContainer = document.getElementById('themeBannerContainer');
-            if (bannerContainer) bannerContainer.innerHTML = '';
+            const menuShapeClass = theme === 'easter' ? 'rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]' : (theme === 'christmas' ? 'rounded-2xl transform rotate-45' : 'rounded-full');
+            const innerShapeTransform = theme === 'christmas' ? 'transform -rotate-45' : '';
 
-            window.currentThemeShape = 'theme-shape-default';
-            if (theme === 'christmas') window.currentThemeShape = 'theme-shape-christmas';
-            if (theme === 'easter') window.currentThemeShape = 'theme-shape-easter';
+            document.querySelectorAll('.home-menu-icon').forEach(el => {
+                el.className = `relative w-14 h-14 flex items-center justify-center mb-1 overflow-hidden border-2 border-white transition-all duration-500 shadow-md ${menuShapeClass}`;
+            });
+            document.querySelectorAll('.home-menu-inner').forEach(el => {
+                el.className = `text-xl ${innerShapeTransform}`;
+            });
 
             if (theme === 'emerald') {
-                app.className = `${baseAppClass} bg-[#062c1e] text-[#ecfdf5]`;
-                body.className = "bg-[#021c12] text-[#ecfdf5] font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                app.className = `${baseAppClass} bg-emerald-800 text-emerald-50`;
+                body.className = "bg-emerald-950 text-emerald-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                if(bannerContainer) bannerContainer.innerHTML = '';
             } else if (theme === 'purple') {
-                app.className = `${baseAppClass} bg-[#32145a] text-[#fdf4ff]`;
-                body.className = "bg-[#1e0a38] text-[#fdf4ff] font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                app.className = `${baseAppClass} bg-indigo-900 text-indigo-50`;
+                body.className = "bg-slate-950 text-indigo-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                if(bannerContainer) bannerContainer.innerHTML = '';
             } else if (theme === 'sunset') {
-                app.className = `${baseAppClass} bg-[#4a1c0d] text-[#fffbeb]`;
-                body.className = "bg-[#2d0f06] text-[#fffbeb] font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                app.className = `${baseAppClass} bg-rose-950 text-rose-50`;
+                body.className = "bg-neutral-950 text-rose-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                if(bannerContainer) bannerContainer.innerHTML = '';
             } else if (theme === 'christmas') {
-                app.className = `${baseAppClass} bg-red-950 text-red-50 border-4 border-emerald-600/60 shadow-[0_0_25px_rgba(220,38,38,0.4)]`;
-                body.className = "bg-stone-950 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
-                
-                if (bannerContainer) {
+                app.className = `${baseAppClass} bg-red-950 text-red-50`;
+                body.className = "bg-red-900 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                if(bannerContainer) {
                     bannerContainer.innerHTML = `
-                        <div class="bg-emerald-900 text-amber-300 text-[11px] font-bold text-center py-1 px-2 border-b border-amber-500/40 flex items-center justify-center gap-2 shadow-inner">
-                            <span>🎄</span> <span>Selamat Hari Natal & Sukacita Damai Sejahtera!</span> <span>❄️</span>
+                        <div class="bg-gradient-to-r from-red-900 via-rose-800 to-emerald-900 border-b border-red-500/40 p-3 text-center text-xs text-white mt-16 shadow-inner flex items-center justify-center gap-2">
+                            <span>⭐</span> <b>Selamat Menyambut Natal Kristus</b> <span>🎄✨</span>
                         </div>
                     `;
                 }
             } else if (theme === 'easter') {
-                app.className = `${baseAppClass} bg-amber-950/90 text-amber-100 border-4 border-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.4)]`;
-                body.className = "bg-stone-900 text-amber-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
-                
-                if (bannerContainer) {
+                app.className = `${baseAppClass} bg-amber-950 text-amber-100`;
+                body.className = "bg-amber-900 text-amber-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                if(bannerContainer) {
                     bannerContainer.innerHTML = `
-                        <div class="bg-purple-900 text-amber-200 text-[11px] font-bold text-center py-1 px-2 border-b border-purple-500/40 flex items-center justify-center gap-2 shadow-inner">
-                            <span>✝️</span> <span>Selamat Paskah - Kristus Telah Bangkit!</span> <span>🕊️</span>
+                        <div class="bg-gradient-to-r from-amber-900 via-yellow-800 to-amber-950 border-b border-amber-500/40 p-3 text-center text-xs text-white mt-16 shadow-inner flex items-center justify-center gap-2">
+                            <span>🕊️</span> <b>Selamat Hari Kebangkitan (Paskah)</b> <span>✝️✨</span>
                         </div>
                     `;
                 }
             } else if (theme === 'light') {
-                app.className = `${baseAppClass} bg-slate-50 text-slate-900`;
-                body.className = "bg-slate-200 text-slate-900 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                app.className = `${baseAppClass} bg-slate-100 text-slate-900`;
+                body.className = "bg-slate-300 text-slate-900 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                if(bannerContainer) bannerContainer.innerHTML = '';
             } else {
                 app.className = `${baseAppClass} bg-slate-950 text-slate-100`;
                 body.className = "bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+                if(bannerContainer) bannerContainer.innerHTML = '';
             }
-            toggleSidebar(false);
-            
+
             localStorage.setItem('gmit_selected_theme', theme);
-            
+            toggleSidebar(false);
             if (!isInitialLoad) {
-                const headerTitle = document.getElementById("headerTitle");
-                if (headerTitle && headerTitle.innerText.toLowerCase().includes("pniel")) {
-                    switchTab('home', true, true);
-                }
                 showToast("Tema berhasil diterapkan!");
             }
         }
@@ -452,7 +461,7 @@
                 deferredPrompt = null;
                 toggleSidebar(false);
             } else {
-                showToast("Gunakan menu 'Tambahkan ke Beranda' di pengaturan browser Anda.");
+                showToast("Gunakan menu 'Tambahkan ke Beranda' / 'Add to Home Screen' di pengaturan browser Anda.");
                 toggleSidebar(false);
             }
         }
@@ -471,7 +480,7 @@
         function renderAuthPageForAction(callbackOnSuccess, isBack = false) {
             window.pendingAuthAction = callbackOnSuccess;
             const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Autentikasi Jemaat 🔐";
+            document.getElementById("headerTitle").innerText = "Autentikasi Jemaat";
             triggerPageTransition();
             
             main.innerHTML = `
@@ -496,7 +505,7 @@
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Password / 4 Digit No. WhatsApp</label>
                             <input type="password" maxlength="4" id="loginPin" required placeholder="Cth: 7899" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none focus:border-purple-500">
                         </div>
-                        <button type="submit" id="btnLoginSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition duration-300">Masuk</button>
+                        <button type="submit" id="btnLoginSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition duration-500">Masuk</button>
                     </form>
 
                     <form id="formRegister" onsubmit="handleRegisterForAction(event)" class="space-y-4 hidden">
@@ -507,9 +516,8 @@
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Nomor WhatsApp</label>
                             <input type="tel" id="regWa" required placeholder="Contoh: 081234567899" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                            <p class="text-[10px] text-slate-400 mt-1">Password 4 digit akan otomatis dibuat dari nomor WA Anda.</p>
                         </div>
-                        <button type="submit" id="btnRegSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition duration-300 mt-2">Daftar Akun Baru</button>
+                        <button type="submit" id="btnRegSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition duration-500 mt-2">Daftar Akun Baru</button>
                     </form>
                 </div>
             `;
@@ -542,7 +550,6 @@
                                 <hr class="border-slate-800 my-2">
                                 <p>👤 <b>Username Unik:</b> <code class="bg-purple-950 text-purple-300 px-2 py-0.5 rounded font-mono font-bold">${u.username}</code></p>
                                 <p>🔑 <b>Password (PIN):</b> <code class="bg-rose-950 text-rose-300 px-2 py-0.5 rounded font-mono font-bold">${u.password}</code></p>
-                                <p class="text-[10px] text-amber-400 mt-1">⚠️ Catat atau salin informasi akun ini untuk masuk ke aplikasi!</p>
                             </div>
                         `,
                         showCancelButton: true,
@@ -639,98 +646,115 @@
             }
             
             const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "GMIT Jemaat PNIEL Oebobo ⛪";
+            document.getElementById("headerTitle").innerText = "GMIT Jemaat PNIEL Oebobo";
             
             triggerPageTransition();
 
+            const savedTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
+            const menuShapeClass = savedTheme === 'easter' ? 'rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]' : (savedTheme === 'christmas' ? 'rounded-2xl transform rotate-45' : 'rounded-full');
+            const innerShapeTransform = savedTheme === 'christmas' ? 'transform -rotate-45' : '';
+
             if (tab === 'home') {
-                const shapeClass = window.currentThemeShape || 'theme-shape-default';
                 main.innerHTML = `
                     <div class="space-y-6 pt-2">
                         <div class="grid grid-cols-4 gap-4 text-center">
-                            <div onclick="openAboutPage()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-500 ${shapeClass} flex items-center justify-center mb-1 overflow-hidden border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(6,182,212,0.7),_0_0_25px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.9),_0_0_50px_rgba(6,182,212,0.6)]">
-                                    <img src="jpo.ico" alt="Tentang JPO" class="w-full h-full object-cover">
+                            <div onclick="openAboutPage()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+                                <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-500 ${menuShapeClass} flex items-center justify-center mb-1 overflow-hidden border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(6,182,212,0.7)]">
+                                    <img src="jpo.ico" alt="Tentang JPO" class="home-menu-inner w-full h-full object-cover ${innerShapeTransform}">
                                 </div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-cyan-400 group-hover:drop-shadow-[0_0_6px_rgba(6,182,212,0.8)] transition-all duration-300">Tentang</span>
+                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-cyan-400 transition">Tentang</span>
                             </div>
 
-                            <div onclick="openDownloadCenter()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(245,158,11,0.7),_0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_20px_rgba(245,158,11,0.9),_0_0_50px_rgba(245,158,11,0.6)]">📥</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-amber-400 group-hover:drop-shadow-[0_0_6px_rgba(245,158,11,0.8)] transition-all duration-300">Download</span>
+                            <div onclick="openDownloadCenter()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+                                <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(245,158,11,0.7)]">
+                                    <span class="home-menu-inner ${innerShapeTransform}">📥</span>
+                                </div>
+                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-amber-400 transition">Download</span>
                             </div>
 
-                            <div onclick="openLibraryMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(168,85,247,0.7),_0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_20px_rgba(168,85,247,0.9),_0_0_50px_rgba(168,85,247,0.6)]">📖</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-purple-300 group-hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.8)] transition-all duration-300">Alkitab & KJ</span>
+                            <div onclick="openLibraryMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+                                <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(168,85,247,0.7)]">
+                                    <span class="home-menu-inner ${innerShapeTransform}">📖</span>
+                                </div>
+                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-purple-300 transition">Alkitab & KJ</span>
                             </div>
 
-                            <div onclick="openEventsList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(14,165,233,0.7),_0_0_25px_rgba(14,165,233,0.4)] hover:shadow-[0_0_20px_rgba(14,165,233,0.9),_0_0_50px_rgba(14,165,233,0.6)]">📅</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-sky-400 group-hover:drop-shadow-[0_0_6px_rgba(14,165,233,0.8)] transition-all duration-300">Kegiatan</span>
+                            <div onclick="openEventsList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+                                <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(14,165,233,0.7)]">
+                                    <span class="home-menu-inner ${innerShapeTransform}">📅</span>
+                                </div>
+                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-sky-400 transition">Kegiatan</span>
                             </div>
 
-                            <div onclick="openChatRoom()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(236,72,153,0.7),_0_0_25px_rgba(236,72,153,0.4)] hover:shadow-[0_0_20px_rgba(236,72,153,0.9),_0_0_50px_rgba(236,72,153,0.6)]">💬</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-pink-400 group-hover:drop-shadow-[0_0_6px_rgba(236,72,153,0.8)] transition-all duration-300">Komunitas</span>
+                            <div onclick="openChatRoom()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+                                <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(236,72,153,0.7)]">
+                                    <span class="home-menu-inner ${innerShapeTransform}">💬</span>
+                                </div>
+                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-pink-400 transition">Komunitas</span>
                             </div>
 
-                            <div onclick="openBirthdayList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(52,211,153,0.7),_0_0_25px_rgba(52,211,153,0.4)] hover:shadow-[0_0_20px_rgba(52,211,153,0.9),_0_0_50px_rgba(52,211,153,0.6)]">🎂</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-emerald-400 group-hover:drop-shadow-[0_0_6px_rgba(52,211,153,0.8)] transition-all duration-300">Ulang Tahun</span>
+                            <div onclick="openBirthdayList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+                                <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(52,211,153,0.7)]">
+                                    <span class="home-menu-inner ${innerShapeTransform}">🎂</span>
+                                </div>
+                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-emerald-400 transition">Ulang Tahun</span>
                             </div>
 
-                            <div onclick="openPrayerMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(110,231,183,0.7),_0_0_25px_rgba(110,231,183,0.4)] hover:shadow-[0_0_20px_rgba(110,231,183,0.9),_0_0_50px_rgba(110,231,183,0.6)]">🙏</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-green-400 group-hover:drop-shadow-[0_0_6px_rgba(110,231,183,0.8)] transition-all duration-300">Dukungan Doa</span>
+                            <div onclick="openPrayerMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+                                <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(110,231,183,0.7)]">
+                                    <span class="home-menu-inner ${innerShapeTransform}">🙏</span>
+                                </div>
+                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-green-400 transition">Dukungan Doa</span>
                             </div>
 
-                            <div onclick="openDonationList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-150">
-                                <div class="relative w-14 h-14 bg-gradient-to-tr from-blue-400 to-indigo-600 ${shapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(96,165,250,0.7),_0_0_25px_rgba(96,165,250,0.4)] hover:shadow-[0_0_20px_rgba(96,165,250,0.9),_0_0_50px_rgba(96,165,250,0.6)]">🎁</div>
-                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-blue-400 group-hover:drop-shadow-[0_0_6px_rgba(96,165,250,0.8)] transition-all duration-300">Persembahan</span>
+                            <div onclick="openDonationList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
+                                <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-blue-400 to-indigo-600 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(96,165,250,0.7)]">
+                                    <span class="home-menu-inner ${innerShapeTransform}">🎁</span>
+                                </div>
+                                <span class="text-[11px] text-slate-300 font-medium group-hover:text-blue-400 transition">Persembahan</span>
                             </div>
                         </div>
 
                         <div class="pt-2 space-y-2">
                             <h3 class="font-bold text-xs text-purple-400 uppercase tracking-wider">Media & Pustaka Jemaat</h3>
                             <div class="grid grid-cols-3 landscape:sm:grid-cols-6 gap-3">
-                                <div onclick="openCategoriesMenu()" class="bg-slate-900 border border-amber-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-amber-400 transition duration-300 animate-card-hover">
+                                <div onclick="openCategoriesMenu()" class="bg-slate-900 border border-amber-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-amber-400 transition duration-500 animate-card-hover">
                                     <div class="h-16 bg-amber-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📝</div>
                                     <span class="text-xs font-semibold text-slate-200">Sekretariat</span>
                                 </div>
-                                <div onclick="openVideosMenu()" class="bg-slate-900 border border-sky-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-sky-400 transition duration-300 animate-card-hover">
+                                <div onclick="openVideosMenu()" class="bg-slate-900 border border-sky-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-sky-400 transition duration-500 animate-card-hover">
                                     <div class="h-16 bg-sky-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">▶️</div>
                                     <span class="text-xs font-semibold text-slate-200">Youtube</span>
                                 </div>
-                                <div onclick="openGaleryMenu()" class="bg-slate-900 border border-yellow-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-yellow-400 transition duration-300 animate-card-hover">
+                                <div onclick="openGaleryMenu()" class="bg-slate-900 border border-yellow-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-yellow-400 transition duration-500 animate-card-hover">
                                     <div class="h-16 bg-yellow-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">🖼️</div>
                                     <span class="text-[11px] font-semibold text-slate-200">Galeri</span>
                                 </div>
-                                <div onclick="openBibleMenu()" class="bg-slate-900 border border-emerald-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-emerald-400 transition duration-300 animate-card-hover">
+                                <div onclick="openBibleMenu()" class="bg-slate-900 border border-emerald-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-emerald-400 transition duration-500 animate-card-hover">
                                     <div class="h-16 bg-emerald-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">✝️</div>
                                     <span class="text-xs font-semibold text-slate-200">Renungan</span>
                                 </div>
-                                <div id="livestream-card" onclick="openLivestreamsMenu()" class="bg-slate-900 border border-orange-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-orange-400 transition duration-300 animate-card-hover relative">
+                                <div id="livestream-card" onclick="openLivestreamsMenu()" class="bg-slate-900 border border-orange-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-orange-400 transition duration-500 animate-card-hover relative">
                                     <div id="livestream-badge" class="absolute -top-2 -right-2 hidden">
                                         <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
                                     </div>
                                     <div class="h-16 bg-orange-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📺</div>
                                     <span class="text-[11px] font-semibold text-slate-200">Livestreams</span>
                                 </div>
-                                <div onclick="openStatistikMenu()" class="bg-slate-900 border border-pink-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-pink-400 transition duration-300 animate-card-hover">
+                                <div onclick="openStatistikMenu()" class="bg-slate-900 border border-pink-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-pink-400 transition duration-500 animate-card-hover">
                                     <div class="h-16 bg-pink-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📊</div>
                                     <span class="text-xs font-semibold text-slate-200">Statistik</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div onclick="window.location.href='games.html'" class="w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 border border-purple-500/30 p-5 rounded-2xl shadow-xl cursor-pointer transition duration-300 hover:border-purple-400 hover:shadow-purple-950/50 flex justify-between items-center group my-4">
+                        <div onclick="window.location.href='games.html'" class="w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 border border-purple-500/30 p-5 rounded-2xl shadow-xl cursor-pointer transition duration-500 hover:border-purple-400 flex justify-between items-center group my-4">
                             <div class="space-y-1.5 pr-2">
                                 <span class="bg-purple-600/40 text-purple-300 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-purple-400/30 inline-block">✨ Fitur Baru & Hiburan</span>
-                                <h3 class="font-bold text-sm sm:text-base text-white group-hover:text-purple-200 transition duration-300">Tantangan Kuis Alkitab</h3>
-                                <p class="text-xs text-slate-300 leading-relaxed">Seberapa Kristenkah dirimu ?</p>
+                                <h3 class="font-bold text-sm sm:text-base text-white group-hover:text-purple-200 transition duration-500">Tantangan Kuis Alkitab</h3>
+                                <p class="text-xs text-slate-300 leading-relaxed">Seberapa Kristenkah dirimu?</p>
                             </div>
-                            <div class="bg-slate-950/60 p-3.5 rounded-xl border border-purple-500/20 text-3xl group-hover:scale-110 transition duration-300 flex-shrink-0 shadow-inner">
+                            <div class="bg-slate-950/60 p-3.5 rounded-xl border border-purple-500/20 text-3xl group-hover:scale-110 transition duration-500 flex-shrink-0 shadow-inner">
                                 🏆
                             </div>
                         </div>
@@ -871,14 +895,14 @@
                             </div>
 
                             <div class="space-y-2">
-    							<button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition duration-300 flex items-center justify-center gap-1.5">
-        							<span>✏️</span> Lengkapi / Perbarui Data Diri
-    							</button>
-    							<button onclick="logout()" class="w-full bg-rose-950/50 hover:bg-rose-900/40 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition duration-300">
-        							Keluar (Logout)
-    							</button>
-    							${isAdmin ? `<button onclick="redirectToRolePanel()" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition duration-300 font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">🔒 Masuk ke Panel ${adminRole || 'Pengurus'}</button>` : ''}
-							</div>
+                                <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition duration-500 flex items-center justify-center gap-1.5">
+                                    <span>✏️</span> Lengkapi / Perbarui Data Diri
+                                </button>
+                                <button onclick="logout()" class="w-full bg-rose-950/50 hover:bg-rose-900/40 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition duration-500">
+                                    Keluar (Logout)
+                                </button>
+                                ${isAdmin ? `<button onclick="redirectToRolePanel()" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition duration-500 font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">🔒 Masuk ke Panel ${adminRole || 'Pengurus'}</button>` : ''}
+                            </div>
                         </div>
                     `;
                 });
@@ -924,7 +948,7 @@
         function openBibleSearch(isBack = false) {
             if (!isBack) pushNavState('openBibleSearch');
             const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Alkitab Digital Lengkap";
+            document.getElementById("headerTitle").innerText = "Alkitab Digital";
             triggerPageTransition();
             
             main.innerHTML = `
@@ -936,7 +960,7 @@
                             ${BIBLE_BOOKS.map(b => `<option value="${b.code}">${b.name}</option>`).join('')}
                         </select>
                         <input type="number" id="bibleChapter" value="1" min="1" max="150" class="w-16 p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none text-center" placeholder="Pasal">
-                        <button onclick="fetchBibleVerse()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2.5 rounded-xl text-xs font-semibold transition duration-300 whitespace-nowrap">Muat</button>
+                        <button onclick="fetchBibleVerse()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2.5 rounded-xl text-xs font-semibold transition duration-500 whitespace-nowrap">Muat</button>
                     </div>
 
                     <div id="bibleResult" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-xs text-slate-300 leading-relaxed min-h-[250px] shadow-sm">
@@ -1001,7 +1025,7 @@
                                 <h4 class="text-xs font-bold text-white">✉️ Surat Keterangan Jemaat / Pindah</h4>
                                 <p class="text-[10px] text-slate-400">Pengajuan surat aktif, pindah gereja, dll.</p>
                             </div>
-                            <button onclick="checkAuthBeforeAction(() => openSuratForm('Surat Keterangan / Pindah'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Buat Pengajuan</button>
+                            <button onclick="checkAuthBeforeAction(() => openSuratForm('Surat Keterangan / Pindah'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition duration-500">Buat Pengajuan</button>
                         </div>
 
                         <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
@@ -1009,7 +1033,7 @@
                                 <h4 class="text-xs font-bold text-white">⛪ Pengantar Sakramen & Nikah</h4>
                                 <p class="text-[10px] text-slate-400">Pendaftaran Baptis, Sidi, atau Pemberkatan.</p>
                             </div>
-                            <button onclick="checkAuthBeforeAction(() => openSuratForm('Pengantar Sakramen / Nikah'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Buat Pengajuan</button>
+                            <button onclick="checkAuthBeforeAction(() => openSuratForm('Pengantar Sakramen / Nikah'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition duration-500">Buat Pengajuan</button>
                         </div>
 
                         <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
@@ -1017,14 +1041,15 @@
                                 <h4 class="text-xs font-bold text-white">📄 Surat Rekomendasi Umum</h4>
                                 <p class="text-[10px] text-slate-400">Keperluan beasiswa, urusan kampus, dll.</p>
                             </div>
-                            <button onclick="checkAuthBeforeAction(() => openSuratForm('Surat Rekomendasi Umum'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Buat Pengajuan</button>
+                            <button onclick="checkAuthBeforeAction(() => openSuratForm('Surat Rekomendasi Umum'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition duration-500">Buat Pengajuan</button>
                         </div>
                     </div>
                 </div>
             `;
         }
 
-        function openSuratForm(jenisSurat) {
+        function openSuratForm(jenisSurat, isBack = false) {
+            if (!isBack) pushNavState('openSuratForm', [jenisSurat]);
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Form " + jenisSurat;
             triggerPageTransition();
@@ -1032,12 +1057,8 @@
             let user = {};
             try {
                 const savedUser = localStorage.getItem("user_gereja") || localStorage.getItem("currentUser");
-                if (savedUser) {
-                    user = JSON.parse(savedUser);
-                }
-            } catch (e) {
-                console.error("Gagal membaca data user:", e);
-            }
+                if (savedUser) user = JSON.parse(savedUser);
+            } catch (e) {}
 
             main.innerHTML = `
                 <div class="space-y-4">
@@ -1045,7 +1066,6 @@
                     
                     <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3">
                         <h3 class="text-sm font-bold text-white border-b border-slate-800 pb-2">Formulir ${jenisSurat}</h3>
-                        
                         <input type="hidden" id="jenisSuratVal" value="${jenisSurat}">
                         
                         <div>
@@ -1063,7 +1083,7 @@
                             <textarea id="inputKeterangan" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" placeholder="Tuliskan detail atau tujuan pengajuan surat ini..."></textarea>
                         </div>
 
-                        <button onclick="submitAndRedirectWA()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg transition duration-300">
+                        <button onclick="submitAndRedirectWA()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg transition duration-500">
                             Simpan & Kirim Konfirmasi ke WA Sekretariat
                         </button>
                     </div>
@@ -1084,7 +1104,7 @@
             } catch (e) {}
 
             if (!wa || !keterangan) {
-                alert("Mohon lengkapi nomor WhatsApp dan keterangan keperluan Anda.");
+                showToast("Mohon lengkapi nomor WhatsApp dan keterangan keperluan Anda.", "error");
                 return;
             }
 
@@ -1130,7 +1150,7 @@
                     
                     <div class="bg-sky-950/40 border border-sky-900/40 p-3 rounded-xl mb-4 flex items-center justify-between gap-3">
                         <p class="text-xs text-sky-200">Selengkapnya kunjungi channel JPO</p>
-                        <a href="https://www.youtube.com/@GMITPNIELOebobo" target="_blank" class="shrink-0 hover:scale-105 transition-transform duration-300">
+                        <a href="https://www.youtube.com/@GMITPNIELOebobo" target="_blank" class="shrink-0 hover:scale-105 transition-transform duration-200">
                             <img src="button.ico" alt="Buka YouTube" class="h-14 w-auto object-contain animate-bounce">
                         </a>
                     </div>
@@ -1155,28 +1175,6 @@
                             <div class="relative w-[250px] aspect-[9/16] rounded-lg overflow-hidden bg-black">
                                 <iframe class="w-full h-full" src="https://www.youtube.com/embed/zFOv9Gy7Q7w" title="YouTube Shorts" frameborder="0" allowfullscreen></iframe>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function openLivestreamsMenu(isBack = false) {
-            if (!isBack) pushNavState('openLivestreamsMenu');
-            const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Siaran Langsung Ibadah";
-            triggerPageTransition();
-            main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <div class="bg-orange-950/40 border border-orange-900/40 p-3 rounded-xl flex justify-between items-center shadow-sm">
-                        <p class="text-xs text-orange-200">Video siaran langsung Ibadah Minggu akan mulai secara otomatis dan real-time pada setiap Ibadah Utama ke-2 Pukul 08:00 WITA.</p>
-                        <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
-                    </div>
-                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl space-y-2 shadow-lg">
-                        <h4 class="text-xs font-bold text-white">Live Streaming Ibadah Minggu Pniel Oebobo</h4>
-                        <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
-                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/live_stream?channel=UCZ3-3qhAyR8mDb6VTeJOXtA" title="Live Stream" frameborder="0" allowfullscreen></iframe>
                         </div>
                     </div>
                 </div>
@@ -1233,14 +1231,14 @@
 
                 <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-[99999] hidden flex items-center justify-center p-4" onclick="closeLightbox(event)">
                     <div class="relative max-w-lg landscape:max-w-3xl w-full flex flex-col items-center justify-center" onclick="event.stopPropagation()">
-                        <button onclick="closeLightbox()" class="absolute -top-6 right-0 bg-rose-600 hover:bg-rose-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-2xl border-2 border-white z-50 transition active:scale-95">
+                        <button onclick="closeLightbox()" class="absolute -top-6 right-0 bg-rose-600 hover:bg-rose-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-2xl border-2 border-white z-50 transition duration-500 active:scale-95">
                             ✕
                         </button>
-                        <button onclick="slidePhoto(-1)" class="absolute -left-3 sm:-left-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition active:scale-95">
+                        <button onclick="slidePhoto(-1)" class="absolute -left-3 sm:-left-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition duration-500 active:scale-95">
                             ❮
                         </button>
                         <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-[75vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-slate-800 bg-black cursor-pointer">
-                        <button onclick="slidePhoto(1)" class="absolute -right-3 sm:-right-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition active:scale-95">
+                        <button onclick="slidePhoto(1)" class="absolute -right-3 sm:-right-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition duration-500 active:scale-95">
                             ❯
                         </button>
                         <p id="lightboxCaption" class="text-xs text-slate-300 mt-3 text-center font-medium px-2 truncate w-full"></p>
@@ -1281,7 +1279,7 @@
                     </div>
                     <p class="text-[9px] text-slate-800 font-serif text-center truncate mt-1 px-0.5">${p.judul}</p>
                     <div class="mt-1 pt-1 border-t border-slate-100 flex justify-center">
-                        <button onclick="handleReactionAndRefresh('galeri', '${p.id}', '❤️')" class="text-[10px] bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 px-2 py-1 rounded-lg transition duration-300 flex items-center justify-center border border-slate-200 hover:border-rose-200 w-full">
+                        <button onclick="handleReactionAndRefresh('galeri', '${p.id}', '❤️')" class="text-[10px] bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 px-2 py-1 rounded-lg transition duration-500 flex items-center justify-center border border-slate-200 hover:border-rose-200 w-full">
                             ❤️ ${r["❤️"] ? `<span class="text-[10px] font-bold text-rose-500 ml-1">${r["❤️"]}</span>` : '<span class="ml-1">Suka</span>'}
                         </button>
                     </div>
@@ -1307,6 +1305,7 @@
             if (!isBack) pushNavState('openLightbox', [index]);
             currentPhotoIndex = index;
             const photo = currentActiveGallery[currentPhotoIndex];
+            
             let safeLargeUrl = photo.url ? `https://wsrv.nl/?url=${encodeURIComponent(photo.url)}&w=1200` : '';
             
             document.getElementById("lightboxImg").src = safeLargeUrl;
@@ -1418,10 +1417,32 @@
             }
         }
 
+        function openLivestreamsMenu(isBack = false) {
+            if (!isBack) pushNavState('openLivestreamsMenu');
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Siaran Langsung Ibadah";
+            triggerPageTransition();
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    <div class="bg-orange-950/40 border border-orange-900/40 p-3 rounded-xl flex justify-between items-center shadow-sm">
+                        <p class="text-xs text-orange-200">Video siaran langsung Ibadah Minggu akan mulai secara otomatis dan real-time pada setiap Ibadah Utama ke-2 Pukul 08:00 WITA.</p>
+                        <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl space-y-2 shadow-lg">
+                        <h4 class="text-xs font-bold text-white">Live Streaming Ibadah Minggu Pniel Oebobo</h4>
+                        <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
+                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/live_stream?channel=UCZ3-3qhAyR8mDb6VTeJOXtA" title="Live Stream" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function openStatistikMenu(isBack = false) {
             if (!isBack) pushNavState('openStatistikMenu');
             const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Statistik & Demografi Jemaat";
+            document.getElementById("headerTitle").innerText = "Statistik & Demografi";
             triggerPageTransition();
             main.innerHTML = `
                 <div class="space-y-4">
@@ -1435,7 +1456,6 @@
                     </div>
                 </div>
             `;
-
             loadStatisticsData();
         }
 
@@ -1446,7 +1466,6 @@
             try {
                 const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`);
                 const result = await res.json();
-                
                 let rawData = result.users || result.data || [];
                 
                 if (rawData.length === 0) {
@@ -1505,17 +1524,12 @@
                 });
 
                 let lingkunganMap = {};
-                for (let i = 1; i <= 16; i++) {
-                    lingkunganMap["Lingkungan " + i] = 0;
-                }
+                for (let i = 1; i <= 16; i++) { lingkunganMap["Lingkungan " + i] = 0; }
                 lingkunganMap["Belum Ditentukan"] = 0;
 
                 dataList.forEach(item => {
                     let lingStr = String(item.lingkungan || "").trim();
-                    if (/^\d+$/.test(lingStr)) {
-                        lingStr = "Lingkungan " + lingStr;
-                    }
-                    
+                    if (/^\d+$/.test(lingStr)) lingStr = "Lingkungan " + lingStr;
                     let lingKey = "Belum Ditentukan";
                     if (lingStr && lingStr !== "-") {
                         let match = lingStr.match(/(?:lingkungan\s*)?(\d+)/i);
@@ -1525,12 +1539,8 @@
                             lingKey = lingStr;
                         }
                     }
-                    
-                    if (lingkunganMap[lingKey] !== undefined) {
-                        lingkunganMap[lingKey]++;
-                    } else {
-                        lingkunganMap[lingKey] = 1;
-                    }
+                    if (lingkunganMap[lingKey] !== undefined) lingkunganMap[lingKey]++;
+                    else lingkunganMap[lingKey] = 1;
                 });
 
                 let minatMap = {};
@@ -1541,9 +1551,7 @@
                     } else {
                         minatRaw.split(",").forEach(m => {
                             let cleanM = m.trim();
-                            if (cleanM) {
-                                minatMap[cleanM] = (minatMap[cleanM] || 0) + 1;
-                            }
+                            if (cleanM) minatMap[cleanM] = (minatMap[cleanM] || 0) + 1;
                         });
                     }
                 });
@@ -1567,8 +1575,7 @@
                     "bg-red-500", "bg-orange-500", "bg-amber-500", "bg-yellow-500",
                     "bg-lime-500", "bg-green-500", "bg-emerald-500", "bg-teal-500",
                     "bg-cyan-500", "bg-sky-500", "bg-blue-500", "bg-indigo-500",
-                    "bg-violet-500", "bg-purple-500", "bg-fuchsia-500", "bg-pink-500",
-                    "bg-slate-400"
+                    "bg-violet-500", "bg-purple-500", "bg-fuchsia-500", "bg-pink-500", "bg-slate-400"
                 ];
 
                 let entriesLingkungan = Object.entries(lingkunganMap);
@@ -1589,8 +1596,7 @@
                     }
                 });
 
-                multiBarHtml += `</div>`;
-                multiBarHtml += `<div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-2 text-[10px]">`;
+                multiBarHtml += `</div><div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-2 text-[10px]">`;
                 entriesLingkungan.forEach(([ling, count], index) => {
                     let percent = totalJemaat > 0 ? Math.round((count / totalJemaat) * 100) : 0;
                     let colorClass = warnaLingkungan[index % warnaLingkungan.length];
@@ -1616,21 +1622,17 @@
                             <p class="text-[10px] text-slate-400 mt-1">${verifiedCount} Terverifikasi, ${pendingCount} Pending</p>
                         </div>
                     </div>
-
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                         <h3 class="font-bold text-xs text-slate-900 border-b pb-2">👥 Demografi Jenis Kelamin</h3>
                         <div class="space-y-3">
                             ${renderBar("Laki-laki", genderMap["Laki-laki"], totalJemaat, "bg-blue-500")}
                             ${renderBar("Perempuan", genderMap["Perempuan"], totalJemaat, "bg-pink-500")}
-                            ${genderMap["Belum Diisi"] > 0 ? renderBar("Belum Diisi", genderMap["Belum Diisi"], totalJemaat, "bg-slate-400") : ''}
                         </div>
                     </div>
-
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                         <h3 class="font-bold text-xs text-slate-900 border-b pb-2">📍 Sebaran Per Lingkungan (XVI Lingkungan)</h3>
                         ${multiBarHtml}
                     </div>
-
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                         <h3 class="font-bold text-xs text-slate-900 border-b pb-2">✨ Minat Pelayanan Jemaat</h3>
                         <div class="space-y-3">
@@ -1639,8 +1641,7 @@
                     </div>
                 `;
             } catch (err) {
-                console.error(err);
-                container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Terjadi kesalahan koneksi server: ${err.message}</div>`;
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Terjadi kesalahan koneksi server.</div>`;
             }
         }
 
@@ -1661,7 +1662,7 @@
                         <div class="grid grid-cols-2 gap-2 pb-2 border-b border-slate-800">
                             <div>
                                 <span class="text-slate-400 text-[10px] block">No. Telepon</span>
-                                <span class="font-medium text-slate-200">(0380) 8084020 / 834130</span>
+                                <span class="font-medium text-slate-200">(0380) 8084020</span>
                             </div>
                             <div>
                                 <span class="text-slate-400 text-[10px] block">Email Resmi</span>
@@ -1671,7 +1672,7 @@
                     </div>
 
                     <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs shadow-sm">
-                        <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Pendeta</h4>
+                        <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Pendeta Ketua Majelis</h4>
                         <div class="flex items-center gap-3">
                             <div class="w-14 h-14 bg-purple-950 border border-purple-800 rounded-full flex items-center justify-center overflow-hidden shadow-inner">
                                 <img src="pdttyas.png" alt="Pendeta" class="w-full h-full object-cover">
@@ -1681,51 +1682,6 @@
                                 <p class="text-[11px] text-slate-400">Ketua Majelis Jemaat Pniel Oebobo</p>
                             </div>
                         </div>
-                    </div>
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs shadow-sm">
-                        <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Pendeta</h4>
-                        <div class="flex items-center gap-3">
-                            <div class="w-14 h-14 bg-purple-950 border border-purple-800 rounded-full flex items-center justify-center overflow-hidden shadow-inner">
-                                <img src="pdtmaria.png" alt="Pendeta" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <p class="font-bold text-white text-sm">Pdt. Maria A. Litelnoni-Johannes</p>
-                                <p class="text-[11px] text-slate-400">Pendeta Jemaat Pniel Oebobo</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs shadow-sm">
-                        <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Pendeta</h4>
-                        <div class="flex items-center gap-3">
-                            <div class="w-14 h-14 bg-purple-950 border border-purple-800 rounded-full flex items-center justify-center overflow-hidden shadow-inner">
-                                <img src="pdtselvy.png" alt="Pendeta" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <p class="font-bold text-white text-sm">Pdt. Selviany A. Pollo-Milla, S.Si-Teol</p>
-                                <p class="text-[11px] text-slate-400">Pendeta Jemaat Pniel Oebobo</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs shadow-sm">
-                        <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Pendeta</h4>
-                        <div class="flex items-center gap-3">
-                            <div class="w-14 h-14 bg-purple-950 border border-purple-800 rounded-full flex items-center justify-center overflow-hidden shadow-inner">
-                                <img src="pdtwempi.png" alt="Pendeta" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <p class="font-bold text-white text-sm">Pdt. Wempi M. Rini, S.Th</p>
-                                <p class="text-[11px] text-slate-400">Pendeta Jemaat Pniel Oebobo</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 text-xs shadow-sm">
-                        <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Jadwal & Jam Kebaktian Minggu</h4>
-                        <ul class="space-y-1.5 text-slate-300 text-[11px] pt-1">
-                            <li class="flex justify-between"><span>Ibadah I (Pagi):</span> <strong class="text-white">06:00 WITA</strong></li>
-                            <li class="flex justify-between"><span>Ibadah II (Utama):</span> <strong class="text-white">08:00 WITA</strong></li>
-                            <li class="flex justify-between"><span>Ibadah Sore / Pemuda:</span> <strong class="text-white">17:00 WITA</strong></li>
-                        </ul>
                     </div>
                 </div>
             `;
@@ -1741,7 +1697,7 @@
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                     <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
-                        <p class="text-xs text-purple-200">Lihat warta mingguan, lembar liturgi, dan dokumen penting gereja secara langsung.</p>
+                        <p class="text-xs text-purple-200">Lihat warta mingguan, lembar liturgi, dan dokumen penting gereja.</p>
                     </div>
                     <div class="text-center py-8 text-xs text-slate-400 animate-pulse">Memuat data dokumen terbaru...</div>
                 </div>
@@ -1755,91 +1711,59 @@
                 const result = await res.json();
                 const list = (result.status === "success") ? result.data : [];
                 
-                const wartaDok = list.find(d => 
-                    (d.judul && d.judul.toLowerCase().includes("warta")) || 
-                    (d.kategori && d.kategori.toLowerCase().includes("warta"))
-                );
-                
-                const liturgiDok = list.find(d => 
-                    (d.judul && d.judul.toLowerCase().includes("liturgi")) || 
-                    (d.kategori && d.kategori.toLowerCase().includes("liturgi"))
-                );
-                
+                const wartaDok = list.find(d => (d.judul && d.judul.toLowerCase().includes("warta")) || (d.kategori && d.kategori.toLowerCase().includes("warta")));
+                const liturgiDok = list.find(d => (d.judul && d.judul.toLowerCase().includes("liturgi")) || (d.kategori && d.kategori.toLowerCase().includes("liturgi")));
                 const dokumenLainnya = list.filter(d => d !== wartaDok && d !== liturgiDok);
 
                 let htmlContent = `
                     <div class="space-y-4">
                         <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                         <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
-                            <p class="text-xs text-purple-200">Lihat warta mingguan, lembar liturgi, dan dokumen penting gereja secara langsung.</p>
+                            <p class="text-xs text-purple-200">Lihat warta mingguan, lembar liturgi, dan dokumen penting gereja.</p>
                         </div>
                         <div class="space-y-3">
                 `;
 
                 if (wartaDok) {
                     htmlContent += `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50 transition duration-300">
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover">
                             <div class="space-y-1">
-                                <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded font-semibold">Warta Jemaat Terbaru</span>
+                                <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded font-semibold">Warta Jemaat</span>
                                 <h4 class="text-xs font-bold text-white">${wartaDok.judul || 'Warta Jemaat'}</h4>
-                                <p class="text-[10px] text-slate-400">${wartaDok.tanggal || ''}</p>
                             </div>
-                            <div class="flex gap-2">
-                                <a href="${wartaDok.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-300 flex items-center gap-1">
-                                    <span>👁️</span> Lihat / Unduh
-                                </a>
-                            </div>
+                            <a href="${wartaDok.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-500">Lihat / Unduh</a>
                         </div>
                     `;
                 }
 
                 if (liturgiDok) {
                     htmlContent += `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-purple-500/50 transition duration-300">
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover">
                             <div class="space-y-1">
-                                <span class="bg-emerald-900/60 text-emerald-300 text-[10px] px-2 py-0.5 rounded font-semibold">Lembar Liturgi Terbaru</span>
+                                <span class="bg-emerald-900/60 text-emerald-300 text-[10px] px-2 py-0.5 rounded font-semibold">Lembar Liturgi</span>
                                 <h4 class="text-xs font-bold text-white">${liturgiDok.judul || 'Lembar Liturgi'}</h4>
-                                <p class="text-[10px] text-slate-400">${liturgiDok.tanggal || ''}</p>
                             </div>
-                            <div class="flex gap-2">
-                                <a href="${liturgiDok.url}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-300 flex items-center gap-1">
-                                    <span>👁️</span> Lihat / Unduh
-                                </a>
-                            </div>
+                            <a href="${liturgiDok.url}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-500">Lihat / Unduh</a>
                         </div>
                     `;
                 }
 
-                if (dokumenLainnya.length > 0) {
-                    htmlContent += `<h5 class="font-bold text-xs text-purple-400 pt-2 uppercase tracking-wider">Arsip Dokumen Lainnya</h5>`;
-                    dokumenLainnya.forEach(doc => {
-                        htmlContent += `
-                            <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover">
-                                <div>
-                                    <span class="text-[10px] text-slate-400 block">${doc.kategori || 'Dokumen'}</span>
-                                    <h5 class="text-xs font-bold text-white">${doc.judul || 'Tanpa Judul'}</h5>
-                                </div>
-                                <a href="${doc.url}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-purple-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition duration-300">
-                                    Unduh
-                                </a>
+                dokumenLainnya.forEach(doc => {
+                    htmlContent += `
+                        <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover">
+                            <div>
+                                <span class="text-[10px] text-slate-400 block">${doc.kategori || 'Dokumen'}</span>
+                                <h5 class="text-xs font-bold text-white">${doc.judul || 'Tanpa Judul'}</h5>
                             </div>
-                        `;
-                    });
-                }
+                            <a href="${doc.url}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-purple-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition duration-500">Unduh</a>
+                        </div>
+                    `;
+                });
 
                 htmlContent += `</div></div>`;
                 main.innerHTML = htmlContent;
-
             } catch (err) {
-                main.innerHTML = `
-                    <div class="space-y-4">
-                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                        <div class="text-center py-10 space-y-2 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-                            <p class="text-xs text-rose-400">Gagal memuat daftar dokumen dari server.</p>
-                            <button onclick="openDownloadCenter()" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-semibold">Coba Lagi</button>
-                        </div>
-                    </div>
-                `;
+                main.innerHTML = `<p class="text-xs text-rose-400 text-center py-10">Gagal memuat dokumen.</p>`;
             }
         }
 
@@ -1851,38 +1775,24 @@
             reader.onload = function(e) {
                 const img = new Image();
                 img.src = e.target.result;
-
                 img.onload = function() {
-                    const MAX_WIDTH = 200;
-                    const MAX_HEIGHT = 200;
-                    let width = img.width;
-                    let height = img.height;
-
+                    const MAX_WIDTH = 200, MAX_HEIGHT = 200;
+                    let width = img.width, height = img.height;
                     if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                     } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
                     }
-
                     const canvas = document.createElement('canvas');
-                    canvas.width = width;
-                    canvas.height = height;
+                    canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-
                     const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
                     const imgPreview = document.getElementById('previewFoto');
                     imgPreview.src = compressedBase64;
                     imgPreview.classList.remove('hidden');
                     imgPreview.nextElementSibling.classList.add('hidden');
-
                     document.getElementById('fotoBase64').value = compressedBase64;
                 };
             };
@@ -1898,61 +1808,36 @@
 
             main.innerHTML = `
                 <div class="space-y-4">
-                    ${isEditing ? '<button onclick="switchTab(\'profil\')" class="text-xs text-purple-400 font-semibold mb-2">← Batal / Kembali ke Profil</button>' : ''}
-                    <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
-                        <p class="text-xs text-purple-200">Silakan lengkapi informasi tambahan di bawah ini untuk pendataan sensus gereja.</p>
-                    </div>
+                    ${isEditing ? '<button onclick="switchTab(\'profil\')" class="text-xs text-purple-400 font-semibold mb-2">← Batal</button>' : ''}
                     <form onsubmit="handleSaveExtendedProfile(event)" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-2">Foto Profil (Opsional)</label>
+                            <label class="block text-xs font-semibold text-slate-400 mb-2">Foto Profil</label>
                             <div class="flex items-center gap-3">
                                 <div class="w-14 h-14 bg-slate-800 rounded-full overflow-hidden flex items-center justify-center border border-slate-700 shadow-inner">
-                                    <img id="previewFoto" src="${user.foto_profil || ''}" class="w-full h-full object-cover ${user.foto_profil ? '' : 'hidden'}" alt="Foto">
+                                    <img id="previewFoto" src="${user.foto_profil || ''}" class="w-full h-full object-cover ${user.foto_profil ? '' : 'hidden'}">
                                     <span class="text-2xl text-slate-500 ${user.foto_profil ? 'hidden' : ''}">👤</span>
                                 </div>
-                                <input type="file" id="extFoto" accept="image/*" onchange="previewImage(event)" class="text-[10px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-purple-900/50 file:text-purple-300 hover:file:bg-purple-900 transition duration-300 outline-none cursor-pointer">
+                                <input type="file" id="extFoto" accept="image/*" onchange="previewImage(event)" class="text-[10px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-purple-900/50 file:text-purple-300">
                             </div>
                             <input type="hidden" id="fotoBase64" value="${user.foto_profil || ''}">
                         </div>
-
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Jenis Kelamin</label>
                             <select id="extGender" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                <option value="-" ${user.jenis_kelamin === '-' ? 'selected' : ''}>Pilih Jenis Kelamin</option>
+                                <option value="-" ${user.jenis_kelamin === '-' ? 'selected' : ''}>Pilih</option>
                                 <option value="Laki-laki" ${user.jenis_kelamin === 'Laki-laki' ? 'selected' : ''}>Laki-laki</option>
                                 <option value="Perempuan" ${user.jenis_kelamin === 'Perempuan' ? 'selected' : ''}>Perempuan</option>
                             </select>
                         </div>
-
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Alamat Domisili Lengkap</label>
-                            <textarea id="extAlamat" rows="2" required placeholder="Nama Jalan, No. Rumah..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">${user.alamat || ''}</textarea>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Alamat Domisili</label>
+                            <textarea id="extAlamat" rows="2" required class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">${user.alamat || ''}</textarea>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Pekerjaan</label>
-                            <input type="text" id="extPekerjaan" required value="${user.pekerjaan || ''}" placeholder="Cth: Pegawai Swasta" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                            <input type="text" id="extPekerjaan" required value="${user.pekerjaan || ''}" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Golongan Darah</label>
-                            <select id="extGoldar" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                <option value="-" ${user.golongan_darah === '-' ? 'selected' : ''}>Pilih Golongan Darah</option>
-                                <option value="A" ${user.golongan_darah === 'A' ? 'selected' : ''}>A</option>
-                                <option value="B" ${user.golongan_darah === 'B' ? 'selected' : ''}>B</option>
-                                <option value="AB" ${user.golongan_darah === 'AB' ? 'selected' : ''}>AB</option>
-                                <option value="O" ${user.golongan_darah === 'O' ? 'selected' : ''}>O</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Minat Pelayanan / Komisi</label>
-                            <select id="extKomisi" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                <option value="Umum" ${user.minat_pelayanan === 'Umum' ? 'selected' : ''}>Jemaat Umum</option>
-                                <option value="PW" ${user.minat_pelayanan === 'PW' ? 'selected' : ''}>Perempuan / Wanita (PW)</option>
-                                <option value="PKB" ${user.minat_pelayanan === 'PKB' ? 'selected' : ''}>Kaum Bapak (PKB)</option>
-                                <option value="Pemuda/Remaja" ${user.minat_pelayanan === 'Pemuda/Remaja' ? 'selected' : ''}>Pemuda & Remaja</option>
-                                <option value="Sekolah Minggu" ${user.minat_pelayanan === 'Sekolah Minggu' ? 'selected' : ''}>Sekolah Minggu</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition duration-300 mt-2">Simpan Data Lanjutan</button>
+                        <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition duration-500">Simpan Data</button>
                     </form>
                 </div>
             `;
@@ -1961,9 +1846,8 @@
         async function handleSaveExtendedProfile(e) {
             e.preventDefault();
             const btn = e.target.querySelector("button[type='submit']");
-            const originalText = btn.innerText;
             btn.disabled = true;
-            btn.innerText = "Menyimpan Data...";
+            btn.innerText = "Menyimpan...";
 
             const updatedData = {
                 action: "updateExtendedProfile",
@@ -1971,143 +1855,29 @@
                 jenis_kelamin: document.getElementById("extGender").value,
                 alamat: document.getElementById("extAlamat").value,
                 pekerjaan: document.getElementById("extPekerjaan").value,
-                golongan_darah: document.getElementById("extGoldar").value,
-                minat_pelayanan: document.getElementById("extKomisi").value,
+                golongan_darah: "-",
+                minat_pelayanan: "Umum",
                 foto_profil: document.getElementById("fotoBase64").value
             };
 
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(updatedData)
-                });
+                const response = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(updatedData) });
                 const result = await response.json();
-
                 if (result.status === "success") {
                     window.currentUser.jenis_kelamin = updatedData.jenis_kelamin;
                     window.currentUser.alamat = updatedData.alamat;
                     window.currentUser.pekerjaan = updatedData.pekerjaan;
-                    window.currentUser.golongan_darah = updatedData.golongan_darah;
-                    window.currentUser.minat_pelayanan = updatedData.minat_pelayanan;
                     window.currentUser.foto_profil = updatedData.foto_profil;
-                    
                     localStorage.setItem("user_gereja", JSON.stringify(window.currentUser));
-
                     showToast("Data diri berhasil disimpan!");
                     setTimeout(() => switchTab('profil'), 800);
                 } else {
                     showToast(result.message, "error");
-                    btn.disabled = false;
-                    btn.innerText = originalText;
+                    btn.disabled = false; btn.innerText = "Simpan Data";
                 }
             } catch (err) {
                 showToast("Kesalahan koneksi.", "error");
-                btn.disabled = false;
-                btn.innerText = originalText;
-            }
-        }
-
-        function openPrayerMenu(isBack = false) {
-            if (!isBack) pushNavState('openPrayerMenu');
-            const savedUser = localStorage.getItem("user_gereja");
-            
-            if (!savedUser) {
-                const main = document.querySelector("main");
-                document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
-                triggerPageTransition();
-                main.innerHTML = `
-                    <div class="space-y-4">
-                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
-                            <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
-                            <button onclick="renderAuthPageForAction(openPrayerMenu)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition duration-300">Login</button>
-                            <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            window.currentUser = JSON.parse(savedUser);
-            const user = window.currentUser;
-            const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
-            triggerPageTransition();
-            
-            main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    
-                    <div onclick="openFormPrayer()" class="bg-gradient-to-r from-emerald-900/60 to-slate-900 border border-emerald-500/40 p-4 rounded-2xl flex items-center justify-between shadow-md animate-card-hover hover:border-emerald-400 cursor-pointer">
-                        <div>
-                            <h4 class="text-xs font-bold text-white flex items-center gap-2">✍️ Kirim / Berbagi Pokok Doa</h4>
-                            <p class="text-[10px] text-slate-300 mt-0.5">Bagikan doa syukur, Doa pergumulan atau Doa Khusus Anda ke sesama atau pribadi.</p>
-                        </div>
-                        <span class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-300 ml-2 shrink-0">Kirim ➕</span>
-                    </div>
-
-                    <div class="pt-1">
-                        <h3 class="font-bold text-xs text-purple-400 uppercase tracking-wider mb-2">Dinding Doa Publik Jemaat</h3>
-                    </div>
-
-                    <div id="publicPrayerContainer" class="space-y-3">
-                        <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat dinding doa...</p>
-                    </div>
-                </div>
-            `;
-            
-            loadPublicPrayerListContent(user);
-        }
-
-        async function loadPublicPrayerListContent(user) {
-            try {
-                const response = await fetch(`${SCRIPT_URL}?action=getPrayers`);
-                const result = await response.json();
-                const container = document.getElementById("publicPrayerContainer");
-                if (!container) return;
-                
-                const prayers = result.prayers || [];
-                if (prayers.length === 0) {
-                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 bg-slate-900 border border-slate-800 rounded-2xl">Belum ada pokok doa publik.</p>`;
-                    return;
-                }
-
-                const userRole = String(user.status_pelayanan || user.adminRole || "").toLowerCase();
-                const isPendetaOrAdmin = user.isAdmin || userRole.includes('pendeta') || userRole.includes('super admin');
-
-                container.innerHTML = prayers.map(p => {
-                    const r = p.reactions || {};
-                    return `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-sm animate-card-hover">
-                            <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
-                            <p class="text-xs text-slate-200 italic mt-1">"${p.isi_doa}"</p>
-                            <p class="text-[10px] text-slate-400">Oleh: ${p.nama_pengirim}</p>
-                            
-                            ${p.balasan ? `
-                                <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl mt-2">
-                                    <p class="text-[10px] font-bold text-amber-400 mb-1">Balasan Pastoral:</p>
-                                    <p class="text-[11px] text-slate-300 italic whitespace-pre-line">${p.balasan}</p>
-                                </div>
-                            ` : ''}
-
-                            <div class="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-2">
-                                <div class="flex gap-1.5 flex-wrap">
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
-                                    <button onclick="handleReactionAndRefresh('prayer', '${p.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
-                                </div>
-                                
-                                ${isPendetaOrAdmin ? `<button onclick="handleReplyPrayer('${p.id}', '${user.nama_lengkap || user.nama || 'Pendeta'}')" class="text-[10px] font-semibold text-purple-400 hover:text-purple-300">Balas 💬</button>` : ''}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (err) {
-                const container = document.getElementById("publicPrayerContainer");
-                if (container) {
-                    container.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">Gagal memuat dinding doa.</p>`;
-                }
+                btn.disabled = false; btn.innerText = "Simpan Data";
             }
         }
 
@@ -2123,13 +1893,6 @@
                         <button onclick="openPrayerMenu()" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Dukungan Doa</button>
                         <form onsubmit="handleSendPrayer(event)" class="space-y-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Identitas Pengirim</label>
-                                <select id="prayerSenderOption" class="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white outline-none">
-                                    <option value="name">Tampilkan Nama Saya (${user.nama_lengkap})</option>
-                                    <option value="anonymous">Kirim sebagai Anonim</option>
-                                </select>
-                            </div>
-                            <div>
                                 <label class="block text-xs font-semibold text-slate-400 mb-1">Kategori Doa</label>
                                 <select id="prayerCategory" class="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white outline-none">
                                     <option value="Doa Syukur">Doa Syukur</option>
@@ -2139,16 +1902,9 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-400 mb-1">Pokok Doa</label>
-                                <textarea id="prayerContent" rows="4" required placeholder="Tuliskan pokok doa secara rinci..." class="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white outline-none"></textarea>
+                                <textarea id="prayerContent" rows="4" required placeholder="Tuliskan pokok doa..." class="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white outline-none"></textarea>
                             </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Privasi Doa</label>
-                                <select id="prayerPrivacy" class="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white outline-none">
-                                    <option value="Publik">Publik (Tampil di Dinding Doa)</option>
-                                    <option value="Rahasia">Rahasia (Hanya Pendeta/Admin)</option>
-                                </select>
-                            </div>
-                            <button type="submit" id="btnPrayerSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition duration-300 mt-2">Kirim Doa Sekarang</button>
+                            <button type="submit" id="btnPrayerSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition duration-500">Kirim Doa</button>
                         </form>
                     </div>
                 `;
@@ -2158,195 +1914,31 @@
         async function handleSendPrayer(e) {
             e.preventDefault();
             const btn = document.getElementById("btnPrayerSubmit");
-            btn.disabled = true;
-            btn.innerText = "Mengirim...";
-
+            btn.disabled = true; btn.innerText = "Mengirim...";
             const data = {
                 action: "addPrayer",
                 user_id: window.currentUser.id,
-                nama_pengirim: document.getElementById("prayerSenderOption").value === 'name' ? window.currentUser.nama_lengkap : "Hamba Tuhan / Anonim",
+                nama_pengirim: window.currentUser.nama_lengkap,
                 kategori_doa: document.getElementById("prayerCategory").value,
                 isi_doa: document.getElementById("prayerContent").value,
-                status_privasi: document.getElementById("prayerPrivacy").value
+                status_privasi: "Publik"
             };
-
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(data)
-                });
+                const response = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) });
                 const result = await response.json();
                 showToast(result.message);
                 if (result.status === "success") openPrayerMenu();
             } catch (err) {
                 showToast("Gagal mengirim doa.", "error");
-                btn.disabled = false;
-                btn.innerText = "Kirim Doa Sekarang";
+                btn.disabled = false; btn.innerText = "Kirim Doa";
             }
         }
 
-        async function handleReplyPrayer(prayerId, adminNama) {
-            const replyText = prompt("Masukkan balasan pastoral Anda untuk doa ini:");
-            if (replyText && replyText.trim() !== "") {
-                showToast("Mengirim balasan pastoral...", "success");
-                try {
-                    const response = await fetch(SCRIPT_URL, {
-                        method: "POST",
-                        body: JSON.stringify({
-                            action: "replyPrayer",
-                            prayer_id: prayerId,
-                            reply_text: replyText.trim(),
-                            admin_nama: adminNama
-                        })
-                    });
-                    const result = await response.json();
-                    showToast(result.message);
-                    if (result.status === "success") {
-                        openPrayerMenu(true);
-                    }
-                } catch (err) {
-                    showToast("Gagal mengirim balasan.", "error");
-                }
-            }
-        }
-
-        async function openDonationList(isBack = false) {
-            if (!isBack) pushNavState('openDonationList');
-            const savedUser = localStorage.getItem("user_gereja");
-            if (!savedUser) {
-                const main = document.querySelector("main");
-                document.getElementById("headerTitle").innerText = "Persembahan / Donasi";
-                triggerPageTransition();
-                main.innerHTML = `
-                    <div class="space-y-4">
-                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
-                            <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
-                            <button onclick="renderAuthPageForAction(openDonationList)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition duration-300">Login</button>
-                            <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            window.currentUser = JSON.parse(savedUser);
-            const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Persembahan / Donasi";
-            triggerPageTransition();
-            main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <button onclick="openFormDonation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md transition duration-300">➕ Konfirmasi / Catat Donasi Baru</button>
-                    <div id="donationContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat data donasi...</p></div>
-                </div>
-            `;
-            
-            try {
-                const response = await fetch(`${SCRIPT_URL}?action=getDonations`);
-                const result = await response.json();
-                const container = document.getElementById("donationContainer");
-                const list = result.donations || [];
-                
-                if (list.length === 0) {
-                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada riwayat donasi.</p>`;
-                    return;
-                }
-                
-                container.innerHTML = list.map(d => {
-                    const r = d.reactions || {};
-                    return `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm animate-card-hover">
-                            <div class="flex items-center justify-between mb-2">
-                                <div>
-                                    <h4 class="text-xs font-bold text-white">${d.nama_donatur}</h4>
-                                    <p class="text-[11px] text-slate-400">${d.keterangan}</p>
-                                </div>
-                                <span class="text-xs font-bold text-emerald-400">Rp ${Number(d.nominal).toLocaleString('id-ID')}</span>
-                            </div>
-                            <div class="flex gap-1.5 border-t border-slate-800/60 pt-2 mt-1">
-                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '👍')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">👍 ${r["👍"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["👍"]}</span>` : ''}</button>
-                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '🙏🏻')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">🙏🏻 ${r["🙏🏻"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🙏🏻"]}</span>` : ''}</button>
-                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '❤️')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">❤️ ${r["❤️"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["❤️"]}</span>` : ''}</button>
-                                <button onclick="handleReactionAndRefresh('donasi', '${d.id}', '🤞')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition duration-300 flex items-center">🤞 ${r["🤞"] ? `<span class="text-[9px] text-amber-400 ml-1 font-bold">${r["🤞"]}</span>` : ''}</button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (err) {
-                document.getElementById("donationContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat donasi.</p>`;
-            }
-        }
-
-        function openFormDonation(isBack = false) {
-            if (!isBack) pushNavState('openFormDonation');
-            const main = document.querySelector("main");
-            const user = window.currentUser || {};
-            document.getElementById("headerTitle").innerText = "Form Kirim Donasi";
-            triggerPageTransition();
-            main.innerHTML = `
-                <div class="space-y-4">
-                    <button onclick="openDonationList()" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Daftar Donasi</button>
-                    <form onsubmit="handleSendDonation(event)" class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Opsi Tampilkan Nama</label>
-                            <select id="donNameOption" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                                <option value="full">Tampilkan Nama Lengkap (${user.nama_lengkap})</option>
-                                <option value="initial">Inisial Saja (Cth: B***)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Peruntukan</label>
-                            <input type="text" id="donKet" required placeholder="Cth: Pembangunan Gedung" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nominal (Rp)</label>
-                            <input type="number" id="donNominal" required placeholder="Cth: 100000" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
-                        </div>
-                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-sm shadow-md transition duration-300">Kirim Konfirmasi</button>
-                    </form>
-                </div>
-            `;
-        }
-
-        async function handleSendDonation(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector("button[type='submit']");
-            btn.disabled = true;
-            btn.innerText = "Memproses...";
-
-            const user = window.currentUser;
-            const nameOption = document.getElementById("donNameOption").value;
-            let finalName = nameOption === 'initial' ? user.nama_lengkap.charAt(0) + '***' : user.nama_lengkap;
-
-            const data = {
-                action: "addDonation",
-                user_id: user.id,
-                nama_donatur: finalName,
-                jenis_donasi: "Transfer",
-                keterangan: document.getElementById("donKet").value,
-                nominal: document.getElementById("donNominal").value,
-                tanggal: new Date()
-            };
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-                showToast(result.message);
-                if (result.status === "success") {
-                    openDonationList();
-                } else {
-                    btn.disabled = false;
-                    btn.innerText = "Kirim Konfirmasi";
-                }
-            } catch (err) {
-                showToast("Gagal mengirim donasi.", "error");
-                btn.disabled = false;
-                btn.innerText = "Kirim Konfirmasi";
-            }
+        function logout() {
+            localStorage.removeItem("user_gereja");
+            showToast("Anda telah keluar.");
+            updateAuthNavText(); 
+            setTimeout(() => switchTab('home'), 500);
         }
 
         async function openLibraryMenu(isBack = false) {
@@ -2358,12 +1950,12 @@
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                     <div class="grid grid-cols-2 gap-3">
-                        <div onclick="openBibleSearch()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-300 shadow-sm animate-card-hover">
+                        <div onclick="openBibleSearch()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-500 shadow-sm animate-card-hover">
                             <div class="text-3xl mb-2">✝️</div>
                             <h4 class="font-bold text-xs text-white">Pustaka Alkitab</h4>
                             <p class="text-[10px] text-slate-400 mt-1">Lengkap 66 Kitab</p>
                         </div>
-                        <div onclick="openHymnsList()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-300 shadow-sm animate-card-hover">
+                        <div onclick="openHymnsList()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-500 shadow-sm animate-card-hover">
                             <div class="text-3xl mb-2">📖</div>
                             <h4 class="font-bold text-xs text-white">Kidung Jemaat</h4>
                             <p class="text-[10px] text-slate-400 mt-1">Cari lirik lagu pujian</p>
@@ -2406,10 +1998,9 @@
                 return;
             }
             container.innerHTML = hymns.map((h, idx) => `
-                <div onclick="openHymnModal(${idx})" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-3.5 rounded-xl cursor-pointer transition duration-300 shadow-sm">
+                <div onclick="openHymnModal(${idx})" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-3.5 rounded-xl cursor-pointer transition duration-500 shadow-sm">
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-xs font-bold text-purple-400">KJ No. ${h.nomor}</span>
-                        <span class="text-[10px] text-slate-400 bg-slate-950 px-2 py-0.5 rounded">Ketuk baca ↗</span>
                     </div>
                     <h5 class="text-xs font-semibold text-white mb-1">${h.judul}</h5>
                 </div>
@@ -2426,33 +2017,26 @@
             if (!isBack) pushNavState('openHymnModal', [index]);
             const h = window.allHymns[index];
             if (!h) return;
-            
             document.getElementById("modalHymnNo").innerText = `KJ No. ${h.nomor}`;
             document.getElementById("modalHymnTitle").innerText = h.judul;
-            
-            const contentEl = document.getElementById("modalHymnContent");
-            contentEl.innerText = h.lirik;
-            contentEl.className = "text-lg text-slate-200 leading-relaxed whitespace-pre-line";
-            
+            document.getElementById("modalHymnContent").innerText = h.lirik;
             document.getElementById("hymnModal").classList.remove("hidden");
         }
 
         function closeHymnModal(fromPopState = false) {
             document.getElementById("hymnModal").classList.add("hidden");
-            if (fromPopState !== true) {
-                history.back(); 
-            }
+            if (fromPopState !== true) history.back(); 
         }
 
         async function openEventsList(isBack = false) {
             if (!isBack) pushNavState('openEventsList');
             const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Agenda & Kegiatan Gereja";
+            document.getElementById("headerTitle").innerText = "Agenda & Kegiatan";
             triggerPageTransition();
             main.innerHTML = `
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                    <div id="eventsContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat jadwal kegiatan...</p></div>
+                    <div id="eventsContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat agenda kegiatan...</p></div>
                 </div>
             `;
             try {
@@ -2470,7 +2054,6 @@
                         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
                             <h4 class="text-xs font-bold text-white">${ev.nama_kegiatan}</h4>
                             <p class="text-[11px] text-slate-400">📅 ${formattedDate} ${ev.waktu ? '&bull; ⏰ ' + ev.waktu : ''} &bull; 📍 ${ev.lokasi || 'Gereja'}</p>
-                            ${ev.keterangan ? `<p class="text-[12px] text-slate-300 italic pt-1 border-t border-slate-800/60">${ev.keterangan}</p>` : ''}
                         </div>
                     `;
                 }).join('');
@@ -2482,54 +2065,27 @@
         function openChatRoom(isBack = false) {
             if (!isBack) pushNavState('openChatRoom');
             const main = document.querySelector("main");
-            document.getElementById("headerTitle").innerText = "Ruang Persekutuan & Chat";
+            document.getElementById("headerTitle").innerText = "Ruang Persekutuan";
             triggerPageTransition();
             main.innerHTML = `
                 <div class="space-y-4">
                     <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
                     <div class="bg-slate-900 border border-slate-800 p-2 rounded-2xl flex flex-col items-center justify-center min-h-[500px]">
-                        <span style="display: none;" class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/880184913737266/c/Main?embed" data-style="width:100%; height:500px; max-height:90vh;" data-version="1.55">Chat</span>
-                        <p class="powered-by-minnit text-[10px] text-slate-500 mt-2 text-center">
-                            <a href="https://minnit.chat" target="_blank" class="hover:underline">Powered by Minnit Chat</a>
-                        </p>
+                        <span style="display: none;" class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/880184913737266/c/Main?embed" data-style="width:100%; height:500px;" data-version="1.55">Chat</span>
                     </div>
                 </div>
             `;
-
             if (!document.getElementById("minnitScript")) {
                 const script = document.createElement("script");
                 script.id = "minnitScript";
                 script.src = "https://minnit.chat/js/embed.js?c=1772345192";
                 script.defer = true;
                 document.body.appendChild(script);
-            } else {
-                if (typeof window.minnit_reload === "function") {
-                    window.minnit_reload();
-                }
             }
         }
 
         async function openBirthdayList(isBack = false) {
             if (!isBack) pushNavState('openBirthdayList');
-            const savedUser = localStorage.getItem("user_gereja");
-            if (!savedUser) {
-                const main = document.querySelector("main");
-                document.getElementById("headerTitle").innerText = "Ulang Tahun Hari Ini";
-                triggerPageTransition();
-                main.innerHTML = `
-                    <div class="space-y-4">
-                        <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
-                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-sm">
-                            <p class="text-xs text-slate-300 mb-3">🔒 Halaman privasi khusus jemaat.</p>
-                            <button onclick="renderAuthPageForAction(openBirthdayList)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition duration-300">Login</button>
-                            <span class="text-[11px] text-slate-400 ml-1">untuk melihat konten.</span>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            window.currentUser = JSON.parse(savedUser);
             const main = document.querySelector("main");
             document.getElementById("headerTitle").innerText = "Ulang Tahun Hari Ini";
             triggerPageTransition();
@@ -2539,351 +2095,207 @@
                     <div id="birthdayContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat data ulang tahun...</p></div>
                 </div>
             `;
-            
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getBirthdayUsers`);
                 const result = await response.json();
                 const container = document.getElementById("birthdayContainer");
                 const list = result.birthdays || [];
-                
                 if (list.length === 0) {
                     container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Tidak ada jemaat yang berulang tahun hari ini.</p>`;
                     return;
                 }
-                
-                container.innerHTML = list.map(b => {
-                    const avatarPhoto = b.foto_profil 
-                        ? `<img src="${b.foto_profil}" class="w-10 h-10 object-cover rounded-full border border-slate-700 shadow-sm" alt="Foto Profil">` 
-                        : `<div class="w-10 h-10 bg-purple-900/60 text-purple-300 font-bold flex items-center justify-center rounded-full border border-purple-800 text-sm">${b.nama_lengkap.charAt(0)}</div>`;
-
-                    return `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover hover:border-slate-700">
-                            <div class="flex items-center gap-3">
-                                ${avatarPhoto}
-                                <div>
-                                    <h4 class="text-xs font-bold text-white">${b.nama_lengkap}</h4>
-                                    <p class="text-[11px] text-slate-400">Lingkungan ${b.lingkungan} &bull; Rayon ${b.rayon}</p>
-                                </div>
-                            </div>
-                            <a href="https://api.whatsapp.com/send?phone=${b.no_whatsapp}&text=Syalom%20${encodeURIComponent(b.nama_lengkap)},%20Selamat%20Ulang%20Tahun!" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-300">💬 Ucapan</a>
+                container.innerHTML = list.map(b => `
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                        <div>
+                            <h4 class="text-xs font-bold text-white">${b.nama_lengkap}</h4>
+                            <p class="text-[11px] text-slate-400">Lingkungan ${b.lingkungan} &bull; Rayon ${b.rayon}</p>
                         </div>
-                    `;
-                }).join('');
+                        <a href="https://api.whatsapp.com/send?phone=${b.no_whatsapp}&text=Syalom%20${encodeURIComponent(b.nama_lengkap)},%20Selamat%20Ulang%20Tahun!" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-500">💬 Ucapan</a>
+                    </div>
+                `).join('');
             } catch (err) {
                 document.getElementById("birthdayContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data ulang tahun.</p>`;
             }
         }
 
-        function logout() {
-            localStorage.removeItem("user_gereja");
-            showToast("Anda telah keluar.");
-            updateAuthNavText(); 
-            setTimeout(() => switchTab('home'), 500);
-        }
-
-        function toggleSeniorMode() {
-            const body = document.body;
-            const isSenior = body.classList.toggle('senior-mode');
-            
-            if (isSenior) {
-                localStorage.setItem('gmit_senior_mode', 'true');
-                showToast("Mode Lansia Diaktifkan (Huruf & Tampilan Diperbesar)");
-                document.getElementById('seniorModeBtn').innerText = "🌙 Mode Normal";
-                document.getElementById('seniorModeBtn').className = "text-xs bg-purple-600 text-white px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition duration-300 shadow-md";
-            } else {
-                localStorage.setItem('gmit_senior_mode', 'false');
-                showToast("Kembali ke Mode Normal");
-                document.getElementById('seniorModeBtn').innerText = "👓 Mode Lansia";
-                document.getElementById('seniorModeBtn').className = "text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition duration-300";
-            }
-        }
-
-        async function handleReactionAndRefresh(tipe, idTarget, emoji) {
-            const user = window.currentUser || { id: "Anonim" };
-            const eventBtn = event.currentTarget;
-            if (eventBtn) {
-                let badgeSpan = eventBtn.querySelector('span');
-                if (badgeSpan) {
-                    let currentVal = parseInt(badgeSpan.innerText) || 0;
-                    if(isNaN(currentVal)) currentVal = 0; 
-                    
-                    if(tipe === 'galeri' && emoji === '❤️') {
-                        badgeSpan.className = "text-[10px] font-bold text-rose-500 ml-1";
-                    } else {
-                        badgeSpan.className = "text-[9px] text-amber-400 ml-1 font-bold";
-                    }
-                    badgeSpan.innerText = currentVal + 1;
-                }
-            }
-
-            if (tipe === 'galeri' && window.allGalleryData) {
-                const photo = window.allGalleryData.find(p => p.id == idTarget);
-                if (photo) {
-                    if (!photo.reactions) photo.reactions = {};
-                    photo.reactions[emoji] = (photo.reactions[emoji] || 0) + 1;
-                }
-            }
-
-            showToast(`Memberikan reaksi ${emoji}`);
-            
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: "addReaction",
-                        tipe: tipe,
-                        target_id: idTarget,
-                        user_id: user.id,
-                        emoji: emoji
-                    })
-                });
-            } catch (err) {
-                console.log("Gagal mencatat reaksi", err);
-                showToast("Gagal mencatat reaksi ke server", "error");
-            }
-        }
-
-        function redirectToRolePanel() {
-            const sessionData = sessionStorage.getItem("user_gereja") || localStorage.getItem("user_gereja");
-            if (!sessionData) {
-                alert("Sesi tidak ditemukan. Silakan login terlebih dahulu.");
-                return;
-            }
-
-            let userData = {};
-            try {
-                userData = JSON.parse(sessionData);
-            } catch (e) {
-                alert("Data sesi rusak. Silakan login ulang.");
-                return;
-            }
-
-            const role = (userData.role || userData.status_pelayanan || "").toLowerCase().trim();
-            if (role.includes("super") || role.includes("admin")) {
-                window.location.href = "admin.html";
-            } else if (role.includes("sekretariat") || role.includes("pendeta")) {
-                window.location.href = "sekretariat.html";
-            } else if (role.includes("sensus")) {
-                window.location.href = "sensus.html";
-            } else {
-                alert("Akses ditolak. Role Anda tercatat sebagai: " + (userData.role || "Jemaat"));
-            }
-        }
-
-        function playNotificationSound() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
-
-                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 0.4);
-            } catch (e) {
-                console.log("Audio dibatasi oleh browser:", e);
-            }
-        }
-
-        async function checkUnreadNotifications() {
+        function openPrayerMenu(isBack = false) {
+            if (!isBack) pushNavState('openPrayerMenu');
             const savedUser = localStorage.getItem("user_gereja");
-            if (!savedUser) return;
-            
-            try {
-                const user = JSON.parse(savedUser);
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "getUserNotifications", user_id: user.id })
-                });
-                const result = await response.json();
-
-                if (result.status === "success" && result.notifications && result.notifications.length > 0) {
-                    const notifs = result.notifications;
-                    const latestNotif = notifs[notifs.length - 1];
-                    const latestNotifId = String(latestNotif.id || latestNotif.timestamp);
-                    const lastSeenNotifId = localStorage.getItem("last_seen_notif_id");
-                    const badge = document.getElementById("unreadNotifBadge");
-
-                    if (latestNotifId !== lastSeenNotifId) {
-                        if (badge) badge.classList.remove("hidden");
-                        playNotificationSound();
-                    } else {
-                        if (badge) badge.classList.add("hidden");
-                    }
-                }
-            } catch (err) {
-                console.log("Gagal mengecek notifikasi baru", err);
+            if (!savedUser) {
+                renderAuthPageForAction(openPrayerMenu);
+                return;
             }
-        }
-
-        function checkInstallOnboarding() {
-            const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-            const tourDone = localStorage.getItem('gmit_install_prompted');
-            if (!isInstalled && !tourDone) {
-                setTimeout(showInstallGuideModal, 2000);
-            }
-        }
-
-        function initChurchSpinTimer() {
-            setInterval(() => {
-                const icon = document.getElementById('headerChurchIcon');
-                if (icon) {
-                    icon.classList.add('animate-church-spin');
-                    setTimeout(() => {
-                        icon.classList.remove('animate-church-spin');
-                    }, 3000);
-                }
-            }, 10000);
-        }
-
-        function showInstallGuideModal() {
-            const modalHTML = `
-                <div id="installGuideOverlay" class="fixed inset-0 bg-black/85 z-[9999] flex items-center justify-center p-4 backdrop-blur-md animate-fade-in">
-                    <div class="bg-slate-900 border-2 border-purple-500 rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-[0_0_40px_rgba(147,51,234,0.4)] relative">
-                        <div class="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-2xl mx-auto flex items-center justify-center text-3xl shadow-lg border-2 border-purple-400">
-                            ⛪
-                        </div>
+            window.currentUser = JSON.parse(savedUser);
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Dukungan Doa Jemaat";
+            triggerPageTransition();
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    <div onclick="openFormPrayer()" class="bg-gradient-to-r from-emerald-900/60 to-slate-900 border border-emerald-500/40 p-4 rounded-2xl flex items-center justify-between shadow-md cursor-pointer">
                         <div>
-                            <h3 class="font-bold text-base text-white">Biar Lebih Gampang & Cepat!</h3>
-                            <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-                                Syalom! Agar tidak perlu repot mengetik link web berulang kali, pasang ikon <b>JPO Digital</b> langsung ke Beranda HP Anda.
-                            </p>
+                            <h4 class="text-xs font-bold text-white">✍️ Kirim Pokok Doa</h4>
+                            <p class="text-[10px] text-slate-300 mt-0.5">Bagikan doa syukur atau pergumulan Anda.</p>
                         </div>
-
-                        <div class="bg-slate-950 p-3.5 rounded-2xl text-left space-y-2 border border-slate-800 text-[11px] text-slate-300">
-                            <p class="font-bold text-purple-400">💡 Keuntungannya:</p>
-                            <p>⚡ Sekali ketuk langsung buka aplikasi</p>
-                            <p>🔔 Notifikasi warta & doa berbunyi otomatis</p>
-                            <p>📶 Bisa diakses dengan lebih stabil</p>
-                        </div>
-
-                        <div class="space-y-2 pt-2">
-                            <button onclick="executeInstallAction()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 rounded-2xl text-xs transition duration-300 shadow-lg shadow-purple-900/50 flex items-center justify-center gap-2">
-                                <span>📲</span> Pasang Sekarang
-                            </button>
-                            <button onclick="dismissInstallGuide()" class="w-full bg-transparent hover:bg-slate-800 text-slate-400 py-2.5 rounded-xl text-[11px] transition duration-300 flex items-center justify-center gap-1.5">
-                                <span>🔙</span> Ingatkan Saya Nanti
-                            </button>
-                        </div>
+                        <span class="bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-semibold">Kirim ➕</span>
+                    </div>
+                    <div id="publicPrayerContainer" class="space-y-3">
+                        <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat dinding doa...</p>
                     </div>
                 </div>
             `;
-            const div = document.createElement('div');
-            div.innerHTML = modalHTML;
-            document.body.appendChild(div);
+            loadPublicPrayerListContent(window.currentUser);
         }
 
-        async function executeInstallAction() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    localStorage.setItem('gmit_install_prompted', 'true');
-                    showToast("Terima kasih telah memasang aplikasi!");
+        async function loadPublicPrayerListContent(user) {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getPrayers`);
+                const result = await response.json();
+                const container = document.getElementById("publicPrayerContainer");
+                if (!container) return;
+                const prayers = result.prayers || [];
+                if (prayers.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada pokok doa publik.</p>`;
+                    return;
                 }
-                deferredPrompt = null;
-            } else {
-                Swal.fire({
-                    title: 'Cara Pasang Manual',
-                    html: `
-                        <p class="text-xs text-slate-300 text-left leading-relaxed">
-                            Ketuk ikon titik tiga (<b>⋮</b>) atau menu di pojok kanan atas browser HP Anda, lalu pilih <br><b>"Tambahkan ke Layar Utama"</b> atau <b>"Install App"</b>.
-                        </p>
-                    `,
-                    icon: 'info',
-                    confirmButtonColor: '#9333ea',
-                    confirmButtonText: 'Mengerti'
-                });
+                container.innerHTML = prayers.map(p => `
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-sm">
+                        <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">${p.kategori_doa}</span>
+                        <p class="text-xs text-slate-200 italic mt-1">"${p.isi_doa}"</p>
+                        <p class="text-[10px] text-slate-400">Oleh: ${p.nama_pengirim}</p>
+                    </div>
+                `).join('');
+            } catch (err) {
+                const container = document.getElementById("publicPrayerContainer");
+                if (container) container.innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat dinding doa.</p>`;
             }
-            dismissInstallGuide();
         }
 
-        function dismissInstallGuide() {
-            const overlay = document.getElementById('installGuideOverlay');
-            if (overlay) overlay.parentElement.remove();
-            localStorage.setItem('gmit_install_prompted', 'true');
+        async function openDonationList(isBack = false) {
+            if (!isBack) pushNavState('openDonationList');
+            const savedUser = localStorage.getItem("user_gereja");
+            if (!savedUser) { renderAuthPageForAction(openDonationList); return; }
+            window.currentUser = JSON.parse(savedUser);
+            const main = document.querySelector("main");
+            document.getElementById("headerTitle").innerText = "Persembahan / Donasi";
+            triggerPageTransition();
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="switchTab('home')" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Beranda</button>
+                    <button onclick="openFormDonation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md transition duration-500">➕ Konfirmasi Donasi Baru</button>
+                    <div id="donationContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat data donasi...</p></div>
+                </div>
+            `;
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getDonations`);
+                const result = await response.json();
+                const container = document.getElementById("donationContainer");
+                const list = result.donations || [];
+                if (list.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada riwayat donasi.</p>`;
+                    return;
+                }
+                container.innerHTML = list.map(d => `
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">${d.nama_donatur}</h4>
+                                <p class="text-[11px] text-slate-400">${d.keterangan}</p>
+                            </div>
+                            <span class="text-xs font-bold text-emerald-400">Rp ${Number(d.nominal).toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById("donationContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat donasi.</p>`;
+            }
+        }
+
+        function openFormDonation(isBack = false) {
+            if (!isBack) pushNavState('openFormDonation');
+            const main = document.querySelector("main");
+            const user = window.currentUser || {};
+            document.getElementById("headerTitle").innerText = "Form Kirim Donasi";
+            triggerPageTransition();
+            main.innerHTML = `
+                <div class="space-y-4">
+                    <button onclick="openDonationList()" class="text-xs text-purple-400 font-semibold mb-2">← Kembali ke Daftar Donasi</button>
+                    <form onsubmit="handleSendDonation(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Peruntukan</label>
+                            <input type="text" id="donKet" required placeholder="Cth: Pembangunan Gedung" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nominal (Rp)</label>
+                            <input type="number" id="donNominal" required placeholder="Cth: 100000" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
+                        </div>
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-sm shadow-md transition duration-500">Kirim Konfirmasi</button>
+                    </form>
+                </div>
+            `;
+        }
+
+        async function handleSendDonation(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector("button[type='submit']");
+            btn.disabled = true; btn.innerText = "Memproses...";
+            const user = window.currentUser;
+            const data = {
+                action: "addDonation",
+                user_id: user.id,
+                nama_donatur: user.nama_lengkap,
+                jenis_donasi: "Transfer",
+                keterangan: document.getElementById("donKet").value,
+                nominal: document.getElementById("donNominal").value,
+                tanggal: new Date()
+            };
+            try {
+                const response = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) });
+                const result = await response.json();
+                showToast(result.message);
+                if (result.status === "success") openDonationList();
+                else { btn.disabled = false; btn.innerText = "Kirim Konfirmasi"; }
+            } catch (err) {
+                showToast("Gagal mengirim donasi.", "error");
+                btn.disabled = false; btn.innerText = "Kirim Konfirmasi";
+            }
+        }
+        
+        function toggleSeniorMode() {
+            const body = document.body;
+            const isSenior = body.classList.toggle('senior-mode');
+            if (isSenior) {
+                localStorage.setItem('gmit_senior_mode', 'true');
+                showToast("Mode Lansia Diaktifkan");
+            } else {
+                localStorage.setItem('gmit_senior_mode', 'false');
+                showToast("Mode Normal Diaktifkan");
+            }
         }
 
         function updateAuthNavText() {
             const navText = document.getElementById("accountNavText");
             if (!navText) return;
-            const savedUser = localStorage.getItem("user_gereja");
-            if (savedUser) {
-                navText.innerText = "Akun";
-            } else {
-                navText.innerText = "Login";
-            }
+            navText.innerText = localStorage.getItem("user_gereja") ? "Akun" : "Login";
         }
-        
-        async function checkLiveStatusForMenu() {
-            const channelId = "UCZ3-3qhAyR8mDb6VTeJOXtA";
-            try {
-                const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.youtube.com%2Ffeeds%2Fvideos.xml%3Fchannel_id%3D${channelId}`;
-                const response = await fetch(rssUrl);
-                const data = await response.json();
-                
-                if (data.status === 'ok' && data.items.length > 0) {
-                    const latestVideo = data.items[0];
-                    let videoId = "";
-                    if (latestVideo.link.includes('v=')) {
-                        videoId = latestVideo.link.split('v=')[1].split('&')[0];
-                    }
-                    if (videoId) {
-                        let pubDate = new Date(latestVideo.pubDate);
-                        let now = new Date();
-                        let hoursDifference = (now - pubDate) / (1000 * 60 * 60);
-                        if (hoursDifference <= 4) {
-                            const card = document.getElementById('livestream-card');
-                            const badge = document.getElementById('livestream-badge');
-                            if (card && badge) {
-                                card.classList.remove('border-orange-200/40', 'hover:border-orange-400');
-                                card.classList.add('border-rose-600', 'shadow-lg', 'shadow-rose-600/30', 'hover:border-rose-500');
-                                badge.classList.remove('hidden');
-                            }
-                        }
-                    }
-                }
-            } catch (error) {
-                console.log("Gagal mengecek status live YouTube:", error);
-            }
+
+        function redirectToRolePanel() {
+            const sessionData = sessionStorage.getItem("user_gereja") || localStorage.getItem("user_gereja");
+            if (!sessionData) { alert("Sesi tidak ditemukan."); return; }
+            let userData = JSON.parse(sessionData);
+            const role = (userData.role || userData.status_pelayanan || "").toLowerCase().trim();
+            if (role.includes("super") || role.includes("admin")) window.location.href = "admin.html";
+            else if (role.includes("sekretariat") || role.includes("pendeta")) window.location.href = "sekretariat.html";
+            else window.location.href = "sensus.html";
         }
 
         document.addEventListener("DOMContentLoaded", () => {
             updateNetworkStatus();
-            
-            const savedTheme = localStorage.getItem('gmit_selected_theme');
-            if (savedTheme) {
-                setTheme(savedTheme, true);
-            }
-            
+            const savedTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
+            setTheme(savedTheme, true);
             switchTab('home', false, true); 
-
             checkPushNotification();
             updateAuthNavText();
-            checkLiveStatusForMenu();
-            checkInstallOnboarding();
-            initChurchSpinTimer();
-            
-            const savedSeniorMode = localStorage.getItem('gmit_senior_mode');
-            if (savedSeniorMode === 'true') {
-                document.body.classList.add('senior-mode');
-                const btn = document.getElementById('seniorModeBtn');
-                if(btn) {
-                    btn.innerText = "🌙 Mode Normal";
-                    btn.className = "text-xs bg-purple-600 text-white px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition duration-300 shadow-md";
-                }
-            }
-
-            checkUnreadNotifications();
-            setInterval(checkUnreadNotifications, 120000); 
         });
     </script>
 </body>
