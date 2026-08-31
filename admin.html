@@ -43,10 +43,12 @@
             return "SUPER_ADMIN";
         }
 
+        // Fungsi Proksi URL Gambar untuk menghindari pemblokiran provider lokal
         function getProxiedImageUrl(rawUrl, width = 600) {
             if (!rawUrl) return "";
-            // Ubah domain img.ibb.co menjadi img.ibb.co.com jika diperlukan atau gunakan wsrv.nl proxy
+            // Ubah domain i.ibb.co menjadi i.ibb.co.com agar tidak terblokir
             let fixedUrl = rawUrl.replace("://i.ibb.co/", "://i.ibb.co.com/");
+            // Menggunakan wsrv.nl proksi gambar untuk caching dan optimasi
             return `https://wsrv.nl/?url=${encodeURIComponent(fixedUrl)}&w=${width}&fit=cover`;
         }
 
@@ -179,7 +181,7 @@
                         <div class="flex justify-between items-center">
                             <div>
                                 <h3 class="font-bold text-sm text-slate-100">📋 Daftar Galeri Foto Tersimpan</h3>
-                                <p class="text-xs text-slate-400">Lihat, pratinjau (popup), atau hapus foto galeri.</p>
+                                <p class="text-xs text-slate-400">Lihat, pratinjau (popup), edit, atau hapus foto galeri.</p>
                             </div>
                             <button onclick="loadUploadGaleriForm()" class="text-xs text-purple-400 font-bold hover:underline">🔄 Muat Ulang</button>
                         </div>
@@ -188,12 +190,18 @@
                         <div id="galleryAdminGrid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 hidden max-h-[350px] overflow-y-auto pr-1"></div>
                     </div>
 
-                    <!-- BAGIAN 2: FORM UNGGAH FOTO BARU -->
-                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full">
-                        <h3 class="font-bold text-sm text-slate-100 mb-1">🖼️ Unggah Foto Baru ke Galeri Jemaat</h3>
-                        <p class="text-xs text-slate-400 mb-4">Foto akan diunggah otomatis ke imgBB, lalu dicatat ke sheet Galeri.</p>
+                    <!-- BAGIAN 2: FORM UNGGAH / EDIT FOTO BARU -->
+                    <div id="formUploadGaleriCard" class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full scroll-mt-6">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-sm text-slate-100" id="formGalleryHeaderTitle">🖼️ Unggah Foto Baru ke Galeri Jemaat</h3>
+                            <button type="button" id="btnCancelEditGaleri" onclick="resetGaleriForm()" class="hidden text-xs bg-rose-950/60 text-rose-300 border border-rose-900 px-2.5 py-1 rounded-lg transition">Batal Edit</button>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4" id="formGalleryHeaderSubtitle">Foto akan diunggah otomatis ke imgBB, lalu dicatat ke sheet Galeri.</p>
                         
                         <form id="formUploadGaleri" onsubmit="handleUploadGaleri(event)" class="space-y-4 w-full">
+                            <input type="hidden" id="editGalleryId" value="">
+                            <input type="hidden" id="existingImageUrl" value="">
+
                             <div>
                                 <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Foto</label>
                                 <input type="text" id="galeriJudul" required placeholder="Cth: Ibadah Perayaan Natal Rayon 2" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
@@ -229,7 +237,7 @@
                                 <input type="date" id="galeriTanggal" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
                             </div>
 
-                            <div>
+                            <div id="fileInputContainer">
                                 <label class="block text-xs font-semibold text-slate-300 mb-1">Pilih Berkas Gambar</label>
                                 <input type="file" id="galeriFile" accept="image/*" required class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer">
                             </div>
@@ -251,7 +259,10 @@
                         </div>
                         <div class="flex justify-between items-center w-full text-[11px] text-slate-400 px-1">
                             <span id="modalAdminPhotoMeta"></span>
-                            <button id="modalAdminDeleteBtn" onclick="" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg font-bold transition shadow-md">🗑️ Hapus Foto Ini</button>
+                            <div class="flex gap-2">
+                                <button id="modalAdminEditBtn" onclick="" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg font-bold transition shadow-md">✏️ Edit</button>
+                                <button id="modalAdminDeleteBtn" onclick="" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg font-bold transition shadow-md">🗑️ Hapus</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -286,7 +297,7 @@
                             </div>
                             <p class="text-[10px] text-slate-300 font-medium truncate mt-1.5 text-center px-1">${p.judul}</p>
                             <div class="mt-2 pt-1.5 border-t border-slate-800 flex justify-center gap-1">
-                                <button onclick="openAdminGalleryModal(${index})" class="bg-slate-800 hover:bg-slate-700 text-purple-300 px-2 py-1 rounded text-[10px] transition">Lihat</button>
+                                <button onclick="prepareEditGalleryPhoto(${index})" class="bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-900 px-2 py-1 rounded text-[10px] transition">Edit</button>
                                 <button onclick="deleteGalleryPhoto('${p.id}', '${encodeURIComponent(p.judul)}')" class="bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-900 px-2 py-1 rounded text-[10px] transition">Hapus</button>
                             </div>
                         </div>
@@ -304,6 +315,7 @@
             document.getElementById("modalAdminPhotoTitle").innerText = photo.judul || "Tanpa Judul";
             document.getElementById("modalAdminPhotoImg").src = getProxiedImageUrl(photo.url, 1000);
             document.getElementById("modalAdminPhotoMeta").innerText = `Kategori: ${photo.kategorial || '-'} • Momen: ${photo.moment || '-'} • ${photo.tanggal || '-'}`;
+            document.getElementById("modalAdminEditBtn").setAttribute("onclick", `closeAdminGalleryModal(); prepareEditGalleryPhoto(${index});`);
             document.getElementById("modalAdminDeleteBtn").setAttribute("onclick", `deleteGalleryPhoto('${photo.id}', '${encodeURIComponent(photo.judul)}')`);
             document.getElementById("adminGalleryModal").classList.remove("hidden");
         }
@@ -312,6 +324,64 @@
             if (!event || event.target.id === "adminGalleryModal" || event.target.tagName === "BUTTON") {
                 document.getElementById("adminGalleryModal").classList.add("hidden");
             }
+        }
+
+        function prepareEditGalleryPhoto(index) {
+            const photo = (window.adminGalleryCache || [])[index];
+            if (!photo) return;
+
+            document.getElementById("editGalleryId").value = photo.id;
+            document.getElementById("existingImageUrl").value = photo.url;
+            document.getElementById("galeriJudul").value = photo.judul || "";
+            document.getElementById("galeriKategori").value = photo.kategorial || "Others";
+            document.getElementById("galeriMoment").value = photo.moment || "Others";
+            document.getElementById("galeriTanggal").value = photo.tanggal || new Date().toISOString().split('T')[0];
+
+            // Saat edit, file tidak wajib dipilih ulang karena sudah ada url lama
+            const fileInput = document.getElementById("galeriFile");
+            fileInput.required = false;
+            fileInput.value = "";
+            
+            // Tambahkan catatan kecil pada input file
+            let helperNote = document.getElementById("editFileNote");
+            if (!helperNote) {
+                helperNote = document.createElement("p");
+                helperNote.id = "editFileNote";
+                helperNote.className = "text-[10px] text-amber-400 mt-1 italic";
+                fileInput.parentNode.appendChild(helperNote);
+            }
+            helperNote.innerText = "ℹ️ Biarkan kosong jika tidak ingin mengganti file gambar.";
+
+            document.getElementById("formGalleryHeaderTitle").innerText = "✏️ Ubah Keterangan / Foto Galeri";
+            document.getElementById("formGalleryHeaderSubtitle").innerText = `Memperbarui data foto: ${photo.judul}`;
+            document.getElementById("btnSubmitGaleri").innerText = "Simpan Perubahan 🚀";
+            document.getElementById("btnCancelEditGaleri").classList.remove("hidden");
+
+            // Auto scroll & auto fokus ke input Judul Foto pada form Unggah/Edit
+            const formCard = document.getElementById("formUploadGaleriCard");
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                const titleInput = document.getElementById("galeriJudul");
+                titleInput.focus();
+                titleInput.select();
+            }, 300);
+        }
+
+        function resetGaleriForm() {
+            document.getElementById("formUploadGaleri").reset();
+            document.getElementById("editGalleryId").value = "";
+            document.getElementById("existingImageUrl").value = "";
+            document.getElementById("galeriTanggal").valueAsDate = new Date();
+            
+            const fileInput = document.getElementById("galeriFile");
+            fileInput.required = true;
+            let helperNote = document.getElementById("editFileNote");
+            if (helperNote) helperNote.remove();
+
+            document.getElementById("formGalleryHeaderTitle").innerText = "🖼️ Unggah Foto Baru ke Galeri Jemaat";
+            document.getElementById("formGalleryHeaderSubtitle").innerText = "Foto akan diunggah otomatis ke imgBB, lalu dicatat ke sheet Galeri.";
+            document.getElementById("btnSubmitGaleri").innerText = "Unggah Foto & Simpan ke Galeri 🚀";
+            document.getElementById("btnCancelEditGaleri").classList.add("hidden");
         }
 
         async function deleteGalleryPhoto(photoId, photoTitleEncoded) {
@@ -344,38 +414,41 @@
             const btn = document.getElementById("btnSubmitGaleri");
             const fileInput = document.getElementById("galeriFile");
             const file = fileInput.files[0];
-
-            if (!file) {
-                alert("Silakan pilih file gambar terlebih dahulu!");
-                return;
-            }
+            const editId = document.getElementById("editGalleryId").value;
+            let imageUrl = document.getElementById("existingImageUrl").value;
 
             btn.disabled = true;
-            btn.innerText = "Mengunggah gambar ke imgBB...";
 
             try {
-                const formData = new FormData();
-                formData.append("image", file);
+                if (file) {
+                    btn.innerText = "Mengunggah gambar baru ke imgBB...";
+                    const formData = new FormData();
+                    formData.append("image", file);
 
-                const imgbbRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                    method: "POST",
-                    body: formData
-                });
-                const imgbbJson = await imgbbRes.json();
+                    const imgbbRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                        method: "POST",
+                        body: formData
+                    });
+                    const imgbbJson = await imgbbRes.json();
 
-                if (!imgbbJson.success) {
-                    throw new Error(imgbbJson.error?.message || "Gagal mengunggah ke server imgBB.");
+                    if (!imgbbJson.success) {
+                        throw new Error(imgbbJson.error?.message || "Gagal mengunggah ke server imgBB.");
+                    }
+
+                    imageUrl = imgbbJson.data.url.replace("://i.ibb.co/", "://i.ibb.co.com/");
+                } else if (!editId && !imageUrl) {
+                    alert("Silakan pilih file gambar terlebih dahulu!");
+                    btn.disabled = false;
+                    btn.innerText = "Unggah Foto & Simpan ke Galeri 🚀";
+                    return;
                 }
 
-                // Normalisasi URL imgBB ke domain img.ibb.co.com agar tidak terblokir provider lokal
-                let rawImageUrl = imgbbJson.data.url;
-                let imageUrl = rawImageUrl.replace("://i.ibb.co/", "://i.ibb.co.com/");
-
-                btn.innerText = "Menyimpan data ke Sheet Galeri...";
+                btn.innerText = editId ? "Memperbarui data di Sheet Galeri..." : "Menyimpan data ke Sheet Galeri...";
 
                 const adminId = getSafeAdminId();
                 const payload = {
-                    action: "addGalleryPhoto",
+                    action: editId ? "updateGalleryPhoto" : "addGalleryPhoto",
+                    photo_id: editId || undefined,
                     admin_id: adminId,
                     judul_foto: document.getElementById("galeriJudul").value.trim(),
                     url_gambar: imageUrl,
@@ -390,16 +463,15 @@
                 });
                 const result = await res.json();
 
-                alert(result.message || "Foto berhasil diunggah dan disimpan ke galeri!");
-                document.getElementById("formUploadGaleri").reset();
-                document.getElementById("galeriTanggal").valueAsDate = new Date();
+                alert(result.message || (editId ? "Foto berhasil diperbarui!" : "Foto berhasil diunggah dan disimpan ke galeri!"));
+                resetGaleriForm();
                 fetchGalleryListForAdmin();
 
             } catch (err) {
                 alert("Terjadi kesalahan: " + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = "Unggah Foto & Simpan ke Galeri 🚀";
+                btn.innerText = editId ? "Simpan Perubahan 🚀" : "Unggah Foto & Simpan ke Galeri 🚀";
             }
         }
 
