@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Sekretariat - JPO Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @keyframes pulseRed {
             0%, 100% { background-color: rgb(239 68 68); color: white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); }
@@ -449,18 +450,61 @@ function renderSensusTable(users) {
                 <div>${u.alamat || '<span class="italic text-amber-600">Belum diisi</span>'}</div>
                 <div class="text-[10px] text-slate-400">${u.pekerjaan || ''}</div>
             </td>
-            <td class="p-2.5 text-center">
+            <td class="p-2.5 text-center flex flex-col gap-1.5 items-center justify-center h-full">
                 ${u.is_verified ? 
-                    `<span class="bg-blue-100 text-blue-700 font-semibold px-2 py-1 rounded text-[10px] inline-block">☑️ Terverifikasi</span>` : 
+                    `<span class="bg-blue-100 text-blue-700 font-semibold px-2 py-1 rounded text-[10px] w-full block">☑️ Terverifikasi</span>` : 
                     `<button ${window.isPetugasSensus ? `onclick="verifyUser('${u.id}', '${u.nama_lengkap}')"` : `disabled title="Akses Khusus Petugas Sensus"`} 
-                        class="bg-amber-100 ${window.isPetugasSensus ? 'hover:bg-amber-200' : 'opacity-50 cursor-not-allowed'} text-amber-800 font-semibold px-2.5 py-1 rounded text-[10px] transition">
+                        class="bg-amber-100 ${window.isPetugasSensus ? 'hover:bg-amber-200' : 'opacity-50 cursor-not-allowed'} text-amber-800 font-semibold px-2.5 py-1 rounded text-[10px] transition w-full">
                         Verifikasi
                     </button>`
                 }
+                <!-- TOMBOL CETAK ID CARD -->
+                <button onclick="generateIDCard('${u.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-2.5 py-1 rounded text-[10px] transition w-full flex items-center justify-center gap-1">
+                    🪪 Cetak Kartu
+                </button>
             </td>
         </tr>
     `).join('');
 }
+async function generateIDCard(userId) {
+        // 1. Cari data jemaat berdasarkan ID dari cache
+        const user = window.sensusUsersCache.find(u => u.id === userId);
+        if (!user) return alert("Data jemaat tidak ditemukan.");
+
+        // 2. Tampilkan indikator loading (opsional)
+        showToastBanner(`Menyiapkan ID Card untuk ${user.nama_lengkap}...`);
+
+        // 3. Masukkan data ke dalam template HTML
+        document.getElementById("idCardNama").innerText = user.nama_lengkap || "-";
+        document.getElementById("idCardGender").innerText = user.jenis_kelamin || "-";
+        document.getElementById("idCardLingRayon").innerText = `: Ling. ${user.lingkungan || '-'} / Rayon ${user.rayon || '-'}`;
+        document.getElementById("idCardAlamat").innerText = `: ${user.alamat || '-'}`;
+        
+        // 4. Generate QR Code dari ID (Menggunakan API Publik)
+        const qrImg = document.getElementById("idCardQR");
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
+
+        // 5. Tunggu gambar QR termuat sempurna sebelum di-screenshot
+        qrImg.onload = () => {
+            const cardElement = document.getElementById("idCardTemplate");
+            
+            // Konversi HTML ke Gambar dengan scale 3 (Resolusi Tinggi)
+            html2canvas(cardElement, { 
+                scale: 3, 
+                useCORS: true, 
+                backgroundColor: "#ffffff" 
+            }).then(canvas => {
+                // Proses pengunduhan
+                const link = document.createElement('a');
+                // Format nama file: ID_Card_Nama_Jemaat.png
+                link.download = `ID_Card_${user.nama_lengkap.replace(/\s+/g, '_')}.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            }).catch(err => {
+                alert("Terjadi kesalahan saat mencetak kartu: " + err);
+            });
+        };
+    }
         // --- 4. MODERASI KOTAK DOA ---
         async function loadPrayerData() {
             clearPrayerBlink();
@@ -1771,5 +1815,73 @@ document.addEventListener("click", function(e) {
     }
 });
     </script>
+<!-- TEMPLATE ID CARD (Disembunyikan di luar layar) -->
+    <div id="idCardContainer" class="fixed -left-[9999px] top-0">
+        <div id="idCardTemplate" class="w-[340px] h-[540px] bg-white relative overflow-hidden flex flex-col border border-gray-200" style="background-image: url('data:image/svg+xml,%3Csvg width=\\'100%\\' height=\\'100%\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Cdefs%3E%3Cpattern id=\\'grid\\' width=\\'40\\' height=\\'40\\' patternUnits=\\'userSpaceOnUse\\'%3E%3Cpath d=\\'M 40 0 L 0 0 0 40\\' fill=\\'none\\' stroke=\\'%23f1f5f9\\' stroke-width=\\'1\\'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=\\'100%\\' height=\\'100%\\' fill=\\'url(%23grid)\\'/%3E%3C/svg%3E'); font-family: sans-serif;">
+            
+            <!-- Header (Aksen Ungu GMIT) -->
+            <div class="bg-purple-700 h-24 w-full flex items-center px-4 rounded-b-[40px] shadow-md z-10 relative">
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-inner overflow-hidden border-2 border-purple-300 shrink-0">
+                    <img src="LogoGMIT.png" alt="Logo GMIT" class="w-full h-full object-contain p-1">
+                </div>
+                <div class="ml-3 text-white">
+                    <h2 class="text-sm font-black tracking-wider m-0 leading-tight">KARTU TANDA JEMAAT</h2>
+                    <p class="text-[10px] font-medium m-0 opacity-90">GMIT Pniel Oebobo - Kupang</p>
+                </div>
+            </div>
+
+            <!-- Body Area -->
+            <div class="flex-1 flex flex-col pt-6 px-5 relative z-10 w-full">
+                <!-- Bagian Atas: Foto & Data Bersebelahan -->
+                <div class="flex items-start gap-4 w-full">
+                    <!-- Frame Foto (Kiri) -->
+                    <div class="w-20 h-28 shrink-0 bg-slate-200 border-2 border-dashed border-slate-400 rounded-lg flex flex-col items-center justify-center shadow-sm overflow-hidden relative">
+                        <span class="text-3xl text-slate-400 opacity-50">👤</span>
+                        <div class="absolute bottom-0 w-full bg-slate-800/60 text-white text-[7px] text-center py-0.5">FOTO JEMAAT</div>
+                    </div>
+
+                    <!-- Data Jemaat (Kanan) -->
+                    <div class="flex-1 space-y-1.5 text-slate-800 mt-1">
+                        <div class="border-b border-slate-200 pb-1.5 mb-1.5">
+                            <h3 id="idCardNama" class="font-bold text-sm text-purple-800 uppercase leading-tight">NAMA JEMAAT</h3>
+                            <p id="idCardGender" class="text-[9px] text-slate-500 font-medium">Jenis Kelamin</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-[65px_1fr] text-[10px] leading-snug items-start">
+                            <span class="font-bold text-slate-500 mt-0.5">Ling / Rayon</span>
+                            <span id="idCardLingRayon" class="font-semibold text-slate-900">: -</span>
+                        </div>
+                        <div class="grid grid-cols-[65px_1fr] text-[10px] leading-snug items-start">
+                            <span class="font-bold text-slate-500 mt-0.5">Alamat</span>
+                            <span id="idCardAlamat" class="font-semibold text-slate-900 break-words pr-1">: -</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Garis Pemisah (Divider) -->
+                <div class="w-full border-t-2 border-slate-100 my-5"></div>
+
+                <!-- Bagian Bawah: QR Code Besar -->
+                <div class="flex-1 flex items-center justify-center w-full mb-4">
+                    <div class="w-40 h-40 bg-white border border-slate-200 p-2 rounded-xl shadow-sm relative z-20">
+                        <img id="idCardQR" src="" class="w-full h-full object-contain" crossorigin="anonymous">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer (Tanpa QR Code) -->
+            <div class="h-16 bg-slate-50 w-full flex items-center justify-start px-5 border-t border-slate-200 z-20 shrink-0 mt-auto relative">
+                <div class="text-[8px] text-slate-400 leading-tight">
+                    <p>Diterbitkan oleh:</p>
+                    <p class="font-bold text-slate-600">Majelis Jemaat Pniel Oebobo</p>
+                    <p class="mt-0.5">*Kartu ini sah selama masih menjadi anggota jemaat aktif.</p>
+                </div>
+            </div>
+            
+            <!-- Ornamen Dekorasi -->
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/10 rounded-tr-full z-0 pointer-events-none"></div>
+            <div class="absolute top-20 right-0 w-24 h-24 bg-amber-500/10 rounded-l-full z-0 pointer-events-none"></div>
+        </div>
+    </div>
 </body>
 </html>
