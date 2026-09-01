@@ -1,0 +1,58 @@
+@keyframes slideInFromTop {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+@keyframes smoothFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes zoomInTransition {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes churchSpin3D {
+    0% { transform: rotateY(0deg); }
+    20% { transform: rotateY(360deg); }
+    100% { transform: rotateY(360deg); }
+}
+.animate-church-spin {
+    animation: churchSpin3D 9s infinite ease-in-out;
+    transform-style: preserve-3d;
+}
+
+.animate-slide-in { animation: slideInFromTop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-fade-in { animation: smoothFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-zoom-in { animation: zoomInTransition 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-card-hover { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+.animate-card-hover:active { transform: scale(0.94); }
+
+body.senior-mode {
+    background-color: #fef3c7 !important; 
+    color: #1e293b !important; 
+    font-size: 1.15rem !important; 
+}
+body.senior-mode .max-w-md,
+body.senior-mode .landscape\:max-w-3xl {
+    background-color: #ffffff !important;
+    border-color: #fcd34d !important;
+    color: #0f172a !important;
+}
+body.senior-mode .bg-slate-900, 
+body.senior-mode .bg-slate-950 {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+body.senior-mode p, body.senior-mode span, body.senior-mode label, body.senior-mode a {
+    color: #1e293b !important;
+    font-size: 0.95rem !important;
+}
+body.senior-mode h1, body.senior-mode h2, body.senior-mode h3, body.senior-mode h4 {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+#floatingBackBtn {
+    touch-action: none;
+    user-select: none;
+}
