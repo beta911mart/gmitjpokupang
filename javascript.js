@@ -2348,15 +2348,27 @@ async function handleSendDonation(e) {
     }
 }
 
-function toggleSeniorMode() {
-    const body = document.body;
-    const isSenior = body.classList.toggle('senior-mode');
-    if (isSenior) {
-        localStorage.setItem('gmit_senior_mode', 'true');
-        showToast("Mode Lansia Diaktifkan");
+function toggleSeniorMode(isInitialLoad = false) {
+    const app = document.getElementById("app");
+    if (!app) return;
+
+    let isSenior;
+    
+    // Cek apakah ini muat awal atau klik tombol
+    if (isInitialLoad) {
+        isSenior = localStorage.getItem('gmit_senior_mode') === 'true';
     } else {
-        localStorage.setItem('gmit_senior_mode', 'false');
-        showToast("Mode Normal Diaktifkan");
+        isSenior = localStorage.getItem('gmit_senior_mode') !== 'true'; // Balikkan status
+        localStorage.setItem('gmit_senior_mode', isSenior.toString());
+    }
+
+    if (isSenior) {
+        // Menggunakan scale Tailwind yang sangat aman untuk semua browser HP
+        app.classList.add('scale-[1.05]', 'origin-top', 'pb-10');
+        if (!isInitialLoad) showToast("Mode Lansia (Teks Besar) Diaktifkan");
+    } else {
+        app.classList.remove('scale-[1.05]', 'origin-top', 'pb-10');
+        if (!isInitialLoad) showToast("Mode Normal Diaktifkan");
     }
 }
 
@@ -2380,6 +2392,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateNetworkStatus();
     const savedTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
     setTheme(savedTheme, true);
+    toggleSeniorMode(true);
     switchTab('home', false, true); 
     checkPushNotification();
     updateAuthNavText();
