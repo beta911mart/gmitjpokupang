@@ -292,80 +292,92 @@
         }
 
         // --- 3. DATA SENSUS JEMAAT ---
-        async function loadSensusData() {
-            const area = document.getElementById("adminContentArea");
-            area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat data jemaat...</p>`;
 
-            try {
-                const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`);
-                const result = await res.json();
-                const users = result.users || [];
-				const adminData = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
-				const adminRole = (adminData.role || "").toLowerCase();
-				const isPetugasSensus = adminRole.includes("sensus");
-				
-                if (users.length === 0) {
-                    area.innerHTML = `<p class="text-center text-slate-500 text-sm py-10">Belum ada data jemaat terdaftar.</p>`;
-                    return;
-                }
+		async function loadSensusData() {
+    const area = document.getElementById("adminContentArea");
+    area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat data jemaat...</p>`;
 
-                area.innerHTML = `
-                    <div class="space-y-4 w-full">
-                        <div>
-                            <h3 class="font-bold text-sm">Daftar Sensus Jemaat (${users.length} Jiwa)</h3>
-                            <p class="text-xs text-slate-500">Data lengkap, username unik, dan verifikasi centang biru jemaat.</p>
-                        </div>
-                        <div class="overflow-x-auto w-full">
-                            <table class="w-full text-left text-xs border-collapse">
-                                <thead>
-                                    <tr class="bg-slate-100 border-b border-slate-200 text-slate-600">
-                                        <th class="p-2.5">Nama & Username Unik</th>
-                                        <th class="p-2.5">Gender / Status</th>
-                                        <th class="p-2.5">Ling / Rayon</th>
-                                        <th class="p-2.5">No. WhatsApp</th>
-                                        <th class="p-2.5">Alamat & Pekerjaan</th>
-                                        <th class="p-2.5 text-center">Status Verifikasi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    ${users.map(u => `
-                                        <tr class="hover:bg-slate-50">
-                                            <td class="p-2.5">
-                                                <div class="font-bold text-slate-900">${u.nama_lengkap}</div>
-                                                <div class="font-mono text-[11px] text-purple-600">${u.username || '-'}</div>
-                                            </td>
-                                            <td class="p-2.5">
-                                                <div class="text-slate-700">${u.jenis_kelamin || '-'}</div>
-                                                <div class="text-[10px] text-purple-700 font-medium">${u.status_pelayanan || 'Jemaat'}</div>
-                                            </td>
-                                            <td class="p-2.5">Ling. ${u.lingkungan || '-'} <br>Rayon ${u.rayon || '-'}</td>
-                                            <td class="p-2.5">${u.no_whatsapp || '-'}</td>
-                                            <td class="p-2.5 text-slate-500 text-[11px]">
-                                                <div>${u.alamat || '<span class="italic text-amber-600">Belum diisi</span>'}</div>
-                                                <div class="text-[10px] text-slate-400">${u.pekerjaan || ''}</div>
-                                            </td>
-											<td class="p-2.5 text-center">
-											    ${u.is_verified ? 
-											        `<span class="bg-blue-100 text-blue-700 font-semibold px-2 py-1 rounded text-[10px] inline-block">☑️ Terverifikasi</span>` : 
-											        `<button ${isPetugasSensus ? `onclick="verifyUser('${u.id}', '${u.nama_lengkap}')"` : `disabled title="Akses Khusus Petugas Sensus"`} 
-											            class="bg-amber-100 ${isPetugasSensus ? 'hover:bg-amber-200' : 'opacity-50 cursor-not-allowed'} text-amber-800 font-semibold px-2.5 py-1 rounded text-[10px] transition">
-											            Verifikasi
-											        </button>`
-											    }
-											</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-            } catch (err) {
-                area.innerHTML = `<p class="text-center text-rose-500 text-sm py-10">Gagal memuat data jemaat: ${err}</p>`;
-            }
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`);
+        const result = await res.json();
+        
+        // Simpan data ke cache global untuk filter
+        window.sensusUsersCache = result.users || [];
+
+        if (window.sensusUsersCache.length === 0) {
+            area.innerHTML = `<p class="text-center text-slate-500 text-sm py-10">Belum ada data jemaat terdaftar.</p>`;
+            return;
         }
 
-        async function verifyUser(userId, userNama) {
+        // Cek role admin untuk tombol verifikasi
+        const adminData = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
+        window.isPetugasSensus = (adminData.role || "").toLowerCase().includes("sensus");
+
+        area.innerHTML = `
+            <div class="space-y-4 w-full">
+                <div class="flex flex-col md:flex-row justify-between md:items-end gap-3">
+                    <div>
+                        <h3 class="font-bold text-sm">Daftar Sensus Jemaat (<span id="sensusCount">${window.sensusUsersCache.length}</span> Jiwa)</h3>
+                        <p class="text-xs text-slate-500">Data lengkap, username unik, dan verifikasi centang biru jemaat.</p>
+                    </div>
+                    <div class="w-full md:w-64">
+                        <input type="text" id="sensusSearch" oninput="applySensusFilter()" placeholder="Cari nama, alamat, No WA..." class="w-full p-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-slate-900 shadow-sm">
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto w-full border border-slate-200 rounded-xl">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-600 align-top">
+                                <th class="p-2.5 whitespace-nowrap">Nama & Username Unik</th>
+                                <th class="p-2.5">
+                                    <div class="mb-1">Gender / Status</div>
+                                    <select id="filterGender" onchange="applySensusFilter()" class="w-full p-1 text-[10px] border border-slate-300 rounded outline-none font-normal">
+                                        <option value="">Semua Gender</option>
+                                        <option value="Laki-laki">Laki-laki</option>
+                                        <option value="Perempuan">Perempuan</option>
+                                    </select>
+                                </th>
+                                <th class="p-2.5">
+                                    <div class="mb-1">Ling & Rayon</div>
+                                    <div class="flex gap-1">
+                                        <select id="filterLingkungan" onchange="applySensusFilter()" class="w-1/2 p-1 text-[10px] border border-slate-300 rounded outline-none font-normal">
+                                            <option value="">Semua Ling.</option>
+                                            ${Array.from({length: 16}, (_, i) => `<option value="${i+1}">Ling. ${i+1}</option>`).join('')}
+                                        </select>
+                                        <select id="filterRayon" onchange="applySensusFilter()" class="w-1/2 p-1 text-[10px] border border-slate-300 rounded outline-none font-normal">
+                                            <option value="">Semua Ray</option>
+                                            ${Array.from({length: 5}, (_, i) => `<option value="${i+1}">Rayon ${i+1}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                </th>
+                                <th class="p-2.5">No. WhatsApp</th>
+                                <th class="p-2.5">Alamat & Pekerjaan</th>
+                                <th class="p-2.5 text-center">
+                                    <div class="mb-1">Status Verifikasi</div>
+                                    <select id="filterVerif" onchange="applySensusFilter()" class="w-full p-1 text-[10px] border border-slate-300 rounded outline-none font-normal text-center">
+                                        <option value="">Semua Status</option>
+                                        <option value="true">Terverifikasi</option>
+                                        <option value="false">Pending (Belum)</option>
+                                    </select>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="sensusTableBody" class="divide-y divide-slate-100">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        
+        // Render tabel pertama kali
+        renderSensusTable(window.sensusUsersCache);
+
+    } catch (err) {
+        area.innerHTML = `<p class="text-center text-rose-500 text-sm py-10">Gagal memuat data jemaat: ${err}</p>`;
+    }
+}
+		async function verifyUser(userId, userNama) {
             const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
             try {
                 const res = await fetch(SCRIPT_URL, {
@@ -385,7 +397,70 @@
                 alert("Gagal memverifikasi user: " + err);
             }
         }
+function applySensusFilter() {
+    const keyword = document.getElementById("sensusSearch").value.toLowerCase();
+    const gender = document.getElementById("filterGender").value;
+    const ling = document.getElementById("filterLingkungan").value;
+    const rayon = document.getElementById("filterRayon").value;
+    const verif = document.getElementById("filterVerif").value;
 
+    const filtered = window.sensusUsersCache.filter(u => {
+        // Cek Search (Nama, Alamat, Username, No WA)
+        const textMatch = !keyword || 
+            (u.nama_lengkap || "").toLowerCase().includes(keyword) ||
+            (u.alamat || "").toLowerCase().includes(keyword) ||
+            (u.username || "").toLowerCase().includes(keyword) ||
+            (u.no_whatsapp || "").toLowerCase().includes(keyword);
+
+        // Cek Filter Dropdown
+        const genderMatch = !gender || (u.jenis_kelamin || "") === gender;
+        const lingMatch = !ling || String(u.lingkungan || "") === String(ling);
+        const rayonMatch = !rayon || String(u.rayon || "") === String(rayon);
+        const verifMatch = !verif || String(Boolean(u.is_verified)) === verif;
+
+        return textMatch && genderMatch && lingMatch && rayonMatch && verifMatch;
+    });
+
+    // Update jumlah angka pada header
+    document.getElementById("sensusCount").innerText = filtered.length;
+    renderSensusTable(filtered);
+}
+
+function renderSensusTable(users) {
+    const tbody = document.getElementById("sensusTableBody");
+    if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 text-xs">Data tidak ditemukan.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = users.map(u => `
+        <tr class="hover:bg-slate-50">
+            <td class="p-2.5">
+                <div class="font-bold text-slate-900">${u.nama_lengkap}</div>
+                <div class="font-mono text-[11px] text-purple-600">${u.username || '-'}</div>
+            </td>
+            <td class="p-2.5">
+                <div class="text-slate-700">${u.jenis_kelamin || '-'}</div>
+                <div class="text-[10px] text-purple-700 font-medium">${u.status_pelayanan || 'Jemaat'}</div>
+            </td>
+            <td class="p-2.5">Ling. ${u.lingkungan || '-'} <br>Rayon ${u.rayon || '-'}</td>
+            <td class="p-2.5">${u.no_whatsapp || '-'}</td>
+            <td class="p-2.5 text-slate-500 text-[11px]">
+                <div>${u.alamat || '<span class="italic text-amber-600">Belum diisi</span>'}</div>
+                <div class="text-[10px] text-slate-400">${u.pekerjaan || ''}</div>
+            </td>
+            <td class="p-2.5 text-center">
+                ${u.is_verified ? 
+                    `<span class="bg-blue-100 text-blue-700 font-semibold px-2 py-1 rounded text-[10px] inline-block">☑️ Terverifikasi</span>` : 
+                    `<button ${window.isPetugasSensus ? `onclick="verifyUser('${u.id}', '${u.nama_lengkap}')"` : `disabled title="Akses Khusus Petugas Sensus"`} 
+                        class="bg-amber-100 ${window.isPetugasSensus ? 'hover:bg-amber-200' : 'opacity-50 cursor-not-allowed'} text-amber-800 font-semibold px-2.5 py-1 rounded text-[10px] transition">
+                        Verifikasi
+                    </button>`
+                }
+            </td>
+        </tr>
+    `).join('');
+}
         // --- 4. MODERASI KOTAK DOA ---
         async function loadPrayerData() {
             clearPrayerBlink();
