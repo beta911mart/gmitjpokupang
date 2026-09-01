@@ -49,6 +49,7 @@
         // --- URL WEB APP GOOGLE SCRIPT ANDA ---
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
         
+        let allJemaatCache = []; // Tambahkan ini untuk menyimpan cache daftar jemaat
         let lastPrayerCount = null;
         let lastDonationCount = null;
         let pollInterval = null;
@@ -194,8 +195,13 @@
                             <h3 class="font-bold text-xs text-slate-900">📤 Kelola Warta/Liturgi/Berkas</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Update file PDF (Link tetap sama).</p>
                         </button>
-                        
-                        <button onclick="loadActivityLogs()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition col-span-2 md:col-span-4">
+
+	<button onclick="loadRosterForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
+	    <h3 class="font-bold text-xs text-slate-900">📋 Input Roster</h3>
+	    <p class="text-[11px] text-slate-500 mt-1">Jadwal tugas pelayanan.</p>
+	</button>
+
+                        <button onclick="loadActivityLogs()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">📋 Log Aktivitas Pengurus</h3>
                              <p class="text-[11px] text-slate-500 mt-1">Riwayat aksi sekretariat dan pengurus.</p>
                         </button>
@@ -1304,6 +1310,383 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
                 }
             };
         }
+// --- 12. KELOLA JADWAL PELAYANAN (ROSTER) ---
+function loadRosterForm() {
+    const area = document.getElementById("adminContentArea");
+    area.innerHTML = `
+        <div class="space-y-6 w-full">
+            <!-- DAFTAR PETUGAS BARU -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm w-full space-y-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-100 pb-3">
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-900">Daftar Petugas Baru (Roster)</h3>
+                        <p class="text-[11px] text-slate-500">Jadwal tugas pelayanan yang akan datang.</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <select id="filterKategori" onchange="applyRosterFilter()" class="w-full md:w-auto bg-slate-50 border border-slate-300 text-xs rounded-lg px-2 py-2 outline-none focus:ring-1 focus:ring-purple-500 text-slate-700 font-medium">
+                            <option value="Semua">Semua Kategori</option>
+                            <option value="Presbiter">Presbiter</option>
+                            <option value="Kantoria">Kantoria</option>
+                            <option value="Organis">Organis</option>
+                            <option value="Multimedia">Multimedia</option>
+                            <option value="Penerima Tamu">Penerima Tamu</option>
+                            <option value="Guru Sekolah Minggu">Guru Sekolah Minggu</option>
+                        </select>
+                        <button onclick="toggleRosterForm()" class="shrink-0 bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+                            ➕ Tambah
+                        </button>
+                        <button onclick="fetchRosterForAdmin()" class="shrink-0 text-xs text-purple-600 bg-purple-50 hover:bg-purple-100 p-2 rounded-lg font-bold transition" title="Muat Ulang">🔄</button>
+                    </div>
+                </div>
+                
+                <div id="rosterListLoading" class="text-xs text-slate-400 py-4 text-center animate-pulse">Memuat daftar petugas...</div>
+                <div id="rosterListWrapper" class="space-y-3 hidden max-h-[350px] overflow-y-auto pr-2"></div>
+            </div>
+
+            <!-- FORM INPUT / EDIT ROSTER -->
+            <div id="rosterFormContainer" class="hidden bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl w-full transition-all duration-300">
+                <div class="flex justify-between items-center mb-1">
+                    <h3 class="font-bold text-sm text-slate-100" id="formRosterTitle">Input Roster Pelayanan</h3>
+                    <div class="flex items-center gap-3">
+                        <button type="button" id="btnCancelEditRoster" onclick="resetRosterForm()" class="hidden text-xs bg-rose-950/50 text-rose-400 border border-rose-900/50 px-2.5 py-1 rounded-lg transition">Batal Edit</button>
+                        <button onclick="toggleRosterForm()" class="text-xs text-slate-400 hover:text-rose-400 transition font-medium">✖ Tutup</button>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mb-4" id="formRosterSubtitle">Tambahkan jadwal tugas jemaat ke dalam Sheet Roster.</p>
+                
+                <form id="formAddRoster" onsubmit="handleSaveRoster(event)" class="space-y-3 w-full">
+                    <input type="hidden" id="editRosterId" value="">
+                    
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal</label>
+                            <input type="date" id="rosTanggal" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Waktu</label>
+                            <select id="rosWaktuPilihan" onchange="cekPilihanWaktu(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                                <option value="06:00">06:00</option>
+                                <option value="08:00">08:00</option>
+                                <option value="16:00">16:00</option>
+                                <option value="Lainnya">Lainnya (Ketik Manual)</option>
+                            </select>
+                            <input type="text" id="rosWaktuManual" placeholder="Cth: 18:30" class="hidden mt-2 w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Jenis Ibadah</label>
+                        <select id="rosIbadahPilihan" onchange="cekPilihanIbadah(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                            <option value="Ibadah Minggu">Ibadah Minggu</option>
+                            <option value="Ibadah Persiapan">Ibadah Persiapan</option>
+                            <option value="Ibadah Pemberkatan">Ibadah Pemberkatan</option>
+                            <option value="Ibadah Anak & Taruna">Ibadah Anak & Taruna</option>
+                            <option value="Ibadah Malam Natal">Ibadah Malam Natal</option>
+                            <option value="Ibadah Paskah">Ibadah Paskah</option>
+                            <option value="Lainnya">Lainnya (Ketik Manual)</option>
+                        </select>
+                        <input type="text" id="rosIbadahManual" placeholder="Ketik jenis ibadah..." class="hidden mt-2 w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Kategori Tugas</label>
+                        <select id="rosKategori" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                            <option value="Presbiter">Presbiter</option>
+                            <option value="Kantoria">Kantoria</option>
+                            <option value="Organis">Organis</option>
+                            <option value="Multimedia">Multimedia</option>
+                            <option value="Penerima Tamu">Penerima Tamu</option>
+                            <option value="Guru Sekolah Minggu">Guru Sekolah Minggu</option>
+                        </select>
+                    </div>
+                    
+	<div class="relative">
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Petugas</label>
+                        <input type="text" id="rosPetugas" required autocomplete="off" oninput="showPetugasSuggestions(this.value)" placeholder="Cth: Pnt. John Doe" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                        
+                        <!-- Dropdown Sugesti Nama -->
+                        <div id="petugasSuggestionBox" class="absolute z-10 w-full bg-slate-800 border border-slate-700 rounded-lg mt-1 hidden max-h-48 overflow-y-auto shadow-xl">
+                            <!-- List item sugesti akan dimuat di sini -->
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="btnSubmitRoster" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-bold text-xs transition shadow-lg mt-2">Simpan ke Data Roster</button>
+                </form>
+            </div>
+        </div>
+    `;
+    fetchRosterForAdmin();
+}
+
+// Logika Tampilan Dropdown "Lainnya"
+function cekPilihanWaktu(val) {
+    const inputManual = document.getElementById("rosWaktuManual");
+    if (val === "Lainnya") {
+        inputManual.classList.remove("hidden");
+        inputManual.required = true;
+    } else {
+        inputManual.classList.add("hidden");
+        inputManual.required = false;
+        inputManual.value = "";
+    }
+}
+
+function cekPilihanIbadah(val) {
+    const inputManual = document.getElementById("rosIbadahManual");
+    if (val === "Lainnya") {
+        inputManual.classList.remove("hidden");
+        inputManual.required = true;
+    } else {
+        inputManual.classList.add("hidden");
+        inputManual.required = false;
+        inputManual.value = "";
+    }
+}
+
+function toggleRosterForm() {
+    const form = document.getElementById("rosterFormContainer");
+    if (form.classList.contains("hidden")) {
+        form.classList.remove("hidden");
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Panggil fungsi pengambilan data jemaat
+        fetchAllJemaatForSuggestions(); 
+    } else {
+        form.classList.add("hidden");
+        resetRosterForm();
+    }
+}
+
+async function fetchRosterForAdmin() {
+    document.getElementById("rosterListLoading").classList.remove("hidden");
+    document.getElementById("rosterListWrapper").classList.add("hidden");
+
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getDutyRoster`);
+        const result = await res.json();
+        window.rosterCacheList = result.data || [];
+        applyRosterFilter();
+    } catch (err) {
+        document.getElementById("rosterListLoading").innerText = "Gagal memuat daftar roster.";
+    }
+}
+
+function applyRosterFilter() {
+    const filterVal = document.getElementById("filterKategori").value;
+    const wrapper = document.getElementById("rosterListWrapper");
+    
+    document.getElementById("rosterListLoading").classList.add("hidden");
+    wrapper.classList.remove("hidden");
+
+    let filteredData = window.rosterCacheList || [];
+    
+    if (filterVal !== "Semua") {
+        filteredData = filteredData.filter(r => r.kategori_tugas === filterVal);
+    }
+
+    if (filteredData.length === 0) {
+        wrapper.innerHTML = `<p class="text-xs text-slate-400 text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-300">Tidak ada jadwal petugas untuk kategori <b class="text-slate-600">${filterVal}</b>.</p>`;
+        return;
+    }
+
+    wrapper.innerHTML = filteredData.map(r => {
+        // Konversi Format Tanggal menjadi "01 Januari 2026"
+        const dateObj = new Date(r.tanggal);
+        const formatTgl = !isNaN(dateObj) 
+            ? dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
+            : r.tanggal;
+
+        return `
+        <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex justify-between items-center gap-3 hover:border-purple-300 transition">
+            <div class="space-y-0.5 flex-1">
+                <h4 class="text-xs font-bold text-slate-900">${r.jenis_ibadah}</h4>
+                <p class="text-[11px] text-slate-600">📅 ${formatTgl} • ⏰ ${r.waktu}</p>
+                <p class="text-[11px] text-slate-800 mt-1.5">
+                    <span class="bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded mr-1 font-semibold">${r.kategori_tugas}</span> 
+                    <span class="font-medium">${r.nama_petugas}</span>
+                </p>
+            </div>
+            <div class="shrink-0">
+                <button onclick="prepareEditRoster('${r.id}')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-1 shadow-sm">
+                    ✏️ Edit
+                </button>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+// Utilitas untuk mencocokkan nilai dengan pilihan dropdown atau mengisi input manual
+function setDropdownOrManual(selectId, manualId, value) {
+    const select = document.getElementById(selectId);
+    const manual = document.getElementById(manualId);
+    let matchFound = false;
+
+    for (let i = 0; i < select.options.length; i++) {
+        if (select.options[i].value === value && value !== "Lainnya") {
+            matchFound = true;
+            break;
+        }
+    }
+
+    if (matchFound) {
+        select.value = value;
+        manual.classList.add("hidden");
+        manual.value = "";
+    } else {
+        select.value = "Lainnya";
+        manual.classList.remove("hidden");
+        manual.value = value;
+    }
+}
+
+function prepareEditRoster(rosterId) {
+    const target = (window.rosterCacheList || []).find(r => r.id === rosterId);
+    if (!target) return alert("Data jadwal tidak ditemukan.");
+
+    const formContainer = document.getElementById("rosterFormContainer");
+    formContainer.classList.remove("hidden");
+    
+    document.getElementById("editRosterId").value = target.id;
+    document.getElementById("rosTanggal").value = target.tanggal || "";
+    document.getElementById("rosKategori").value = target.kategori_tugas || "Presbiter";
+    document.getElementById("rosPetugas").value = target.nama_petugas || "";
+
+    // Set dropdown atau field manual untuk Waktu dan Jenis Ibadah
+    setDropdownOrManual("rosWaktuPilihan", "rosWaktuManual", target.waktu || "");
+    setDropdownOrManual("rosIbadahPilihan", "rosIbadahManual", target.jenis_ibadah || "");
+
+    document.getElementById("formRosterTitle").innerText = "Edit Jadwal Petugas";
+    document.getElementById("formRosterSubtitle").innerText = "Perbarui detail jadwal yang sudah ada.";
+    document.getElementById("btnSubmitRoster").innerText = "Perbarui Jadwal";
+    document.getElementById("btnCancelEditRoster").classList.remove("hidden");
+    
+    formContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetRosterForm() {
+    document.getElementById("formAddRoster").reset();
+    document.getElementById("editRosterId").value = "";
+    
+    // Reset state dropdown manual
+    cekPilihanWaktu(""); 
+    cekPilihanIbadah("");
+
+    document.getElementById("formRosterTitle").innerText = "Input Roster Pelayanan";
+    document.getElementById("formRosterSubtitle").innerText = "Tambahkan jadwal tugas jemaat ke dalam Sheet Roster.";
+    document.getElementById("btnSubmitRoster").innerText = "Simpan ke Data Roster";
+    document.getElementById("btnCancelEditRoster").classList.add("hidden");
+}
+
+async function handleSaveRoster(e) {
+    e.preventDefault();
+    const admin = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
+    const btn = document.getElementById("btnSubmitRoster");
+    const editId = document.getElementById("editRosterId").value;
+
+    // Ambil nilai akhir (dari dropdown atau input manual)
+    const finalWaktu = document.getElementById("rosWaktuPilihan").value === "Lainnya" 
+        ? document.getElementById("rosWaktuManual").value 
+        : document.getElementById("rosWaktuPilihan").value;
+        
+    const finalIbadah = document.getElementById("rosIbadahPilihan").value === "Lainnya" 
+        ? document.getElementById("rosIbadahManual").value 
+        : document.getElementById("rosIbadahPilihan").value;
+    
+    btn.disabled = true;
+    btn.innerText = "Menyimpan ke Database...";
+
+    const payload = {
+        action: editId ? "updateRoster" : "addRoster",
+        roster_id: editId,
+        admin_id: admin.id || "SEKRETARIAT",
+        admin_nama: admin.nama || "Sekretariat",
+        catatan_log: editId ? `Mengedit roster: ${document.getElementById("rosPetugas").value}` : `Menginput roster baru`,
+        tanggal: document.getElementById("rosTanggal").value,
+        waktu: finalWaktu,
+        jenis_ibadah: finalIbadah,
+        kategori_tugas: document.getElementById("rosKategori").value,
+        nama_petugas: document.getElementById("rosPetugas").value
+    };
+
+    try {
+        const res = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        alert(result.message || "Data berhasil disimpan!");
+        
+        toggleRosterForm();
+        fetchRosterForAdmin();
+    } catch (err) {
+        alert("Gagal menyimpan roster: " + err);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Simpan ke Data Roster";
+    }
+}
+
+// Memanggil API untuk mendapatkan semua nama jemaat, hanya sekali di awal
+async function fetchAllJemaatForSuggestions() {
+    if (allJemaatCache.length > 0) return; // Gunakan cache jika sudah ada
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`);
+        const result = await res.json();
+        if (result.status === "success") {
+            // Ambil hanya nama_lengkap
+            allJemaatCache = result.users.map(u => u.nama_lengkap); 
+        }
+    } catch (err) {
+        console.error("Gagal memuat data jemaat untuk sugesti:", err);
+    }
+}
+
+// Menampilkan kotak sugesti saat pengguna mengetik
+function showPetugasSuggestions(query) {
+    const suggestionBox = document.getElementById("petugasSuggestionBox");
+    
+    // Jika input kosong, sembunyikan kotak sugesti
+    if (!query.trim()) {
+        suggestionBox.classList.add("hidden");
+        return;
+    }
+
+    // Filter nama dari cache yang mengandung query pencarian (case-insensitive)
+    const matches = allJemaatCache.filter(nama => 
+        nama.toLowerCase().includes(query.toLowerCase())
+    );
+
+    // Jika ada hasil yang cocok
+    if (matches.length > 0) {
+        suggestionBox.innerHTML = matches.map(nama => `
+            <div onclick="selectPetugasSuggestion('${nama}')" class="px-3 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white cursor-pointer border-b border-slate-700/50 last:border-0 transition-colors">
+                ${nama}
+            </div>
+        `).join('');
+        suggestionBox.classList.remove("hidden");
+    } else {
+        // Jika tidak ada hasil, sembunyikan (biarkan user mengetik manual)
+        suggestionBox.classList.add("hidden");
+    }
+}
+
+// Memasukkan nama yang diklik dari sugesti ke dalam input box
+function selectPetugasSuggestion(nama) {
+    const input = document.getElementById("rosPetugas");
+    input.value = nama;
+    document.getElementById("petugasSuggestionBox").classList.add("hidden");
+}
+
+// Menutup dropdown sugesti jika user mengklik area lain di luar form
+document.addEventListener("click", function(e) {
+    const suggestionBox = document.getElementById("petugasSuggestionBox");
+    const inputField = document.getElementById("rosPetugas");
+    if (suggestionBox && !suggestionBox.contains(e.target) && e.target !== inputField) {
+        suggestionBox.classList.add("hidden");
+    }
+});
     </script>
 </body>
 </html>
