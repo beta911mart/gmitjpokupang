@@ -210,7 +210,7 @@ function setTheme(theme, isInitialLoad = false) {
     const body = document.getElementById("appBody");
     const bannerContainer = document.getElementById("seasonalBannerContainer");
     
-    const baseAppClass = "w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto h-[100dvh] overflow-hidden flex flex-col shadow-2xl relative transition-all duration-500";
+    const baseAppClass = "w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto min-h-screen flex flex-col shadow-2xl relative transition-all duration-500";
     
     const menuShapeClass = theme === 'easter' ? 'rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]' : (theme === 'christmas' ? 'rounded-2xl transform rotate-45' : 'rounded-full');
     const innerShapeTransform = theme === 'christmas' ? 'transform -rotate-45' : '';
@@ -222,21 +222,21 @@ function setTheme(theme, isInitialLoad = false) {
         el.className = `text-xl ${innerShapeTransform}`;
     });
 
-if (theme === 'emerald') {
+    if (theme === 'emerald') {
         app.className = `${baseAppClass} bg-emerald-800 text-emerald-50`;
-        body.className = "bg-emerald-950 text-emerald-50 font-sans antialiased h-[100dvh] flex flex-col items-center justify-start m-0 p-0 overflow-hidden";
+        body.className = "bg-emerald-950 text-emerald-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
     } else if (theme === 'purple') {
         app.className = `${baseAppClass} bg-indigo-900 text-indigo-50`;
-        body.className = "bg-slate-950 text-indigo-50 font-sans antialiased h-[100dvh] flex flex-col items-center justify-start m-0 p-0 overflow-hidden";
+        body.className = "bg-slate-950 text-indigo-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
     } else if (theme === 'sunset') {
         app.className = `${baseAppClass} bg-rose-950 text-rose-50`;
-        body.className = "bg-neutral-950 text-rose-50 font-sans antialiased h-[100dvh] flex flex-col items-center justify-start m-0 p-0 overflow-hidden";
+        body.className = "bg-neutral-950 text-rose-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
     } else if (theme === 'christmas') {
         app.className = `${baseAppClass} bg-red-950 text-red-50`;
-        body.className = "bg-red-900 text-red-50 font-sans antialiased h-[100dvh] flex flex-col items-center justify-start m-0 p-0 overflow-hidden";
+        body.className = "bg-red-900 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) {
             bannerContainer.innerHTML = `
                 <div class="bg-gradient-to-r from-red-900 via-rose-800 to-emerald-900 border-b border-red-500/40 py-1.5 px-3 text-center text-[11px] text-white shadow-inner flex items-center justify-center gap-2">
@@ -246,7 +246,7 @@ if (theme === 'emerald') {
         }
     } else if (theme === 'easter') {
         app.className = `${baseAppClass} bg-amber-950 text-amber-100`;
-        body.className = "bg-amber-900 text-amber-100 font-sans antialiased h-[100dvh] flex flex-col items-center justify-start m-0 p-0 overflow-hidden";
+        body.className = "bg-amber-900 text-amber-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) {
             bannerContainer.innerHTML = `
                 <div class="bg-gradient-to-r from-amber-900 via-yellow-800 to-amber-950 border-b border-amber-500/40 py-1.5 px-3 text-center text-[11px] text-white shadow-inner flex items-center justify-center gap-2">
@@ -256,11 +256,11 @@ if (theme === 'emerald') {
         }
     } else if (theme === 'light') {
         app.className = `${baseAppClass} bg-slate-100 text-slate-900`;
-        body.className = "bg-slate-300 text-slate-900 font-sans antialiased h-[100dvh] flex flex-col items-center justify-start m-0 p-0 overflow-hidden";
+        body.className = "bg-slate-300 text-slate-900 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
     } else {
         app.className = `${baseAppClass} bg-slate-950 text-slate-100`;
-        body.className = "bg-slate-900 text-slate-100 font-sans antialiased h-[100dvh] flex flex-col items-center justify-start m-0 p-0 overflow-hidden";
+        body.className = "bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
     }
 
