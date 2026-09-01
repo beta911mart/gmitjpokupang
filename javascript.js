@@ -39,34 +39,24 @@ function triggerPageTransition() {
     void main.offsetWidth; 
     main.classList.add(animClass);
 
-    // --- LOGIKA PERUBAHAN TOMBOL MELAYANG ---
+// --- LOGIKA PERUBAHAN TOMBOL MELAYANG ---
     const activeHeader = document.getElementById("headerTitle").innerText;
     const floatingBtn = document.getElementById("floatingBackBtn");
     
     if (floatingBtn) {
-        floatingBtn.classList.remove("hidden"); // Pastikan selalu tampil
-        
-        if (activeHeader.includes("PNIEL Oebobo")) {
-            // Jika di Beranda: Berubah jadi tombol Keluar (Merah)
-            floatingBtn.innerHTML = '<i class="fa-solid fa-power-off"></i> Keluar';
-            floatingBtn.className = "absolute pointer-events-auto bg-rose-600/90 backdrop-blur-md text-white px-4 py-3 rounded-full shadow-[0_4px_15px_rgba(225,29,72,0.5)] border border-rose-400 font-bold text-xs flex items-center gap-2 cursor-move active:scale-95 transition-all duration-300";
+        // Sembunyikan tombol melayang jika berada di 3 Tab Utama (Beranda, Notifikasi, Akun)
+        if (activeHeader.includes("PNIEL Oebobo") || activeHeader.includes("Notifikasi") || activeHeader.includes("Akun")) {
+            floatingBtn.classList.add("hidden");
         } else {
-            // Jika di halaman lain: Berubah jadi tombol Kembali (Ungu)
+            // Munculkan hanya sebagai tombol Kembali di halaman dalam (sub-menu)
+            floatingBtn.classList.remove("hidden");
             floatingBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i> Kembali';
             floatingBtn.className = "absolute pointer-events-auto bg-purple-600/90 backdrop-blur-md text-white px-4 py-3 rounded-full shadow-[0_4px_15px_rgba(147,51,234,0.5)] border border-purple-400 font-bold text-xs flex items-center gap-2 cursor-move active:scale-95 transition-all duration-300";
         }
     }
 }
 // --- TAMBAHKAN KODE INI UNTUK TOMBOL MELAYANG ---
-    const activeHeader = document.getElementById("headerTitle").innerText;
-    const floatingBtn = document.getElementById("floatingBackBtn");
-    if (floatingBtn) {
-        if (activeHeader.includes("PNIEL Oebobo")) {
-            floatingBtn.classList.add("hidden"); // Hilang di Beranda
-        } else {
-            floatingBtn.classList.remove("hidden"); // Muncul di dalam menu
-        }
-    }
+
 function pushNavState(funcName, args = []) {
     history.pushState({ func: funcName, args: args }, "", "");
 }
@@ -463,14 +453,23 @@ function switchTab(tab, isBack = false, isReplace = false) {
     }
     
     const main = document.querySelector("main");
-    document.getElementById("headerTitle").innerText = "GMIT Jemaat PNIEL Oebobo";
     
+    // 1. PINDAHKAN LOGIKA JUDUL KE SINI (SEBELUM TRANSISI)
+    if (tab === 'home') {
+        document.getElementById("headerTitle").innerText = "GMIT Jemaat PNIEL Oebobo";
+    } else if (tab === 'notifikasi') {
+        document.getElementById("headerTitle").innerText = "Notifikasi & Kotak Masuk";
+    } else if (tab === 'profil') {
+        document.getElementById("headerTitle").innerText = "Akun & Profil Jemaat";
+    }
+    
+    // 2. SETELAH JUDUL TEPAT, BARU JALANKAN TRANSISI
     triggerPageTransition();
 
     const savedTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
     const menuShapeClass = savedTheme === 'easter' ? 'rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]' : (savedTheme === 'christmas' ? 'rounded-2xl transform rotate-45' : 'rounded-full');
     const innerShapeTransform = savedTheme === 'christmas' ? 'transform -rotate-45' : '';
-
+    
     if (tab === 'home') {
         main.innerHTML = `
             <div class="space-y-6 pt-2">
@@ -667,8 +666,9 @@ function switchTab(tab, isBack = false, isReplace = false) {
             const isAdmin = user.isAdmin || false;
             const adminRole = user.adminRole || user.role || '';
 
-            const profileImageHtml = user.foto_profil 
-                ? `<img src="${user.foto_profil}" class="w-full h-full object-cover">`
+            const safeFotoUrl = user.foto_profil ? user.foto_profil.replace("i.ibb.co/", "i.ibb.co.com/") : "";
+            const profileImageHtml = safeFotoUrl 
+                ? `<img src="${safeFotoUrl}" class="w-full h-full object-cover relative z-10" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${user.nama_lengkap}&background=7e22ce&color=fff&size=150';">`
                 : `${user.nama_lengkap ? user.nama_lengkap.charAt(0) : 'U'}`;
 
             const verifiedBadge = user.is_verified 
