@@ -1884,8 +1884,54 @@ async function handleSaveExtendedProfile(e) {
     e.preventDefault();
     const btn = e.target.querySelector("button[type='submit']");
     btn.disabled = true;
-    btn.innerText = "Menyimpan...";
+    btn.innerText = "Menyiapkan Data...";
 
+    let fotoData = document.getElementById("fotoBase64").value;
+    let fotoUrlFinal = window.currentUser.foto_profil || "";
+
+    // 1. Cek apakah ada foto baru yang diunggah (format Base64)
+    if (fotoData && fotoData.startsWith("data:image")) {
+        try {
+            btn.innerText = "Mengunggah Foto...";
+            
+            // Hilangkan prefix 'data:image/...;base64,' agar diterima ImgBB
+            const base64Murni = fotoData.split(',')[1]; 
+            
+            // GANTI DENGAN API KEY IMGBB ANDA
+            const imgbbApiKey = "1a837d888693ad38769e982062e82d88"; 
+            
+            const formData = new FormData();
+            formData.append("image", base64Murni);
+            
+            // Format penamaan otomatis: Profil_Nama_Jemaat
+            const safeName = window.currentUser.nama_lengkap.replace(/\s+/g, '_');
+            formData.append("name", "Profil_" + safeName);
+
+            // Upload ke ImgBB
+            const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
+                method: "POST",
+                body: formData
+            });
+            const uploadResult = await uploadRes.json();
+
+            if (uploadResult.success) {
+                fotoUrlFinal = uploadResult.data.url; // Dapatkan URL publik gambar
+            } else {
+                throw new Error("Gagal dari server gambar.");
+            }
+        } catch (err) {
+            showToast("Gagal mengunggah foto profil.", "error");
+            btn.disabled = false;
+            btn.innerText = "Simpan Data";
+            return; // Hentikan proses jika gagal upload
+        }
+    } else if (fotoData) {
+        // Jika fotoData bukan Base64 (misal sudah berupa URL lama)
+        fotoUrlFinal = fotoData;
+    }
+
+    // 2. Kirim URL gambar beserta data lainnya ke Google Sheets
+    btn.innerText = "Menyimpan Profil...";
     const updatedData = {
         action: "updateExtendedProfile",
         user_id: window.currentUser.id,
@@ -1894,7 +1940,7 @@ async function handleSaveExtendedProfile(e) {
         pekerjaan: document.getElementById("extPekerjaan").value,
         golongan_darah: "-",
         minat_pelayanan: "Umum",
-        foto_profil: document.getElementById("fotoBase64").value
+        foto_profil: fotoUrlFinal // Mengirim URL ImgBB, BUKAN teks panjang Base64
     };
 
     try {
@@ -1913,7 +1959,7 @@ async function handleSaveExtendedProfile(e) {
             btn.disabled = false; btn.innerText = "Simpan Data";
         }
     } catch (err) {
-        showToast("Kesalahan koneksi.", "error");
+        showToast("Kesalahan koneksi server.", "error");
         btn.disabled = false; btn.innerText = "Simpan Data";
     }
 }
