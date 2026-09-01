@@ -224,7 +224,7 @@ function setTheme(theme, isInitialLoad = false) {
 
     if (theme === 'emerald') {
         app.className = `${baseAppClass} bg-emerald-800 text-emerald-50`;
-        body.className = "bg-emerald-950 text-emerald-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+        // Ganti dengan justify-start pada SEMUA pengaturan tema: body.className = "bg-emerald-950 text-emerald-50 font-sans antialiased min-h-screen flex flex-col items-center justify-start m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
     } else if (theme === 'purple') {
         app.className = `${baseAppClass} bg-indigo-900 text-indigo-50`;
