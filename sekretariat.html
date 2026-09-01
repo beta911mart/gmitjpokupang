@@ -405,15 +405,15 @@ function applySensusFilter() {
     const verif = document.getElementById("filterVerif").value;
 
     const filtered = window.sensusUsersCache.filter(u => {
-        // Cek Search (Nama, Alamat, Username, No WA)
+        // PERBAIKAN: Bungkus dengan String(...) agar angka tidak menyebabkan error
         const textMatch = !keyword || 
-            (u.nama_lengkap || "").toLowerCase().includes(keyword) ||
-            (u.alamat || "").toLowerCase().includes(keyword) ||
-            (u.username || "").toLowerCase().includes(keyword) ||
-            (u.no_whatsapp || "").toLowerCase().includes(keyword);
+            String(u.nama_lengkap || "").toLowerCase().includes(keyword) ||
+            String(u.alamat || "").toLowerCase().includes(keyword) ||
+            String(u.username || "").toLowerCase().includes(keyword) ||
+            String(u.no_whatsapp || "").toLowerCase().includes(keyword);
 
         // Cek Filter Dropdown
-        const genderMatch = !gender || (u.jenis_kelamin || "") === gender;
+        const genderMatch = !gender || String(u.jenis_kelamin || "") === gender;
         const lingMatch = !ling || String(u.lingkungan || "") === String(ling);
         const rayonMatch = !rayon || String(u.rayon || "") === String(rayon);
         const verifMatch = !verif || String(Boolean(u.is_verified)) === verif;
