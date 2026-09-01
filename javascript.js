@@ -257,9 +257,16 @@ function setTheme(theme, isInitialLoad = false) {
     localStorage.setItem('gmit_selected_theme', theme);
     toggleSidebar(false);
     if (!isInitialLoad) {
-        showToast("Tema berhasil diterapkan!");
+            const activeHeader = document.getElementById("headerTitle").innerText;
+            if (activeHeader.includes("PNIEL Oebobo")) {
+                switchTab('home', false, true);
+            } else if (activeHeader.includes("Notifikasi")) {
+                switchTab('notifikasi', false, true);
+            } else if (activeHeader.includes("Akun") || activeHeader.includes("Profil")) {
+                switchTab('profil', false, true);
+            }
+        }
     }
-}
 
 async function installPWA() {
     if (deferredPrompt) {
