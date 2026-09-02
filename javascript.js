@@ -210,11 +210,11 @@ function setTheme(theme, isInitialLoad = false) {
     const body = document.getElementById("appBody");
     const bannerContainer = document.getElementById("seasonalBannerContainer");
     
-    // 1. Hapus ornamen ID card lama setiap kali tema berganti agar tidak bocor ke tema lain
+    // 1. Bersihkan ornamen dan gaya tema sebelumnya
     const existingOrnamen = document.getElementById("ornamenIdCard");
     if (existingOrnamen) existingOrnamen.remove();
-	const existingLightOverride = document.getElementById("lightThemeOverride");
-    if (existingLightOverride) existingLightOverride.remove();
+    const existingOverride = document.getElementById("dynamicThemeOverride");
+    if (existingOverride) existingOverride.remove();
     
     const baseAppClass = "w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto min-h-screen flex flex-col shadow-2xl relative transition-all duration-500";
     
@@ -228,45 +228,63 @@ function setTheme(theme, isInitialLoad = false) {
         el.className = `text-xl ${innerShapeTransform}`;
     });
 
+    // 2. Variabel penampung untuk aturan CSS (Kartu, Border, Teks)
+    let cssRules = "";
+
     if (theme === 'emerald') {
         app.className = `${baseAppClass} bg-emerald-800 text-emerald-50`;
         body.className = "bg-emerald-950 text-emerald-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
+        // Ubah kartu menjadi hijau gelap dan border hijau terang
+        cssRules = `
+            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950 { background-color: #064e3b !important; }
+            #app .border-slate-700, #app .border-slate-800 { border-color: #047857 !important; }
+        `;
     } else if (theme === 'purple') {
         app.className = `${baseAppClass} bg-indigo-900 text-indigo-50`;
         body.className = "bg-slate-950 text-indigo-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
+        // Ubah kartu menjadi ungu pekat dan border ungu menyala
+        cssRules = `
+            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950 { background-color: #3b0764 !important; }
+            #app .border-slate-700, #app .border-slate-800 { border-color: #7e22ce !important; }
+        `;
     } else if (theme === 'sunset') {
         app.className = `${baseAppClass} bg-rose-950 text-rose-50`;
         body.className = "bg-neutral-950 text-rose-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
+        // Ubah kartu menjadi merah/oranye gelap dan border merah
+        cssRules = `
+            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950 { background-color: #4c0519 !important; }
+            #app .border-slate-700, #app .border-slate-800 { border-color: #e11d48 !important; }
+        `;
     } else if (theme === 'christmas') {
         app.className = `${baseAppClass} bg-red-950 text-red-50`;
         body.className = "bg-red-900 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) {
-            bannerContainer.innerHTML = `
-                <div class="bg-gradient-to-r from-red-900 via-rose-800 to-emerald-900 border-b border-red-500/40 py-1.5 px-3 text-center text-[11px] text-white shadow-inner flex items-center justify-center gap-2">
-                    <span>⭐</span> <b>Selamat Menyambut Natal Kristus</b> <span>🎄✨</span>
-                </div>
-            `;
+            bannerContainer.innerHTML = `<div class="bg-gradient-to-r from-red-900 via-rose-800 to-emerald-900 border-b border-red-500/40 py-1.5 px-3 text-center text-[11px] text-white shadow-inner flex items-center justify-center gap-2"><span>⭐</span> <b>Selamat Menyambut Natal Kristus</b> <span>🎄✨</span></div>`;
         }
+        // Kartu merah natal, border hijau cemara
+        cssRules = `
+            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950 { background-color: #7f1d1d !important; }
+            #app .border-slate-700, #app .border-slate-800 { border-color: #166534 !important; }
+        `;
     } else if (theme === 'easter') {
         app.className = `${baseAppClass} bg-amber-950 text-amber-100`;
         body.className = "bg-amber-900 text-amber-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) {
-            bannerContainer.innerHTML = `
-                <div class="bg-gradient-to-r from-amber-900 via-yellow-800 to-amber-950 border-b border-amber-500/40 py-1.5 px-3 text-center text-[11px] text-white shadow-inner flex items-center justify-center gap-2">
-                    <span>🕊️</span> <b>Selamat Hari Kebangkitan (Paskah)</b> <span>✝️✨</span>
-                </div>
-            `;
+            bannerContainer.innerHTML = `<div class="bg-gradient-to-r from-amber-900 via-yellow-800 to-amber-950 border-b border-amber-500/40 py-1.5 px-3 text-center text-[11px] text-white shadow-inner flex items-center justify-center gap-2"><span>🕊️</span> <b>Selamat Hari Kebangkitan (Paskah)</b> <span>✝️✨</span></div>`;
         }
+        // Kartu cokelat tanah, border kuning emas
+        cssRules = `
+            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950 { background-color: #713f12 !important; }
+            #app .border-slate-700, #app .border-slate-800 { border-color: #ca8a04 !important; }
+        `;
     } else if (theme === 'light') {
-        // 2. Gunakan bg-slate-50 agar putihnya lebih lembut dan tidak menyilaukan
         app.className = `${baseAppClass} bg-slate-100 text-slate-900`;
         body.className = "bg-slate-300 text-slate-900 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
         
-        // 3. Suntikkan Ornamen ID Card langsung ke dalam kontainer "app"
         const ornamen = document.createElement("div");
         ornamen.id = "ornamenIdCard";
         ornamen.className = "absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-inherit";
@@ -275,33 +293,26 @@ function setTheme(theme, isInitialLoad = false) {
             <div class="absolute top-24 right-0 w-28 h-28 bg-amber-500/15 rounded-l-full transition-all duration-700 delay-100"></div>
         `;
         app.insertBefore(ornamen, app.firstChild);
-        // Paksa semua kartu gelap menjadi putih dan teks putih menjadi gelap
-        const lightStyle = document.createElement("style");
-        lightStyle.id = "lightThemeOverride";
-        lightStyle.innerHTML = `
-            /* Ubah Wadah/Kartu menjadi Putih Murni */
-            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950 { 
-                background-color: #ffffff !important; 
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-            }
-            /* Ubah Garis Batas menjadi Abu-abu Lembut */
-            #app .border-slate-700, #app .border-slate-800 { 
-                border-color: #e2e8f0 !important; 
-            }
-            /* Ubah Teks Utama menjadi Hampir Hitam */
-            #app .text-white, #app .text-slate-100, #app .text-slate-200, #app .text-slate-300 { 
-                color: #0f172a !important; 
-            }
-            /* Ubah Teks Sekunder menjadi Abu-abu Gelap */
-            #app .text-slate-400 { 
-                color: #475569 !important; 
-            }
+        
+        cssRules = `
+            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950 { background-color: #ffffff !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1) !important; }
+            #app .border-slate-700, #app .border-slate-800 { border-color: #e2e8f0 !important; }
+            #app .text-white, #app .text-slate-100, #app .text-slate-200, #app .text-slate-300 { color: #0f172a !important; }
+            #app .text-slate-400 { color: #475569 !important; }
         `;
-        document.head.appendChild(lightStyle);
     } else {
+        // TEMA DEFAULT SLATE (Tidak butuh override CSS karena HTML asli sudah pakai Slate)
         app.className = `${baseAppClass} bg-slate-950 text-slate-100`;
         body.className = "bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
+    }
+
+    // 3. Suntikkan aturan CSS ke seluruh halaman jika ada perubahan
+    if (cssRules !== "") {
+        const style = document.createElement("style");
+        style.id = "dynamicThemeOverride";
+        style.innerHTML = cssRules;
+        document.head.appendChild(style);
     }
 
     localStorage.setItem('gmit_selected_theme', theme);
