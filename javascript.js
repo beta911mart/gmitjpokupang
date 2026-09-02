@@ -992,6 +992,14 @@ function openSuratSubMenu(isBack = false) {
                     </div>
                     <button onclick="checkAuthBeforeAction(() => openSuratForm('Surat Rekomendasi Umum'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition duration-500 shrink-0 ml-2">Buat Pengajuan</button>
                 </div>
+
+				<div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
+                    <div>
+                        <h4 class="text-xs font-bold text-white">📄 Izin Penggunaan Fasilitas / Inventaris</h4>
+                        <p class="text-[10px] text-slate-400">Keperluan penggunaan fasilitas dan inventaris Gereja.</p>
+                    </div>
+                    <button onclick="checkAuthBeforeAction(() => openSuratForm('Izin Penggunaan Fasilitas / Inventaris'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition duration-500 shrink-0 ml-2">Buat Pengajuan</button>
+                </div>
             </div>
         </div>
     `;
