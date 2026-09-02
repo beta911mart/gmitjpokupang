@@ -938,6 +938,9 @@ async function openDutyRoster(isBack = false) {
                 <p class="text-xs text-indigo-200 leading-relaxed">Jadwal pelayanan jemaat berdasarkan sesi ibadah.</p>
             </div>
 
+            <!-- Wadah Badge Waktu Terakhir Diperbarui -->
+            <div id="lastUpdateInfo" class="text-center hidden pt-1"></div>
+
             <div id="dutyContainer" class="space-y-4 pb-10">
                 <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat jadwal pelayanan...</p>
             </div>
@@ -956,9 +959,17 @@ async function openDutyRoster(isBack = false) {
             return;
         }
 
-        // 1. LOGIKA BARU: Kelompokkan HANYA berdasarkan Tanggal & Jenis Ibadah (Abaikan Waktu)
+        // 1. CARI WAKTU PEMBARUAN TERAKHIR DAN KELOMPOKKAN DATA
+        let latestTimestamp = 0;
         const groupedRoster = {};
+        
         duties.forEach(d => {
+            // Deteksi timestamp terbaru dari database
+            if (d.timestamp) {
+                const dTime = new Date(d.timestamp).getTime();
+                if (dTime > latestTimestamp) latestTimestamp = dTime;
+            }
+
             const eventKey = `${d.tanggal}|${d.jenis_ibadah}`;
             if (!groupedRoster[eventKey]) {
                 groupedRoster[eventKey] = {
@@ -971,14 +982,22 @@ async function openDutyRoster(isBack = false) {
             if (!groupedRoster[eventKey].kategori[d.kategori_tugas]) {
                 groupedRoster[eventKey].kategori[d.kategori_tugas] = [];
             }
-            // Masukkan nama dan jamnya
             groupedRoster[eventKey].kategori[d.kategori_tugas].push({ 
                 nama: d.nama_petugas, 
                 jam: d.waktu 
             });
         });
 
-        // 2. Render UI
+        // 2. TAMPILKAN LABEL TERAKHIR DIPERBARUI KE UI
+        if (latestTimestamp > 0) {
+            const dateObj = new Date(latestTimestamp);
+            const formatWaktu = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' - ' + dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WITA';
+            const updateDiv = document.getElementById("lastUpdateInfo");
+            updateDiv.innerHTML = `<span class="bg-slate-900 border border-slate-800 text-slate-400 text-[10px] px-3 py-1.5 rounded-full font-medium inline-block shadow-sm">🔄 Diperbarui: ${formatWaktu}</span>`;
+            updateDiv.classList.remove("hidden");
+        }
+
+        // 3. RENDER KARTU JADWAL PELAYANAN
         container.innerHTML = Object.values(groupedRoster).map(event => {
             const dateObj = new Date(event.tanggal);
             const formatTgl = !isNaN(dateObj) ? dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) : event.tanggal;
@@ -987,15 +1006,12 @@ async function openDutyRoster(isBack = false) {
                 <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm animate-card-hover">
                     <div class="border-b border-slate-800 pb-3 mb-3">
                         <h4 class="text-sm font-bold text-purple-400">${event.jenis_ibadah}</h4>
-                        <!-- Jam (Waktu) sengaja dihilangkan dari header agar tidak rancu -->
                         <p class="text-[11px] text-slate-400 mt-0.5">📅 ${formatTgl}</p>
                     </div>
                     
                     <div class="space-y-4">
                         ${Object.keys(event.kategori).map(kat => {
-                            // Urutkan jadwal jam bertugas dari pagi ke sore
                             const petugasSorted = event.kategori[kat].sort((a, b) => a.jam.localeCompare(b.jam));
-                            
                             return `
                             <div>
                                 <span class="bg-indigo-900 text-indigo-300 text-[10px] px-2 py-0.5 rounded font-bold inline-block mb-2">${kat}</span>
@@ -1015,7 +1031,7 @@ async function openDutyRoster(isBack = false) {
             `;
         }).join('');
 
-        // 3. Banner Pengingat Tugas Pribadi
+        // 4. BANNER PENGINGAT TUGAS PRIBADI JEMAAT
         const user = window.currentUser || JSON.parse(localStorage.getItem("user_gereja"));
         if (user) {
             const myDuties = duties.filter(d => d.nama_petugas.toLowerCase().includes(user.nama_lengkap.toLowerCase()));
