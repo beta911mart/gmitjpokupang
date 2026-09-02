@@ -478,13 +478,18 @@ async function generateIDCard(userId) {
     document.getElementById("idCardLingRayon").innerText = `: Ling. ${user.lingkungan || '-'} / Rayon ${user.rayon || '-'}`;
     document.getElementById("idCardAlamat").innerText = `: ${user.alamat || '-'}`;
     
-    // LOGIKA PENAMBAHAN FOTO 
+// LOGIKA PENAMBAHAN FOTO 
     const fotoImg = document.getElementById("idCardFoto");
     const placeholder = document.getElementById("idCardFotoPlaceholder");
     
-    // Sesuaikan properti 'user.foto' dengan nama field foto dari Google Script/Database Anda
-    if (user.foto || user.url_foto) { 
-        fotoImg.src = user.foto || user.url_foto;
+    // Sesuaikan dengan nama field dari sistem profil (foto_profil)
+    const fotoUrl = user.foto_profil || user.foto || user.url_foto;
+    
+    if (fotoUrl) { 
+        // Menyesuaikan domain ImgBB agar aman dari blokir CORS saat dicetak
+        const safeUrl = fotoUrl.replace("i.ibb.co/", "i.ibb.co.com/");
+        
+        fotoImg.src = safeUrl;
         fotoImg.classList.remove("hidden");
         placeholder.classList.add("hidden");
     } else {
