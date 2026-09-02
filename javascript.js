@@ -40,6 +40,7 @@ function triggerPageTransition() {
     main.classList.add(animClass);
 
 // --- LOGIKA PERUBAHAN TOMBOL MELAYANG ---
+// (Pastikan blok ini tetap berada di dalam fungsi pembaruan UI Anda, misalnya di triggerPageTransition)
     const activeHeader = document.getElementById("headerTitle").innerText;
     const floatingBtn = document.getElementById("floatingBackBtn");
     
@@ -54,12 +55,81 @@ function triggerPageTransition() {
             floatingBtn.className = "absolute pointer-events-auto bg-purple-600/90 backdrop-blur-md text-white px-4 py-3 rounded-full shadow-[0_4px_15px_rgba(147,51,234,0.5)] border border-purple-400 font-bold text-xs flex items-center gap-2 cursor-move active:scale-95 transition-all duration-300";
         }
     }
-}
-// --- TAMBAHKAN KODE INI UNTUK TOMBOL MELAYANG ---
+// } <-- Akhir dari fungsi pembaruan UI (sesuaikan dengan tutup kurung kurawal fungsi asli Anda)
 
+// --- LOGIKA GESER (DRAG & DROP) TOMBOL MELAYANG UNTUK HP DAN PC ---
+const dragBtn = document.getElementById("floatingBackBtn"); 
+let isDragging = false;
+let startX, startY, initialX, initialY;
+
+if (dragBtn) {
+    // Event untuk Mouse (PC)
+    dragBtn.addEventListener('mousedown', dragStart);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', dragEnd);
+
+    // Event untuk Sentuhan Jari (HP)
+    dragBtn.addEventListener('touchstart', dragStart, { passive: false });
+    document.addEventListener('touchmove', drag, { passive: false });
+    document.addEventListener('touchend', dragEnd);
+}
+
+function dragStart(e) {
+    isDragging = true;
+    if (e.type === "touchstart") {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    } else {
+        startX = e.clientX;
+        startY = e.clientY;
+    }
+    
+    initialX = dragBtn.offsetLeft;
+    initialY = dragBtn.offsetTop;
+    
+    // Hapus transisi CSS sementara agar tombol tidak terasa lambat/delay saat mengikuti jari
+    dragBtn.style.transition = "none";
+}
+
+function drag(e) {
+    if (!isDragging) return;
+    
+    // Mencegah layar HP ikut tergulung (scrolling) saat tombol sedang digeser
+    if (e.type === "touchmove") e.preventDefault(); 
+    
+    let currentX, currentY;
+    if (e.type === "touchmove") {
+        currentX = e.touches[0].clientX;
+        currentY = e.touches[0].clientY;
+    } else {
+        currentX = e.clientX;
+        currentY = e.clientY;
+    }
+
+    const diffX = currentX - startX;
+    const diffY = currentY - startY;
+
+    // Terapkan posisi baru
+    dragBtn.style.left = (initialX + diffX) + "px";
+    dragBtn.style.top = (initialY + diffY) + "px";
+    
+    // Reset properti right/bottom bawaan agar tidak terjadi bentrok penempatan
+    dragBtn.style.right = "auto"; 
+    dragBtn.style.bottom = "auto";
+}
+
+function dragEnd() {
+    isDragging = false;
+    // Kembalikan efek transisi (berdasarkan class Tailwind Anda) setelah selesai digeser
+    if(dragBtn) dragBtn.style.transition = "all 0.3s ease";
+}
+
+
+// --- MANAJEMEN NAVIGASI (HISTORY API) ---
 function pushNavState(funcName, args = []) {
     history.pushState({ func: funcName, args: args }, "", "");
 }
+
 function replaceNavState(funcName, args = []) {
     history.replaceState({ func: funcName, args: args }, "", "");
 }
@@ -112,6 +182,8 @@ window.addEventListener('popstate', function (event) {
     }
 });
 
+
+// --- SERVICE WORKER & PWA ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
@@ -125,7 +197,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
 });
-
 function showToast(message, type = "success") {
     const container = document.getElementById("toastContainer");
     container.innerHTML = ""; 
