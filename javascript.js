@@ -679,10 +679,16 @@ function switchTab(tab, isBack = false, isReplace = false) {
             const isAdmin = user.isAdmin || false;
             const adminRole = user.adminRole || user.role || '';
 
-            const safeFotoUrl = user.foto_profil ? user.foto_profil.replace("i.ibb.co/", "i.ibb.co.com/") : "";
+			// 1. Tangkap semua kemungkinan nama kolom foto dari database
+            const rawFotoUrl = user.foto_profil || user.foto || user.url_foto || "";
+            
+            // 2. Bersihkan URL (Proxy bypass)
+            const safeFotoUrl = rawFotoUrl ? rawFotoUrl.replace("i.ibb.co/", "i.ibb.co.com/") : "";
+            
+            // 3. Render HTML
             const profileImageHtml = safeFotoUrl 
-                ? `<img src="${safeFotoUrl}" class="w-full h-full object-cover relative z-10" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${user.nama_lengkap}&background=7e22ce&color=fff&size=150';">`
-                : `${user.nama_lengkap ? user.nama_lengkap.charAt(0) : 'U'}`;
+                ? `<img src="${safeFotoUrl}" class="w-full h-full object-cover relative z-10" crossorigin="anonymous" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${user.nama_lengkap}&background=7e22ce&color=fff&size=150';">`
+                : `<div class="w-full h-full bg-slate-200 flex items-center justify-center relative z-10"><span class="text-3xl opacity-50">👤</span></div>`;
 
             const verifiedBadge = user.is_verified 
                 ? `<span class="inline-flex items-center gap-1.5 bg-blue-950/40 text-blue-300 border border-blue-500/30 text-[11px] px-2.5 py-1 rounded-full font-semibold mt-1">
