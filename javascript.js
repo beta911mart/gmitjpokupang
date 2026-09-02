@@ -425,10 +425,14 @@ async function handleRegisterForAction(e) {
     btn.innerHTML = "Membuat Akun...";
 
     try {
-        const response = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "register", nama_lengkap: nama, no_whatsapp: wa })
-        });
+		const response = await fetch(SCRIPT_URL, {
+		    method: "POST",
+		    redirect: "follow",
+		    headers: {
+		        "Content-Type": "text/plain;charset=utf-8"
+		    },
+		    body: JSON.stringify({ action: "register", nama_lengkap: nama, no_whatsapp: wa })
+		});
         const result = await response.json();
 
         if (result.status === "success") {
@@ -501,10 +505,14 @@ async function handleLoginForAction(e) {
     btn.innerHTML = "Memproses...";
 
     try {
-        const response = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "login", nama_lengkap: nama, pin_4_digit: pin })
-        });
+		const response = await fetch(SCRIPT_URL, {
+		    method: "POST",
+		    redirect: "follow",
+		    headers: {
+		        "Content-Type": "text/plain;charset=utf-8"
+		    },
+		    body: JSON.stringify({ action: "login", nama_lengkap: nama, pin_4_digit: pin })
+		});
         const result = await response.json();
 
         if (result.status === "success") {
