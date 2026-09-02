@@ -964,8 +964,8 @@ function openSuratSubMenu(isBack = false) {
     main.innerHTML = `
         <div class="space-y-4">
             
-            <div class="bg-amber-950/40 border border-amber-900/40 p-3 rounded-xl">
-                <p class="text-xs text-amber-200">Pilih jenis layanan surat menyurat yang Anda butuhkan di bawah ini.</p>
+			<div class="bg-amber-950/40 border border-amber-900/40 p-3 rounded-xl">
+                <p class="text-xs text-amber-200">Pilih jenis layanan surat menyurat yang Anda butuhkan di bawah ini, atau cek menu <a href="javascript:void(0)" onclick="openDownloadCenter()" class="font-bold text-amber-400 underline hover:text-amber-300 transition">Download</a> secara berkala.</p>
             </div>
 
             <div class="space-y-3">
