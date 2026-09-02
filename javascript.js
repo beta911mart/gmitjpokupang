@@ -58,74 +58,6 @@ function triggerPageTransition() {
 }
 // <-- Akhir dari fungsi pembaruan UI (sesuaikan dengan tutup kurung kurawal fungsi asli Anda)
 
-// --- LOGIKA GESER (DRAG & DROP) TOMBOL MELAYANG UNTUK HP DAN PC ---
-const dragBtn = document.getElementById("floatingBackBtn"); 
-let isDragging = false;
-let startX, startY, initialX, initialY;
-
-if (dragBtn) {
-    // Event untuk Mouse (PC)
-    dragBtn.addEventListener('mousedown', dragStart);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', dragEnd);
-
-    // Event untuk Sentuhan Jari (HP)
-    dragBtn.addEventListener('touchstart', dragStart, { passive: false });
-    document.addEventListener('touchmove', drag, { passive: false });
-    document.addEventListener('touchend', dragEnd);
-}
-
-function dragStart(e) {
-    isDragging = true;
-    if (e.type === "touchstart") {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-    } else {
-        startX = e.clientX;
-        startY = e.clientY;
-    }
-    
-    initialX = dragBtn.offsetLeft;
-    initialY = dragBtn.offsetTop;
-    
-    // Hapus transisi CSS sementara agar tombol tidak terasa lambat/delay saat mengikuti jari
-    dragBtn.style.transition = "none";
-}
-
-function drag(e) {
-    if (!isDragging) return;
-    
-    // Mencegah layar HP ikut tergulung (scrolling) saat tombol sedang digeser
-    if (e.type === "touchmove") e.preventDefault(); 
-    
-    let currentX, currentY;
-    if (e.type === "touchmove") {
-        currentX = e.touches[0].clientX;
-        currentY = e.touches[0].clientY;
-    } else {
-        currentX = e.clientX;
-        currentY = e.clientY;
-    }
-
-    const diffX = currentX - startX;
-    const diffY = currentY - startY;
-
-    // Terapkan posisi baru
-    dragBtn.style.left = (initialX + diffX) + "px";
-    dragBtn.style.top = (initialY + diffY) + "px";
-    
-    // Reset properti right/bottom bawaan agar tidak terjadi bentrok penempatan
-    dragBtn.style.right = "auto"; 
-    dragBtn.style.bottom = "auto";
-}
-
-function dragEnd() {
-    isDragging = false;
-    // Kembalikan efek transisi (berdasarkan class Tailwind Anda) setelah selesai digeser
-    if(dragBtn) dragBtn.style.transition = "all 0.3s ease";
-}
-
-
 // --- MANAJEMEN NAVIGASI (HISTORY API) ---
 function pushNavState(funcName, args = []) {
     history.pushState({ func: funcName, args: args }, "", "");
@@ -2513,6 +2445,75 @@ document.addEventListener("DOMContentLoaded", () => {
     checkPushNotification();
     updateAuthNavText();
 });
+// --- LOGIKA TOMBOL MELAYANG RESPONSIVE ---
+const fab = document.getElementById('floatingBackBtn');
+const fabContainer = document.getElementById('fabContainer');
+let isDraggingFab = false;
+let isMoved = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+
+if (fab && fabContainer) {
+    fab.addEventListener('mousedown', startDrag);
+    fab.addEventListener('touchstart', startDrag, { passive: false });
+    
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('touchmove', onDrag, { passive: false });
+    
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
+}
+
+function startDrag(e) {
+    if (e.target === fab || fab.contains(e.target)) {
+        isDraggingFab = true;
+        isMoved = false;
+        
+        const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+        
+        const fabRect = fab.getBoundingClientRect();
+        
+        dragOffsetX = clientX - fabRect.left;
+        dragOffsetY = clientY - fabRect.top;
+        
+        const containerRect = fabContainer.getBoundingClientRect();
+        const currentLeft = fabRect.left - containerRect.left;
+        const currentTop = fabRect.top - containerRect.top;
+        
+        fab.style.right = 'auto';
+        fab.style.bottom = 'auto';
+        fab.style.left = currentLeft + 'px';
+        fab.style.top = currentTop + 'px';
+    }
+}
+
+function onDrag(e) {
+    if (!isDraggingFab) return;
+    isMoved = true;
+    e.preventDefault(); 
+    
+    const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+    
+    const containerRect = fabContainer.getBoundingClientRect();
+    
+    let pointerViewportX = clientX - dragOffsetX;
+    let pointerViewportY = clientY - dragOffsetY;
+    
+    let newLeft = pointerViewportX - containerRect.left;
+    let newTop = pointerViewportY - containerRect.top;
+    
+    const maxLeft = containerRect.width - fab.offsetWidth;
+    const maxTop = containerRect.height - fab.offsetHeight;
+    
+    fab.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + 'px';
+    fab.style.top = Math.max(0, Math.min(newTop, maxTop)) + 'px';
+}
+
+function endDrag() {
+    isDraggingFab = false;
+}
 function goBackOrHome(e) {
     // Jika tombol hanya digeser, jangan lakukan aksi klik
     if (isMoved) {
