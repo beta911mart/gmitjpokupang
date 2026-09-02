@@ -718,7 +718,10 @@ function switchTab(tab, isBack = false, isReplace = false) {
                         <div><span class="text-slate-400 block text-[10px]">Minat Pelayanan / Komisi</span><span class="text-slate-200 font-medium">${user.minat_pelayanan || '-'}</span></div>
                     </div>
 
-                    <div class="space-y-2">
+	<div class="space-y-2">
+                        <button onclick="bukaPopupKTJ()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition duration-500 flex items-center justify-center gap-1.5">
+                            <span>🪪</span> Tampilkan KTJ (Kartu Tanda Jemaat)
+                        </button>
                         <button onclick="openExtendedProfileForm(true)" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition duration-500 flex items-center justify-center gap-1.5">
                             <span>✏️</span> Lengkapi / Perbarui Data Diri
                         </button>
@@ -2504,5 +2507,61 @@ function goBackOrHome(e) {
     } else {
         // Jika di menu lain, kembali ke halaman sebelumnya
         history.back();
+    }
+}
+function bukaPopupKTJ() {
+    const user = window.currentUser;
+    if (!user) return showToast("Sesi jemaat tidak ditemukan.", "error");
+
+    const template = document.getElementById("idCardTemplate");
+    const container = document.getElementById("ktjContainer");
+    
+    if (template && container) {
+        template.classList.remove("hidden");
+        
+        // Memasukkan data profil terbaru
+        document.getElementById("idCardNama").innerText = user.nama_lengkap || "-";
+        document.getElementById("idCardGender").innerText = user.jenis_kelamin || "-";
+        document.getElementById("idCardLingRayon").innerText = `: Ling. ${user.lingkungan || '-'} / Rayon ${user.rayon || '-'}`;
+        document.getElementById("idCardAlamat").innerText = `: ${user.alamat || '-'}`;
+        
+        // Memasukkan Foto Profil
+        const fotoImg = document.getElementById("idCardFoto");
+        const placeholder = document.getElementById("idCardFotoPlaceholder");
+        
+        if (user.foto_profil) {
+            fotoImg.src = user.foto_profil;
+            fotoImg.classList.remove("hidden");
+            if(placeholder) placeholder.classList.add("hidden");
+        } else {
+            fotoImg.src = "";
+            fotoImg.classList.add("hidden");
+            if(placeholder) placeholder.classList.remove("hidden");
+        }
+
+        // Generate QR Code Berdasarkan ID User
+        const qrImg = document.getElementById("idCardQR");
+        if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
+    }
+
+    document.getElementById("ktjModal").classList.remove("hidden");
+}
+
+function tutupKTJ() {
+    document.getElementById("ktjModal").classList.add("hidden");
+}
+
+function unduhKTJ() {
+    showToast("Memproses unduhan...");
+    const cardElement = document.getElementById("idCardTemplate");
+    
+    // Pastikan library html2canvas sudah dimuat di index.html
+    if (typeof html2canvas === 'function' && cardElement) {
+        html2canvas(cardElement, { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `KTJ_${window.currentUser.nama_lengkap.replace(/\s+/g, '_')}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        }).catch(err => alert("Gagal mengunduh: " + err));
     }
 }
