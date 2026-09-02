@@ -1587,13 +1587,12 @@ function loadRosterForm() {
                         </select>
                     </div>
                     
-	<div class="relative">
+					<div class="relative">
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Petugas</label>
-                        <input type="text" id="rosPetugas" required autocomplete="off" oninput="showPetugasSuggestions(this.value)" placeholder="Cth: Pnt. John Doe" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                        <!-- Ubah placeholder agar lebih informatif -->
+                        <input type="text" id="rosPetugas" required autocomplete="off" oninput="showPetugasSuggestions(this.value)" placeholder="Cth: Pnt. John, Jane Doe (Bisa pilih lebih dari 1)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
                         
-                        <!-- Dropdown Sugesti Nama -->
                         <div id="petugasSuggestionBox" class="absolute z-10 w-full bg-slate-800 border border-slate-700 rounded-lg mt-1 hidden max-h-48 overflow-y-auto shadow-xl">
-                            <!-- List item sugesti akan dimuat di sini -->
                         </div>
                     </div>
                     
@@ -1919,40 +1918,56 @@ async function fetchAllJemaatForSuggestions() {
     }
 }
 
-// Menampilkan kotak sugesti saat pengguna mengetik
-function showPetugasSuggestions(query) {
+// Menampilkan kotak sugesti yang mendukung banyak nama (koma)
+function showPetugasSuggestions(inputValue) {
     const suggestionBox = document.getElementById("petugasSuggestionBox");
     
-    // Jika input kosong, sembunyikan kotak sugesti
-    if (!query.trim()) {
+    // Pecah berdasarkan koma, lalu ambil teks yang paling terakhir diketik
+    const namesArray = inputValue.split(',');
+    const currentQuery = namesArray[namesArray.length - 1].trim();
+    
+    // Jika bagian yang sedang diketik kosong, sembunyikan kotak sugesti
+    if (!currentQuery) {
         suggestionBox.classList.add("hidden");
         return;
     }
 
-    // Filter nama dari cache yang mengandung query pencarian (case-insensitive)
+    // Filter dari cache jemaat
     const matches = allJemaatCache.filter(nama => 
-        nama.toLowerCase().includes(query.toLowerCase())
+        nama.toLowerCase().includes(currentQuery.toLowerCase())
     );
 
-    // Jika ada hasil yang cocok
     if (matches.length > 0) {
         suggestionBox.innerHTML = matches.map(nama => `
-            <div onclick="selectPetugasSuggestion('${nama}')" class="px-3 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white cursor-pointer border-b border-slate-700/50 last:border-0 transition-colors">
+            <div onclick="selectPetugasSuggestion('${nama.replace(/'/g, "\\'")}')" class="px-3 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white cursor-pointer border-b border-slate-700/50 last:border-0 transition-colors">
                 ${nama}
             </div>
         `).join('');
         suggestionBox.classList.remove("hidden");
     } else {
-        // Jika tidak ada hasil, sembunyikan (biarkan user mengetik manual)
         suggestionBox.classList.add("hidden");
     }
 }
 
-// Memasukkan nama yang diklik dari sugesti ke dalam input box
+// Memasukkan nama ke input tanpa menghapus nama sebelumnya
 function selectPetugasSuggestion(nama) {
     const input = document.getElementById("rosPetugas");
-    input.value = nama;
+    const currentVal = input.value;
+    
+    // Pecah teks yang ada berdasarkan koma
+    const namesArray = currentVal.split(',');
+    
+    // Hapus teks pencarian terakhir yang belum selesai, ganti dengan nama lengkap dari sugesti
+    namesArray.pop(); 
+    
+    // Masukkan nama baru ke dalam daftar
+    namesArray.push(" " + nama);
+    
+    // Gabungkan kembali dengan koma, tambahkan koma di akhir untuk bersiap menerima nama berikutnya
+    input.value = namesArray.join(',').replace(/^,?\s*/, '') + ", "; 
+    
     document.getElementById("petugasSuggestionBox").classList.add("hidden");
+    input.focus(); // Kembalikan kursor ke input agar bisa langsung lanjut mencari nama berikutnya
 }
 
 // Menutup dropdown sugesti jika user mengklik area lain di luar form
