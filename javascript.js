@@ -1924,8 +1924,9 @@ async function handleSaveExtendedProfile(e) {
             });
             const uploadResult = await uploadRes.json();
 
-            if (uploadResult.success) {
-                fotoUrlFinal = uploadResult.data.url; // Dapatkan URL publik gambar
+			if (uploadResult.success) {
+                // Terapkan logika Anda: langsung ubah domain URL sebelum dikirim ke database
+                fotoUrlFinal = uploadResult.data.url.replace("i.ibb.co/", "i.ibb.co.com/");
             } else {
                 throw new Error("Gagal dari server gambar.");
             }
