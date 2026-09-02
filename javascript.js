@@ -938,7 +938,7 @@ async function openDutyRoster(isBack = false) {
                 <p class="text-xs text-indigo-200 leading-relaxed">Jadwal pelayanan jemaat berdasarkan sesi ibadah.</p>
             </div>
 
-            <!-- Wadah Badge Waktu Terakhir Diperbarui -->
+            <!-- Wadah Tanggal Update (Muncul jika ada data) -->
             <div id="lastUpdateInfo" class="text-center hidden pt-1"></div>
 
             <div id="dutyContainer" class="space-y-4 pb-10">
@@ -959,45 +959,36 @@ async function openDutyRoster(isBack = false) {
             return;
         }
 
-        // 1. CARI WAKTU PEMBARUAN TERAKHIR DAN KELOMPOKKAN DATA
-        let latestTimestamp = 0;
+        // LOGIKA PENCARIAN TIMESTAMP TERAKHIR DARI DATABASE
+        let latestTimeMs = 0;
         const groupedRoster = {};
         
         duties.forEach(d => {
-            // Deteksi timestamp terbaru dari database
+            // Mengecek kolom timestamp di database
             if (d.timestamp) {
-                const dTime = new Date(d.timestamp).getTime();
-                if (dTime > latestTimestamp) latestTimestamp = dTime;
+                const ms = new Date(d.timestamp).getTime();
+                if (ms > latestTimeMs) latestTimeMs = ms;
             }
 
             const eventKey = `${d.tanggal}|${d.jenis_ibadah}`;
             if (!groupedRoster[eventKey]) {
-                groupedRoster[eventKey] = {
-                    tanggal: d.tanggal,
-                    jenis_ibadah: d.jenis_ibadah,
-                    kategori: {}
-                };
+                groupedRoster[eventKey] = { tanggal: d.tanggal, jenis_ibadah: d.jenis_ibadah, kategori: {} };
             }
-            
             if (!groupedRoster[eventKey].kategori[d.kategori_tugas]) {
                 groupedRoster[eventKey].kategori[d.kategori_tugas] = [];
             }
-            groupedRoster[eventKey].kategori[d.kategori_tugas].push({ 
-                nama: d.nama_petugas, 
-                jam: d.waktu 
-            });
+            groupedRoster[eventKey].kategori[d.kategori_tugas].push({ nama: d.nama_petugas, jam: d.waktu });
         });
 
-        // 2. TAMPILKAN LABEL TERAKHIR DIPERBARUI KE UI
-        if (latestTimestamp > 0) {
-            const dateObj = new Date(latestTimestamp);
+        // TAMPILKAN TANGGAL UPDATE KE LAYAR JEMAAT
+        if (latestTimeMs > 0) {
+            const dateObj = new Date(latestTimeMs);
             const formatWaktu = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' - ' + dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WITA';
             const updateDiv = document.getElementById("lastUpdateInfo");
-            updateDiv.innerHTML = `<span class="bg-slate-900 border border-slate-800 text-slate-400 text-[10px] px-3 py-1.5 rounded-full font-medium inline-block shadow-sm">🔄 Diperbarui: ${formatWaktu}</span>`;
+            updateDiv.innerHTML = `<span class="bg-slate-900 border border-slate-800 text-purple-400 text-[10px] px-3 py-1.5 rounded-full font-bold inline-block shadow-sm">🔄 Terakhir Diperbarui: ${formatWaktu}</span>`;
             updateDiv.classList.remove("hidden");
         }
 
-        // 3. RENDER KARTU JADWAL PELAYANAN
         container.innerHTML = Object.values(groupedRoster).map(event => {
             const dateObj = new Date(event.tanggal);
             const formatTgl = !isNaN(dateObj) ? dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) : event.tanggal;
@@ -1019,6 +1010,7 @@ async function openDutyRoster(isBack = false) {
                                     ${petugasSorted.map(petugas => `
                                         <div class="flex items-start gap-1.5">
                                             <span class="text-slate-500 font-bold">-</span>
+                                            <!-- Jam tidak error lagi karena sudah terbaca sebagai teks -->
                                             <span>${petugas.nama} - ${petugas.jam}</span>
                                         </div>
                                     `).join('')}
@@ -1031,7 +1023,7 @@ async function openDutyRoster(isBack = false) {
             `;
         }).join('');
 
-        // 4. BANNER PENGINGAT TUGAS PRIBADI JEMAAT
+        // Banner Tugas Pribadi...
         const user = window.currentUser || JSON.parse(localStorage.getItem("user_gereja"));
         if (user) {
             const myDuties = duties.filter(d => d.nama_petugas.toLowerCase().includes(user.nama_lengkap.toLowerCase()));
