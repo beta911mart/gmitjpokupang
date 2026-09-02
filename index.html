@@ -159,6 +159,24 @@
             <i class="fa-solid fa-arrow-left"></i> Kembali
         </button>
     </div>
+
+<!-- Modal KTJ Melayang -->
+    <div id="ktjModal" class="fixed inset-0 bg-black/95 z-[99999] hidden flex flex-col items-center justify-center p-4 animate-fade-in">
+        <!-- Wadah Rendering KTJ -->
+        <div id="ktjContainer" class="flex justify-center items-center rounded-xl overflow-hidden shadow-2xl mb-6 bg-white w-[340px] h-[420px] relative">
+            <!-- Pindahkan/Paste kode <div id="idCardTemplate"> yang Anda miliki ke dalam sini -->
+        </div>
+        
+        <!-- Opsi Aksi -->
+        <div class="flex gap-4 w-full max-w-[340px]">
+            <button onclick="unduhKTJ()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs shadow-md transition duration-500">
+                📥 Unduh KTJ
+            </button>
+            <button onclick="tutupKTJ()" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl font-bold text-xs shadow-md transition duration-500">
+                ✕ Tutup
+            </button>
+        </div>
+    </div>
     <!-- Memanggil file JavaScript eksternal -->
     <script src="javascript.js"></script>
 </body>
