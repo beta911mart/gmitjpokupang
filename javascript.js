@@ -210,6 +210,10 @@ function setTheme(theme, isInitialLoad = false) {
     const body = document.getElementById("appBody");
     const bannerContainer = document.getElementById("seasonalBannerContainer");
     
+    // 1. Hapus ornamen ID card lama setiap kali tema berganti agar tidak bocor ke tema lain
+    const existingOrnamen = document.getElementById("ornamenIdCard");
+    if (existingOrnamen) existingOrnamen.remove();
+    
     const baseAppClass = "w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto min-h-screen flex flex-col shadow-2xl relative transition-all duration-500";
     
     const menuShapeClass = theme === 'easter' ? 'rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]' : (theme === 'christmas' ? 'rounded-2xl transform rotate-45' : 'rounded-full');
@@ -255,9 +259,21 @@ function setTheme(theme, isInitialLoad = false) {
             `;
         }
     } else if (theme === 'light') {
-        app.className = `${baseAppClass} bg-slate-100 text-slate-900`;
+        // 2. Gunakan bg-slate-50 agar putihnya lebih lembut dan tidak menyilaukan
+        app.className = `${baseAppClass} bg-slate-50 text-slate-900`;
         body.className = "bg-slate-300 text-slate-900 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
+        
+        // 3. Suntikkan Ornamen ID Card langsung ke dalam kontainer "app"
+        const ornamen = document.createElement("div");
+        ornamen.id = "ornamenIdCard";
+        ornamen.className = "absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-inherit";
+        ornamen.innerHTML = `
+            <div class="absolute bottom-0 left-0 w-40 h-40 bg-blue-600/10 rounded-tr-full transition-all duration-700"></div>
+            <div class="absolute top-24 right-0 w-28 h-28 bg-amber-500/15 rounded-l-full transition-all duration-700 delay-100"></div>
+        `;
+        app.insertBefore(ornamen, app.firstChild);
+        
     } else {
         app.className = `${baseAppClass} bg-slate-950 text-slate-100`;
         body.className = "bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
@@ -266,17 +282,18 @@ function setTheme(theme, isInitialLoad = false) {
 
     localStorage.setItem('gmit_selected_theme', theme);
     toggleSidebar(false);
+    
     if (!isInitialLoad) {
-            const activeHeader = document.getElementById("headerTitle").innerText;
-            if (activeHeader.includes("PNIEL Oebobo")) {
-                switchTab('home', false, true);
-            } else if (activeHeader.includes("Notifikasi")) {
-                switchTab('notifikasi', false, true);
-            } else if (activeHeader.includes("Akun") || activeHeader.includes("Profil")) {
-                switchTab('profil', false, true);
-            }
+        const activeHeader = document.getElementById("headerTitle").innerText;
+        if (activeHeader.includes("PNIEL Oebobo")) {
+            switchTab('home', false, true);
+        } else if (activeHeader.includes("Notifikasi")) {
+            switchTab('notifikasi', false, true);
+        } else if (activeHeader.includes("Akun") || activeHeader.includes("Profil")) {
+            switchTab('profil', false, true);
         }
     }
+}
 
 async function installPWA() {
     if (deferredPrompt) {
