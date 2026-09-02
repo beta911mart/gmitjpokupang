@@ -468,7 +468,8 @@ function renderSensusTable(users) {
 }
 
 async function generateIDCard(userId) {
-    const user = window.sensusUsersCache.find(u => u.id === userId);
+    // Sesuaikan sumber data user dengan variabel di panel sekretariat Anda
+    const user = window.sensusUsersCache ? window.sensusUsersCache.find(u => u.id === userId) : window.currentUser;
     if (!user) return alert("Data jemaat tidak ditemukan.");
 
     showToastBanner(`Menyiapkan ID Card untuk ${user.nama_lengkap}...`);
@@ -478,48 +479,65 @@ async function generateIDCard(userId) {
     document.getElementById("idCardLingRayon").innerText = `: Ling. ${user.lingkungan || '-'} / Rayon ${user.rayon || '-'}`;
     document.getElementById("idCardAlamat").innerText = `: ${user.alamat || '-'}`;
     
-// LOGIKA PENAMBAHAN FOTO 
     const fotoImg = document.getElementById("idCardFoto");
     const placeholder = document.getElementById("idCardFotoPlaceholder");
-    
-    // Sesuaikan dengan nama field dari sistem profil (foto_profil)
+    const qrImg = document.getElementById("idCardQR");
+
+    // Deteksi foto profil
     const fotoUrl = user.foto_profil || user.foto || user.url_foto;
-    
-    if (fotoUrl) { 
-        // Menyesuaikan domain ImgBB agar aman dari blokir CORS saat dicetak
-        const safeUrl = fotoUrl.replace("i.ibb.co/", "i.ibb.co.com/");
+
+    // Fungsi pembantu untuk memastikan gambar benar-benar termuat
+    const loadImage = (imgElement, src) => {
+        return new Promise((resolve) => {
+            imgElement.crossOrigin = "anonymous";
+            imgElement.onload = resolve;
+            imgElement.onerror = resolve; // Lanjut proses walau gagal muat
+            imgElement.src = src;
+        });
+    };
+
+    const loadPromises = [];
+
+    // 1. Proses Muat Foto (Gunakan Proxy Bebas CORS)
+    if (fotoUrl && fotoUrl.trim() !== "") { 
+        // Menggunakan wsrv.nl agar html2canvas tidak diblokir oleh CORS ImgBB / Google
+        const proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(fotoUrl)}&w=200&fit=cover`;
         
-        fotoImg.src = safeUrl;
         fotoImg.classList.remove("hidden");
-        placeholder.classList.add("hidden");
+        if(placeholder) placeholder.classList.add("hidden");
+        
+        loadPromises.push(loadImage(fotoImg, proxyUrl));
     } else {
         fotoImg.src = "";
         fotoImg.classList.add("hidden");
-        placeholder.classList.remove("hidden");
+        if(placeholder) placeholder.classList.remove("hidden");
     }
 
-    const qrImg = document.getElementById("idCardQR");
-    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
+    // 2. Proses Muat QR Code
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
+    loadPromises.push(loadImage(qrImg, qrUrl));
 
-    qrImg.onload = () => {
-        // Beri sedikit jeda agar gambar foto (jika ada) juga sempat termuat
-        setTimeout(() => {
-            const cardElement = document.getElementById("idCardTemplate");
-            
-            html2canvas(cardElement, { 
-                scale: 3, 
-                useCORS: true, // Wajib bernilai true agar foto cross-origin dari drive/link eksternal bisa dicetak
-                backgroundColor: "#ffffff" 
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `ID_Card_${user.nama_lengkap.replace(/\s+/g, '_')}.png`;
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-            }).catch(err => {
-                alert("Terjadi kesalahan saat mencetak kartu: " + err);
-            });
-        }, 500); 
-    };
+    // Tunggu SEMUA gambar selesai dimuat sebelum menjalankan html2canvas
+    await Promise.all(loadPromises);
+
+    // Beri jeda ekstra 500ms agar browser selesai merender tampilan ke layar
+    setTimeout(() => {
+        const cardElement = document.getElementById("idCardTemplate");
+        
+        html2canvas(cardElement, { 
+            scale: 3, 
+            useCORS: true, 
+            allowTaint: true, // Mengizinkan render walau ada sedikit isu origin
+            backgroundColor: "#ffffff" 
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `KTJ_${user.nama_lengkap.replace(/\s+/g, '_')}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        }).catch(err => {
+            alert("Terjadi kesalahan saat mencetak kartu: " + err);
+        });
+    }, 500); 
 }
 
         // --- 4. MODERASI KOTAK DOA ---
