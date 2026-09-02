@@ -479,34 +479,17 @@ async function generateIDCard(userId) {
     document.getElementById("idCardLingRayon").innerText = `: Ling. ${user.lingkungan || '-'} / Rayon ${user.rayon || '-'}`;
     document.getElementById("idCardAlamat").innerText = `: ${user.alamat || '-'}`;
     
-    const fotoImg = document.getElementById("idCardFoto");
+	const fotoImg = document.getElementById("idCardFoto");
     const placeholder = document.getElementById("idCardFotoPlaceholder");
-    const qrImg = document.getElementById("idCardQR");
-
-    // Deteksi foto profil
-    const fotoUrl = user.foto_profil || user.foto || user.url_foto;
-
-    // Fungsi pembantu untuk memastikan gambar benar-benar termuat
-    const loadImage = (imgElement, src) => {
-        return new Promise((resolve) => {
-            imgElement.crossOrigin = "anonymous";
-            imgElement.onload = resolve;
-            imgElement.onerror = resolve; // Lanjut proses walau gagal muat
-            imgElement.src = src;
-        });
-    };
-
-    const loadPromises = [];
-
-    // 1. Proses Muat Foto (Gunakan Proxy Bebas CORS)
+    
+    // Langsung ambil URL dari database yang sudah berformat i.ibb.co.com/
+    const fotoUrl = user.foto_profil || user.foto;
+    
     if (fotoUrl && fotoUrl.trim() !== "") { 
-        // Menggunakan wsrv.nl agar html2canvas tidak diblokir oleh CORS ImgBB / Google
-        const proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(fotoUrl)}&w=200&fit=cover`;
-        
+        fotoImg.crossOrigin = "anonymous"; // Wajib tetap ada agar html2canvas diizinkan
+        fotoImg.src = fotoUrl;
         fotoImg.classList.remove("hidden");
         if(placeholder) placeholder.classList.add("hidden");
-        
-        loadPromises.push(loadImage(fotoImg, proxyUrl));
     } else {
         fotoImg.src = "";
         fotoImg.classList.add("hidden");
