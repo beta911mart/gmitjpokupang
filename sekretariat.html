@@ -1762,10 +1762,14 @@ async function handleSaveRoster(e) {
     const btn = document.getElementById("btnSubmitRoster");
     const editId = document.getElementById("editRosterId").value;
 
-    // Ambil nilai akhir (dari dropdown atau input manual)
-    const finalWaktu = document.getElementById("rosWaktuPilihan").value === "Lainnya" 
+    let finalWaktu = document.getElementById("rosWaktuPilihan").value === "Lainnya" 
         ? document.getElementById("rosWaktuManual").value 
         : document.getElementById("rosWaktuPilihan").value;
+        
+    // PERBAIKAN BUG JAM: Paksa menjadi teks dengan menambahkan kata WITA
+    if (!finalWaktu.toUpperCase().includes("WITA") && !finalWaktu.toUpperCase().includes("WIB")) {
+        finalWaktu = finalWaktu + " WITA"; 
+    }
         
     const finalIbadah = document.getElementById("rosIbadahPilihan").value === "Lainnya" 
         ? document.getElementById("rosIbadahManual").value 
@@ -1780,6 +1784,7 @@ async function handleSaveRoster(e) {
         admin_id: admin.id || "SEKRETARIAT",
         admin_nama: admin.nama || "Sekretariat",
         catatan_log: editId ? `Mengedit roster: ${document.getElementById("rosPetugas").value}` : `Menginput roster baru`,
+        timestamp: new Date().toISOString(), // Mengirim waktu edit saat ini ke database
         tanggal: document.getElementById("rosTanggal").value,
         waktu: finalWaktu,
         jenis_ibadah: finalIbadah,
