@@ -55,7 +55,8 @@ function triggerPageTransition() {
             floatingBtn.className = "absolute pointer-events-auto bg-purple-600/90 backdrop-blur-md text-white px-4 py-3 rounded-full shadow-[0_4px_15px_rgba(147,51,234,0.5)] border border-purple-400 font-bold text-xs flex items-center gap-2 cursor-move active:scale-95 transition-all duration-300";
         }
     }
-// } <-- Akhir dari fungsi pembaruan UI (sesuaikan dengan tutup kurung kurawal fungsi asli Anda)
+}
+// <-- Akhir dari fungsi pembaruan UI (sesuaikan dengan tutup kurung kurawal fungsi asli Anda)
 
 // --- LOGIKA GESER (DRAG & DROP) TOMBOL MELAYANG UNTUK HP DAN PC ---
 const dragBtn = document.getElementById("floatingBackBtn"); 
