@@ -468,7 +468,6 @@ function renderSensusTable(users) {
 }
 
 async function generateIDCard(userId) {
-    // Sesuaikan sumber data user dengan variabel di panel sekretariat Anda
     const user = window.sensusUsersCache ? window.sensusUsersCache.find(u => u.id === userId) : window.currentUser;
     if (!user) return alert("Data jemaat tidak ditemukan.");
 
@@ -479,38 +478,51 @@ async function generateIDCard(userId) {
     document.getElementById("idCardLingRayon").innerText = `: Ling. ${user.lingkungan || '-'} / Rayon ${user.rayon || '-'}`;
     document.getElementById("idCardAlamat").innerText = `: ${user.alamat || '-'}`;
     
-	const fotoImg = document.getElementById("idCardFoto");
+    const fotoImg = document.getElementById("idCardFoto");
     const placeholder = document.getElementById("idCardFotoPlaceholder");
-    
-    // Langsung ambil URL dari database yang sudah berformat i.ibb.co.com/
-    const fotoUrl = user.foto_profil || user.foto;
-    
-    if (fotoUrl && fotoUrl.trim() !== "") { 
-        fotoImg.crossOrigin = "anonymous"; // Wajib tetap ada agar html2canvas diizinkan
-        fotoImg.src = fotoUrl;
+    const qrImg = document.getElementById("idCardQR");
+
+    // Wajib untuk menghindari blokir saat dicetak
+    fotoImg.crossOrigin = "anonymous";
+    qrImg.crossOrigin = "anonymous";
+
+    const loadPromises = [];
+
+    // Fungsi pembantu agar sistem menunggu gambar muncul di layar
+    const waitForImage = (imgElement, src) => {
+        return new Promise((resolve) => {
+            imgElement.onload = resolve;
+            imgElement.onerror = resolve; // Lanjut proses walau gambar gagal dimuat
+            imgElement.src = src;
+        });
+    };
+
+    // 1. Muat Foto Profil (Langsung pakai URL database yang sudah i.ibb.co.com/)
+    const fotoUrl = user.foto_profil || user.foto || user.url_foto;
+    if (fotoUrl && fotoUrl.trim() !== "") {
         fotoImg.classList.remove("hidden");
         if(placeholder) placeholder.classList.add("hidden");
+        loadPromises.push(waitForImage(fotoImg, fotoUrl));
     } else {
         fotoImg.src = "";
         fotoImg.classList.add("hidden");
         if(placeholder) placeholder.classList.remove("hidden");
     }
 
-    // 2. Proses Muat QR Code
+    // 2. Muat QR Code
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
-    loadPromises.push(loadImage(qrImg, qrUrl));
+    loadPromises.push(waitForImage(qrImg, qrUrl));
 
-    // Tunggu SEMUA gambar selesai dimuat sebelum menjalankan html2canvas
+    // KUNCI UTAMA: Tunggu foto dan QR code 100% selesai dimuat browser
     await Promise.all(loadPromises);
 
-    // Beri jeda ekstra 500ms agar browser selesai merender tampilan ke layar
+    // Beri jeda 300ms agar render visual benar-benar selesai sebelum dicetak
     setTimeout(() => {
         const cardElement = document.getElementById("idCardTemplate");
         
         html2canvas(cardElement, { 
             scale: 3, 
             useCORS: true, 
-            allowTaint: true, // Mengizinkan render walau ada sedikit isu origin
             backgroundColor: "#ffffff" 
         }).then(canvas => {
             const link = document.createElement('a');
@@ -520,7 +532,7 @@ async function generateIDCard(userId) {
         }).catch(err => {
             alert("Terjadi kesalahan saat mencetak kartu: " + err);
         });
-    }, 500); 
+    }, 300); 
 }
 
         // --- 4. MODERASI KOTAK DOA ---
