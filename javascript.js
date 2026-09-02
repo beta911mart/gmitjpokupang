@@ -65,6 +65,12 @@ function replaceNavState(funcName, args = []) {
 }
 
 window.addEventListener('popstate', function (event) {
+    const ktjModal = document.getElementById("ktjModal");
+    if (ktjModal && !ktjModal.classList.contains("hidden")) {
+        tutupKTJ(true); 
+        return;
+    }
+
     const hymnModal = document.getElementById("hymnModal");
     if (hymnModal && !hymnModal.classList.contains("hidden")) {
         closeHymnModal(true); return;
@@ -2510,49 +2516,57 @@ function goBackOrHome(e) {
         history.back();
     }
 }
-function bukaPopupKTJ() {
+
+function bukaPopupKTJ(isBack = false) {
+    // Daftarkan aksi ini ke riwayat HP agar tombol back berfungsi
+    if (!isBack) pushNavState('bukaPopupKTJ');
+
     const user = window.currentUser;
     if (!user) return showToast("Sesi jemaat tidak ditemukan.", "error");
 
-    const template = document.getElementById("idCardTemplate");
-    const container = document.getElementById("ktjContainer");
+    document.getElementById("ktjModal").classList.remove("hidden");
     
-    if (template && container) {
-        template.classList.remove("hidden");
+    document.getElementById("idCardNama").innerText = user.nama_lengkap || "-";
+    document.getElementById("idCardGender").innerText = user.jenis_kelamin || "-";
+    document.getElementById("idCardLingRayon").innerText = `: Ling. ${user.lingkungan || '-'} / Rayon ${user.rayon || '-'}`;
+    document.getElementById("idCardAlamat").innerText = `: ${user.alamat || '-'}`;
+    
+    const fotoImg = document.getElementById("idCardFoto");
+    const placeholder = document.getElementById("idCardFotoPlaceholder");
+    const labelFoto = document.getElementById("idCardLabelFoto");
+    
+    const fotoUrlDatabase = user.foto_profil || user.foto || user.url_foto;
+    
+    if (fotoUrlDatabase && fotoUrlDatabase.trim() !== "") {
+        const safeUrl = `https://wsrv.nl/?url=${encodeURIComponent(fotoUrlDatabase)}&w=200&fit=cover`;
         
-        // Memasukkan data profil terbaru
-        document.getElementById("idCardNama").innerText = user.nama_lengkap || "-";
-        document.getElementById("idCardGender").innerText = user.jenis_kelamin || "-";
-        document.getElementById("idCardLingRayon").innerText = `: Ling. ${user.lingkungan || '-'} / Rayon ${user.rayon || '-'}`;
-        document.getElementById("idCardAlamat").innerText = `: ${user.alamat || '-'}`;
+        fotoImg.crossOrigin = "anonymous";
+        fotoImg.src = safeUrl;
         
-		// Memasukkan Foto Profil
-        const fotoImg = document.getElementById("idCardFoto");
-        const placeholder = document.getElementById("idCardFotoPlaceholder");
-        const labelFoto = document.getElementById("idCardLabelFoto"); // Menargetkan tulisan FOTO JEMAAT
-        
-        if (user.foto_profil) {
-            fotoImg.src = user.foto_profil;
-            fotoImg.classList.remove("hidden");
-            if(placeholder) placeholder.classList.add("hidden");
-            if(labelFoto) labelFoto.classList.add("hidden"); // Hilangkan teks jika ada foto
-        } else {
-            fotoImg.src = "";
-            fotoImg.classList.add("hidden");
-            if(placeholder) placeholder.classList.remove("hidden");
-            if(labelFoto) labelFoto.classList.remove("hidden"); // Tampilkan teks jika foto kosong
-        }
-		
-        // Generate QR Code Berdasarkan ID User
-        const qrImg = document.getElementById("idCardQR");
-        if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
+        fotoImg.classList.remove("hidden");
+        if(placeholder) placeholder.classList.add("hidden");
+        if(labelFoto) labelFoto.classList.add("hidden");
+    } else {
+        fotoImg.src = "";
+        fotoImg.classList.add("hidden");
+        if(placeholder) placeholder.classList.remove("hidden");
+        if(labelFoto) labelFoto.classList.remove("hidden");
     }
 
-    document.getElementById("ktjModal").classList.remove("hidden");
+    const qrImg = document.getElementById("idCardQR");
+    if (qrImg) {
+        qrImg.crossOrigin = "anonymous";
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
+    }
 }
 
-function tutupKTJ() {
+function tutupKTJ(fromPopState = false) {
     document.getElementById("ktjModal").classList.add("hidden");
+    // Jika ditutup manual via tombol "Tutup", mundurkan riwayat HP
+    // Jika ditutup via tombol back HP (fromPopState), abaikan history.back agar tidak mundur dua kali
+    if (fromPopState !== true) {
+        history.back(); 
+    }
 }
 
 function unduhKTJ() {
