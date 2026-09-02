@@ -186,8 +186,10 @@
                     <div class="flex items-start gap-4 w-full">
                         <div class="w-20 h-28 shrink-0 bg-slate-200 border-2 border-slate-300 rounded-lg flex flex-col items-center justify-center shadow-sm overflow-hidden relative">
                             <span id="idCardFotoPlaceholder" class="text-3xl text-slate-400 opacity-50">👤</span>
-                            <img id="idCardFoto" src="" alt="Foto" class="absolute inset-0 w-full h-full object-cover hidden" crossorigin="anonymous">
-                            <div class="absolute bottom-0 w-full bg-slate-800/60 text-white text-[7px] text-center py-0.5 z-10">FOTO JEMAAT</div>
+                            <!-- Memastikan foto proporsional (tidak lonjong) menggunakan inline CSS -->
+                            <img id="idCardFoto" src="" alt="Foto" class="absolute inset-0 w-full h-full hidden" style="object-fit: cover; object-position: top center;" crossorigin="anonymous">
+                            <!-- Menambahkan ID agar tulisan ini bisa disembunyikan via JavaScript -->
+                            <div id="idCardLabelFoto" class="absolute bottom-0 w-full bg-slate-800/60 text-white text-[7px] text-center py-0.5 z-10">FOTO JEMAAT</div>
                         </div>
 
                         <!-- Data -->
@@ -209,11 +211,11 @@
                     </div>
 
                     <!-- Garis Pemisah -->
-                    <div class="w-full border-t-2 border-slate-100 my-3"></div>
+                    <div class="w-full border-t-2 border-slate-100 my-2"></div>
 
-                    <!-- QR Code -->
-                    <div class="flex-1 flex items-center justify-center w-full mb-3">
-                        <div class="w-32 h-32 bg-white border border-slate-200 p-2 rounded-xl shadow-sm relative z-20">
+                    <!-- QR Code (Diperbesar) -->
+                    <div class="flex-1 flex items-center justify-center w-full mb-2">
+                        <div class="w-[145px] h-[145px] bg-white border border-slate-200 p-2 rounded-xl shadow-sm relative z-20">
                             <img id="idCardQR" src="" class="w-full h-full object-contain" crossorigin="anonymous">
                         </div>
                     </div>
