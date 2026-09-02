@@ -213,6 +213,8 @@ function setTheme(theme, isInitialLoad = false) {
     // 1. Hapus ornamen ID card lama setiap kali tema berganti agar tidak bocor ke tema lain
     const existingOrnamen = document.getElementById("ornamenIdCard");
     if (existingOrnamen) existingOrnamen.remove();
+	const existingLightOverride = document.getElementById("lightThemeOverride");
+    if (existingLightOverride) existingLightOverride.remove();
     
     const baseAppClass = "w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto min-h-screen flex flex-col shadow-2xl relative transition-all duration-500";
     
@@ -273,7 +275,29 @@ function setTheme(theme, isInitialLoad = false) {
             <div class="absolute top-24 right-0 w-28 h-28 bg-amber-500/15 rounded-l-full transition-all duration-700 delay-100"></div>
         `;
         app.insertBefore(ornamen, app.firstChild);
-        
+        // Paksa semua kartu gelap menjadi putih dan teks putih menjadi gelap
+        const lightStyle = document.createElement("style");
+        lightStyle.id = "lightThemeOverride";
+        lightStyle.innerHTML = `
+            /* Ubah Wadah/Kartu menjadi Putih Murni */
+            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950 { 
+                background-color: #ffffff !important; 
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+            }
+            /* Ubah Garis Batas menjadi Abu-abu Lembut */
+            #app .border-slate-700, #app .border-slate-800 { 
+                border-color: #e2e8f0 !important; 
+            }
+            /* Ubah Teks Utama menjadi Hampir Hitam */
+            #app .text-white, #app .text-slate-100, #app .text-slate-200, #app .text-slate-300 { 
+                color: #0f172a !important; 
+            }
+            /* Ubah Teks Sekunder menjadi Abu-abu Gelap */
+            #app .text-slate-400 { 
+                color: #475569 !important; 
+            }
+        `;
+        document.head.appendChild(lightStyle);
     } else {
         app.className = `${baseAppClass} bg-slate-950 text-slate-100`;
         body.className = "bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
