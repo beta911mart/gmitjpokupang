@@ -1534,10 +1534,13 @@ function loadRosterForm() {
                 <form id="formAddRoster" onsubmit="handleSaveRoster(event)" class="space-y-3 w-full">
                     <input type="hidden" id="editRosterId" value="">
                     
-                    <div class="flex gap-2">
+					<div class="flex gap-2">
                         <div class="flex-1">
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal</label>
-                            <input type="date" id="rosTanggal" required class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                            <select id="rosTanggalPilihan" onchange="cekPilihanTanggal(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
+                                <!-- Opsi hari Minggu akan dimuat otomatis oleh JavaScript -->
+                            </select>
+                            <input type="date" id="rosTanggalManual" class="hidden mt-2 w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 outline-none focus:border-purple-500">
                         </div>
                         <div class="flex-1">
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Waktu</label>
@@ -1620,12 +1623,57 @@ function cekPilihanIbadah(val) {
         inputManual.value = "";
     }
 }
+// --- LOGIKA TANGGAL HARI MINGGU OTOMATIS ---
+function loadHariMingguBulanIni() {
+    const select = document.getElementById("rosTanggalPilihan");
+    if (!select) return;
+    
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    
+    let html = "";
+    
+    // Looping seluruh hari pada bulan ini
+    const date = new Date(year, month, 1);
+    while (date.getMonth() === month) {
+        if (date.getDay() === 0) { // Angka 0 berarti hari Minggu
+            const dd = String(date.getDate()).padStart(2, '0');
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const yyyy = date.getFullYear();
+            
+            // Value untuk sistem: YYYY-MM-DD, Tampilan visual: DD/MM/YYYY
+            const valueTgl = `${yyyy}-${mm}-${dd}`; 
+            const displayTgl = `Minggu, ${dd}/${mm}/${yyyy}`;
+            
+            html += `<option value="${valueTgl}">${displayTgl}</option>`;
+        }
+        date.setDate(date.getDate() + 1);
+    }
+    
+    html += `<option value="Lainnya">Lainnya (Pilih Manual)</option>`;
+    select.innerHTML = html;
+}
 
+function cekPilihanTanggal(val) {
+    const inputManual = document.getElementById("rosTanggalManual");
+    if (val === "Lainnya") {
+        inputManual.classList.remove("hidden");
+        inputManual.required = true;
+    } else {
+        inputManual.classList.add("hidden");
+        inputManual.required = false;
+        inputManual.value = "";
+    }
+}
 function toggleRosterForm() {
     const form = document.getElementById("rosterFormContainer");
     if (form.classList.contains("hidden")) {
         form.classList.remove("hidden");
         form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Memuat opsi hari Minggu otomatis saat form ditambah
+        loadHariMingguBulanIni();
         
         // Panggil fungsi pengambilan data jemaat
         fetchAllJemaatForSuggestions(); 
@@ -1725,12 +1773,15 @@ function prepareEditRoster(rosterId) {
     const formContainer = document.getElementById("rosterFormContainer");
     formContainer.classList.remove("hidden");
     
+    // Pastikan daftar tanggal minggu ini dimuat sebelum nilai diset
+    loadHariMingguBulanIni();
+
     document.getElementById("editRosterId").value = target.id;
-    document.getElementById("rosTanggal").value = target.tanggal || "";
     document.getElementById("rosKategori").value = target.kategori_tugas || "Presbiter";
     document.getElementById("rosPetugas").value = target.nama_petugas || "";
 
-    // Set dropdown atau field manual untuk Waktu dan Jenis Ibadah
+    // Set dropdown atau field manual secara otomatis
+    setDropdownOrManual("rosTanggalPilihan", "rosTanggalManual", target.tanggal || "");
     setDropdownOrManual("rosWaktuPilihan", "rosWaktuManual", target.waktu || "");
     setDropdownOrManual("rosIbadahPilihan", "rosIbadahManual", target.jenis_ibadah || "");
 
@@ -1747,6 +1798,7 @@ function resetRosterForm() {
     document.getElementById("editRosterId").value = "";
     
     // Reset state dropdown manual
+    cekPilihanTanggal("");
     cekPilihanWaktu(""); 
     cekPilihanIbadah("");
 
@@ -1762,6 +1814,12 @@ async function handleSaveRoster(e) {
     const btn = document.getElementById("btnSubmitRoster");
     const editId = document.getElementById("editRosterId").value;
 
+    // Ambil nilai tanggal final
+    const finalTanggal = document.getElementById("rosTanggalPilihan").value === "Lainnya" 
+        ? document.getElementById("rosTanggalManual").value 
+        : document.getElementById("rosTanggalPilihan").value;
+
+    // (Kode lanjutan finalWaktu & finalIbadah tetap seperti yang ada sebelumnya)
     let finalWaktu = document.getElementById("rosWaktuPilihan").value === "Lainnya" 
         ? document.getElementById("rosWaktuManual").value 
         : document.getElementById("rosWaktuPilihan").value;
@@ -1784,8 +1842,8 @@ async function handleSaveRoster(e) {
         admin_id: admin.id || "SEKRETARIAT",
         admin_nama: admin.nama || "Sekretariat",
         catatan_log: editId ? `Mengedit roster: ${document.getElementById("rosPetugas").value}` : `Menginput roster baru`,
-        timestamp: new Date().toISOString(), // Mengirim waktu edit saat ini ke database
-        tanggal: document.getElementById("rosTanggal").value,
+        timestamp: new Date().toISOString(),
+        tanggal: finalTanggal, // <--- Gunakan nilai dari sistem penyeleksi tanggal
         waktu: finalWaktu,
         jenis_ibadah: finalIbadah,
         kategori_tugas: document.getElementById("rosKategori").value,
