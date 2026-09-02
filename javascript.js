@@ -1007,13 +1007,17 @@ async function openDutyRoster(isBack = false) {
                             <div>
                                 <span class="bg-indigo-900 text-indigo-300 text-[10px] px-2 py-0.5 rounded font-bold inline-block mb-2">${kat}</span>
                                 <div class="text-[11px] text-slate-300 pl-1 space-y-1.5">
-                                    ${petugasSorted.map(petugas => `
-                                        <div class="flex items-start gap-1.5">
-                                            <span class="text-slate-500 font-bold">-</span>
-                                            <!-- Jam tidak error lagi karena sudah terbaca sebagai teks -->
-                                            <span>${petugas.nama} - ${petugas.jam}</span>
-                                        </div>
-                                    `).join('')}
+									${petugasSorted.map(petugas => {
+                                        // LOGIKA BARU: Memecah nama menjadi list ke bawah
+                                        const daftarNama = petugas.nama.split(',').map(n => n.trim()).filter(n => n !== "");
+                                        
+                                        return daftarNama.map(namaIndividu => `
+                                            <div class="flex items-start gap-1.5">
+                                                <span class="text-slate-500 font-bold">-</span>
+                                                <span>${namaIndividu} <span class="text-slate-500 text-[9px] font-normal ml-0.5">(${petugas.jam})</span></span>
+                                            </div>
+                                        `).join('');
+                                    }).join('')}
                                 </div>
                             </div>
                             `;
