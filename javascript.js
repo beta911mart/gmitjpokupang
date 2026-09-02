@@ -2445,7 +2445,7 @@ document.addEventListener("DOMContentLoaded", () => {
     checkPushNotification();
     updateAuthNavText();
 });
-// --- LOGIKA TOMBOL MELAYANG RESPONSIVE ---
+// --- LOGIKA TOMBOL MELAYANG RESPONSIVE (PERBAIKAN HP & PC) ---
 const fab = document.getElementById('floatingBackBtn');
 const fabContainer = document.getElementById('fabContainer');
 let isDraggingFab = false;
@@ -2469,8 +2469,10 @@ function startDrag(e) {
         isDraggingFab = true;
         isMoved = false;
         
-        const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+        // Perbaikan: Deteksi apakah input dari sentuhan (touch) atau mouse
+        const isTouch = e.type.includes('touch');
+        const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+        const clientY = isTouch ? e.touches[0].clientY : e.clientY;
         
         const fabRect = fab.getBoundingClientRect();
         
@@ -2480,6 +2482,9 @@ function startDrag(e) {
         const containerRect = fabContainer.getBoundingClientRect();
         const currentLeft = fabRect.left - containerRect.left;
         const currentTop = fabRect.top - containerRect.top;
+        
+        // Hapus transisi sementara agar tombol langsung menempel pada jari (tidak delay)
+        fab.style.transition = 'none';
         
         fab.style.right = 'auto';
         fab.style.bottom = 'auto';
@@ -2491,10 +2496,12 @@ function startDrag(e) {
 function onDrag(e) {
     if (!isDraggingFab) return;
     isMoved = true;
-    e.preventDefault(); 
+    e.preventDefault(); // Mencegah layar ikut tergulung (scrolling)
     
-    const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+    // Perbaikan Krusial: Membaca titik koordinat sentuhan HP saat sedang digeser
+    const isTouch = e.type.includes('touch');
+    const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+    const clientY = isTouch ? e.touches[0].clientY : e.clientY;
     
     const containerRect = fabContainer.getBoundingClientRect();
     
@@ -2513,6 +2520,8 @@ function onDrag(e) {
 
 function endDrag() {
     isDraggingFab = false;
+    // Kembalikan efek transisi agar pergerakan halaman kembali halus
+    if (fab) fab.style.transition = 'all 0.3s ease';
 }
 function goBackOrHome(e) {
     // Jika tombol hanya digeser, jangan lakukan aksi klik
