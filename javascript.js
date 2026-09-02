@@ -2553,16 +2553,45 @@ function tutupKTJ() {
 }
 
 function unduhKTJ() {
-    showToast("Memproses unduhan...");
+    showToast("Memproses gambar, mohon tunggu sebentar...");
     const cardElement = document.getElementById("idCardTemplate");
     
-    // Pastikan library html2canvas sudah dimuat di index.html
+    // Pastikan library html2canvas sudah terbaca oleh browser
     if (typeof html2canvas === 'function' && cardElement) {
-        html2canvas(cardElement, { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `KTJ_${window.currentUser.nama_lengkap.replace(/\s+/g, '_')}.png`;
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-        }).catch(err => alert("Gagal mengunduh: " + err));
+        
+        html2canvas(cardElement, { 
+            scale: 3, 
+            useCORS: true, 
+            allowTaint: true, // Mengizinkan elemen lintas-domain
+            backgroundColor: "#ffffff" 
+        }).then(canvas => {
+            try {
+                // Mengubah kanvas menjadi data gambar lokal
+                const dataUrl = canvas.toDataURL("image/png");
+                
+                // Membuat elemen tautan untuk unduhan
+                const link = document.createElement('a');
+                const namaUser = window.currentUser ? window.currentUser.nama_lengkap.replace(/\s+/g, '_') : 'Jemaat';
+                
+                link.download = `KTJ_${namaUser}.png`;
+                link.href = dataUrl;
+                
+                // KUNCI PERBAIKAN: Elemen link harus dipasang ke dalam body agar diizinkan oleh browser HP
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link); // Bersihkan kembali setelah diklik
+                
+                showToast("KTJ berhasil diunduh ke perangkat Anda!");
+                
+            } catch (error) {
+                console.error("Canvas Tainted Error:", error);
+                alert("Gagal mengunduh: Browser memblokir gambar karena alasan keamanan (CORS).");
+            }
+        }).catch(err => {
+            alert("Terjadi kesalahan saat mencetak gambar: " + err);
+        });
+        
+    } else {
+        alert("Sistem pencetak belum termuat. Silakan muat ulang (refresh) aplikasi.");
     }
 }
