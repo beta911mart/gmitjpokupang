@@ -262,7 +262,7 @@ function setTheme(theme, isInitialLoad = false) {
         }
     } else if (theme === 'light') {
         // 2. Gunakan bg-slate-50 agar putihnya lebih lembut dan tidak menyilaukan
-        app.className = `${baseAppClass} bg-slate-50 text-slate-900`;
+        app.className = `${baseAppClass} bg-slate-100 text-slate-900`;
         body.className = "bg-slate-300 text-slate-900 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
         
