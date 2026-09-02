@@ -2654,16 +2654,17 @@ function unduhKTJ() {
         alert("Sistem pencetak belum termuat. Silakan muat ulang (refresh) aplikasi.");
     }
 }
+
 // =====================================================================
-// FITUR ABSENSI MANDIRI BERBASIS GPS (ISOLATED MODULE)
+// FITUR ABSENSI MANDIRI (OFFLINE/ONLINE)
 // =====================================================================
 
 // Ganti koordinat ini dengan titik pasti Gereja Pniel Oebobo
-const CHURCH_LAT = -10.1601; 
-const CHURCH_LON = 123.6057;
+const CHURCH_LAT = -10.1601; // Ubah dengan koordinat gereja Anda
+const CHURCH_LON = 123.6057; // Ubah dengan koordinat gereja Anda
 
 function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
-    const R = 6371e3; // Radius bumi dalam meter
+    const R = 6371e3; 
     const p1 = lat1 * Math.PI/180;
     const p2 = lat2 * Math.PI/180;
     const dp = (lat2-lat1) * Math.PI/180;
@@ -2675,26 +2676,23 @@ function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
 
 function cekAbsensiMinggu() {
     const user = window.currentUser || JSON.parse(localStorage.getItem("user_gereja"));
-    if (!user) return; // Hanya berjalan jika sudah login
+    if (!user) return; 
 
     const now = new Date();
-    // Jika bukan hari Minggu (0), hentikan
     if (now.getDay() !== 0) return; 
 
-    // Cek apakah sudah absen hari ini di perangkat ini
     const absensiHariIni = localStorage.getItem("absen_minggu_terakhir");
     if (absensiHariIni === now.toLocaleDateString('id-ID')) return; 
 
     const hour = now.getHours();
     let ibadahAktif = "";
     
-    // Rentang waktu toleransi absen
     if (hour >= 5 && hour < 8) ibadahAktif = "Ibadah I (06:00)";
     else if (hour >= 8 && hour < 11) ibadahAktif = "Ibadah II (08:00)";
     else if (hour >= 15 && hour < 19) ibadahAktif = "Ibadah Sore (17:00)";
-    else return; // Hentikan jika di luar jam ibadah
+    else return; 
 
-    // Meminta akses lokasi
+    // Cek Lokasi Jemaat
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition((position) => {
             const distance = getDistanceFromLatLonInM(
@@ -2704,40 +2702,44 @@ function cekAbsensiMinggu() {
                 CHURCH_LON
             );
             
-            // Jika radius kurang dari atau sama dengan 50 meter
-            if (distance <= 50) {
-                munculkanToastAbsen(ibadahAktif, user);
-            }
+            // Jarak <= 100 meter = Offline, lebih dari 100 meter = Online
+            const tipeKehadiran = distance <= 100 ? "Offline (Di Gereja)" : "Online (Di Rumah)";
+            munculkanToastAbsen(ibadahAktif, user, tipeKehadiran);
+            
         }, (error) => {
-            console.log("Akses GPS ditolak atau tidak tersedia.");
+            // Jika jemaat menolak izin GPS, catat sebagai Online
+            munculkanToastAbsen(ibadahAktif, user, "Online (Tanpa GPS)");
         });
+    } else {
+        munculkanToastAbsen(ibadahAktif, user, "Online (Perangkat Lawas)");
     }
 }
 
-function munculkanToastAbsen(ibadah, user) {
+function munculkanToastAbsen(ibadah, user, tipeKehadiran) {
     let existing = document.getElementById("realtimeToastBanner");
     if (existing) existing.remove();
 
     const toast = document.createElement("div");
     toast.id = "realtimeToastBanner";
-    // Desain Sekretariat yang disesuaikan untuk area klik responsif
     toast.className = "fixed bottom-20 left-1/2 transform -translate-x-1/2 w-11/12 max-w-[340px] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] border border-emerald-500 z-[9999] text-xs flex items-center gap-3 animate-bounce cursor-pointer";
     
+    // Ganti ikon berdasarkan status kehadiran
+    const ikon = tipeKehadiran.includes("Offline") ? "📍" : "📺";
+
     toast.innerHTML = `
-        <span class="text-2xl drop-shadow-md">📍</span>
+        <span class="text-2xl drop-shadow-md">${ikon}</span>
         <div class="flex-1 pointer-events-none">
-            <p class="font-bold text-emerald-400">Syalom, Absen Online Yuk!</p>
-            <p class="text-[10px] text-slate-300 mt-0.5">Sistem mendeteksi Anda tiba untuk <b>${ibadah}</b>. Klik kotak ini untuk mencatat kehadiran.</p>
+            <p class="font-bold text-emerald-400">Syalom, Absen Yuk!</p>
+            <p class="text-[10px] text-slate-300 mt-0.5">Kehadiran <b>${ibadah}</b> tercatat via <b>${tipeKehadiran}</b>. Klik untuk konfirmasi.</p>
         </div>
     `;
     
-    // Aksi ketika Toast diklik
-    toast.onclick = () => kirimDataAbsen(ibadah, user, toast);
+    toast.onclick = () => kirimDataAbsen(ibadah, user, tipeKehadiran, toast);
     document.body.appendChild(toast);
 }
 
-async function kirimDataAbsen(ibadah, user, toastEl) {
-    toastEl.onclick = null; // Matikan klik ganda
+async function kirimDataAbsen(ibadah, user, tipeKehadiran, toastEl) {
+    toastEl.onclick = null; 
     toastEl.classList.remove("animate-bounce");
     toastEl.innerHTML = `<p class="text-xs text-center w-full py-2 text-slate-300 font-semibold animate-pulse">Memproses kehadiran...</p>`;
 
@@ -2751,13 +2753,13 @@ async function kirimDataAbsen(ibadah, user, toastEl) {
                 user_id: user.id,
                 nama_lengkap: user.nama_lengkap,
                 lingkungan: user.lingkungan || "-",
-                ibadah: ibadah
+                ibadah: ibadah,
+                tipe_kehadiran: tipeKehadiran // Data ini akan masuk ke kolom baru di Sheets
             })
         });
         
         const res = await response.json();
         if (res.status === "success") {
-            // Kunci agar hari ini tidak muncul toast lagi
             localStorage.setItem("absen_minggu_terakhir", new Date().toLocaleDateString('id-ID'));
             toastEl.innerHTML = `<p class="text-xs text-center w-full py-2 font-bold text-emerald-400">✅ Kehadiran Berhasil Tercatat!</p>`;
             setTimeout(() => toastEl.remove(), 4000);
