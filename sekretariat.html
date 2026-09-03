@@ -530,20 +530,24 @@ function renderAdminDashboard(admin) {
             const placeholder = document.getElementById("idCardFotoPlaceholder");
             const qrImg = document.getElementById("idCardQR");
 
-            // 2. Setup Foto Profil & Paksa Sistem Menunggu (Promise)
+            // Cek Data URL di Console (Tekan F12 di browser untuk melihatnya)
             const fotoUrlDatabase = user.foto_profil || user.foto || user.url_foto || user.url_gambar;
+            console.log("Link Foto Jemaat:", fotoUrlDatabase);
+
+            // 2. Setup Foto Profil & Paksa Sistem Menunggu (Promise)
             let fotoLoadPromise = Promise.resolve(); // Default selesai jika tidak ada foto
             
             if (fotoUrlDatabase && fotoUrlDatabase.trim() !== "" && fotoUrlDatabase !== "-") {
+                // Konversi URL agar lolos dari blokir CORS
                 let fixedUrl = fotoUrlDatabase.replace("://i.ibb.co/", "://i.ibb.co.com/");
                 const safeUrl = `https://wsrv.nl/?url=${encodeURIComponent(fixedUrl)}&w=200&fit=cover`;
                 
                 fotoImg.crossOrigin = "anonymous";
                 
-                // Minta JavaScript menahan proses sampai gambar benar-benar termuat (onload)
+                // Minta JavaScript menahan proses sampai gambar selesai dimuat (onload)
                 fotoLoadPromise = new Promise((resolve) => {
                     fotoImg.onload = resolve;
-                    fotoImg.onerror = resolve; // Tetap lanjut jika gambar rusak
+                    fotoImg.onerror = resolve; // Lanjut walau error agar sistem tidak hang
                     fotoImg.src = safeUrl; 
                 });
 
