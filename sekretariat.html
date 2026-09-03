@@ -549,8 +549,7 @@ function renderAdminDashboard(admin) {
                     return "";
                 }
             }
-
-            // 3. Setup QR Code (Ubah jadi Base64 juga agar 100% lolos blokir browser)
+// 3. Setup QR Code (Ubah jadi Base64 juga agar 100% lolos blokir browser)
             qrImg.removeAttribute("crossorigin"); 
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
             const base64QR = await getBase64FromUrl(qrUrl);
