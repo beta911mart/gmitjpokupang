@@ -514,13 +514,13 @@ function renderAdminDashboard(admin) {
             `).join('');
         }
 
-        async function generateIDCard(userId) {
-            // 1. Logika Universal penentuan data Jemaat
+		async function generateIDCard(userId) {
             const user = window.sensusUsersCache ? window.sensusUsersCache.find(u => u.id === userId) : window.currentUser;
             if (!user) return alert("Data jemaat tidak ditemukan.");
 
             showToastBanner(`Menyiapkan ID Card untuk ${user.nama_lengkap}...`);
 
+            // 1. Isi Data Teks
             document.getElementById("idCardNama").innerText = user.nama_lengkap || "-";
             document.getElementById("idCardGender").innerText = user.jenis_kelamin || "-";
             document.getElementById("idCardLingRayon").innerText = `: Ling. ${user.lingkungan || '-'} / Rayon ${user.rayon || '-'}`;
@@ -530,86 +530,64 @@ function renderAdminDashboard(admin) {
             const placeholder = document.getElementById("idCardFotoPlaceholder");
             const qrImg = document.getElementById("idCardQR");
 
-            // 2. Fungsi Konversi URL menjadi Base64 (Anti-Blokir CORS)
-            async function getBase64FromUrl(url) {
-                try {
-                    // Perbaiki link imgBB terlebih dahulu agar tidak diblokir
-                    let fixedUrl = url.replace("://i.ibb.co/", "://i.ibb.co.com/");
-                    
-                    // Menggunakan wsrv.nl hanya sebagai jembatan pengambil data murni
-                    const response = await fetch(`https://wsrv.nl/?url=${encodeURIComponent(fixedUrl)}&w=200&fit=cover`);
-                    const blob = await response.blob();
-                    return new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.readAsDataURL(blob);
-                    });
-                } catch (err) {
-                    console.error("Gagal convert foto:", err);
-                    return "";
-                }
-            }
-// 3. Setup QR Code (Ubah jadi Base64 juga agar 100% lolos blokir browser)
-            qrImg.removeAttribute("crossorigin"); 
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
-            const base64QR = await getBase64FromUrl(qrUrl);
+            // 2. Setup Foto Profil (Adaptasi dari Referensi Aplikasi Utama)
+            const fotoUrlDatabase = user.foto_profil || user.foto || user.url_foto || user.url_gambar;
             
-            const qrPromise = new Promise((resolve) => {
-                qrImg.onload = resolve;
-                qrImg.onerror = resolve;
-                qrImg.src = base64QR || qrUrl; 
-            });
-
-            // 4. Setup Foto Profil menggunakan Base64
-            const fotoUrlDatabase = user.foto_profil || user.foto || user.url_foto;
-            let fotoPromise = Promise.resolve();
-
-            if (fotoUrlDatabase && fotoUrlDatabase.trim() !== "") {
+            if (fotoUrlDatabase && fotoUrlDatabase.trim() !== "" && fotoUrlDatabase !== "-") {
+                // Gunakan ImgBB komersial (.com) agar proxy wsrv.nl tidak memblokirnya
+                let fixedUrl = fotoUrlDatabase.replace("://i.ibb.co/", "://i.ibb.co.com/");
+                const safeUrl = `https://wsrv.nl/?url=${encodeURIComponent(fixedUrl)}&w=200&fit=cover`;
+                
+                fotoImg.crossOrigin = "anonymous";
+                fotoImg.src = safeUrl;
+                
                 fotoImg.classList.remove("hidden");
                 if (placeholder) placeholder.classList.add("hidden");
-                
-                const base64Foto = await getBase64FromUrl(fotoUrlDatabase);
-                if (base64Foto) {
-                    fotoPromise = new Promise((resolve) => {
-                        fotoImg.onload = resolve;
-                        fotoImg.onerror = resolve;
-                        fotoImg.src = base64Foto;
-                    });
-                }
             } else {
                 fotoImg.src = "";
                 fotoImg.classList.add("hidden");
                 if (placeholder) placeholder.classList.remove("hidden");
             }
 
-            // 5. Tunggu semua gambar selesai menempel di layar
-            await Promise.all([qrPromise, fotoPromise]);
+            // 3. Setup QR Code
+            if (qrImg) {
+                qrImg.crossOrigin = "anonymous";
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
+            }
 
-            // 6. Jalankan Proses Cetak dengan Penangkap Error
+            // 4. Proses Cetak (Menunggu 1.5 detik agar gambar dari server proxy selesai dimuat)
             setTimeout(() => {
                 const cardElement = document.getElementById("idCardTemplate");
                 
-                html2canvas(cardElement, { 
-                    scale: 3, 
-                    useCORS: true, 
-                    backgroundColor: "#ffffff" 
-                }).then(canvas => {
-                    try {
-                        const link = document.createElement('a');
-                        link.download = `KTJ_${user.nama_lengkap.replace(/\s+/g, '_')}.png`;
-                        link.href = canvas.toDataURL("image/png"); 
-                        link.click();
-                        
-                        showToastBanner(`ID Card ${user.nama_lengkap} berhasil diunduh!`);
-                    } catch (err) {
-                        alert("Gagal mengunduh! Browser memblokir gambar (Tainted Canvas). Pastikan LogoGMIT.png ada di server Anda.");
-                        console.error(err);
-                    }
-                }).catch(err => {
-                    alert("Gagal mencetak kartu: " + err);
-                });
-            }, 500);
-		}
+                if (typeof html2canvas === 'function' && cardElement) {
+                    html2canvas(cardElement, { 
+                        scale: 3, 
+                        useCORS: true, 
+                        allowTaint: true, // Dari referensi aplikasi utama
+                        backgroundColor: "#ffffff" 
+                    }).then(canvas => {
+                        try {
+                            const dataUrl = canvas.toDataURL("image/png");
+                            const link = document.createElement('a');
+                            link.download = `KTJ_${user.nama_lengkap.replace(/\s+/g, '_')}.png`;
+                            link.href = dataUrl;
+                            
+                            // KUNCI UTAMA: Wajib ditempel ke body agar unduhan di HP/Chrome berhasil
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            
+                            showToastBanner(`ID Card ${user.nama_lengkap} berhasil diunduh!`);
+                        } catch (err) {
+                            console.error("Canvas Error:", err);
+                            alert("Gagal mengunduh! Pastikan Anda terhubung ke internet stabil.");
+                        }
+                    }).catch(err => {
+                        alert("Gagal mencetak kartu: " + err);
+                    });
+                }
+            }, 1500); 
+        }
         // --- 4. MODERASI KOTAK DOA ---
         async function loadPrayerData() {
             clearPrayerBlink();
