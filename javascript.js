@@ -2474,24 +2474,20 @@ function updateAuthNavText() {
 
 function redirectToRolePanel() {
     const sessionData = sessionStorage.getItem("user_gereja") || localStorage.getItem("user_gereja");
-    if (!sessionData) { 
-        alert("Sesi tidak ditemukan. Silakan login terlebih dahulu."); 
-        return; 
-    }
+    if (!sessionData) { alert("Sesi tidak ditemukan."); return; }
     
     try {
         let userData = JSON.parse(sessionData);
         const role = (userData.role || userData.status_pelayanan || "").toLowerCase().trim();
         
-        // Gabungkan semua role yang berhak masuk ke panel Sekretariat
-        if (role.includes("super") || role.includes("admin") || role.includes("sekretariat") || role.includes("sekertariat") || role.includes("pendeta")) {
+        // Tambahkan "multimedia" ke dalam daftar izin
+        if (role.includes("super") || role.includes("admin") || role.includes("sekretariat") || role.includes("sekertariat") || role.includes("pendeta") || role.includes("multimedia")) {
             window.location.href = "sekretariat.html";
         } else {
-            // Petugas biasa (seperti Petugas Sensus) diarahkan ke sini
             window.location.href = "sensus.html"; 
         }
     } catch (e) {
-        alert("Data sesi rusak. Silakan muat ulang aplikasi.");
+        alert("Data sesi rusak.");
     }
 }
 
