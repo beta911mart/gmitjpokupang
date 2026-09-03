@@ -2511,19 +2511,27 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
                 sheets: selectedSheets
             };
 
-            try {
-                const res = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
-                const result = await res.json();
-                alert(result.message || "Laporan berhasil dikirim!");
-                location.reload();
-            } catch (err) {
-                alert("Gagal mengirim laporan: " + err);
-                btn.disabled = false;
-                btn.innerText = "Kirim Laporan Excel (.xlsx) 📊";
-            }
+			try {
+			    const res = await fetch(SCRIPT_URL, {
+			        method: 'POST',
+			        headers: {
+			            'Content-Type': 'text/plain;charset=utf-8', // <--- Kunci anti-CORS
+			        },
+			        body: JSON.stringify(payload)
+			    });
+    
+    			const result = await res.json();
+    
+			    if (result.status === "success") {
+			        alert("Puji Tuhan, laporan berhasil dikirim ke email!");
+			        // (reset tombol loading dsb)
+			    } else {
+			        alert("Gagal: " + result.message);
+			    }
+			} catch (error) {
+			    alert("Terjadi kesalahan jaringan atau server.");
+			    console.error(error);
+			}
         }
 
         async function loadAdminManagement() {
