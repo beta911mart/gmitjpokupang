@@ -312,11 +312,11 @@ function setTheme(theme, isInitialLoad = false) {
             const menuButtons = document.querySelectorAll('.home-menu-icon, main .grid button');
             menuButtons.forEach((btn, index) => {
                 // Durasi diubah menjadi sangat singkat: 0.2s, 0.3s, dan 0.15s
-                if (index % 3 === 0) btn.style.setProperty('animation', 'glowRed 0.2s infinite alternate', 'important');
-                else if (index % 3 === 1) btn.style.setProperty('animation', 'glowGreen 0.3s infinite alternate', 'important');
-                else btn.style.setProperty('animation', 'glowGold 0.15s infinite alternate', 'important');
+                if (index % 3 === 0) btn.style.setProperty('animation', 'glowRed 0.5s infinite alternate', 'important');
+                else if (index % 3 === 1) btn.style.setProperty('animation', 'glowGreen 0.6s infinite alternate', 'important');
+                else btn.style.setProperty('animation', 'glowGold 0.18s infinite alternate', 'important');
             });
-        }, 100);
+        }, 200);
     } else if (theme === 'easter') {
         app.className = `${baseAppClass} bg-amber-950 text-amber-100`;
         body.className = "bg-amber-900 text-amber-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
