@@ -88,85 +88,46 @@
                 }
             }
         }, { once: true });
-
-        document.addEventListener("DOMContentLoaded", () => {
+	// --- 1. NO LOGIN FROM THIS PAGE
+		document.addEventListener("DOMContentLoaded", () => {
             const sessionData = sessionStorage.getItem("user_gereja") || localStorage.getItem("user_gereja");
             
             if (sessionData) {
                 try {
                     const user = JSON.parse(sessionData);
-                    const role = (user.role || user.status_pelayanan || user.adminRole || "").toLowerCase();
+                    // Pastikan variabel pembaca role selaras dengan aplikasi utama
+                    const role = (user.adminRole || user.role || user.status_pelayanan || "").toLowerCase().trim();
                     
-                    if (user.isAdmin || role.includes("sekretariat") || role.includes("sekertariat") || role.includes("super") || role.includes("multimedia")) {
+                    if (
+                        role.includes("super") || 
+                        role.includes("admin") || 
+                        role.includes("sekret") || 
+                        role.includes("sekert") || 
+                        role.includes("pendeta") || 
+                        role.includes("multi") || 
+                        role.includes("media")
+                    ) {
                         const adminObj = {
                             id: user.id,
                             nama: user.nama_lengkap || user.nama,
-                            role: user.adminRole || user.role || "Sekretariat"
+                            role: user.adminRole || user.role || "Pengurus"
                         };
                         renderAdminDashboard(adminObj);
                         startRealtimePolling();
-                        return;
+                        return; // Selesai, izinkan masuk
                     }
                 } catch (e) {
                     console.error("Gagal parse data sesi:", e);
                 }
             }
             
-            renderAdminLogin();
+    // LOGIKA TENDANGAN (REDIRECT) JIKA GAGAL ---
+            alert("Akses Ditolak! 🛑\nAnda harus login melalui aplikasi utama menggunakan akun pengurus.");
+            window.location.replace("index.html"); // Menggunakan replace agar user tidak bisa menekan tombol 'Back' browser
         });
 
-        // --- 1. HALAMAN LOGIN SEKRETARIAT ---
-        function renderAdminLogin() {
-            const main = document.querySelector("main");
-            main.innerHTML = `
-                <div class="max-w-md w-full mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mt-10">
-                    <h2 class="text-lg font-bold text-slate-900 mb-4 text-center">Login Khusus Sekretariat</h2>
-                    <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Username Sekretariat</label>
-                            <input type="text" id="adminUser" required class="w-full p-3 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-slate-900">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
-                            <input type="password" id="adminPass" required class="w-full p-3 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-slate-900">
-                        </div>
-                        <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-lg font-semibold text-sm hover:bg-slate-800 transition">Masuk Panel</button>
-                    </form>
-                </div>
-            `;
-        }
-
-        async function handleAdminLogin(e) {
-            e.preventDefault();
-            const username = document.getElementById("adminUser").value;
-            const password = document.getElementById("adminPass").value;
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "adminLogin", username, password })
-                });
-                const result = await response.json();
-
-                if (result.status === "success") {
-                    const userRole = result.admin.role.toLowerCase();
-                    if (userRole === "sekretariat" || userRole === "sekertariat" || userRole.includes("super") || userRole.includes("multimedia")) {
-                        sessionStorage.setItem("admin_gereja", JSON.stringify(result.admin));
-                        renderAdminDashboard(result.admin);
-                        startRealtimePolling();
-                    } else {
-                        alert("Akses Ditolak: Halaman ini hanya diperuntukkan bagi role Sekretariat.");
-                    }
-                } else {
-                    alert(result.message);
-                }
-            } catch (err) {
-                alert("Kesalahan koneksi: " + err);
-            }
-        }
-
         // --- 2. DASHBOARD SEKRETARIAT ---
-function renderAdminDashboard(admin) {
+		function renderAdminDashboard(admin) {
             document.getElementById("adminInfo").innerText = `Login: ${admin.nama} (${admin.role})`;
             document.getElementById("logoutBtn").classList.remove("hidden");
             
