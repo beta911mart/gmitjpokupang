@@ -2485,7 +2485,7 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
             `;
         }
 
-        async function handleSendManualReport(e) {
+		async function handleSendManualReport(e) {
             e.preventDefault();
             const email = document.getElementById("reportEmail").value;
             const checkboxes = document.querySelectorAll("input[name='sheetOption']:checked");
@@ -2496,7 +2496,7 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
                 return;
             }
 
-			const btn = document.getElementById("btnSendReport");
+            const btn = document.getElementById("btnSendReport");
             btn.disabled = true;
             btn.innerText = "Mengirim Laporan ke Email...";
 
@@ -2504,34 +2504,41 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
             const user = JSON.parse(sessionStorage.getItem("user_gereja") || "{}");
             const payload = {
                 action: "sendManualReport",
-                admin_id: user.id || user.nomor_hp || "-",        // <--- Perbaikan
-                admin_nama: user.nama || "Pengurus",              // <--- Tambahan Wajib
-                catatan_log: "Mengirim laporan manual ke email",  // <--- Tambahan Wajib
+                admin_id: user.id || user.nomor_hp || "-",        
+                admin_nama: user.nama || "Pengurus",              
+                catatan_log: "Mengirim laporan manual ke email",  
                 email: email,
                 sheets: selectedSheets
             };
 
-			try {
-			    const res = await fetch(SCRIPT_URL, {
-			        method: 'POST',
-			        headers: {
-			            'Content-Type': 'text/plain;charset=utf-8', // <--- Kunci anti-CORS
-			        },
-			        body: JSON.stringify(payload)
-			    });
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8', 
+                    },
+                    body: JSON.stringify(payload)
+                });
     
-    			const result = await res.json();
+                const result = await res.json();
     
-			    if (result.status === "success") {
-			        alert("Puji Tuhan, laporan berhasil dikirim ke email!");
-			        // (reset tombol loading dsb)
-			    } else {
-			        alert("Gagal: " + result.message);
-			    }
-			} catch (error) {
-			    alert("Terjadi kesalahan jaringan atau server.");
-			    console.error(error);
-			}
+                if (result.status === "success") {
+                    alert("Puji Tuhan, laporan berhasil dikirim ke email!");
+                    
+                    // Opsional: Kosongkan email & uncheck semua pilihan setelah sukses
+                    document.getElementById("reportEmail").value = "";
+                    checkboxes.forEach(cb => cb.checked = false);
+                } else {
+                    alert("Gagal: " + result.message);
+                }
+            } catch (error) {
+                alert("Terjadi kesalahan jaringan atau server.");
+                console.error(error);
+            } finally {
+                // --- INI KUNCI AGAR TOMBOL KEMBALI NORMAL ---
+                btn.disabled = false;
+                btn.innerText = "Kirim Laporan Excel (.xlsx) 📊";
+            }
         }
 
         async function loadAdminManagement() {
