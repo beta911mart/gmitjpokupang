@@ -2474,12 +2474,25 @@ function updateAuthNavText() {
 
 function redirectToRolePanel() {
     const sessionData = sessionStorage.getItem("user_gereja") || localStorage.getItem("user_gereja");
-    if (!sessionData) { alert("Sesi tidak ditemukan."); return; }
-    let userData = JSON.parse(sessionData);
-    const role = (userData.role || userData.status_pelayanan || "").toLowerCase().trim();
-    if (role.includes("super") || role.includes("admin")) window.location.href = "sekretariat.html";
-    else if (role.includes("sekretariat") || role.includes("pendeta")) window.location.href = "sekretariat.html";
-    else window.location.href = "sensus.html";
+    if (!sessionData) { 
+        alert("Sesi tidak ditemukan. Silakan login terlebih dahulu."); 
+        return; 
+    }
+    
+    try {
+        let userData = JSON.parse(sessionData);
+        const role = (userData.role || userData.status_pelayanan || "").toLowerCase().trim();
+        
+        // Gabungkan semua role yang berhak masuk ke panel Sekretariat
+        if (role.includes("super") || role.includes("admin") || role.includes("sekretariat") || role.includes("sekertariat") || role.includes("pendeta")) {
+            window.location.href = "sekretariat.html";
+        } else {
+            // Petugas biasa (seperti Petugas Sensus) diarahkan ke sini
+            window.location.href = "sensus.html"; 
+        }
+    } catch (e) {
+        alert("Data sesi rusak. Silakan muat ulang aplikasi.");
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
