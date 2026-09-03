@@ -2535,7 +2535,7 @@ function redirectToRolePanel() {
         let userData = JSON.parse(sessionData);
         
         // Murni membaca hak akses khusus pengurus (tanpa status_pelayanan)
-        const role = (userData.adminRole || userData.role || "").toLowerCase().trim();
+        const role = (userData.role || "").toLowerCase().trim();
         
         if (
             role.includes("super") || 
