@@ -132,8 +132,9 @@
             document.getElementById("logoutBtn").classList.remove("hidden");
             
             const role = (admin.role || "").toLowerCase();
-            const isSuper = role.includes("super");
-            const isMultimedia = role.includes("multimedia") || isSuper;
+            // PERBAIKAN: Filter kata kunci diperluas dan dipermudah
+            const isSuper = role.includes("super") || role.includes("admin");
+            const isMultimedia = role.includes("multi") || role.includes("media") || isSuper;
 
             const main = document.querySelector("main");
             main.innerHTML = `
