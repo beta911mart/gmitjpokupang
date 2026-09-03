@@ -550,13 +550,15 @@ function renderAdminDashboard(admin) {
                 }
             }
 
-            // 3. Setup QR Code (API QR Server aman dari CORS karena headernya terbuka)
-            qrImg.crossOrigin = "anonymous";
+            // 3. Setup QR Code (Ubah jadi Base64 juga agar 100% lolos blokir browser)
+            qrImg.removeAttribute("crossorigin"); 
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
+            const base64QR = await getBase64FromUrl(qrUrl);
+            
             const qrPromise = new Promise((resolve) => {
                 qrImg.onload = resolve;
                 qrImg.onerror = resolve;
-                qrImg.src = qrUrl;
+                qrImg.src = base64QR || qrUrl; 
             });
 
             // 4. Setup Foto Profil menggunakan Base64
@@ -567,13 +569,12 @@ function renderAdminDashboard(admin) {
                 fotoImg.classList.remove("hidden");
                 if (placeholder) placeholder.classList.add("hidden");
                 
-                // Tunggu sistem men-download dan mengubah foto jadi kode teks lokal
                 const base64Foto = await getBase64FromUrl(fotoUrlDatabase);
                 if (base64Foto) {
                     fotoPromise = new Promise((resolve) => {
                         fotoImg.onload = resolve;
                         fotoImg.onerror = resolve;
-                        fotoImg.src = base64Foto; // Ini menjamin kanvas tidak "Tainted"
+                        fotoImg.src = base64Foto;
                     });
                 }
             } else {
@@ -585,7 +586,7 @@ function renderAdminDashboard(admin) {
             // 5. Tunggu semua gambar selesai menempel di layar
             await Promise.all([qrPromise, fotoPromise]);
 
-            // 6. Jalankan Proses Cetak
+            // 6. Jalankan Proses Cetak dengan Penangkap Error
             setTimeout(() => {
                 const cardElement = document.getElementById("idCardTemplate");
                 
@@ -594,16 +595,21 @@ function renderAdminDashboard(admin) {
                     useCORS: true, 
                     backgroundColor: "#ffffff" 
                 }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `KTJ_${user.nama_lengkap.replace(/\s+/g, '_')}.png`;
-                    // Tanpa Base64 di langkah 4, baris di bawah ini sering gagal diam-diam
-                    link.href = canvas.toDataURL("image/png"); 
-                    link.click();
+                    try {
+                        const link = document.createElement('a');
+                        link.download = `KTJ_${user.nama_lengkap.replace(/\s+/g, '_')}.png`;
+                        link.href = canvas.toDataURL("image/png"); 
+                        link.click();
+                        
+                        showToastBanner(`ID Card ${user.nama_lengkap} berhasil diunduh!`);
+                    } catch (err) {
+                        alert("Gagal mengunduh! Browser memblokir gambar (Tainted Canvas). Pastikan LogoGMIT.png ada di server Anda.");
+                        console.error(err);
+                    }
                 }).catch(err => {
                     alert("Gagal mencetak kartu: " + err);
                 });
-            }, 500); 
-        }
+            }, 500);
 
         // --- 4. MODERASI KOTAK DOA ---
         async function loadPrayerData() {
@@ -2736,7 +2742,7 @@ async function handleSendManualReport(e) {
                 <!-- Bagian Bawah: QR Code -->
                 <div class="flex-1 flex items-center justify-center w-full mb-3">
                     <div class="w-32 h-32 bg-white border border-slate-200 p-2 rounded-xl shadow-sm relative z-20">
-                        <img id="idCardFoto" src="" alt="Foto" class="absolute inset-0 w-full h-full object-cover hidden">
+                        <img id="idCardQR" src="" class="w-full h-full object-contain">
                     </div>
                 </div>
             </div>
