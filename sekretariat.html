@@ -514,13 +514,13 @@ function renderAdminDashboard(admin) {
             `).join('');
         }
 
-		async function generateIDCard(userId) {
+		function generateIDCard(userId) {
             const user = window.sensusUsersCache ? window.sensusUsersCache.find(u => u.id === userId) : window.currentUser;
             if (!user) return alert("Data jemaat tidak ditemukan.");
 
-            showToastBanner(`Menyiapkan ID Card untuk ${user.nama_lengkap}. Memuat foto...`);
+            showToastBanner(`Menyiapkan ID Card untuk ${user.nama_lengkap}...`);
 
-            // 1. Isi Data Teks
+            // 1. Masukkan Teks
             document.getElementById("idCardNama").innerText = user.nama_lengkap || "-";
             document.getElementById("idCardGender").innerText = user.jenis_kelamin || "-";
             document.getElementById("idCardLingRayon").innerText = `: Ling. ${user.lingkungan || '-'} / Rayon ${user.rayon || '-'}`;
@@ -528,52 +528,35 @@ function renderAdminDashboard(admin) {
             
             const fotoImg = document.getElementById("idCardFoto");
             const placeholder = document.getElementById("idCardFotoPlaceholder");
-            const qrImg = document.getElementById("idCardQR");
-
-            // Cek Data URL di Console (Tekan F12 di browser untuk melihatnya)
+            const labelFoto = document.getElementById("idCardLabelFoto");
+            
+            // 2. Setup Foto Profil menggunakan logika Aplikasi Utama
             const fotoUrlDatabase = user.foto_profil || user.foto || user.url_foto || user.url_gambar;
-            console.log("Link Foto Jemaat:", fotoUrlDatabase);
-
-            // 2. Setup Foto Profil & Paksa Sistem Menunggu (Promise)
-            let fotoLoadPromise = Promise.resolve(); // Default selesai jika tidak ada foto
             
             if (fotoUrlDatabase && fotoUrlDatabase.trim() !== "" && fotoUrlDatabase !== "-") {
-                // Konversi URL agar lolos dari blokir CORS
-                let fixedUrl = fotoUrlDatabase.replace("://i.ibb.co/", "://i.ibb.co.com/");
-                const safeUrl = `https://wsrv.nl/?url=${encodeURIComponent(fixedUrl)}&w=200&fit=cover`;
+                const safeUrl = `https://wsrv.nl/?url=${encodeURIComponent(fotoUrlDatabase)}&w=200&fit=cover`;
                 
                 fotoImg.crossOrigin = "anonymous";
+                fotoImg.src = safeUrl;
                 
-                // Minta JavaScript menahan proses sampai gambar selesai dimuat (onload)
-                fotoLoadPromise = new Promise((resolve) => {
-                    fotoImg.onload = resolve;
-                    fotoImg.onerror = resolve; // Lanjut walau error agar sistem tidak hang
-                    fotoImg.src = safeUrl; 
-                });
-
                 fotoImg.classList.remove("hidden");
-                if (placeholder) placeholder.classList.add("hidden");
+                if(placeholder) placeholder.classList.add("hidden");
+                if(labelFoto) labelFoto.classList.add("hidden");
             } else {
                 fotoImg.src = "";
                 fotoImg.classList.add("hidden");
-                if (placeholder) placeholder.classList.remove("hidden");
+                if(placeholder) placeholder.classList.remove("hidden");
+                if(labelFoto) labelFoto.classList.remove("hidden");
             }
 
-            // 3. Setup QR Code (Sistem juga harus menunggu QR)
-            let qrLoadPromise = Promise.resolve();
+            // 3. Setup QR Code
+            const qrImg = document.getElementById("idCardQR");
             if (qrImg) {
                 qrImg.crossOrigin = "anonymous";
-                qrLoadPromise = new Promise((resolve) => {
-                    qrImg.onload = resolve;
-                    qrImg.onerror = resolve;
-                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
-                });
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
             }
 
-            // 4. TAHAN SISTEM: Jangan cetak sebelum Foto & QR Code selesai muncul
-            await Promise.all([fotoLoadPromise, qrLoadPromise]);
-
-            // 5. Proses Cetak
+            // 4. Proses Unduh (Tunggu 2 detik agar gambar server luar meresap ke DOM)
             setTimeout(() => {
                 const cardElement = document.getElementById("idCardTemplate");
                 
@@ -596,14 +579,14 @@ function renderAdminDashboard(admin) {
                             
                             showToastBanner(`ID Card ${user.nama_lengkap} berhasil diunduh!`);
                         } catch (err) {
-                            console.error("Canvas Error:", err);
-                            alert("Gagal mengunduh! Pastikan Anda terhubung ke internet stabil.");
+                            console.error("Canvas Tainted Error:", err);
+                            alert("Gagal mengunduh: Browser memblokir gambar karena alasan keamanan (CORS).");
                         }
                     }).catch(err => {
-                        alert("Gagal mencetak kartu: " + err);
+                        alert("Terjadi kesalahan saat mencetak gambar: " + err);
                     });
                 }
-            }, 300); // Jeda kecil untuk memberi nafas ke browser sebelum memotret
+            }, 2000); 
         }
         // --- 4. MODERASI KOTAK DOA ---
         async function loadPrayerData() {
