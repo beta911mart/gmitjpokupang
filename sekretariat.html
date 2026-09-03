@@ -2476,6 +2476,20 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
                             </div>
                         </div>
 
+						<div class="mt-4">
+                            <label class="block text-xs font-semibold text-slate-700 mb-2">Pilih Kolom yang Akan Diexport:</label>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 w-full">
+                                <!-- Value menggunakan angka index kolom (0 = Kolom A, 1 = Kolom B, dst) -->
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="colOption" value="0" checked class="rounded text-purple-600"> Kolom 1 (A)</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="colOption" value="1" checked class="rounded text-purple-600"> Kolom 2 (B)</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="colOption" value="2" checked class="rounded text-purple-600"> Kolom 3 (C)</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="colOption" value="3" checked class="rounded text-purple-600"> Kolom 4 (D)</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="colOption" value="4" checked class="rounded text-purple-600"> Kolom 5 (E)</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="colOption" value="5" checked class="rounded text-purple-600"> Kolom 6 (F)</label>
+                            </div>
+                            <p class="text-[10px] text-slate-500 mt-1">*Hanya kolom yang dicentang yang akan masuk ke dalam file Excel.</p>
+                        </div>
+
                         <div class="flex gap-3 pt-2">
                             <button type="submit" id="btnSendReport" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl text-xs font-semibold transition shadow-sm">Kirim Laporan Excel (.xlsx) 📊</button>
                             <button type="button" onclick="location.reload()" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition">Batal</button>
@@ -2485,8 +2499,10 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
             `;
         }
 
-		async function handleSendManualReport(e) {
+async function handleSendManualReport(e) {
             e.preventDefault();
+            
+            // 1. Tangkap Email dan Pilihan Sheet
             const email = document.getElementById("reportEmail").value;
             const checkboxes = document.querySelectorAll("input[name='sheetOption']:checked");
             const selectedSheets = Array.from(checkboxes).map(cb => cb.value);
@@ -2496,11 +2512,21 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
                 return;
             }
 
+            // 2. Tangkap Pilihan Kolom
+            const colCheckboxes = document.querySelectorAll("input[name='colOption']:checked");
+            const selectedColumns = Array.from(colCheckboxes).map(cb => parseInt(cb.value)); 
+
+            if (selectedColumns.length === 0) {
+                alert("⚠️ Pilih minimal 1 kolom untuk diexport!");
+                return;
+            }
+
+            // 3. Ubah State Tombol (Loading)
             const btn = document.getElementById("btnSendReport");
             btn.disabled = true;
             btn.innerText = "Mengirim Laporan ke Email...";
 
-            // Baca dari user_gereja
+            // 4. Siapkan Payload
             const user = JSON.parse(sessionStorage.getItem("user_gereja") || "{}");
             const payload = {
                 action: "sendManualReport",
@@ -2508,9 +2534,11 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
                 admin_nama: user.nama || "Pengurus",              
                 catatan_log: "Mengirim laporan manual ke email",  
                 email: email,
-                sheets: selectedSheets
+                sheets: selectedSheets,
+                columns: selectedColumns // <--- Array nomor kolom dikirim ke GAS
             };
 
+            // 5. Eksekusi Pengiriman
             try {
                 const res = await fetch(SCRIPT_URL, {
                     method: 'POST',
@@ -2525,9 +2553,11 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
                 if (result.status === "success") {
                     alert("Puji Tuhan, laporan berhasil dikirim ke email!");
                     
-                    // Opsional: Kosongkan email & uncheck semua pilihan setelah sukses
+                    // Reset form setelah sukses
                     document.getElementById("reportEmail").value = "";
                     checkboxes.forEach(cb => cb.checked = false);
+                    // (Opsional) Mengembalikan semua centang kolom ke default
+                    colCheckboxes.forEach(cb => cb.checked = true); 
                 } else {
                     alert("Gagal: " + result.message);
                 }
@@ -2535,12 +2565,11 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
                 alert("Terjadi kesalahan jaringan atau server.");
                 console.error(error);
             } finally {
-                // --- INI KUNCI AGAR TOMBOL KEMBALI NORMAL ---
+                // 6. Kembalikan Tombol ke Normal
                 btn.disabled = false;
                 btn.innerText = "Kirim Laporan Excel (.xlsx) 📊";
             }
         }
-
         async function loadAdminManagement() {
             const area = document.getElementById("adminContentArea");
             area.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Memuat daftar pengurus...</p>`;
