@@ -518,7 +518,7 @@ function renderAdminDashboard(admin) {
             const user = window.sensusUsersCache ? window.sensusUsersCache.find(u => u.id === userId) : window.currentUser;
             if (!user) return alert("Data jemaat tidak ditemukan.");
 
-            showToastBanner(`Menyiapkan ID Card untuk ${user.nama_lengkap}...`);
+            showToastBanner(`Menyiapkan ID Card untuk ${user.nama_lengkap}. Memuat foto...`);
 
             // 1. Isi Data Teks
             document.getElementById("idCardNama").innerText = user.nama_lengkap || "-";
@@ -530,17 +530,23 @@ function renderAdminDashboard(admin) {
             const placeholder = document.getElementById("idCardFotoPlaceholder");
             const qrImg = document.getElementById("idCardQR");
 
-            // 2. Setup Foto Profil (Adaptasi dari Referensi Aplikasi Utama)
+            // 2. Setup Foto Profil & Paksa Sistem Menunggu (Promise)
             const fotoUrlDatabase = user.foto_profil || user.foto || user.url_foto || user.url_gambar;
+            let fotoLoadPromise = Promise.resolve(); // Default selesai jika tidak ada foto
             
             if (fotoUrlDatabase && fotoUrlDatabase.trim() !== "" && fotoUrlDatabase !== "-") {
-                // Gunakan ImgBB komersial (.com) agar proxy wsrv.nl tidak memblokirnya
                 let fixedUrl = fotoUrlDatabase.replace("://i.ibb.co/", "://i.ibb.co.com/");
                 const safeUrl = `https://wsrv.nl/?url=${encodeURIComponent(fixedUrl)}&w=200&fit=cover`;
                 
                 fotoImg.crossOrigin = "anonymous";
-                fotoImg.src = safeUrl;
                 
+                // Minta JavaScript menahan proses sampai gambar benar-benar termuat (onload)
+                fotoLoadPromise = new Promise((resolve) => {
+                    fotoImg.onload = resolve;
+                    fotoImg.onerror = resolve; // Tetap lanjut jika gambar rusak
+                    fotoImg.src = safeUrl; 
+                });
+
                 fotoImg.classList.remove("hidden");
                 if (placeholder) placeholder.classList.add("hidden");
             } else {
@@ -549,13 +555,21 @@ function renderAdminDashboard(admin) {
                 if (placeholder) placeholder.classList.remove("hidden");
             }
 
-            // 3. Setup QR Code
+            // 3. Setup QR Code (Sistem juga harus menunggu QR)
+            let qrLoadPromise = Promise.resolve();
             if (qrImg) {
                 qrImg.crossOrigin = "anonymous";
-                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
+                qrLoadPromise = new Promise((resolve) => {
+                    qrImg.onload = resolve;
+                    qrImg.onerror = resolve;
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.id)}&margin=0`;
+                });
             }
 
-            // 4. Proses Cetak (Menunggu 1.5 detik agar gambar dari server proxy selesai dimuat)
+            // 4. TAHAN SISTEM: Jangan cetak sebelum Foto & QR Code selesai muncul
+            await Promise.all([fotoLoadPromise, qrLoadPromise]);
+
+            // 5. Proses Cetak
             setTimeout(() => {
                 const cardElement = document.getElementById("idCardTemplate");
                 
@@ -563,7 +577,7 @@ function renderAdminDashboard(admin) {
                     html2canvas(cardElement, { 
                         scale: 3, 
                         useCORS: true, 
-                        allowTaint: true, // Dari referensi aplikasi utama
+                        allowTaint: true, 
                         backgroundColor: "#ffffff" 
                     }).then(canvas => {
                         try {
@@ -572,7 +586,6 @@ function renderAdminDashboard(admin) {
                             link.download = `KTJ_${user.nama_lengkap.replace(/\s+/g, '_')}.png`;
                             link.href = dataUrl;
                             
-                            // KUNCI UTAMA: Wajib ditempel ke body agar unduhan di HP/Chrome berhasil
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
@@ -586,7 +599,7 @@ function renderAdminDashboard(admin) {
                         alert("Gagal mencetak kartu: " + err);
                     });
                 }
-            }, 1500); 
+            }, 300); // Jeda kecil untuk memberi nafas ke browser sebelum memotret
         }
         // --- 4. MODERASI KOTAK DOA ---
         async function loadPrayerData() {
