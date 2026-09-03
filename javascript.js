@@ -223,6 +223,7 @@ function setTheme(theme, isInitialLoad = false) {
 
     document.querySelectorAll('.home-menu-icon').forEach(el => {
         el.className = `relative w-14 h-14 flex items-center justify-center mb-1 overflow-hidden border-2 border-white transition-all duration-500 shadow-md ${menuShapeClass}`;
+		el.style.animation = '';
     });
     document.querySelectorAll('.home-menu-inner').forEach(el => {
         el.className = `text-xl ${innerShapeTransform}`;
@@ -255,7 +256,6 @@ function setTheme(theme, isInitialLoad = false) {
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #e11d48 !important; }
         `;
 	} else if (theme === 'christmas') {
-        // Latar belakang gradasi Natal (Merah Gelap ke Hijau Cemara)
         app.className = `${baseAppClass} bg-gradient-to-b from-red-950 via-red-900 to-emerald-950 text-red-50`;
         body.className = "bg-red-950 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         
@@ -263,16 +263,13 @@ function setTheme(theme, isInitialLoad = false) {
             bannerContainer.innerHTML = `<div class="bg-gradient-to-r from-red-600 via-rose-500 to-emerald-600 py-2 px-3 text-center text-xs text-white shadow-[0_0_15px_rgba(239,68,68,0.8)] flex items-center justify-center gap-2 font-bold animate-pulse"><span>❄️</span> Selamat Menyambut Natal Kristus <span>🎄✨</span></div>`;
         }
 
-        // 1. Injeksi Elemen Hujan Salju (Menggunakan ID ornamenIdCard agar otomatis bersih jika ganti tema)
         const ornamen = document.createElement("div");
         ornamen.id = "ornamenIdCard"; 
         ornamen.className = "absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-inherit";
         ornamen.innerHTML = `<div id="snowEffect" class="absolute inset-0 w-full h-full opacity-70"></div>`;
         app.insertBefore(ornamen, app.firstChild);
 
-        // 2. CSS Override Ekstrem: Salju & Lampu Glow Random
         cssRules = `
-            /* Efek Animasi Salju Turun Tanpa Membebani RAM */
             @keyframes snowFall {
                 0% { background-position: 0px 0px, 0px 0px, 0px 0px; }
                 100% { background-position: 400px 1000px, 300px 400px, 200px 300px; }
@@ -288,14 +285,12 @@ function setTheme(theme, isInitialLoad = false) {
                 animation: snowFall 12s linear infinite;
             }
 
-            /* Membuat Kartu Sedikit Transparan agar Salju di belakangnya terlihat */
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { 
                 background-color: rgba(69, 10, 10, 0.7) !important; 
                 backdrop-filter: blur(8px);
                 border-width: 2px !important;
             }
 
-            /* Animasi Lampu Glow (Merah, Hijau Neon, Emas) */
             @keyframes glowRed {
                 0%, 100% { box-shadow: 0 0 5px #ef4444; border-color: #7f1d1d; }
                 50% { box-shadow: 0 0 25px #ef4444; border-color: #ef4444; }
@@ -308,15 +303,19 @@ function setTheme(theme, isInitialLoad = false) {
                 0%, 100% { box-shadow: 0 0 5px #eab308; border-color: #713f12; }
                 50% { box-shadow: 0 0 25px #eab308; border-color: #eab308; }
             }
-
-            /* Menerapkan Glow secara Acak ke Tombol-Tombol Menu Menggunakan Logika nth-child */
-            main .grid > button:nth-child(3n+1) { animation: glowRed 3s infinite alternate !important; }
-            main .grid > button:nth-child(3n+2) { animation: glowGreen 4s infinite alternate !important; }
-            main .grid > button:nth-child(3n+3) { animation: glowGold 2.5s infinite alternate !important; }
             
-            /* Teks khusus untuk tema ekstrem ini */
             #app h3 { text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         `;
+
+        // Injeksi Paksa Animasi Glow ke Semua Tombol Menu (Beranda & Sekretariat)
+        setTimeout(() => {
+            const menuButtons = document.querySelectorAll('.home-menu-icon, main .grid button');
+            menuButtons.forEach((btn, index) => {
+                if (index % 3 === 0) btn.style.setProperty('animation', 'glowRed 3s infinite alternate', 'important');
+                else if (index % 3 === 1) btn.style.setProperty('animation', 'glowGreen 4s infinite alternate', 'important');
+                else btn.style.setProperty('animation', 'glowGold 2.5s infinite alternate', 'important');
+            });
+        }, 100);
     } else if (theme === 'easter') {
         app.className = `${baseAppClass} bg-amber-950 text-amber-100`;
         body.className = "bg-amber-900 text-amber-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
