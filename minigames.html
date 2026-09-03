@@ -183,7 +183,8 @@
             <h1>🎮 GameZone Hub</h1>
             <p>Pilih dan mainkan mini game favoritmu langsung di sini!</p>
         </header>
-<button onclick="window.location.href='games.html'" class="text-xs bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700 px-3 py-1.5 rounded-xl transition">← Beranda</button>
+        <button onclick="window.location.href='games.html'" style="background:#0f3460; color:#a2a2bd; border:1px solid #16213e; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px; margin-bottom:15px;">← Kembali ke Beranda</button>
+        
         <div class="filters">
             <button class="filter-btn active" data-filter="all">Semua</button>
             <button class="filter-btn" data-filter="fighting">Fighting</button>
@@ -451,6 +452,20 @@
                     ctx.fillStyle = "rgba(0,0,0,0.7)"; ctx.fillRect(0, 0, 600, 300);
                     ctx.fillStyle = "#FFF"; ctx.font = "30px Arial"; ctx.textAlign = "center";
                     ctx.fillText(player.hp > 0 ? "KAMU MENANG!" : "KAMU KALAH!", 300, 150);
+                    
+                    if (!document.getElementById("btnRetryFight")) {
+                        let btn = document.createElement("button");
+                        btn.id = "btnRetryFight";
+                        btn.className = "play-btn";
+                        btn.style.position = "absolute";
+                        btn.style.width = "120px";
+                        btn.style.top = "55%";
+                        btn.style.left = "50%";
+                        btn.style.transform = "translate(-50%, -50%)";
+                        btn.innerText = "Coba Lagi";
+                        btn.onclick = () => { document.getElementById("gameArea").innerHTML = ""; initFighting(document.getElementById("gameArea")); };
+                        document.getElementById("gameArea").appendChild(btn);
+                    }
                 } else {
                     activeLoop = requestAnimationFrame(loop);
                 }
@@ -505,6 +520,18 @@
                     ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,350,500);
                     ctx.fillStyle = "#fff"; ctx.font = "24px Arial"; ctx.textAlign = "center";
                     ctx.fillText("GAME OVER - Skor: " + score, 175, 250);
+                    
+                    if (!document.getElementById("btnRetryShooter")) {
+                        let btn = document.createElement("button");
+                        btn.id = "btnRetryShooter";
+                        btn.className = "play-btn";
+                        btn.style.position = "absolute";
+                        btn.style.width = "120px";
+                        btn.style.top = "60%";
+                        btn.innerText = "Coba Lagi";
+                        btn.onclick = () => { document.getElementById("gameArea").innerHTML = ""; initShooter(document.getElementById("gameArea")); };
+                        document.getElementById("gameArea").appendChild(btn);
+                    }
                 }
             }
             loop();
@@ -551,6 +578,18 @@
                     ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,300,400);
                     ctx.fillStyle = "#fff"; ctx.font = "24px Arial"; ctx.textAlign = "center";
                     ctx.fillText("GAME OVER", 150, 200);
+                    
+                    if (!document.getElementById("btnRetryRacing")) {
+                        let btn = document.createElement("button");
+                        btn.id = "btnRetryRacing";
+                        btn.className = "play-btn";
+                        btn.style.position = "absolute";
+                        btn.style.width = "120px";
+                        btn.style.top = "45%";
+                        btn.innerText = "Coba Lagi";
+                        btn.onclick = () => { document.getElementById("gameArea").innerHTML = ""; initRacing(document.getElementById("gameArea")); };
+                        document.getElementById("gameArea").appendChild(btn);
+                    }
                 }
             }
             loop();
@@ -567,6 +606,7 @@
             let player = { x: 125, y: 450, w: 70, h: 10, score: 0 };
             let ai = { x: 125, y: 20, w: 70, h: 10, score: 0 };
             let ball = { x: 160, y: 240, r: 7, dx: 3, dy: 3, spd: 4 };
+            let over = false;
 
             cvs.ontouchmove = (e) => {
                 let r = cvs.getBoundingClientRect();
@@ -574,6 +614,8 @@
             };
 
             function loop() {
+                if (over) return;
+                
                 ctx.clearRect(0, 0, 320, 480);
                 ball.x += ball.dx; ball.y += ball.dy;
 
@@ -588,6 +630,26 @@
 
                 if (ball.y < 0) { player.score++; document.getElementById("pPl").innerText = player.score; ball.x = 160; ball.y = 240; ball.dy = 3; }
                 if (ball.y > 480) { ai.score++; document.getElementById("pAi").innerText = ai.score; ball.x = 160; ball.y = 240; ball.dy = -3; }
+
+                if (player.score >= 10 || ai.score >= 10) {
+                    over = true;
+                    ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,320,480);
+                    ctx.fillStyle = "#fff"; ctx.font = "24px Arial"; ctx.textAlign = "center";
+                    ctx.fillText(player.score >= 10 ? "KAMU MENANG!" : "AI MENANG!", 160, 240);
+                    
+                    if (!document.getElementById("btnRetryPong")) {
+                        let btn = document.createElement("button");
+                        btn.id = "btnRetryPong";
+                        btn.className = "play-btn";
+                        btn.style.position = "absolute";
+                        btn.style.width = "120px";
+                        btn.style.top = "60%";
+                        btn.innerText = "Coba Lagi";
+                        btn.onclick = () => { document.getElementById("gameArea").innerHTML = ""; initPingPong(document.getElementById("gameArea")); };
+                        document.getElementById("gameArea").appendChild(btn);
+                    }
+                    return; 
+                }
 
                 ctx.fillStyle = "#0f0"; ctx.fillRect(player.x, player.y, player.w, player.h);
                 ctx.fillStyle = "#f00"; ctx.fillRect(ai.x, ai.y, ai.w, ai.h);
@@ -622,10 +684,12 @@
                 if (state === "wait") {
                     clearTimeout(timer); arena.style.background = "#000"; arena.innerText = "TERLALU CEPAT!\nKlik untuk reset.";
                     state = "over"; score = 0; scoreEl.innerText = score;
+                    btn.innerText = "COBA LAGI";
                 } else if (state === "punch") {
                     score++; scoreEl.innerText = score; arena.style.background = "#2196F3"; arena.innerText = "BAGUS!";
                     start();
                 } else if (state === "over") {
+                    btn.innerText = "PUNCH!";
                     start();
                 }
             };
@@ -675,6 +739,18 @@
                     ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,300,300);
                     ctx.fillStyle = "#fff"; ctx.font = "20px Arial"; ctx.textAlign = "center";
                     ctx.fillText("GAME OVER", 150, 150);
+                    
+                    if (!document.getElementById("btnRetrySnake")) {
+                        let btn = document.createElement("button");
+                        btn.id = "btnRetrySnake";
+                        btn.className = "play-btn";
+                        btn.style.position = "absolute";
+                        btn.style.width = "120px";
+                        btn.style.top = "35%";
+                        btn.innerText = "Coba Lagi";
+                        btn.onclick = () => { document.getElementById("gameArea").innerHTML = ""; initSnake(document.getElementById("gameArea")); };
+                        document.getElementById("gameArea").appendChild(btn);
+                    }
                 }
             }
             step();
@@ -722,6 +798,18 @@
                     ctx.fillStyle = "rgba(0,0,0,0.7)"; ctx.fillRect(0,0,300,450);
                     ctx.fillStyle = "#fff"; ctx.font = "24px Arial"; ctx.textAlign = "center";
                     ctx.fillText("GAME OVER - Skor: " + score, 150, 225);
+                    
+                    if (!document.getElementById("btnRetryFlappy")) {
+                        let btn = document.createElement("button");
+                        btn.id = "btnRetryFlappy";
+                        btn.className = "play-btn";
+                        btn.style.position = "absolute";
+                        btn.style.width = "120px";
+                        btn.style.top = "60%";
+                        btn.innerText = "Coba Lagi";
+                        btn.onclick = () => { document.getElementById("gameArea").innerHTML = ""; initFlappy(document.getElementById("gameArea")); };
+                        document.getElementById("gameArea").appendChild(btn);
+                    }
                 }
             }
             loop();
@@ -758,7 +846,18 @@
                             setTimeout(() => {
                                 if (flipped[0].innerText === flipped[1].innerText) {
                                     matched += 2;
-                                    if (matched === cards.length) alert("Menang dalam " + moves + " langkah!");
+                                    if (matched === cards.length) {
+                                        if (!document.getElementById("btnRetryPuzzle")) {
+                                            let btn = document.createElement("button");
+                                            btn.id = "btnRetryPuzzle";
+                                            btn.className = "play-btn";
+                                            btn.style.marginTop = "20px";
+                                            btn.style.width = "200px";
+                                            btn.innerText = "Selesai! Main Lagi?";
+                                            btn.onclick = () => { document.getElementById("gameArea").innerHTML = ""; initPuzzle(document.getElementById("gameArea")); };
+                                            document.querySelector(".pz-grid").after(btn);
+                                        }
+                                    }
                                 } else {
                                     flipped[0].classList.remove("pz-open");
                                     flipped[1].classList.remove("pz-open");
