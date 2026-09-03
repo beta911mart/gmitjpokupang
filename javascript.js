@@ -307,13 +307,14 @@ function setTheme(theme, isInitialLoad = false) {
             #app h3 { text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         `;
 
-        // Injeksi Paksa Animasi Glow ke Semua Tombol Menu (Beranda & Sekretariat)
+		// Injeksi Paksa Animasi Glow Kilat
         setTimeout(() => {
             const menuButtons = document.querySelectorAll('.home-menu-icon, main .grid button');
             menuButtons.forEach((btn, index) => {
-                if (index % 3 === 0) btn.style.setProperty('animation', 'glowRed 3s infinite alternate', 'important');
-                else if (index % 3 === 1) btn.style.setProperty('animation', 'glowGreen 4s infinite alternate', 'important');
-                else btn.style.setProperty('animation', 'glowGold 2.5s infinite alternate', 'important');
+                // Durasi diubah menjadi sangat singkat: 0.2s, 0.3s, dan 0.15s
+                if (index % 3 === 0) btn.style.setProperty('animation', 'glowRed 0.2s infinite alternate', 'important');
+                else if (index % 3 === 1) btn.style.setProperty('animation', 'glowGreen 0.3s infinite alternate', 'important');
+                else btn.style.setProperty('animation', 'glowGold 0.15s infinite alternate', 'important');
             });
         }, 100);
     } else if (theme === 'easter') {
