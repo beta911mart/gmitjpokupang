@@ -2535,17 +2535,18 @@ function redirectToRolePanel() {
     try {
         let userData = JSON.parse(sessionData);
         
-        // Perbaikan: Baca adminRole dan role sekaligus, lalu jadikan huruf kecil
-        const role = (userData.adminRole || userData.role || "").toLowerCase().trim();
+        // Membaca semua kemungkinan kolom data jemaat
+        const role = (userData.adminRole || userData.role || userData.status_pelayanan || "").toLowerCase().trim();
         
+        // Gunakan kata kunci yang lebih pendek dan luas
         if (
             role.includes("super") || 
             role.includes("admin") || 
-            role.includes("sekretariat") || 
-            role.includes("sekertariat") || 
+            role.includes("sekret") || 
+            role.includes("sekert") || 
             role.includes("pendeta") || 
-            role.includes("multimedia") || 
-            role.includes("multi media") // Antisipasi penulisan dengan spasi
+            role.includes("multi") || 
+            role.includes("media")
         ) {
             window.location.href = "sekretariat.html";
         } else {
