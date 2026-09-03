@@ -97,7 +97,7 @@
                     const user = JSON.parse(sessionData);
                     const role = (user.role || user.status_pelayanan || user.adminRole || "").toLowerCase();
                     
-                    if (user.isAdmin || role.includes("sekretariat") || role.includes("sekertariat") || role.includes("super")) {
+                    if (user.isAdmin || role.includes("sekretariat") || role.includes("sekertariat") || role.includes("super") || role.includes("multimedia")) {
                         const adminObj = {
                             id: user.id,
                             nama: user.nama_lengkap || user.nama,
@@ -150,7 +150,7 @@
 
                 if (result.status === "success") {
                     const userRole = result.admin.role.toLowerCase();
-                    if (userRole === "sekretariat" || userRole === "sekertariat" || userRole.includes("super")) {
+                    if (userRole === "sekretariat" || userRole === "sekertariat" || userRole.includes("super") || userRole.includes("multimedia")) {
                         sessionStorage.setItem("admin_gereja", JSON.stringify(result.admin));
                         renderAdminDashboard(result.admin);
                         startRealtimePolling();
@@ -166,12 +166,13 @@
         }
 
         // --- 2. DASHBOARD SEKRETARIAT ---
-        function renderAdminDashboard(admin) {
+function renderAdminDashboard(admin) {
             document.getElementById("adminInfo").innerText = `Login: ${admin.nama} (${admin.role})`;
             document.getElementById("logoutBtn").classList.remove("hidden");
             
             const role = (admin.role || "").toLowerCase();
             const isSuper = role.includes("super");
+            const isMultimedia = role.includes("multimedia") || isSuper;
 
             const main = document.querySelector("main");
             main.innerHTML = `
@@ -218,17 +219,18 @@
                             <p class="text-[11px] text-slate-500 mt-1">Update file PDF (Link tetap sama).</p>
                         </button>
 
-	                    <button onclick="loadRosterForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
-	                        <h3 class="font-bold text-xs text-slate-900">📋 Input Roster</h3>
-	                        <p class="text-[11px] text-slate-500 mt-1">Jadwal tugas pelayanan.</p>
-	                    </button>
+                        <button onclick="loadRosterForm()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
+                            <h3 class="font-bold text-xs text-slate-900">📋 Input Roster</h3>
+                            <p class="text-[11px] text-slate-500 mt-1">Jadwal tugas pelayanan.</p>
+                        </button>
 
                         <button onclick="loadActivityLogs()" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-left hover:border-slate-400 hover:bg-slate-50 transition">
                             <h3 class="font-bold text-xs text-slate-900">📋 Log Aktivitas Pengurus</h3>
                              <p class="text-[11px] text-slate-500 mt-1">Riwayat aksi sekretariat dan pengurus.</p>
                         </button>
 
-                        ${isSuper ? `
+                        <!-- KELOMPOK 1: Akses untuk Multimedia & Super Admin -->
+                        ${isMultimedia ? `
                         <button onclick="loadUploadGaleriForm()" class="bg-purple-50 p-4 rounded-xl border border-purple-200 shadow-sm text-left hover:border-purple-400 transition">
                             <h3 class="font-bold text-xs text-purple-900">🖼️ Unggah Galeri</h3>
                             <p class="text-[11px] text-purple-600 mt-1">Upload foto via imgBB.</p>
@@ -237,6 +239,10 @@
                             <h3 class="font-bold text-xs text-purple-900">📢 Push Notif</h3>
                             <p class="text-[11px] text-purple-600 mt-1">Kelola popup peringatan.</p>
                         </button>
+                        ` : ''}
+
+                        <!-- KELOMPOK 2: Eksklusif Hanya untuk Super Admin -->
+                        ${isSuper ? `
                         <button onclick="openManualReportMenu()" class="bg-purple-50 p-4 rounded-xl border border-purple-200 shadow-sm text-left hover:border-purple-400 transition">
                             <h3 class="font-bold text-xs text-purple-900">📤 Laporan Manual</h3>
                             <p class="text-[11px] text-purple-600 mt-1">Export Excel ke email.</p>
@@ -2536,6 +2542,7 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
                                     <select id="newAdminRole" required class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-xs outline-none">
                                         <option value="Admin Operator">Admin Operator</option>
                                         <option value="Sekretariat">Sekretariat</option>
+										<option value="Multimedia">Multimedia</option>
                                         <option value="Petugas Sensus">Petugas Sensus</option>
                                     </select>
                                 </div>
