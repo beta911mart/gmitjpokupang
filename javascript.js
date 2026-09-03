@@ -2477,7 +2477,7 @@ function redirectToRolePanel() {
     if (!sessionData) { alert("Sesi tidak ditemukan."); return; }
     let userData = JSON.parse(sessionData);
     const role = (userData.role || userData.status_pelayanan || "").toLowerCase().trim();
-    if (role.includes("super") || role.includes("admin")) window.location.href = "admin.html";
+    if (role.includes("super") || role.includes("admin")) window.location.href = "sekretariat.html";
     else if (role.includes("sekretariat") || role.includes("pendeta")) window.location.href = "sekretariat.html";
     else window.location.href = "sensus.html";
 }
