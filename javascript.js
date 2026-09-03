@@ -2535,8 +2535,8 @@ function redirectToRolePanel() {
     try {
         let userData = JSON.parse(sessionData);
         
-        // Murni membaca hak akses khusus pengurus (tanpa status_pelayanan)
-        const role = (userData.role || "").toLowerCase().trim();
+        // Perbaikan: Baca adminRole dan role sekaligus, lalu jadikan huruf kecil
+        const role = (userData.adminRole || userData.role || "").toLowerCase().trim();
         
         if (
             role.includes("super") || 
@@ -2544,7 +2544,8 @@ function redirectToRolePanel() {
             role.includes("sekretariat") || 
             role.includes("sekertariat") || 
             role.includes("pendeta") || 
-            role.includes("multimedia")
+            role.includes("multimedia") || 
+            role.includes("multi media") // Antisipasi penulisan dengan spasi
         ) {
             window.location.href = "sekretariat.html";
         } else {
