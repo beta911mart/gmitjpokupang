@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Portal Mini Games - All in One</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            background-color: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            color: #e94560;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+        header p {
+            color: #a2a2bd;
+            font-size: 14px;
+        }
+        
+        /* Filter Kategori */
+        .filters {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .filter-btn {
+            background-color: #16213e;
+            color: #fff;
+            border: 2px solid #0f3460;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background-color: #e94560;
+            border-color: #e94560;
+        }
+
+        /* Grid Hub Game */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .game-card {
+            background-color: #0f3460;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(233, 69, 96, 0.4);
+        }
+        .game-icon {
+            height: 90px;
+            background-color: #16213e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 38px;
+        }
+        .game-info {
+            padding: 12px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .game-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .game-category {
+            font-size: 11px;
+            color: #a2a2bd;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        .play-btn {
+            background-color: #e94560;
+            color: white;
+            border: none;
+            padding: 8px 0;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+        .play-btn:hover {
+            background-color: #ff5773;
+        }
+        .game-card.hide {
+            display: none;
+        }
+
+        /* Overlay Layar Game Modal */
+        #gameModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #111;
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #modalHeader {
+            width: 100%;
+            background-color: #16213e;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            z-index: 1001;
+        }
+        #modalTitle {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e94560;
+        }
+        #closeBtn {
+            background-color: #e94560;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #gameArea {
+            flex-grow: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HUB UTAMA MENU -->
+    <div id="hubView">
+        <header>
+            <h1>🎮 GameZone Hub</h1>
+            <p>Pilih dan mainkan mini game favoritmu langsung di sini!</p>
+        </header>
+<button onclick="window.location.href='games.html'" class="text-xs bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700 px-3 py-1.5 rounded-xl transition">← Beranda</button>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Semua</button>
+            <button class="filter-btn" data-filter="fighting">Fighting</button>
+            <button class="filter-btn" data-filter="shooter">Shooter</button>
+            <button class="filter-btn" data-filter="racing">Racing</button>
+            <button class="filter-btn" data-filter="sports">Sports</button>
+            <button class="filter-btn" data-filter="arcade">Arcade</button>
+            <button class="filter-btn" data-filter="puzzle">Puzzle</button>
+        </div>
+
+        <div class="game-grid">
+            <div class="game-card" data-category="fighting">
+                <div class="game-icon">🥋</div>
+                <div class="game-info">
+                    <div>
+                        <div class="game-title">Street Fighter Lite</div>
+                        <div class="game-category">Fighting</div>
+                    </div>
+                    <button class="play-btn" onclick="openGame('fighting')">Mainkan</button>
+                </div>
+            </div>
+
+            <div class="game-card" data-category="shooter">
+                <div class="game-icon">🚀</div>
+                <div class="game-info">
+                    <div>
+                        <div class="game-title">Space Defender</div>
+                        <div class="game-category">Shooter</div>
+                    </div>
+                    <button class="play-btn" onclick="openGame('shooter')">Mainkan</button>
+                </div>
+            </div>
+
+            <div class="game-card" data-category="racing">
+                <div class="game-icon">🏎️</div>
+                <div class="game-info">
+                    <div>
+                        <div class="game-title">Pixel Racing</div>
+                        <div class="game-category">Racing</div>
+                    </div>
+                    <button class="play-btn" onclick="openGame('racing')">Mainkan</button>
+                </div>
+            </div>
+
+            <div class="game-card" data-category="sports">
+                <div class="game-icon">🏓</div>
+                <div class="game-info">
+                    <div>
+                        <div class="game-title">Ping Pong AI</div>
+                        <div class="game-category">Sports</div>
+                    </div>
+                    <button class="play-btn" onclick="openGame('pingpong')">Mainkan</button>
+                </div>
+            </div>
+
+            <div class="game-card" data-category="fighting">
+                <div class="game-icon">🥊</div>
+                <div class="game-info">
+                    <div>
+                        <div class="game-title">Reaction Boxing</div>
+                        <div class="game-category">Fighting</div>
+                    </div>
+                    <button class="play-btn" onclick="openGame('boxing')">Mainkan</button>
+                </div>
+            </div>
+
+            <div class="game-card" data-category="arcade">
+                <div class="game-icon">🐍</div>
+                <div class="game-info">
+                    <div>
+                        <div class="game-title">Classic Snake</div>
+                        <div class="game-category">Arcade</div>
+                    </div>
+                    <button class="play-btn" onclick="openGame('snake')">Mainkan</button>
+                </div>
+            </div>
+
+            <div class="game-card" data-category="arcade">
+                <div class="game-icon">🐦</div>
+                <div class="game-info">
+                    <div>
+                        <div class="game-title">Flappy Bird Clone</div>
+                        <div class="game-category">Arcade</div>
+                    </div>
+                    <button class="play-btn" onclick="openGame('flappy')">Mainkan</button>
+                </div>
+            </div>
+
+            <div class="game-card" data-category="puzzle">
+                <div class="game-icon">🧩</div>
+                <div class="game-info">
+                    <div>
+                        <div class="game-title">Emoji Match</div>
+                        <div class="game-category">Puzzle</div>
+                    </div>
+                    <button class="play-btn" onclick="openGame('puzzle')">Mainkan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AREA MODAL CONTAINER UNTUK GAME BERJALAN -->
+    <div id="gameModal">
+        <div id="modalHeader">
+            <span id="modalTitle">Game Title</span>
+            <button id="closeBtn" onclick="closeGame()">✕ Keluar Menu</button>
+        </div>
+        <div id="gameArea"></div>
+    </div>
+
+    <script>
+        // --- LOGIKA FILTER HUB ---
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const gameCards = document.querySelectorAll('.game-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const filter = btn.getAttribute('data-filter');
+                gameCards.forEach(card => {
+                    if (filter === 'all' || card.getAttribute('data-category') === filter) card.classList.remove('hide');
+                    else card.classList.add('hide');
+                });
+            });
+        });
+
+        let activeLoop = null;
+
+        function closeGame() {
+            if (activeLoop) cancelAnimationFrame(activeLoop);
+            activeLoop = null;
+            document.getElementById('gameModal').style.display = 'none';
+            document.getElementById('gameArea').innerHTML = '';
+        }
+
+        function openGame(gameType) {
+            const modal = document.getElementById('gameModal');
+            const area = document.getElementById('gameArea');
+            const title = document.getElementById('modalTitle');
+            area.innerHTML = '';
+            modal.style.display = 'flex';
+
+            if (gameType === 'fighting') {
+                title.innerText = "Street Fighter Lite";
+                initFighting(area);
+            } else if (gameType === 'shooter') {
+                title.innerText = "Space Defender";
+                initShooter(area);
+            } else if (gameType === 'racing') {
+                title.innerText = "Pixel Racing";
+                initRacing(area);
+            } else if (gameType === 'pingpong') {
+                title.innerText = "Ping Pong AI";
+                initPingPong(area);
+            } else if (gameType === 'boxing') {
+                title.innerText = "Reaction Boxing";
+                initBoxing(area);
+            } else if (gameType === 'snake') {
+                title.innerText = "Classic Snake";
+                initSnake(area);
+            } else if (gameType === 'flappy') {
+                title.innerText = "Flappy Bird Clone";
+                initFlappy(area);
+            } else if (gameType === 'puzzle') {
+                title.innerText = "Emoji Match";
+                initPuzzle(area);
+            }
+        }
+
+        // --- GAME 1: STREET FIGHTER LITE ---
+        function initFighting(container) {
+            container.innerHTML = `
+                <style>
+                    #f-hud { display: flex; width: 100%; max-width: 600px; padding: 10px; justify-content: space-between; background: #111; }
+                    .f-hp-box { width: 45%; background: #444; height: 20px; border: 2px solid #fff; border-radius: 4px; }
+                    .f-hp { height: 100%; width: 100%; transition: width 0.1s; }
+                    #f-controls { display: flex; width: 100%; max-width: 600px; justify-content: space-between; padding: 15px; background: #111; }
+                    .f-btn { width: 60px; height: 60px; background: #555; color: white; border: none; border-radius: 50%; font-size: 20px; font-weight: bold; }
+                    .f-btn:active { background: #777; }
+                </style>
+                <div id="f-hud">
+                    <div class="f-hp-box"><div id="f-p1" class="f-hp" style="background:#4CAF50;"></div></div>
+                    <div class="f-hp-box"><div id="f-p2" class="f-hp" style="background:#F44336; float:right;"></div></div>
+                </div>
+                <canvas id="fCanvas" width="600" height="300" style="width:100%; max-width:600px; background:#333;"></canvas>
+                <div id="f-controls">
+                    <div style="display:flex; gap:10px;">
+                        <button class="f-btn" id="fL">◀</button>
+                        <button class="f-btn" id="fR">▶</button>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="f-btn" id="fJ">▲</button>
+                        <button class="f-btn" id="fA" style="background:#ff9800;">HIT</button>
+                    </div>
+                </div>
+            `;
+            const cvs = document.getElementById("fCanvas");
+            const ctx = cvs.getContext("2d");
+            const p1Bar = document.getElementById("f-p1");
+            const p2Bar = document.getElementById("f-p2");
+
+            let player = { x: 100, y: 150, w: 30, h: 60, color: "#2196F3", vy: 0, isJumping: false, isAttacking: false, hp: 100, faceRight: true };
+            let enemy = { x: 450, y: 150, w: 30, h: 60, color: "#F44336", vy: 0, isJumping: false, isAttacking: false, hp: 100, faceRight: false, cooldown: 0 };
+            let keys = { l: false, r: false };
+            let gameOver = false;
+
+            function bind(id, press, release) {
+                let el = document.getElementById(id);
+                el.ontouchstart = (e) => { e.preventDefault(); press(); };
+                el.ontouchend = (e) => { e.preventDefault(); if (release) release(); };
+                el.onmousedown = (e) => { e.preventDefault(); press(); };
+                el.onmouseup = (e) => { e.preventDefault(); if (release) release(); };
+            }
+
+            bind("fL", () => keys.l = true, () => keys.l = false);
+            bind("fR", () => keys.r = true, () => keys.r = false);
+            bind("fJ", () => { if (!player.isJumping) { player.vy = -12; player.isJumping = true; } });
+            bind("fA", () => attack(player));
+
+            function attack(char) {
+                if (char.isAttacking) return;
+                char.isAttacking = true;
+                setTimeout(() => char.isAttacking = false, 150);
+                let target = char === player ? enemy : player;
+                let ax = char.faceRight ? char.x + char.w : char.x - 40;
+                if (ax < target.x + target.w && ax + 40 > target.x && char.y + 15 < target.y + target.h && char.y + 35 > target.y) {
+                    target.hp -= 10;
+                    if (target.hp < 0) target.hp = 0;
+                    p1Bar.style.width = player.hp + "%";
+                    p2Bar.style.width = enemy.hp + "%";
+                }
+            }
+
+            function loop() {
+                ctx.clearRect(0, 0, 600, 300);
+                if (!gameOver) {
+                    if (keys.l) { player.x -= 4; player.faceRight = false; }
+                    if (keys.r) { player.x += 4; player.faceRight = true; }
+                    
+                    player.y += player.vy;
+                    if (player.y + player.h < 260) player.vy += 0.6;
+                    else { player.vy = 0; player.y = 200; player.isJumping = false; }
+
+                    enemy.faceRight = player.x > enemy.x;
+                    if (Math.abs(player.x - enemy.x) > 40) enemy.x += player.x > enemy.x ? 2 : -2;
+                    else if (enemy.cooldown <= 0) { attack(enemy); enemy.cooldown = 40; }
+                    if (enemy.cooldown > 0) enemy.cooldown--;
+
+                    enemy.y += enemy.vy;
+                    if (enemy.y + enemy.h < 260) enemy.vy += 0.6;
+                    else { enemy.vy = 0; enemy.y = 200; enemy.isJumping = false; }
+
+                    if (player.hp <= 0 || enemy.hp <= 0) gameOver = true;
+                }
+
+                ctx.fillStyle = "#555"; ctx.fillRect(0, 260, 600, 40);
+                ctx.fillStyle = player.color; ctx.fillRect(player.x, player.y, player.w, player.h);
+                if (player.isAttacking) { ctx.fillStyle = "#FFF"; ctx.fillRect(player.faceRight ? player.x + player.w : player.x - 40, player.y + 15, 40, 20); }
+
+                ctx.fillStyle = enemy.color; ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
+                if (enemy.isAttacking) { ctx.fillStyle = "#FFF"; ctx.fillRect(enemy.faceRight ? enemy.x + enemy.w : enemy.x - 40, enemy.y + 15, 40, 20); }
+
+                if (gameOver) {
+                    ctx.fillStyle = "rgba(0,0,0,0.7)"; ctx.fillRect(0, 0, 600, 300);
+                    ctx.fillStyle = "#FFF"; ctx.font = "30px Arial"; ctx.textAlign = "center";
+                    ctx.fillText(player.hp > 0 ? "KAMU MENANG!" : "KAMU KALAH!", 300, 150);
+                } else {
+                    activeLoop = requestAnimationFrame(loop);
+                }
+            }
+            loop();
+        }
+
+        // --- GAME 2: SPACE DEFENDER ---
+        function initShooter(container) {
+            container.innerHTML = `<canvas id="sCvs" width="350" height="500" style="background:#000; touch-action:none;"></canvas>`;
+            const cvs = document.getElementById("sCvs");
+            const ctx = cvs.getContext("2d");
+            let p = { x: 155, y: 440, w: 40, h: 40 }, bullets = [], enemies = [], score = 0, frames = 0, over = false;
+
+            cvs.ontouchmove = (e) => {
+                let r = cvs.getBoundingClientRect();
+                p.x = e.touches[0].clientX - r.left - 20;
+            };
+
+            function loop() {
+                ctx.clearRect(0, 0, 350, 500);
+                if (!over) {
+                    frames++;
+                    if (frames % 12 === 0) bullets.push({ x: p.x + 18, y: p.y, w: 4, h: 10 });
+                    if (frames % 35 === 0) enemies.push({ x: Math.random() * 310, y: -30, w: 30, h: 30, spd: 2 + score/50 });
+
+                    ctx.fillStyle = "#00f"; ctx.fillRect(p.x, p.y, p.w, p.h);
+
+                    for (let i = bullets.length - 1; i >= 0; i--) {
+                        bullets[i].y -= 6;
+                        ctx.fillStyle = "#ff0"; ctx.fillRect(bullets[i].x, bullets[i].y, bullets[i].w, bullets[i].h);
+                        if (bullets[i].y < 0) bullets.splice(i, 1);
+                    }
+
+                    for (let i = enemies.length - 1; i >= 0; i--) {
+                        let e = enemies[i]; e.y += e.spd;
+                        ctx.fillStyle = "#f00"; ctx.fillRect(e.x, e.y, e.w, e.h);
+
+                        for (let j = bullets.length - 1; j >= 0; j--) {
+                            let b = bullets[j];
+                            if (b.x < e.x + e.w && b.x + b.w > e.x && b.y < e.y + e.h && b.y + b.h > e.y) {
+                                enemies.splice(i, 1); bullets.splice(j, 1); score += 10; break;
+                            }
+                        }
+
+                        if (e && p.x < e.x + e.w && p.x + p.w > e.x && p.y < e.y + e.h && p.y + p.h > e.y) over = true;
+                    }
+
+                    ctx.fillStyle = "#fff"; ctx.font = "16px Arial"; ctx.fillText("Skor: " + score, 10, 25);
+                    activeLoop = requestAnimationFrame(loop);
+                } else {
+                    ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,350,500);
+                    ctx.fillStyle = "#fff"; ctx.font = "24px Arial"; ctx.textAlign = "center";
+                    ctx.fillText("GAME OVER - Skor: " + score, 175, 250);
+                }
+            }
+            loop();
+        }
+
+        // --- GAME 3: PIXEL RACING ---
+        function initRacing(container) {
+            container.innerHTML = `
+                <div style="color:#fff; font-size:18px; margin-bottom:5px;">Skor: <span id="rScore">0</span></div>
+                <canvas id="rCvs" width="300" height="400" style="background:#333;"></canvas>
+                <div style="display:flex; width:300px; height:70px; gap:10px; margin-top:10px;">
+                    <button id="rL" style="flex:1; font-size:20px; font-weight:bold;">KIRI</button>
+                    <button id="rR" style="flex:1; font-size:20px; font-weight:bold;">KANAN</button>
+                </div>
+            `;
+            const cvs = document.getElementById("rCvs");
+            const ctx = cvs.getContext("2d");
+            let car = { x: 130, y: 320, w: 40, h: 60 }, obs = [], score = 0, over = false, frames = 0, keys = { l: false, r: false };
+
+            let lBtn = document.getElementById("rL"), rBtn = document.getElementById("rR");
+            lBtn.ontouchstart = () => keys.l = true; lBtn.ontouchend = () => keys.l = false;
+            rBtn.ontouchstart = () => keys.r = true; rBtn.ontouchend = () => keys.r = false;
+
+            function loop() {
+                ctx.clearRect(0, 0, 300, 400);
+                if (!over) {
+                    if (keys.l && car.x > 0) car.x -= 4;
+                    if (keys.r && car.x < 260) car.x += 4;
+
+                    ctx.fillStyle = "#00f"; ctx.fillRect(car.x, car.y, car.w, car.h);
+
+                    frames++;
+                    if (frames % 40 === 0) obs.push({ x: Math.random() * 260, y: -50, w: 40, h: 40, spd: 3 + score/50 });
+
+                    for (let i = obs.length - 1; i >= 0; i--) {
+                        let o = obs[i]; o.y += o.spd;
+                        ctx.fillStyle = "#f00"; ctx.fillRect(o.x, o.y, o.w, o.h);
+
+                        if (car.x < o.x + o.w && car.x + car.w > o.x && car.y < o.y + o.h && car.y + car.h > o.y) over = true;
+                        if (o.y > 400) { obs.splice(i, 1); score += 10; document.getElementById("rScore").innerText = score; }
+                    }
+                    activeLoop = requestAnimationFrame(loop);
+                } else {
+                    ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,300,400);
+                    ctx.fillStyle = "#fff"; ctx.font = "24px Arial"; ctx.textAlign = "center";
+                    ctx.fillText("GAME OVER", 150, 200);
+                }
+            }
+            loop();
+        }
+
+        // --- GAME 4: PING PONG AI ---
+        function initPingPong(container) {
+            container.innerHTML = `
+                <div style="color:#fff; font-size:24px; font-weight:bold; margin-bottom:5px;"><span id="pAi">0</span> - <span id="pPl">0</span></div>
+                <canvas id="pCvs" width="320" height="480" style="background:#222; border-top:4px solid #f00; border-bottom:4px solid #0f0; touch-action:none;"></canvas>
+            `;
+            const cvs = document.getElementById("pCvs");
+            const ctx = cvs.getContext("2d");
+            let player = { x: 125, y: 450, w: 70, h: 10, score: 0 };
+            let ai = { x: 125, y: 20, w: 70, h: 10, score: 0 };
+            let ball = { x: 160, y: 240, r: 7, dx: 3, dy: 3, spd: 4 };
+
+            cvs.ontouchmove = (e) => {
+                let r = cvs.getBoundingClientRect();
+                player.x = e.touches[0].clientX - r.left - 35;
+            };
+
+            function loop() {
+                ctx.clearRect(0, 0, 320, 480);
+                ball.x += ball.dx; ball.y += ball.dy;
+
+                ai.x += (ball.x - (ai.x + 35)) * 0.08;
+
+                if (ball.x - ball.r < 0 || ball.x + ball.r > 320) ball.dx *= -1;
+
+                let paddle = ball.y > 240 ? player : ai;
+                if (ball.x > paddle.x && ball.x < paddle.x + paddle.w && ball.y + ball.r > paddle.y && ball.y - ball.r < paddle.y + paddle.h) {
+                    ball.dy *= -1;
+                }
+
+                if (ball.y < 0) { player.score++; document.getElementById("pPl").innerText = player.score; ball.x = 160; ball.y = 240; ball.dy = 3; }
+                if (ball.y > 480) { ai.score++; document.getElementById("pAi").innerText = ai.score; ball.x = 160; ball.y = 240; ball.dy = -3; }
+
+                ctx.fillStyle = "#0f0"; ctx.fillRect(player.x, player.y, player.w, player.h);
+                ctx.fillStyle = "#f00"; ctx.fillRect(ai.x, ai.y, ai.w, ai.h);
+                ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2); ctx.fillStyle="#fff"; ctx.fill();
+
+                activeLoop = requestAnimationFrame(loop);
+            }
+            loop();
+        }
+
+        // --- GAME 5: REACTION BOXING ---
+        function initBoxing(container) {
+            container.innerHTML = `
+                <div style="text-align:center; color:white;">
+                    <h2>Boxing Refleks</h2>
+                    <p style="font-size:20px;">Skor: <span id="bScore">0</span></p>
+                    <div id="bArena" style="width:250px; height:250px; background:#b71c1c; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:bold; margin:20px auto;">TUNGGU...</div>
+                    <button id="bHit" style="width:180px; height:70px; font-size:24px; background:#ff9800; border:none; border-radius:35px; color:white; font-weight:bold;">PUNCH!</button>
+                </div>
+            `;
+            let arena = document.getElementById("bArena"), btn = document.getElementById("bHit"), scoreEl = document.getElementById("bScore");
+            let state = "wait", score = 0, timer;
+
+            function start() {
+                state = "wait"; arena.style.background = "#b71c1c"; arena.innerText = "TUNGGU...";
+                timer = setTimeout(() => {
+                    state = "punch"; arena.style.background = "#4CAF50"; arena.innerText = "PUKUL!";
+                }, Math.random() * 2500 + 1000);
+            }
+
+            btn.onclick = () => {
+                if (state === "wait") {
+                    clearTimeout(timer); arena.style.background = "#000"; arena.innerText = "TERLALU CEPAT!\nKlik untuk reset.";
+                    state = "over"; score = 0; scoreEl.innerText = score;
+                } else if (state === "punch") {
+                    score++; scoreEl.innerText = score; arena.style.background = "#2196F3"; arena.innerText = "BAGUS!";
+                    start();
+                } else if (state === "over") {
+                    start();
+                }
+            };
+            start();
+        }
+
+        // --- GAME 6: CLASSIC SNAKE ---
+        function initSnake(container) {
+            container.innerHTML = `
+                <div style="color:#fff; font-size:18px; margin-bottom:5px;">Skor: <span id="snScore">0</span></div>
+                <canvas id="snCvs" width="300" height="300" style="background:#222; border:2px solid #4CAF50;"></canvas>
+                <div style="display:grid; grid-template-columns:repeat(3,60px); gap:5px; margin-top:10px;">
+                    <div></div><button id="snU" style="height:50px;">▲</button><div></div>
+                    <button id="snL" style="height:50px;">◀</button><button id="snD" style="height:50px;">▼</button><button id="snR" style="height:50px;">▶</button>
+                </div>
+            `;
+            const cvs = document.getElementById("snCvs");
+            const ctx = cvs.getContext("2d");
+            let snake = [{x: 7, y: 7}], food = {x: 3, y: 3}, dx = 1, dy = 0, score = 0, over = false;
+
+            document.getElementById("snU").onclick = () => { if (dy === 0) { dx = 0; dy = -1; } };
+            document.getElementById("snD").onclick = () => { if (dy === 0) { dx = 0; dy = 1; } };
+            document.getElementById("snL").onclick = () => { if (dx === 0) { dx = -1; dy = 0; } };
+            document.getElementById("snR").onclick = () => { if (dx === 0) { dx = 1; dy = 0; } };
+
+            function step() {
+                if (over) return;
+                let head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+                if (head.x < 0 || head.x >= 15 || head.y < 0 || head.y >= 15) over = true;
+                for (let part of snake) { if (part.x === head.x && part.y === head.y) over = true; }
+
+                if (!over) {
+                    snake.unshift(head);
+                    if (head.x === food.x && head.y === food.y) {
+                        score += 10; document.getElementById("snScore").innerText = score;
+                        food = { x: Math.floor(Math.random()*15), y: Math.floor(Math.random()*15) };
+                    } else snake.pop();
+
+                    ctx.clearRect(0, 0, 300, 300);
+                    ctx.fillStyle = "#f00"; ctx.fillRect(food.x*20, food.y*20, 18, 18);
+                    ctx.fillStyle = "#4CAF50";
+                    snake.forEach(s => ctx.fillRect(s.x*20, s.y*20, 18, 18));
+
+                    setTimeout(step, 120);
+                } else {
+                    ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,300,300);
+                    ctx.fillStyle = "#fff"; ctx.font = "20px Arial"; ctx.textAlign = "center";
+                    ctx.fillText("GAME OVER", 150, 150);
+                }
+            }
+            step();
+        }
+
+        // --- GAME 7: FLAPPY BIRD CLONE ---
+        function initFlappy(container) {
+            container.innerHTML = `<canvas id="flCvs" width="300" height="450" style="background:#70c5ce; touch-action:none;"></canvas>`;
+            const cvs = document.getElementById("flCvs");
+            const ctx = cvs.getContext("2d");
+            let birdY = 200, vel = 0, pipes = [], score = 0, over = false, frame = 0;
+
+            cvs.ontouchstart = (e) => { e.preventDefault(); vel = -6; };
+
+            function loop() {
+                ctx.clearRect(0, 0, 300, 450);
+                if (!over) {
+                    vel += 0.35; birdY += vel;
+                    frame++;
+
+                    if (frame % 90 === 0) {
+                        let top = Math.floor(Math.random() * 180) + 30;
+                        pipes.push({ x: 300, top: top, bottom: 450 - top - 120 });
+                    }
+
+                    for (let i = pipes.length - 1; i >= 0; i--) {
+                        let p = pipes[i]; p.x -= 2;
+                        ctx.fillStyle = "#73bf2e";
+                        ctx.fillRect(p.x, 0, 50, p.top);
+                        ctx.fillRect(p.x, 450 - p.bottom, 50, p.bottom);
+
+                        if (50 + 10 > p.x && 50 - 10 < p.x + 50 && (birdY - 10 < p.top || birdY + 10 > 450 - p.bottom)) over = true;
+                        if (p.x === 50) { score++; }
+                        if (p.x < -50) pipes.splice(i, 1);
+                    }
+
+                    if (birdY > 450 || birdY < 0) over = true;
+
+                    ctx.fillStyle = "#f3e12b";
+                    ctx.beginPath(); ctx.arc(50, birdY, 12, 0, Math.PI*2); ctx.fill();
+
+                    ctx.fillStyle = "#fff"; ctx.font = "20px Arial"; ctx.fillText("Skor: " + score, 10, 30);
+                    activeLoop = requestAnimationFrame(loop);
+                } else {
+                    ctx.fillStyle = "rgba(0,0,0,0.7)"; ctx.fillRect(0,0,300,450);
+                    ctx.fillStyle = "#fff"; ctx.font = "24px Arial"; ctx.textAlign = "center";
+                    ctx.fillText("GAME OVER - Skor: " + score, 150, 225);
+                }
+            }
+            loop();
+        }
+
+        // --- GAME 8: EMOJI MATCH PUZZLE ---
+        function initPuzzle(container) {
+            container.innerHTML = `
+                <style>
+                    .pz-grid { display: grid; grid-template-columns: repeat(4, 60px); gap: 10px; margin-top: 15px; }
+                    .pz-card { width: 60px; height: 60px; background: #34495e; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; color: transparent; }
+                    .pz-open { background: #ecf0f1; color: initial; }
+                </style>
+                <div style="text-align:center; color:white;">
+                    <h2>Match Emoji</h2>
+                    <p>Langkah: <span id="pzM">0</span></p>
+                    <div class="pz-grid" id="pzG"></div>
+                </div>
+            `;
+            const emojis = ["🍎", "🍌", "🍇", "🍉", "🍒", "🍓", "🍍", "🥝"];
+            let cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+            let grid = document.getElementById("pzG"), movesEl = document.getElementById("pzM");
+            let flipped = [], matched = 0, moves = 0;
+
+            cards.forEach((emoji, i) => {
+                let card = document.createElement("div");
+                card.className = "pz-card"; card.innerText = emoji;
+                card.onclick = () => {
+                    if (flipped.length < 2 && !card.classList.contains("pz-open")) {
+                        card.classList.add("pz-open");
+                        flipped.push(card);
+                        if (flipped.length === 2) {
+                            moves++; movesEl.innerText = moves;
+                            setTimeout(() => {
+                                if (flipped[0].innerText === flipped[1].innerText) {
+                                    matched += 2;
+                                    if (matched === cards.length) alert("Menang dalam " + moves + " langkah!");
+                                } else {
+                                    flipped[0].classList.remove("pz-open");
+                                    flipped[1].classList.remove("pz-open");
+                                }
+                                flipped = [];
+                            }, 500);
+                        }
+                    }
+                };
+                grid.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
