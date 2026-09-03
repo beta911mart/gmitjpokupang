@@ -260,7 +260,7 @@ function setTheme(theme, isInitialLoad = false) {
         body.className = "bg-red-950 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         
         if(bannerContainer) {
-            bannerContainer.innerHTML = `<div class="bg-gradient-to-r from-red-600 via-rose-500 to-emerald-600 py-2 px-3 text-center text-xs text-white shadow-[0_0_15px_rgba(239,68,68,0.8)] flex items-center justify-center gap-2 font-bold animate-pulse"><span>❄️</span> Selamat Menyambut Natal Kristus <span>🎄✨</span></div>`;
+            bannerContainer.innerHTML = `<div class="bg-gradient-to-r from-red-600 via-rose-500 to-emerald-600 py-1 px-3 text-center text-xs text-white shadow-[0_0_15px_rgba(239,68,68,0.8)] flex items-center justify-center gap-2 font-bold animate-pulse"><span>❄️</span> Selamat Menyambut Natal Kristus <span>🎄✨</span></div>`;
         }
 
         const ornamen = document.createElement("div");
