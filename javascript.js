@@ -312,8 +312,8 @@ function setTheme(theme, isInitialLoad = false) {
             const menuButtons = document.querySelectorAll('.home-menu-icon, main .grid button');
             menuButtons.forEach((btn, index) => {
                 // Durasi diubah menjadi sangat singkat: 0.2s, 0.3s, dan 0.15s
-                if (index % 3 === 0) btn.style.setProperty('animation', 'glowRed 0.5s infinite alternate', 'important');
-                else if (index % 3 === 1) btn.style.setProperty('animation', 'glowGreen 0.6s infinite alternate', 'important');
+                if (index % 3 === 0) btn.style.setProperty('animation', 'glowRed 0.9s infinite alternate', 'important');
+                else if (index % 3 === 1) btn.style.setProperty('animation', 'glowGreen 0.13s infinite alternate', 'important');
                 else btn.style.setProperty('animation', 'glowGold 0.18s infinite alternate', 'important');
             });
         }, 200);
