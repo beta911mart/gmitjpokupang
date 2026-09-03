@@ -254,15 +254,68 @@ function setTheme(theme, isInitialLoad = false) {
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #4c0519 !important; }
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #e11d48 !important; }
         `;
-    } else if (theme === 'christmas') {
-        app.className = `${baseAppClass} bg-red-950 text-red-50`;
-        body.className = "bg-red-900 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+	} else if (theme === 'christmas') {
+        // Latar belakang gradasi Natal (Merah Gelap ke Hijau Cemara)
+        app.className = `${baseAppClass} bg-gradient-to-b from-red-950 via-red-900 to-emerald-950 text-red-50`;
+        body.className = "bg-red-950 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+        
         if(bannerContainer) {
-            bannerContainer.innerHTML = `<div class="bg-gradient-to-r from-red-900 via-rose-800 to-emerald-900 border-b border-red-500/40 py-1.5 px-3 text-center text-[11px] text-white shadow-inner flex items-center justify-center gap-2"><span>⭐</span> <b>Selamat Menyambut Natal Kristus</b> <span>🎄✨</span></div>`;
+            bannerContainer.innerHTML = `<div class="bg-gradient-to-r from-red-600 via-rose-500 to-emerald-600 py-2 px-3 text-center text-xs text-white shadow-[0_0_15px_rgba(239,68,68,0.8)] flex items-center justify-center gap-2 font-bold animate-pulse"><span>❄️</span> Selamat Menyambut Natal Kristus <span>🎄✨</span></div>`;
         }
+
+        // 1. Injeksi Elemen Hujan Salju (Menggunakan ID ornamenIdCard agar otomatis bersih jika ganti tema)
+        const ornamen = document.createElement("div");
+        ornamen.id = "ornamenIdCard"; 
+        ornamen.className = "absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-inherit";
+        ornamen.innerHTML = `<div id="snowEffect" class="absolute inset-0 w-full h-full opacity-70"></div>`;
+        app.insertBefore(ornamen, app.firstChild);
+
+        // 2. CSS Override Ekstrem: Salju & Lampu Glow Random
         cssRules = `
-            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #7f1d1d !important; }
-            #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #166534 !important; }
+            /* Efek Animasi Salju Turun Tanpa Membebani RAM */
+            @keyframes snowFall {
+                0% { background-position: 0px 0px, 0px 0px, 0px 0px; }
+                100% { background-position: 400px 1000px, 300px 400px, 200px 300px; }
+            }
+            #snowEffect {
+                background-image: 
+                    radial-gradient(3px 3px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+                    radial-gradient(4px 4px at 150px 150px, #ffffff, rgba(0,0,0,0)),
+                    radial-gradient(5px 5px at 250px 40px, #ffffff, rgba(0,0,0,0)),
+                    radial-gradient(2px 2px at 350px 200px, #ffffff, rgba(0,0,0,0)),
+                    radial-gradient(4px 4px at 80px 300px, #ffffff, rgba(0,0,0,0));
+                background-size: 250px 250px, 300px 300px, 400px 400px;
+                animation: snowFall 12s linear infinite;
+            }
+
+            /* Membuat Kartu Sedikit Transparan agar Salju di belakangnya terlihat */
+            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { 
+                background-color: rgba(69, 10, 10, 0.7) !important; 
+                backdrop-filter: blur(8px);
+                border-width: 2px !important;
+            }
+
+            /* Animasi Lampu Glow (Merah, Hijau Neon, Emas) */
+            @keyframes glowRed {
+                0%, 100% { box-shadow: 0 0 5px #ef4444; border-color: #7f1d1d; }
+                50% { box-shadow: 0 0 25px #ef4444; border-color: #ef4444; }
+            }
+            @keyframes glowGreen {
+                0%, 100% { box-shadow: 0 0 5px #22c55e; border-color: #14532d; }
+                50% { box-shadow: 0 0 25px #22c55e; border-color: #22c55e; }
+            }
+            @keyframes glowGold {
+                0%, 100% { box-shadow: 0 0 5px #eab308; border-color: #713f12; }
+                50% { box-shadow: 0 0 25px #eab308; border-color: #eab308; }
+            }
+
+            /* Menerapkan Glow secara Acak ke Tombol-Tombol Menu Menggunakan Logika nth-child */
+            main .grid > button:nth-child(3n+1) { animation: glowRed 3s infinite alternate !important; }
+            main .grid > button:nth-child(3n+2) { animation: glowGreen 4s infinite alternate !important; }
+            main .grid > button:nth-child(3n+3) { animation: glowGold 2.5s infinite alternate !important; }
+            
+            /* Teks khusus untuk tema ekstrem ini */
+            #app h3 { text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         `;
     } else if (theme === 'easter') {
         app.className = `${baseAppClass} bg-amber-950 text-amber-100`;
