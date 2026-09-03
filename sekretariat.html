@@ -1185,13 +1185,14 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
             btn.innerText = "Menyimpan...";
             btn.disabled = true;
       
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja"));
+			// Baca dari user_gereja
+            const user = JSON.parse(sessionStorage.getItem("user_gereja") || "{}");
             const editIndex = document.getElementById("editRowIndex").value;
             
             const payload = {
                 action: "addRenungan",
-                admin_id: admin ? admin.id : "ADMIN",
-                admin_nama: admin ? admin.nama : "Admin",
+                admin_id: user.id || user.nomor_hp || "-",      // <--- Perbaikan
+                admin_nama: user.nama || "Pengurus",            // <--- Perbaikan
                 catatan_log: editIndex ? `Memperbarui renungan baris ${editIndex}` : "Input renungan baru",
                 tanggal: document.getElementById("inputTanggal").value,
                 ayat_harian: document.getElementById("inputAyatHarian").value,
@@ -1920,14 +1921,15 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
             btn.disabled = true;
             btn.innerText = "Menyimpan ke Database...";
 
+			// Pastikan di atasnya ada: const user = JSON.parse(sessionStorage.getItem("user_gereja") || "{}");
             const payload = {
                 action: editId ? "updateRoster" : "addRoster",
                 roster_id: editId,
-                admin_id: admin.id || "SEKRETARIAT",
-                admin_nama: admin.nama || "Sekretariat",
+                admin_id: user.id || user.nomor_hp || "-",      // <--- Perbaikan
+                admin_nama: user.nama || "Pengurus",            // <--- Perbaikan
                 catatan_log: editId ? `Mengedit roster: ${document.getElementById("rosPetugas").value}` : `Menginput roster baru`,
                 timestamp: new Date().toISOString(),
-                tanggal: finalTanggal, // <--- Gunakan nilai dari sistem penyeleksi tanggal
+                tanggal: finalTanggal,
                 waktu: finalWaktu,
                 jenis_ibadah: finalIbadah,
                 kategori_tugas: document.getElementById("rosKategori").value,
@@ -2300,11 +2302,14 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
 
                 btn.innerText = editId ? "Memperbarui data di Sheet Galeri..." : "Menyimpan data ke Sheet Galeri...";
 
-                const admin = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
+				// Baca dari user_gereja
+                const user = JSON.parse(sessionStorage.getItem("user_gereja") || "{}");
                 const payload = {
                     action: editId ? "updateGalleryPhoto" : "addGalleryPhoto",
                     photo_id: editId || undefined,
-                    admin_id: admin.id || "SUPER_ADMIN",
+                    admin_id: user.id || user.nomor_hp || "-",           // <--- Perbaikan
+                    admin_nama: user.nama || "Pengurus",                 // <--- Tambahan Wajib
+                    catatan_log: editId ? "Memperbarui foto galeri" : "Menambah foto galeri baru", // <--- Tambahan Wajib
                     judul_foto: document.getElementById("galeriJudul").value.trim(),
                     url_gambar: imageUrl,
                     kategoti: document.getElementById("galeriKategori").value,
@@ -2491,14 +2496,17 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
                 return;
             }
 
-            const btn = document.getElementById("btnSendReport");
+			const btn = document.getElementById("btnSendReport");
             btn.disabled = true;
             btn.innerText = "Mengirim Laporan ke Email...";
 
-            const admin = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
+            // Baca dari user_gereja
+            const user = JSON.parse(sessionStorage.getItem("user_gereja") || "{}");
             const payload = {
                 action: "sendManualReport",
-                admin_id: admin.id || "SUPER_ADMIN",
+                admin_id: user.id || user.nomor_hp || "-",        // <--- Perbaikan
+                admin_nama: user.nama || "Pengurus",              // <--- Tambahan Wajib
+                catatan_log: "Mengirim laporan manual ke email",  // <--- Tambahan Wajib
                 email: email,
                 sheets: selectedSheets
             };
