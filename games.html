@@ -19,11 +19,11 @@
 
 <!-- TOMBOL KEMBALI MELAYANG -->
     <div id="fabContainer" class="fixed inset-y-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-[9000] pointer-events-none">
-        <button onclick="window.history.back()" class="absolute pointer-events-auto bg-purple-600/90 backdrop-blur-md text-white px-4 py-3 rounded-full shadow-[0_4px_15px_rgba(147,51,234,0.5)] border border-purple-400 font-bold text-xs flex items-center gap-2 cursor-pointer active:scale-95 transition-all duration-300" style="bottom: 80px; right: 20px;">
+        <button id="floatingBackBtn" class="absolute pointer-events-auto bg-purple-600/90 backdrop-blur-md text-white px-4 py-3 rounded-full shadow-[0_4px_15px_rgba(147,51,234,0.5)] border border-purple-400 font-bold text-xs flex items-center gap-2 cursor-pointer active:scale-95 transition-all duration-300" style="bottom: 80px; right: 20px;">
             <i class="fa-solid fa-arrow-left"></i> Kembali
         </button>
     </div>
-
+    
     <!-- TOAST NOTIFICATION -->
     <div id="toastContainer" class="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"></div>
 
@@ -650,6 +650,76 @@ const masterQuestionBank = [
         window.addEventListener("DOMContentLoaded", () => {
             checkLoginStatusForUI();
             loadLocalHighScores();
+        });
+        // --- LOGIKA TOMBOL MELAYANG DRAGGABLE KHUSUS SUB-PAGE ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const fab = document.getElementById('floatingBackBtn');
+            const fabContainer = document.getElementById('fabContainer');
+            let isDraggingFab = false, isMoved = false;
+            let dragOffsetX = 0, dragOffsetY = 0;
+
+            if (fab && fabContainer) {
+                fab.addEventListener('mousedown', startDrag);
+                fab.addEventListener('touchstart', startDrag, { passive: false });
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('touchmove', onDrag, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+                
+                // Eksekusi Kembali hanya jika tombol ditekan (bukan digeser)
+                fab.addEventListener('click', (e) => {
+                    if (isMoved) {
+                        e.preventDefault();
+                        isMoved = false;
+                        return;
+                    }
+                    window.history.back();
+                });
+            }
+
+            function startDrag(e) {
+                if (e.target === fab || fab.contains(e.target)) {
+                    isDraggingFab = true; isMoved = false;
+                    const isTouch = e.type.includes('touch');
+                    const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+                    const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+                    const fabRect = fab.getBoundingClientRect();
+                    
+                    dragOffsetX = clientX - fabRect.left;
+                    dragOffsetY = clientY - fabRect.top;
+                    
+                    const containerRect = fabContainer.getBoundingClientRect();
+                    fab.style.transition = 'none';
+                    fab.style.right = 'auto'; fab.style.bottom = 'auto';
+                    fab.style.left = (fabRect.left - containerRect.left) + 'px';
+                    fab.style.top = (fabRect.top - containerRect.top) + 'px';
+                }
+            }
+
+            function onDrag(e) {
+                if (!isDraggingFab) return;
+                isMoved = true;
+                e.preventDefault(); 
+                
+                const isTouch = e.type.includes('touch');
+                const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+                const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+                const containerRect = fabContainer.getBoundingClientRect();
+                
+                let newLeft = (clientX - dragOffsetX) - containerRect.left;
+                let newTop = (clientY - dragOffsetY) - containerRect.top;
+                
+                const maxLeft = containerRect.width - fab.offsetWidth;
+                const maxTop = containerRect.height - fab.offsetHeight;
+                
+                fab.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + 'px';
+                fab.style.top = Math.max(0, Math.min(newTop, maxTop)) + 'px';
+            }
+
+            function endDrag() {
+                isDraggingFab = false;
+                if (fab) fab.style.transition = 'all 0.3s ease';
+            }
         });
     </script>
 </body>
