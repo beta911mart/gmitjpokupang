@@ -813,7 +813,7 @@ function switchTab(tab, isBack = false, isReplace = false) {
                 adminButtons += `<button onclick="window.location.href='admin.html'" class="w-full text-center text-[11px] text-emerald-400 hover:text-amber-300 p-2.5 transition duration-500 font-bold bg-emerald-950/30 rounded-xl border border-amber-900/50 flex items-center justify-center gap-1.5 mt-2">📊 Panel Petugas Sensus</button>`;
             }
             if (canAccessCetakStruk) {
-                adminButtons += `<button onclick="window.location.href='cetakstruk.html'" class="w-full text-center text-[11px] text-rose400 hover:text-emerald-300 p-2.5 transition duration-500 font-bold bg-rose-950/30 rounded-xl border border-emerald-900/50 flex items-center justify-center gap-1.5 mt-2">🖨️ Panel Cetak Struk</button>`;
+                adminButtons += `<button onclick="window.location.href='cetakstruk.html'" class="w-full text-center text-[11px] text-rose400 hover:text-rose-300 p-2.5 transition duration-500 font-bold bg-zinc-950/30 rounded-xl border border-emerald-900/50 flex items-center justify-center gap-1.5 mt-2">🖨️ Panel Cetak Struk</button>`;
             }
             // --- AKHIR LOGIKA MULTI-ROLE PANEL ---
 
