@@ -2250,14 +2250,20 @@ function renderHymnsList(hymns) {
         container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Lagu tidak ditemukan.</p>`;
         return;
     }
-    container.innerHTML = hymns.map((h, idx) => `
-        <div onclick="openHymnModal(${idx})" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-3.5 rounded-xl cursor-pointer transition duration-500 shadow-sm">
+    
+    container.innerHTML = hymns.map((h) => {
+        // Melacak index asli lagu dari daftar keseluruhan (allHymns)
+        const originalIndex = window.allHymns.findIndex(item => item.nomor === h.nomor);
+        
+        return `
+        <div onclick="openHymnModal(${originalIndex})" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-3.5 rounded-xl cursor-pointer transition duration-500 shadow-sm">
             <div class="flex justify-between items-center mb-1">
                 <span class="text-xs font-bold text-purple-400">KJ No. ${h.nomor}</span>
             </div>
             <h5 class="text-xs font-semibold text-white mb-1">${h.judul}</h5>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function filterHymns() {
