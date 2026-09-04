@@ -2557,37 +2557,39 @@ function redirectToRolePanel() {
     }
 }
 
-	// Memuat halaman beranda saat aplikasi pertama kali dibuka
-	document.addEventListener("DOMContentLoaded", () => {
+// --- INIT APP & ASSISTIVE BALL ---
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. PENTING: Panggil halaman Beranda agar tidak blank!
     switchTab('home', true, true);
-	});
+    
+    // 2. Inisialisasi Assistive Ball
+    const ball = document.getElementById('assistiveBall');
+    if (!ball) return;
 
     let timer, tapTimer, idleTimer;
     let isDrag = false;
     let startX, startY;
     let clickCount = 0;
 
-    // --- POSISI AWAL ---
+    // Posisi Awal (Tengah Kanan)
     ball.style.top = (window.innerHeight / 2) + 'px';
-    ball.style.left = (window.innerWidth - 60) + 'px';
+    ball.style.left = (window.innerWidth - 70) + 'px';
     resetIdle();
     snapToEdge();
 
-    // --- EVENT LISTENERS ---
+    // Event Listeners
     ball.addEventListener('mousedown', onStart);
     ball.addEventListener('touchstart', onStart, { passive: false });
-    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mousemove', onMove, { passive: false });
     document.addEventListener('touchmove', onMove, { passive: false });
     document.addEventListener('mouseup', onEnd);
     document.addEventListener('touchend', onEnd);
 
-	// --- FUNGSI AKSI (TAPPING & PRESS) ---
     function handleSingleTap() {
         if (typeof toggleSidebar === 'function') toggleSidebar(true);
     }
 
     function handleDoubleTap() {
-        // Menggunakan fungsi setTheme bawaan aplikasi agar transisi warna sempurna
         const currentTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
         if (currentTheme === 'light') {
             setTheme('slate');
@@ -2600,16 +2602,13 @@ function redirectToRolePanel() {
 
     function handleLongPress() {
         if (navigator.vibrate) navigator.vibrate(50); 
-        
-        // Memanggil fungsi render KTJ yang sebenarnya
         if (typeof bukaPopupKTJ === 'function') {
             bukaPopupKTJ();
         } else {
-            showToast("Silakan Login untuk melihat KTJ", "error");
+            showToast("Sistem KTJ belum siap.", "error");
         }
     }
 
-    // --- FUNGSI FISIKA & MAGNETIK ---
     function onStart(e) {
         if (e.target !== ball && !ball.contains(e.target)) return;
         ball.style.transition = 'none';
@@ -2620,29 +2619,28 @@ function redirectToRolePanel() {
         startX = clientX - ball.offsetLeft;
         startY = clientY - ball.offsetTop;
 
-        // Mulai hitung mundur Long Press (600ms)
         timer = setTimeout(() => {
             if (!isDrag) {
-                isDrag = true; // Kunci agar tidak memicu click/drag setelah ini
+                isDrag = true; 
                 handleLongPress();
             }
         }, 600);
-
         resetIdle();
     }
 
     function onMove(e) {
+        if (startX === undefined) return;
+        
         let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
         let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
 
-        // Jika jari bergerak lebih dari 10px, batalkan Long Press dan mulai Dragging
-        if (startX !== undefined && (Math.abs(clientX - (startX + ball.offsetLeft)) > 10 || Math.abs(clientY - (startY + ball.offsetTop)) > 10)) {
+        if (Math.abs(clientX - (startX + ball.offsetLeft)) > 10 || Math.abs(clientY - (startY + ball.offsetTop)) > 10) {
             isDrag = true;
             clearTimeout(timer);
         }
 
-        if (isDrag && startX !== undefined) {
-            e.preventDefault(); // Kunci scroll layar
+        if (isDrag) {
+            if (e.cancelable) e.preventDefault(); 
             let newX = Math.max(0, Math.min(clientX - startX, window.innerWidth - ball.offsetWidth));
             let newY = Math.max(0, Math.min(clientY - startY, window.innerHeight - ball.offsetHeight));
             ball.style.left = newX + 'px';
@@ -2655,13 +2653,12 @@ function redirectToRolePanel() {
         if (startX === undefined) return;
 
         if (!isDrag) {
-            // Logika Deteksi Single vs Double Tap
             clickCount++;
             if (clickCount === 1) {
                 tapTimer = setTimeout(() => {
                     handleSingleTap();
                     clickCount = 0;
-                }, 250); // Batas waktu tunggu double tap
+                }, 250); 
             } else if (clickCount === 2) {
                 clearTimeout(tapTimer);
                 handleDoubleTap();
@@ -2680,7 +2677,6 @@ function redirectToRolePanel() {
         const screenWidth = window.innerWidth;
         ball.style.transition = 'left 0.3s ease-out, top 0.3s ease-out';
         
-        // Magnet ke kiri atau kanan tergantung posisi tengah bola
         if (ballRect.left + (ballRect.width / 2) < screenWidth / 2) {
             ball.style.left = '10px';
         } else {
@@ -2692,57 +2688,41 @@ function redirectToRolePanel() {
     function resetIdle() {
         ball.style.opacity = '1';
         clearTimeout(idleTimer);
-        // Redup otomatis setelah 3 detik
         idleTimer = setTimeout(() => {
             ball.style.opacity = '0.4';
         }, 3000);
     }
 });
 
+// --- FUNGSI KEMBALI STATIS ---
 function goBackOrHome(e) {
-    // Jika tombol hanya digeser, jangan lakukan aksi klik
-    if (isMoved) {
-        e.preventDefault();
-        isMoved = false;
-        return;
-    }
-
     const activeHeader = document.getElementById("headerTitle").innerText;
-
-    // Cek apakah saat ini berada di halaman Beranda
     if (activeHeader.includes("PNIEL Oebobo")) {
-        // Tampilkan konfirmasi Keluar
         Swal.fire({
             title: 'Tutup Aplikasi?',
             text: "Apakah Anda yakin ingin keluar dari JPO Digital?",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#e11d48', // Warna Rose-600
-            cancelButtonColor: '#334155',  // Warna Slate-700
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#334155',
             confirmButtonText: 'Ya, Keluar',
             cancelButtonText: 'Batal',
             reverseButtons: true
         }).then((result) => {
-            if (result.isConfirmed) {
-                // Menutup aplikasi (Bekerja dengan baik jika diinstal sebagai PWA)
-                window.close();
-            }
+            if (result.isConfirmed) window.close();
         });
     } else {
-        // Jika di menu lain, kembali ke halaman sebelumnya
         history.back();
     }
 }
 
+// --- SISTEM KTJ (KARTU TANDA JEMAAT) ---
 function bukaPopupKTJ(isBack = false) {
-    // Daftarkan aksi ini ke riwayat HP agar tombol back berfungsi
     if (!isBack) pushNavState('bukaPopupKTJ');
-
-    const user = window.currentUser;
-    if (!user) return showToast("Sesi jemaat tidak ditemukan.", "error");
+    const user = window.currentUser || JSON.parse(localStorage.getItem("user_gereja"));
+    if (!user) return showToast("Sesi jemaat tidak ditemukan. Silakan login.", "error");
 
     document.getElementById("ktjModal").classList.remove("hidden");
-    
     document.getElementById("idCardNama").innerText = user.nama_lengkap || "-";
     document.getElementById("idCardGender").innerText = user.jenis_kelamin || "-";
     document.getElementById("idCardLingRayon").innerText = `: Ling. ${user.lingkungan || '-'} / Rayon ${user.rayon || '-'}`;
@@ -2751,15 +2731,12 @@ function bukaPopupKTJ(isBack = false) {
     const fotoImg = document.getElementById("idCardFoto");
     const placeholder = document.getElementById("idCardFotoPlaceholder");
     const labelFoto = document.getElementById("idCardLabelFoto");
-    
     const fotoUrlDatabase = user.foto_profil || user.foto || user.url_foto;
     
     if (fotoUrlDatabase && fotoUrlDatabase.trim() !== "") {
         const safeUrl = `https://wsrv.nl/?url=${encodeURIComponent(fotoUrlDatabase)}&w=200&fit=cover`;
-        
         fotoImg.crossOrigin = "anonymous";
         fotoImg.src = safeUrl;
-        
         fotoImg.classList.remove("hidden");
         if(placeholder) placeholder.classList.add("hidden");
         if(labelFoto) labelFoto.classList.add("hidden");
@@ -2779,64 +2756,41 @@ function bukaPopupKTJ(isBack = false) {
 
 function tutupKTJ(fromPopState = false) {
     document.getElementById("ktjModal").classList.add("hidden");
-    // Jika ditutup manual via tombol "Tutup", mundurkan riwayat HP
-    // Jika ditutup via tombol back HP (fromPopState), abaikan history.back agar tidak mundur dua kali
-    if (fromPopState !== true) {
-        history.back(); 
-    }
+    if (fromPopState !== true) history.back(); 
 }
 
 function unduhKTJ() {
     showToast("Memproses gambar, mohon tunggu sebentar...");
     const cardElement = document.getElementById("idCardTemplate");
-    
-    // Pastikan library html2canvas sudah terbaca oleh browser
     if (typeof html2canvas === 'function' && cardElement) {
-        
         html2canvas(cardElement, { 
             scale: 3, 
             useCORS: true, 
-            allowTaint: true, // Mengizinkan elemen lintas-domain
+            allowTaint: true,
             backgroundColor: "#ffffff" 
         }).then(canvas => {
             try {
-                // Mengubah kanvas menjadi data gambar lokal
                 const dataUrl = canvas.toDataURL("image/png");
-                
-                // Membuat elemen tautan untuk unduhan
                 const link = document.createElement('a');
                 const namaUser = window.currentUser ? window.currentUser.nama_lengkap.replace(/\s+/g, '_') : 'Jemaat';
-                
                 link.download = `KTJ_${namaUser}.png`;
                 link.href = dataUrl;
-                
-                // KUNCI PERBAIKAN: Elemen link harus dipasang ke dalam body agar diizinkan oleh browser HP
                 document.body.appendChild(link);
                 link.click();
-                document.body.removeChild(link); // Bersihkan kembali setelah diklik
-                
+                document.body.removeChild(link);
                 showToast("KTJ berhasil diunduh ke perangkat Anda!");
-                
             } catch (error) {
-                console.error("Canvas Tainted Error:", error);
                 alert("Gagal mengunduh: Browser memblokir gambar karena alasan keamanan (CORS).");
             }
-        }).catch(err => {
-            alert("Terjadi kesalahan saat mencetak gambar: " + err);
-        });
-        
+        }).catch(err => alert("Terjadi kesalahan saat mencetak gambar: " + err));
     } else {
         alert("Sistem pencetak belum termuat. Silakan muat ulang (refresh) aplikasi.");
     }
 }
 
-// =====================================================================
-// FITUR ABSENSI MANDIRI (OFFLINE/ONLINE)
-// =====================================================================
-
-// Ganti koordinat ini dengan titik pasti Gereja Pniel Oebobo
-const CHURCH_LAT = -10.1601; // Ubah dengan koordinat gereja Anda
-const CHURCH_LON = 123.6057; // Ubah dengan koordinat gereja Anda
+// --- FITUR ABSENSI MANDIRI ---
+const CHURCH_LAT = -10.1601; 
+const CHURCH_LON = 123.6057; 
 
 function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
     const R = 6371e3; 
@@ -2867,22 +2821,12 @@ function cekAbsensiMinggu() {
     else if (hour >= 15 && hour < 19) ibadahAktif = "Ibadah Sore (17:00)";
     else return; 
 
-    // Cek Lokasi Jemaat
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition((position) => {
-            const distance = getDistanceFromLatLonInM(
-                position.coords.latitude, 
-                position.coords.longitude, 
-                CHURCH_LAT, 
-                CHURCH_LON
-            );
-            
-            // Jarak <= 100 meter = Offline, lebih dari 100 meter = Online
+            const distance = getDistanceFromLatLonInM(position.coords.latitude, position.coords.longitude, CHURCH_LAT, CHURCH_LON);
             const tipeKehadiran = distance <= 100 ? "Offline (Di Gereja)" : "Online (Di Rumah)";
             munculkanToastAbsen(ibadahAktif, user, tipeKehadiran);
-            
         }, (error) => {
-            // Jika jemaat menolak izin GPS, catat sebagai Online
             munculkanToastAbsen(ibadahAktif, user, "Online (Tanpa GPS)");
         });
     } else {
@@ -2898,7 +2842,6 @@ function munculkanToastAbsen(ibadah, user, tipeKehadiran) {
     toast.id = "realtimeToastBanner";
     toast.className = "fixed bottom-20 left-1/2 transform -translate-x-1/2 w-11/12 max-w-[340px] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] border border-emerald-500 z-[9999] text-xs flex items-center gap-3 animate-bounce cursor-pointer";
     
-    // Ganti ikon berdasarkan status kehadiran
     const ikon = tipeKehadiran.includes("Offline") ? "📍" : "📺";
 
     toast.innerHTML = `
@@ -2929,7 +2872,7 @@ async function kirimDataAbsen(ibadah, user, tipeKehadiran, toastEl) {
                 nama_lengkap: user.nama_lengkap,
                 lingkungan: user.lingkungan || "-",
                 ibadah: ibadah,
-                tipe_kehadiran: tipeKehadiran // Data ini akan masuk ke kolom baru di Sheets
+                tipe_kehadiran: tipeKehadiran 
             })
         });
         
