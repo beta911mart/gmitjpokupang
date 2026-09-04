@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDed AI - Smart PPOB & Transfer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono-custom { font-family: 'JetBrains Mono', monospace; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 4px; }
+        @media print {
+            body * { visibility: hidden; }
+            #printable-receipt, #printable-receipt * { visibility: visible; }
+            #printable-receipt { position: absolute; left: 0; top: 0; width: 100%; max-width: 58mm; margin: 0 auto; }
+            @page { size: auto; margin: 0mm; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-500/20">
+                <i data-lucide="zap" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                    ToDek AI <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">Targeted OCR v2.1</span>
+                </h1>
+                <p class="text-xs text-slate-400">PLN, Pulsa, Tagihan, dan Transfer Bank (Masked Name Supported)</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="exportToPNG()" class="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition border border-slate-600 cursor-pointer">
+                <i data-lucide="download" class="w-4 h-4"></i> Export PNG
+            </button>
+            <button onclick="handlePrint()" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-600/30 transition cursor-pointer">
+                <i data-lucide="printer" class="w-4 h-4"></i> Cetak Termal
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 max-w-[1600px] w-full mx-auto">
+        
+        <div class="lg:col-span-7 flex flex-col gap-6">
+            
+            <div class="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl p-5 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-700">
+                    <h2 class="text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                        <i data-lucide="settings-2" class="w-4 h-4"></i> 1. Pilih Jenis Transaksi
+                    </h2>
+                    <select id="tx-type-select" onchange="changeTransactionType(this.value)" class="bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-sm text-emerald-400 font-bold focus:outline-none focus:border-emerald-500 cursor-pointer shadow-inner">
+                        <option value="pln">⚡ PLN Prabayar (Token)</option>
+                        <option value="pulsa">📱 Pulsa / Data</option>
+                        <option value="tagihan">🧾 Tagihan (BPJS, PDAM, dll)</option>
+                        <option value="transfer">🏦 Transfer Bank</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                        <i data-lucide="scan-text" class="w-4 h-4"></i> 2. Upload Screenshot
+                    </h2>
+                </div>
+
+                <div class="border-2 border-dashed border-slate-700 hover:border-indigo-500/50 transition rounded-xl p-6 text-center bg-slate-900/50 relative group cursor-pointer">
+                    <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" />
+                    <div class="flex flex-col items-center justify-center space-y-2">
+                        <div class="p-3 bg-indigo-500/10 text-indigo-400 rounded-full group-hover:scale-110 transition">
+                            <i data-lucide="upload" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-sm font-medium text-slate-200">Drop screenshot transaksi di sini atau <span class="text-indigo-400 underline">Browse</span></p>
+                        <p class="text-xs text-slate-500">Mendukung tangkapan layar DANA, Flip, m-Banking, dll.</p>
+                    </div>
+                </div>
+
+                <div id="uploadStatusContainer" class="mt-4 hidden items-center gap-4 bg-slate-900 p-3 rounded-xl border border-slate-700">
+                    <img id="uploadPreviewImg" src="" alt="Uploaded receipt preview" class="w-16 h-16 object-cover rounded-lg border border-slate-700" />
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-medium text-slate-300 truncate" id="processLabel">Memproses Gambar...</p>
+                        <p id="ocrStatusText" class="text-[11px] text-yellow-400 flex items-center gap-1 mt-1">
+                            <i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Mengekstrak teks, mohon tunggu...
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl p-5 shadow-xl flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
+                    <h2 class="text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i> 3. Form Editor (Tidak Ada Hitung Otomatis)
+                    </h2>
+                </div>
+
+                <div class="space-y-4 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar" id="dynamic-form-container">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs text-slate-400 font-medium mb-1 block">Title / Header Struk</label>
+                            <input type="text" id="f-title" oninput="updateData('title', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 font-medium mb-1 block">No Referensi / Transaksi</label>
+                            <input type="text" id="f-noRef" oninput="updateData('noRef', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                        </div>
+                    </div>
+
+                    <div id="form-pln" class="space-y-4 border-t border-slate-700 pt-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Nama Pelanggan</label>
+                                <input type="text" id="f-nama" oninput="updateData('nama', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">No Meter / ID</label>
+                                <input type="text" id="f-noMeter" oninput="updateData('noMeter', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Tarif / Daya</label>
+                                <input type="text" id="f-tarifDaya" oninput="updateData('tarifDaya', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Total KWH</label>
+                                <input type="text" id="f-jmlKwh" oninput="updateData('jmlKwh', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 font-medium mb-1 block">Nomor Token Listrik (20 Digit)</label>
+                            <input type="text" id="f-stroomToken" oninput="updateData('stroomToken', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-indigo-400 font-bold focus:outline-none" />
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">RP STROOM (Rp)</label>
+                                <input type="number" id="f-rpStroom" oninput="updateData('rpStroom', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">PBJT-TL (Rp)</label>
+                                <input type="number" id="f-pbjt" oninput="updateData('pbjt', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Admin (Rp)</label>
+                                <input type="number" id="f-biayaAdminPln" oninput="updateData('biayaAdmin', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="form-pulsa" class="space-y-4 hidden border-t border-slate-700 pt-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Nomor HP</label>
+                                <input type="text" id="f-noHp" oninput="updateData('noHp', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Produk (Contoh: Telkomsel Data)</label>
+                                <input type="text" id="f-produk" oninput="updateData('produk', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 font-medium mb-1 block">Serial Number (SN) / Keterangan</label>
+                            <input type="text" id="f-sn" oninput="updateData('sn', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                        </div>
+                    </div>
+
+                    <div id="form-tagihan" class="space-y-4 hidden border-t border-slate-700 pt-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Jenis Tagihan (Cth: BPJS Kesehatan)</label>
+                                <input type="text" id="f-tagihanType" oninput="updateData('tagihanType', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">No. Pelanggan / VA</label>
+                                <input type="text" id="f-tagihanId" oninput="updateData('tagihanId', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Nama Pelanggan</label>
+                                <input type="text" id="f-tagihanNama" oninput="updateData('tagihanNama', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Periode / Keterangan</label>
+                                <input type="text" id="f-tagihanDetail" oninput="updateData('tagihanDetail', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Tagihan Pokok (Rp)</label>
+                                <input type="number" id="f-tagihanPokok" oninput="updateData('tagihanPokok', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Admin (Rp)</label>
+                                <input type="number" id="f-biayaAdminTagihan" oninput="updateData('biayaAdmin', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="form-transfer" class="space-y-4 hidden border-t border-slate-700 pt-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Bank Tujuan</label>
+                                <input type="text" id="f-bankTujuan" oninput="updateData('bankTujuan', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Nomor Rekening Tujuan</label>
+                                <input type="text" id="f-rekTujuan" oninput="updateData('rekTujuan', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 font-medium mb-1 block">Nama Penerima</label>
+                            <input type="text" id="f-namaPenerima" oninput="updateData('namaPenerima', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Bank Pengirim (Asal)</label>
+                                <input type="text" id="f-bankPengirim" oninput="updateData('bankPengirim', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Nama Pengirim</label>
+                                <input type="text" id="f-pengirim" oninput="updateData('pengirim', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Nominal Transfer (Rp)</label>
+                                <input type="number" id="f-nominalTransfer" oninput="updateData('nominalTransfer', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 font-medium mb-1 block">Admin (Rp)</label>
+                                <input type="number" id="f-biayaAdminTrf" oninput="updateData('biayaAdmin', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-700 mt-4">
+                        <label class="text-xs text-slate-400 font-medium mb-1 block">TOTAL BAYAR (Rp) <span class="text-rose-400">*Wajib</span></label>
+                        <input type="number" id="f-rpBayar" oninput="updateData('rpBayar', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-emerald-400 font-bold focus:outline-none focus:border-emerald-500" />
+                        <p class="text-[10px] text-slate-500 mt-1">Angka ini akan berdiri sendiri di struk sebagai penagihan akhir pelanggan.</p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col gap-6">
+            <div class="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl p-4 shadow-xl flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                    <i data-lucide="printer" class="w-4 h-4"></i> 4. Preview Kertas Termal (58mm)
+                </span>
+                <span class="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300">Siap Cetak</span>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-700 rounded-2xl p-6 shadow-2xl flex items-center justify-center relative overflow-hidden min-h-[620px]">
+                <div id="printable-receipt" class="w-full max-w-[320px] bg-[#fefcf6] text-slate-800 shadow-2xl rounded-sm p-4 relative font-mono text-xs border-dashed border-2 border-slate-300 transition-all duration-300">
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        let state = {
+            transactionType: 'pln',
+            title: 'STRUK PEMBELIAN LISTRIK PRABAYAR',
+            noRef: 'TRX-' + Math.floor(Math.random() * 10000000),
+            rpBayar: 0,
+            biayaAdmin: 0,
+            date: new Date().toLocaleDateString('id-ID', {day: '2-digit', month: 'long', year: 'numeric'}),
+            footerInfo: 'TERIMA KASIH\nSimpan struk ini sebagai bukti pembayaran yang sah.',
+            
+            noMeter: '-',
+            nama: 'Manual Input',
+            tarifDaya: 'R1/900VA',
+            jmlKwh: '0,0',
+            stroomToken: 'XXXX XXXX XXXX XXXX XXXX',
+            rpStroom: 0,
+            pbjt: 0,
+            noHp: '-',
+            produk: 'Isi Ulang',
+            sn: '-',
+            tagihanType: 'Tagihan Pembayaran',
+            tagihanId: '-',
+            tagihanNama: 'Manual Input',
+            tagihanDetail: '1 Bulan',
+            tagihanPokok: 0,
+            bankTujuan: '-',
+            rekTujuan: '-',
+            namaPenerima: 'Manual Input',
+            pengirim: 'Manual Input',
+            bankPengirim: '-',
+            nominalTransfer: 0
+        };
+
+        function initApp() {
+            lucide.createIcons();
+            populateFormInputs();
+            renderReceipt();
+        }
+
+        function changeTransactionType(type) {
+            state.transactionType = type;
+            document.getElementById('form-pln').classList.add('hidden');
+            document.getElementById('form-pulsa').classList.add('hidden');
+            document.getElementById('form-tagihan').classList.add('hidden');
+            document.getElementById('form-transfer').classList.add('hidden');
+            document.getElementById('form-' + type).classList.remove('hidden');
+
+            if (type === 'pln') state.title = 'STRUK PEMBELIAN LISTRIK PRABAYAR';
+            if (type === 'pulsa') state.title = 'STRUK PEMBELIAN PULSA / DATA';
+            if (type === 'tagihan') state.title = 'STRUK PEMBAYARAN TAGIHAN';
+            if (type === 'transfer') state.title = 'BUKTI TRANSFER PUSAT';
+
+            populateFormInputs();
+            renderReceipt();
+        }
+
+        function populateFormInputs() {
+            document.getElementById('f-title').value = state.title;
+            document.getElementById('f-noRef').value = state.noRef;
+            document.getElementById('f-rpBayar').value = state.rpBayar;
+
+            if (state.transactionType === 'pln') {
+                document.getElementById('f-nama').value = state.nama;
+                document.getElementById('f-noMeter').value = state.noMeter;
+                document.getElementById('f-tarifDaya').value = state.tarifDaya;
+                document.getElementById('f-jmlKwh').value = state.jmlKwh;
+                document.getElementById('f-stroomToken').value = state.stroomToken;
+                document.getElementById('f-rpStroom').value = state.rpStroom;
+                document.getElementById('f-pbjt').value = state.pbjt;
+                document.getElementById('f-biayaAdminPln').value = state.biayaAdmin;
+            } else if (state.transactionType === 'pulsa') {
+                document.getElementById('f-noHp').value = state.noHp;
+                document.getElementById('f-produk').value = state.produk;
+                document.getElementById('f-sn').value = state.sn;
+            } else if (state.transactionType === 'tagihan') {
+                document.getElementById('f-tagihanType').value = state.tagihanType;
+                document.getElementById('f-tagihanId').value = state.tagihanId;
+                document.getElementById('f-tagihanNama').value = state.tagihanNama;
+                document.getElementById('f-tagihanDetail').value = state.tagihanDetail;
+                document.getElementById('f-tagihanPokok').value = state.tagihanPokok;
+                document.getElementById('f-biayaAdminTagihan').value = state.biayaAdmin;
+            } else if (state.transactionType === 'transfer') {
+                document.getElementById('f-bankTujuan').value = state.bankTujuan;
+                document.getElementById('f-rekTujuan').value = state.rekTujuan;
+                document.getElementById('f-namaPenerima').value = state.namaPenerima;
+                document.getElementById('f-pengirim').value = state.pengirim;
+                document.getElementById('f-bankPengirim').value = state.bankPengirim;
+                document.getElementById('f-nominalTransfer').value = state.nominalTransfer;
+                document.getElementById('f-biayaAdminTrf').value = state.biayaAdmin;
+            }
+        }
+
+        function updateData(field, val) {
+            state[field] = val;
+            renderReceipt();
+        }
+
+        function preprocessImage(file) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const MAX_WIDTH = 800;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
+                    canvas.width = width; canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    let imgData = ctx.getImageData(0, 0, width, height);
+                    let data = imgData.data;
+                    for (let i = 0; i < data.length; i += 4) {
+                        let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                        let color = avg > 160 ? 255 : 0; 
+                        data[i] = data[i+1] = data[i+2] = color;
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        async function handleImageUpload(e) {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            
+            document.getElementById('uploadPreviewImg').src = URL.createObjectURL(file);
+            document.getElementById('uploadStatusContainer').style.display = 'flex';
+            const statusTxt = document.getElementById('ocrStatusText');
+            statusTxt.className = "text-[11px] text-yellow-400 flex items-center gap-1 mt-1";
+            statusTxt.innerHTML = `<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Mengekstrak data khusus ${state.transactionType.toUpperCase()}...`;
+            lucide.createIcons();
+
+            try {
+                const cleanImageUrl = await preprocessImage(file);
+                const worker = await Tesseract.createWorker('eng');
+                const ret = await worker.recognize(cleanImageUrl);
+                const rawText = ret.data.text;
+                await worker.terminate();
+
+                state.noRef = 'TRX-' + Date.now().toString().slice(-8);
+
+                const rpMatch = rawText.match(/(?:Rp|IDR)\s*[\d\.,]+/i) || rawText.match(/\b\d{2,3}[\.,]\d{3}\b/);
+                if (rpMatch) {
+                    let cleanRp = rpMatch[0].replace(/[^\d]/g, '');
+                    state.rpBayar = parseInt(cleanRp);
+                    state.rpStroom = state.rpBayar;
+                    state.nominalTransfer = state.rpBayar;
+                    state.tagihanPokok = state.rpBayar;
+                }
+
+                if (state.transactionType === 'transfer') {
+                    const rekMatch = rawText.match(/\b\d{10,16}\b/);
+                    if(rekMatch) state.rekTujuan = rekMatch[0];
+                } else if (state.transactionType === 'tagihan') {
+                    const typeMatch = rawText.match(/(?:BPJS|PDAM|INDIHOME|INTERNET|ASURANSI)/i);
+                    if(typeMatch) state.tagihanType = typeMatch[0].toUpperCase() + ' KESEHATAN/INFO';
+                    const idMatch = rawText.match(/\b\d{11,16}\b/);
+                    if(idMatch) state.tagihanId = idMatch[0];
+                } else if (state.transactionType === 'pulsa') {
+                    const hpMatch = rawText.match(/(?:08|628)\d{8,11}/);
+                    if(hpMatch) state.noHp = hpMatch[0];
+                    const snMatch = rawText.match(/\b\d{16,24}\b/);
+                    if(snMatch) state.sn = snMatch[0];
+                } else { 
+                    const tokenMatch = rawText.match(/(?:\d[\s\n\-_]*){20}/);
+                    if (tokenMatch) {
+                        let cleanToken = tokenMatch[0].replace(/[^\d]/g, '');
+                        state.stroomToken = cleanToken.match(/.{1,4}/g).join(' ');
+                    }
+                    const generalMeterMatch = rawText.match(/\b(?:1|2|3|4|5|7)\d{10,11}\b/) || rawText.match(/\b\d{11,12}\b/);
+                    if (generalMeterMatch) state.noMeter = generalMeterMatch[0];
+                    const dayaMatch = rawText.match(/[A-Z]\d{1,2}[M]?\s*\/\s*\d+\s*VA/i) || rawText.match(/R1\s*\/\s*\d+/i);
+                    if (dayaMatch) state.tarifDaya = dayaMatch[0].toUpperCase().replace(/\s/g,'');
+                    const kwhMatch = rawText.match(/(\d+[\.,]\d+)\s*kwh/i) || rawText.match(/kwh\s*(\d+[\.,]\d+)/i) || rawText.match(/\n\s*(\d+[\.,]\d+)\s*\n/);
+                    if (kwhMatch) state.jmlKwh = kwhMatch[1];
+                }
+
+                // EKSTRAK NAMA UMUM LINE-BY-LINE (FIX "TARIF" BUG & SENSOR MASKING)
+                const rawLines = rawText.split('\n');
+                let extractedName = '';
+                
+                for (let i = 0; i < rawLines.length; i++) {
+                    if (/(?:NAMA|PELANGGAN|NAME|PARTICIPANT)/i.test(rawLines[i])) {
+                        // Hilangkan kata kunci NAMA dan tanda titik dua/sama dengan
+                        let cleanLine = rawLines[i].replace(/(?:NAMA|PELANGGAN|NAME|PARTICIPANT)/i, '').replace(/[:=]/g, '').trim();
+                        
+                        // Jika nama ada di baris baru di bawahnya
+                        if (cleanLine.length < 3 && i + 1 < rawLines.length) {
+                            cleanLine = rawLines[i + 1].trim();
+                        }
+                        
+                        // Cegah mengambil label berikutnya (TARIF, IDPEL, dll) dengan memotong string
+                        extractedName = cleanLine.split(/(?:TARIF|NO REF|IDPEL|RP|TOTAL)/i)[0].trim().toUpperCase();
+                        break;
+                    }
+                }
+
+                if (extractedName.length > 2) {
+                    state.nama = extractedName;
+                    state.tagihanNama = extractedName;
+                    state.namaPenerima = extractedName;
+                }
+
+                populateFormInputs();
+                renderReceipt();
+                
+                statusTxt.className = "text-[11px] text-emerald-400 flex items-center gap-1 mt-1";
+                statusTxt.innerHTML = `<i data-lucide="check-circle-2" class="w-3 h-3"></i> Ekstraksi ${state.transactionType.toUpperCase()} Selesai.`;
+                lucide.createIcons();
+
+            } catch (error) {
+                console.error(error);
+                statusTxt.className = "text-[11px] text-rose-400 flex items-center gap-1 mt-1";
+                statusTxt.innerHTML = `<i data-lucide="x-circle" class="w-3 h-3"></i> AI Gagal membaca.`;
+                lucide.createIcons();
+            }
+        }
+
+        function renderReceipt() {
+            const container = document.getElementById('printable-receipt');
+            
+            let html = `
+                <div class="space-y-2 pb-2">
+                    <div class="text-center pb-2 border-b border-dashed border-slate-400">
+                        <h3 class="font-bold text-[13px] leading-tight">${state.title}</h3>
+                        <p class="text-[10px] text-slate-500 mt-1">${state.date}</p>
+                    </div>
+            `;
+
+            if (state.transactionType === 'pln') {
+                html += `
+                    <div class="space-y-1 text-[11px] pb-2 border-b border-dashed border-slate-400 pt-1">
+                        <div class="flex justify-between"><span>NO METER</span><span class="font-bold">${state.noMeter}</span></div>
+                        <div class="flex justify-between items-start">
+                            <span class="shrink-0 mr-2">NAMA</span>
+                            <span class="font-bold text-right break-words max-w-[160px] leading-normal py-0.5">${state.nama}</span>
+                        </div>
+                        <div class="flex justify-between"><span>TARIF/DAYA</span><span>${state.tarifDaya}</span></div>
+                        <div class="flex justify-between"><span>NO REF</span><span class="text-[9px]">${state.noRef}</span></div>
+                    </div>
+                    
+                    <div class="space-y-1 text-[11px] pb-2 border-b border-dashed border-slate-400 pt-1">
+                        <div class="flex justify-between text-[10px] text-slate-500"><span>BIAYA ADMIN</span><span>Rp ${state.biayaAdmin.toLocaleString('id-ID')}</span></div>
+                        <div class="flex justify-between text-[10px] text-slate-500"><span>PBJT-TL</span><span>Rp ${state.pbjt.toLocaleString('id-ID')}</span></div>
+                        <div class="flex justify-between text-[10px] text-slate-500"><span>RP STROOM</span><span>Rp ${state.rpStroom.toLocaleString('id-ID')}</span></div>
+                        <div class="flex justify-between font-bold mt-1 mb-1"><span>JML KWH</span><span>${state.jmlKwh}</span></div>
+                        <div class="flex justify-between font-bold text-[13px] border-t border-dashed border-slate-400 pt-2">
+                            <span>TOTAL BAYAR</span>
+                            <span>Rp ${state.rpBayar.toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center py-2">
+                        <p class="text-[11px] font-bold uppercase mb-1">STROOM / TOKEN</p>
+                        <p class="text-sm font-black tracking-widest text-slate-900 border-2 border-slate-300 p-1.5 rounded bg-white">
+                            ${state.stroomToken}
+                        </p>
+                    </div>
+                `;
+            } 
+            
+            else if (state.transactionType === 'pulsa') {
+                html += `
+                    <div class="space-y-1 text-[11px] pb-2 border-b border-dashed border-slate-400 pt-1 mt-2">
+                        <div class="flex justify-between items-start">
+                            <span class="shrink-0 mr-2">NO HP</span>
+                            <span class="font-bold text-right break-words max-w-[160px]">${state.noHp}</span>
+                        </div>
+                        <div class="flex justify-between items-start mt-1">
+                            <span class="shrink-0 mr-2">PRODUK</span>
+                            <span class="text-right break-words max-w-[160px]">${state.produk}</span>
+                        </div>
+                        <div class="flex justify-between mt-1"><span>NO REF</span><span class="text-[9px]">${state.noRef}</span></div>
+                        <div class="flex justify-between mt-1"><span>SN/KET</span><span class="text-right break-words max-w-[160px] text-[10px]">${state.sn}</span></div>
+                    </div>
+                    
+                    <div class="space-y-1 text-[11px] pb-2 pt-1 mt-1">
+                        <div class="flex justify-between text-[10px] text-slate-500 mb-2">
+                            <span>STATUS</span>
+                            <span class="font-bold text-slate-800">SUKSES</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-[13px] border-t border-dashed border-slate-400 pt-2">
+                            <span>TOTAL BAYAR</span>
+                            <span>Rp ${state.rpBayar.toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            else if (state.transactionType === 'tagihan') {
+                html += `
+                    <div class="space-y-1 text-[11px] pb-2 border-b border-dashed border-slate-400 pt-1 mt-2">
+                        <div class="flex justify-between items-start">
+                            <span class="shrink-0 mr-2 font-bold">PRODUK</span>
+                            <span class="font-bold text-right break-words max-w-[150px] uppercase">${state.tagihanType}</span>
+                        </div>
+                        <div class="flex justify-between items-start mt-1">
+                            <span class="shrink-0 mr-2 font-bold">ID / VA</span>
+                            <span class="font-mono tracking-widest text-right break-words max-w-[150px]">${state.tagihanId}</span>
+                        </div>
+                        <div class="flex justify-between items-start mt-1">
+                            <span class="shrink-0 mr-2">NAMA</span>
+                            <span class="text-right break-words max-w-[150px] uppercase">${state.tagihanNama}</span>
+                        </div>
+                        <div class="flex justify-between mt-1"><span>NO REF</span><span class="text-[9px]">${state.noRef}</span></div>
+                        <div class="flex justify-between mt-1 text-slate-600"><span>PERIODE/KET</span><span class="text-[10px]">${state.tagihanDetail}</span></div>
+                    </div>
+                    
+                    <div class="space-y-1 text-[11px] pb-2 pt-1 mt-1">
+                        <div class="flex justify-between text-slate-600">
+                            <span>TAGIHAN POKOK</span>
+                            <span>Rp ${state.tagihanPokok.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-500">
+                            <span>BIAYA ADMIN</span>
+                            <span>Rp ${state.biayaAdmin.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-[13px] border-t border-dashed border-slate-400 pt-2 mt-2">
+                            <span>TOTAL BAYAR</span>
+                            <span>Rp ${state.rpBayar.toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            else if (state.transactionType === 'transfer') {
+                html += `
+                    <div class="space-y-1 text-[11px] pb-2 border-b border-dashed border-slate-400 pt-1 mt-2">
+                        <div class="flex justify-between text-slate-500"><span>DARI</span><span>${state.bankPengirim}</span></div>
+                        <div class="flex justify-between items-start">
+                            <span class="shrink-0 mr-2 font-bold">PENGIRIM</span>
+                            <span class="text-right break-words max-w-[150px] uppercase">${state.pengirim}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-1 text-[11px] pb-2 border-b border-dashed border-slate-400 pt-1 mt-1">
+                        <div class="flex justify-between text-slate-500"><span>KE BANK</span><span>${state.bankTujuan}</span></div>
+                        <div class="flex justify-between items-start">
+                            <span class="shrink-0 mr-2 font-bold">REK TUJUAN</span>
+                            <span class="font-bold font-mono tracking-widest text-right break-words max-w-[150px]">${state.rekTujuan}</span>
+                        </div>
+                        <div class="flex justify-between items-start">
+                            <span class="shrink-0 mr-2 font-bold">PENERIMA</span>
+                            <span class="font-bold text-right break-words max-w-[150px] uppercase">${state.namaPenerima}</span>
+                        </div>
+                        <div class="flex justify-between mt-1"><span>NO REF</span><span class="text-[9px]">${state.noRef}</span></div>
+                    </div>
+                    
+                    <div class="space-y-1 text-[11px] pb-2 pt-1 mt-1">
+                        <div class="flex justify-between text-slate-600">
+                            <span>NOMINAL TRF</span>
+                            <span>Rp ${state.nominalTransfer.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-500">
+                            <span>BIAYA ADMIN</span>
+                            <span>Rp ${state.biayaAdmin.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-[13px] border-t border-dashed border-slate-400 pt-2 mt-2">
+                            <span>TOTAL BAYAR</span>
+                            <span>Rp ${state.rpBayar.toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                    <div class="text-center text-[10px] text-slate-500 pt-3 border-t border-dashed border-slate-400 whitespace-pre-line mt-2">
+                        ${state.footerInfo}
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        async function exportToPNG() {
+            const el = document.getElementById('printable-receipt');
+            const canvas = await html2canvas(el, { scale: 3, useCORS: true, backgroundColor: '#fefcf6' });
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `Struk_${state.transactionType}_${state.noRef}.png`;
+            link.click();
+        }
+
+        function handlePrint() {
+            window.print();
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
