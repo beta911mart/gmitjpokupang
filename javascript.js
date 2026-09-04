@@ -795,11 +795,13 @@ function switchTab(tab, isBack = false, isReplace = false) {
             let adminButtons = '';
             
             // Cek otorisasi spesifik (Ditambahkan 'developer' dan perbaikan error Cetak Struk)
-            const canAccessSekretariat = roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin") || roleStr.includes("sekret") || roleStr.includes("sekert") || roleStr.includes("pendeta") || roleStr.includes("multi") || roleStr.includes("media");
+            const canAccessSekretariat = roleStr.includes("sekretariat") || roleStr.includes("pendeta") || roleStr.includes("admin") || roleStr.includes("super") || roleStr.includes("developr");
             
             const canAccessSensus = roleStr.includes("sensus") || roleStr.includes("pendata") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
             
-            const canAccessCetakStruk = roleStr.includes("struk") || roleStr.includes("kasir") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
+            const canAccessAdmin = roleStr.includes("developer") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
+			
+			const canAccessCetakStruk = roleStr.includes("struk") || roleStr.includes("kasir") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
 
             if (canAccessSekretariat) {
                 adminButtons += `<button onclick="window.location.href='sekretariat.html'" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 p-2.5 transition duration-500 font-bold bg-purple-950/30 rounded-xl border border-purple-900/50 flex items-center justify-center gap-1.5 mt-2">🔒 Panel Sekretariat & Media</button>`;
