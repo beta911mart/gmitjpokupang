@@ -8,6 +8,8 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- TAMBAHAN: FontAwesome untuk Ikon Tombol Kembali -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -24,6 +26,13 @@
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- TOMBOL KEMBALI MELAYANG -->
+    <div id="fabContainer" class="fixed inset-y-0 left-1/2 transform -translate-x-1/2 w-full max-w-md landscape:max-w-3xl md:max-w-md z-[9000] pointer-events-none">
+        <button id="floatingBackBtn" class="absolute pointer-events-auto bg-purple-600/90 backdrop-blur-md text-white px-4 py-3 rounded-full shadow-[0_4px_15px_rgba(147,51,234,0.5)] border border-purple-400 font-bold text-xs flex items-center gap-2 cursor-pointer active:scale-95 transition-all duration-300" style="bottom: 80px; right: 20px;">
+            <i class="fa-solid fa-arrow-left"></i> Kembali
+        </button>
+    </div>
 
     <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div class="flex items-center space-x-3">
@@ -60,7 +69,7 @@
                         <option value="pln">⚡ PLN Prabayar (Token)</option>
                         <option value="pulsa">📱 Pulsa / Data</option>
                         <option value="tagihan">🧾 Tagihan (BPJS, PDAM, dll)</option>
-                        <option value="transfer">🏦 Transfer Bank</option>
+                        <option value="transfer">💸 Transfer Bank</option>
                     </select>
                 </div>
 
@@ -446,21 +455,17 @@
                     if (kwhMatch) state.jmlKwh = kwhMatch[1];
                 }
 
-                // EKSTRAK NAMA UMUM LINE-BY-LINE (FIX "TARIF" BUG & SENSOR MASKING)
                 const rawLines = rawText.split('\n');
                 let extractedName = '';
                 
                 for (let i = 0; i < rawLines.length; i++) {
                     if (/(?:NAMA|PELANGGAN|NAME|PARTICIPANT)/i.test(rawLines[i])) {
-                        // Hilangkan kata kunci NAMA dan tanda titik dua/sama dengan
                         let cleanLine = rawLines[i].replace(/(?:NAMA|PELANGGAN|NAME|PARTICIPANT)/i, '').replace(/[:=]/g, '').trim();
                         
-                        // Jika nama ada di baris baru di bawahnya
                         if (cleanLine.length < 3 && i + 1 < rawLines.length) {
                             cleanLine = rawLines[i + 1].trim();
                         }
                         
-                        // Cegah mengambil label berikutnya (TARIF, IDPEL, dll) dengan memotong string
                         extractedName = cleanLine.split(/(?:TARIF|NO REF|IDPEL|RP|TOTAL)/i)[0].trim().toUpperCase();
                         break;
                     }
@@ -655,6 +660,77 @@
         function handlePrint() {
             window.print();
         }
+
+        // --- LOGIKA TOMBOL KEMBALI MELAYANG ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const fab = document.getElementById('floatingBackBtn');
+            const fabContainer = document.getElementById('fabContainer');
+            let isDraggingFab = false, isMoved = false;
+            let dragOffsetX = 0, dragOffsetY = 0;
+
+            if (fab && fabContainer) {
+                fab.addEventListener('mousedown', startDrag);
+                fab.addEventListener('touchstart', startDrag, { passive: false });
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('touchmove', onDrag, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+                
+                // Eksekusi Kembali hanya jika tombol ditekan (bukan digeser)
+                fab.addEventListener('click', (e) => {
+                    if (isMoved) {
+                        e.preventDefault();
+                        isMoved = false;
+                        return;
+                    }
+                    window.history.back();
+                });
+            }
+
+            function startDrag(e) {
+                if (e.target === fab || fab.contains(e.target)) {
+                    isDraggingFab = true; isMoved = false;
+                    const isTouch = e.type.includes('touch');
+                    const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+                    const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+                    const fabRect = fab.getBoundingClientRect();
+                    
+                    dragOffsetX = clientX - fabRect.left;
+                    dragOffsetY = clientY - fabRect.top;
+                    
+                    const containerRect = fabContainer.getBoundingClientRect();
+                    fab.style.transition = 'none';
+                    fab.style.right = 'auto'; fab.style.bottom = 'auto';
+                    fab.style.left = (fabRect.left - containerRect.left) + 'px';
+                    fab.style.top = (fabRect.top - containerRect.top) + 'px';
+                }
+            }
+
+            function onDrag(e) {
+                if (!isDraggingFab) return;
+                isMoved = true;
+                e.preventDefault(); 
+                
+                const isTouch = e.type.includes('touch');
+                const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+                const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+                const containerRect = fabContainer.getBoundingClientRect();
+                
+                let newLeft = (clientX - dragOffsetX) - containerRect.left;
+                let newTop = (clientY - dragOffsetY) - containerRect.top;
+                
+                const maxLeft = containerRect.width - fab.offsetWidth;
+                const maxTop = containerRect.height - fab.offsetHeight;
+                
+                fab.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + 'px';
+                fab.style.top = Math.max(0, Math.min(newTop, maxTop)) + 'px';
+            }
+
+            function endDrag() {
+                isDraggingFab = false;
+                if (fab) fab.style.transition = 'all 0.3s ease';
+            }
+        });
 
         window.onload = initApp;
     </script>
