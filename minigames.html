@@ -191,7 +191,6 @@
             <h1>🎮 GameZone Hub</h1>
             <p>Pilih dan mainkan mini game favoritmu langsung di sini!</p>
         </header>
-        <button onclick="window.location.href='games.html'" style="background:#0f3460; color:#a2a2bd; border:1px solid #16213e; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px; margin-bottom:15px;">← Kembali ke Beranda</button>
         
         <div class="filters">
             <button class="filter-btn active" data-filter="all">Semua</button>
@@ -877,7 +876,7 @@
                 };
                 grid.appendChild(card);
             });
-        }
+        
         // --- LOGIKA TOMBOL MELAYANG DRAGGABLE KHUSUS SUB-PAGE ---
         document.addEventListener("DOMContentLoaded", () => {
             const fab = document.getElementById('floatingBackBtn');
@@ -948,6 +947,7 @@
                 if (fab) fab.style.transition = 'all 0.3s ease';
             }
         });
+        }
     </script>
 </body>
 </html>
