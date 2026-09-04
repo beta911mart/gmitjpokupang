@@ -2557,9 +2557,10 @@ function redirectToRolePanel() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const ball = document.getElementById('assistiveBall');
-    if (!ball) return;
+	// Memuat halaman beranda saat aplikasi pertama kali dibuka
+	document.addEventListener("DOMContentLoaded", () => {
+    switchTab('home', true, true);
+	});
 
     let timer, tapTimer, idleTimer;
     let isDrag = false;
@@ -2580,37 +2581,32 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('mouseup', onEnd);
     document.addEventListener('touchend', onEnd);
 
-    // --- FUNGSI AKSI (TAPPING & PRESS) ---
+	// --- FUNGSI AKSI (TAPPING & PRESS) ---
     function handleSingleTap() {
         if (typeof toggleSidebar === 'function') toggleSidebar(true);
     }
 
     function handleDoubleTap() {
-        // Logika Mode Gelap/Terang
-        const isDark = document.body.classList.contains('bg-slate-950');
-        if (isDark) {
-            document.body.classList.replace('bg-slate-950', 'bg-slate-50');
-            document.body.classList.replace('text-slate-100', 'text-slate-900');
-            showToast("Mode Terang Aktif ☀️");
-        } else {
-            document.body.classList.replace('bg-slate-50', 'bg-slate-950');
-            document.body.classList.replace('text-slate-900', 'text-slate-100');
+        // Menggunakan fungsi setTheme bawaan aplikasi agar transisi warna sempurna
+        const currentTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
+        if (currentTheme === 'light') {
+            setTheme('slate');
             showToast("Mode Gelap Aktif 🌙");
+        } else {
+            setTheme('light');
+            showToast("Mode Terang Aktif ☀️");
         }
     }
 
     function handleLongPress() {
-        // Getar mikro jika didukung HP
         if (navigator.vibrate) navigator.vibrate(50); 
         
-        // Panggil fungsi KTJ Anda di sini. Contoh pop-up:
-        Swal.fire({
-            title: 'Kartu Tanda Jemaat',
-            html: '<div class="p-4 bg-purple-900 text-white rounded-xl">Tampilkan ID Card Render Anda di sini</div>',
-            showConfirmButton: false,
-            showCloseButton: true,
-            background: '#0f172a'
-        });
+        // Memanggil fungsi render KTJ yang sebenarnya
+        if (typeof bukaPopupKTJ === 'function') {
+            bukaPopupKTJ();
+        } else {
+            showToast("Silakan Login untuk melihat KTJ", "error");
+        }
     }
 
     // --- FUNGSI FISIKA & MAGNETIK ---
@@ -2703,84 +2699,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// --- LOGIKA TOMBOL MELAYANG RESPONSIVE (PERBAIKAN HP & PC) ---
-const fab = document.getElementById('floatingBackBtn');
-const fabContainer = document.getElementById('fabContainer');
-let isDraggingFab = false;
-let isMoved = false;
-let dragOffsetX = 0;
-let dragOffsetY = 0;
-
-if (fab && fabContainer) {
-    fab.addEventListener('mousedown', startDrag);
-    fab.addEventListener('touchstart', startDrag, { passive: false });
-    
-    document.addEventListener('mousemove', onDrag);
-    document.addEventListener('touchmove', onDrag, { passive: false });
-    
-    document.addEventListener('mouseup', endDrag);
-    document.addEventListener('touchend', endDrag);
-}
-
-function startDrag(e) {
-    if (e.target === fab || fab.contains(e.target)) {
-        isDraggingFab = true;
-        isMoved = false;
-        
-        // Perbaikan: Deteksi apakah input dari sentuhan (touch) atau mouse
-        const isTouch = e.type.includes('touch');
-        const clientX = isTouch ? e.touches[0].clientX : e.clientX;
-        const clientY = isTouch ? e.touches[0].clientY : e.clientY;
-        
-        const fabRect = fab.getBoundingClientRect();
-        
-        dragOffsetX = clientX - fabRect.left;
-        dragOffsetY = clientY - fabRect.top;
-        
-        const containerRect = fabContainer.getBoundingClientRect();
-        const currentLeft = fabRect.left - containerRect.left;
-        const currentTop = fabRect.top - containerRect.top;
-        
-        // Hapus transisi sementara agar tombol langsung menempel pada jari (tidak delay)
-        fab.style.transition = 'none';
-        
-        fab.style.right = 'auto';
-        fab.style.bottom = 'auto';
-        fab.style.left = currentLeft + 'px';
-        fab.style.top = currentTop + 'px';
-    }
-}
-
-function onDrag(e) {
-    if (!isDraggingFab) return;
-    isMoved = true;
-    e.preventDefault(); // Mencegah layar ikut tergulung (scrolling)
-    
-    // Perbaikan Krusial: Membaca titik koordinat sentuhan HP saat sedang digeser
-    const isTouch = e.type.includes('touch');
-    const clientX = isTouch ? e.touches[0].clientX : e.clientX;
-    const clientY = isTouch ? e.touches[0].clientY : e.clientY;
-    
-    const containerRect = fabContainer.getBoundingClientRect();
-    
-    let pointerViewportX = clientX - dragOffsetX;
-    let pointerViewportY = clientY - dragOffsetY;
-    
-    let newLeft = pointerViewportX - containerRect.left;
-    let newTop = pointerViewportY - containerRect.top;
-    
-    const maxLeft = containerRect.width - fab.offsetWidth;
-    const maxTop = containerRect.height - fab.offsetHeight;
-    
-    fab.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + 'px';
-    fab.style.top = Math.max(0, Math.min(newTop, maxTop)) + 'px';
-}
-
-function endDrag() {
-    isDraggingFab = false;
-    // Kembalikan efek transisi agar pergerakan halaman kembali halus
-    if (fab) fab.style.transition = 'all 0.3s ease';
-}
 function goBackOrHome(e) {
     // Jika tombol hanya digeser, jangan lakukan aksi klik
     if (isMoved) {
