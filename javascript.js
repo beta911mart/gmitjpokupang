@@ -784,34 +784,19 @@ function switchTab(tab, isBack = false, isReplace = false) {
                 }
             }
         });
-} else if (tab === 'profil') {
+    } else if (tab === 'profil') {
         checkAuthBeforeAction(() => {
             const user = window.currentUser;
-            
-            // --- AWAL LOGIKA MULTI-ROLE PANEL ---
             const isAdmin = user.isAdmin || false;
-            const roleStr = (user.adminRole || user.role || user.status_pelayanan || "").toLowerCase();
-            let adminButtons = '';
-            
-            // Cek otorisasi spesifik dari string peran
-            const canAccessSekretariat = roleStr.includes("super") || roleStr.includes("admin") || roleStr.includes("sekret") || roleStr.includes("sekert") || roleStr.includes("pendeta") || roleStr.includes("multi") || roleStr.includes("media");
-            const canAccessSensus = roleStr.includes("sensus") || roleStr.includes("pendata") || roleStr.includes("super") || roleStr.includes("admin") || (isAdmin && !canAccessSekretariat);
-			const canAccessCetakStruk = roleStr.includes("super") || roleStr.includes("admin") || (isAdmin && !canAccessCetakStruk);
+            const adminRole = user.adminRole || user.role || '';
 
-            if (canAccessSekretariat) {
-                adminButtons += `<button onclick="window.location.href='sekretariat.html'" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 p-2.5 transition duration-500 font-bold bg-purple-950/30 rounded-xl border border-purple-900/50 flex items-center justify-center gap-1.5 mt-2">🔒 Panel Sekretariat & Media</button>`;
-            }
-            if (canAccessSensus) {
-                adminButtons += `<button onclick="window.location.href='sensus.html'" class="w-full text-center text-[11px] text-amber-400 hover:text-amber-300 p-2.5 transition duration-500 font-bold bg-amber-950/30 rounded-xl border border-amber-900/50 flex items-center justify-center gap-1.5 mt-2">📊 Panel Petugas Sensus</button>`;
-            }
-			    if (canAccessCetakStruk) {
-                adminButtons += `<button onclick="window.location.href='cetakstruk.html'" class="w-full text-center text-[11px] text-amber-400 hover:text-amber-300 p-2.5 transition duration-500 font-bold bg-amber-950/30 rounded-xl border border-amber-900/50 flex items-center justify-center gap-1.5 mt-2">📊 Panel Cetak Struk</button>`;
-            }
-            // --- AKHIR LOGIKA MULTI-ROLE PANEL ---
-
+			// 1. Tangkap semua kemungkinan nama kolom foto dari database
             const rawFotoUrl = user.foto_profil || user.foto || user.url_foto || "";
+            
+            // 2. Bersihkan URL (Proxy bypass)
             const safeFotoUrl = rawFotoUrl ? rawFotoUrl.replace("i.ibb.co/", "i.ibb.co.com/") : "";
             
+            // 3. Render HTML
             const profileImageHtml = safeFotoUrl 
                 ? `<img src="${safeFotoUrl}" class="w-full h-full object-cover relative z-10" crossorigin="anonymous" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${user.nama_lengkap}&background=7e22ce&color=fff&size=150';">`
                 : `<div class="w-full h-full bg-slate-200 flex items-center justify-center relative z-10"><span class="text-3xl opacity-50">👤</span></div>`;
@@ -856,7 +841,7 @@ function switchTab(tab, isBack = false, isReplace = false) {
                         <div><span class="text-slate-400 block text-[10px]">Minat Pelayanan / Komisi</span><span class="text-slate-200 font-medium">${user.minat_pelayanan || '-'}</span></div>
                     </div>
 
-                    <div class="space-y-2">
+	<div class="space-y-2">
                         <button onclick="bukaPopupKTJ()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition duration-500 flex items-center justify-center gap-1.5">
                             <span>🪪</span> Tampilkan KTJ (Kartu Tanda Jemaat)
                         </button>
@@ -866,7 +851,7 @@ function switchTab(tab, isBack = false, isReplace = false) {
                         <button onclick="logout()" class="w-full bg-rose-950/50 hover:bg-rose-900/40 text-rose-400 border border-rose-900/50 py-3 rounded-xl font-semibold text-xs transition duration-500">
                             Keluar (Logout)
                         </button>
-                        ${adminButtons} 
+                        ${isAdmin ? `<button onclick="redirectToRolePanel()" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 pt-2 transition duration-500 font-bold bg-purple-950/30 p-2.5 rounded-xl border border-purple-900/50">🔒 Masuk ke Panel ${adminRole || 'Pengurus'}</button>` : ''}
                     </div>
                 </div>
             `;
