@@ -2558,15 +2558,151 @@ function redirectToRolePanel() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    updateNetworkStatus();
-    const savedTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
-    setTheme(savedTheme, true);
-    toggleSeniorMode(true);
-    switchTab('home', false, true); 
-    checkPushNotification();
-	cekAbsensiMinggu();
-    updateAuthNavText();
+    const ball = document.getElementById('assistiveBall');
+    if (!ball) return;
+
+    let timer, tapTimer, idleTimer;
+    let isDrag = false;
+    let startX, startY;
+    let clickCount = 0;
+
+    // --- POSISI AWAL ---
+    ball.style.top = (window.innerHeight / 2) + 'px';
+    ball.style.left = (window.innerWidth - 60) + 'px';
+    resetIdle();
+    snapToEdge();
+
+    // --- EVENT LISTENERS ---
+    ball.addEventListener('mousedown', onStart);
+    ball.addEventListener('touchstart', onStart, { passive: false });
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchend', onEnd);
+
+    // --- FUNGSI AKSI (TAPPING & PRESS) ---
+    function handleSingleTap() {
+        if (typeof toggleSidebar === 'function') toggleSidebar(true);
+    }
+
+    function handleDoubleTap() {
+        // Logika Mode Gelap/Terang
+        const isDark = document.body.classList.contains('bg-slate-950');
+        if (isDark) {
+            document.body.classList.replace('bg-slate-950', 'bg-slate-50');
+            document.body.classList.replace('text-slate-100', 'text-slate-900');
+            showToast("Mode Terang Aktif ☀️");
+        } else {
+            document.body.classList.replace('bg-slate-50', 'bg-slate-950');
+            document.body.classList.replace('text-slate-900', 'text-slate-100');
+            showToast("Mode Gelap Aktif 🌙");
+        }
+    }
+
+    function handleLongPress() {
+        // Getar mikro jika didukung HP
+        if (navigator.vibrate) navigator.vibrate(50); 
+        
+        // Panggil fungsi KTJ Anda di sini. Contoh pop-up:
+        Swal.fire({
+            title: 'Kartu Tanda Jemaat',
+            html: '<div class="p-4 bg-purple-900 text-white rounded-xl">Tampilkan ID Card Render Anda di sini</div>',
+            showConfirmButton: false,
+            showCloseButton: true,
+            background: '#0f172a'
+        });
+    }
+
+    // --- FUNGSI FISIKA & MAGNETIK ---
+    function onStart(e) {
+        if (e.target !== ball && !ball.contains(e.target)) return;
+        ball.style.transition = 'none';
+        isDrag = false;
+        
+        let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        startX = clientX - ball.offsetLeft;
+        startY = clientY - ball.offsetTop;
+
+        // Mulai hitung mundur Long Press (600ms)
+        timer = setTimeout(() => {
+            if (!isDrag) {
+                isDrag = true; // Kunci agar tidak memicu click/drag setelah ini
+                handleLongPress();
+            }
+        }, 600);
+
+        resetIdle();
+    }
+
+    function onMove(e) {
+        let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+        // Jika jari bergerak lebih dari 10px, batalkan Long Press dan mulai Dragging
+        if (startX !== undefined && (Math.abs(clientX - (startX + ball.offsetLeft)) > 10 || Math.abs(clientY - (startY + ball.offsetTop)) > 10)) {
+            isDrag = true;
+            clearTimeout(timer);
+        }
+
+        if (isDrag && startX !== undefined) {
+            e.preventDefault(); // Kunci scroll layar
+            let newX = Math.max(0, Math.min(clientX - startX, window.innerWidth - ball.offsetWidth));
+            let newY = Math.max(0, Math.min(clientY - startY, window.innerHeight - ball.offsetHeight));
+            ball.style.left = newX + 'px';
+            ball.style.top = newY + 'px';
+        }
+    }
+
+    function onEnd(e) {
+        clearTimeout(timer);
+        if (startX === undefined) return;
+
+        if (!isDrag) {
+            // Logika Deteksi Single vs Double Tap
+            clickCount++;
+            if (clickCount === 1) {
+                tapTimer = setTimeout(() => {
+                    handleSingleTap();
+                    clickCount = 0;
+                }, 250); // Batas waktu tunggu double tap
+            } else if (clickCount === 2) {
+                clearTimeout(tapTimer);
+                handleDoubleTap();
+                clickCount = 0;
+            }
+        } else {
+            snapToEdge();
+        }
+        
+        startX = undefined;
+        isDrag = false;
+    }
+
+    function snapToEdge() {
+        const ballRect = ball.getBoundingClientRect();
+        const screenWidth = window.innerWidth;
+        ball.style.transition = 'left 0.3s ease-out, top 0.3s ease-out';
+        
+        // Magnet ke kiri atau kanan tergantung posisi tengah bola
+        if (ballRect.left + (ballRect.width / 2) < screenWidth / 2) {
+            ball.style.left = '10px';
+        } else {
+            ball.style.left = (screenWidth - ballRect.width - 10) + 'px';
+        }
+        resetIdle();
+    }
+
+    function resetIdle() {
+        ball.style.opacity = '1';
+        clearTimeout(idleTimer);
+        // Redup otomatis setelah 3 detik
+        idleTimer = setTimeout(() => {
+            ball.style.opacity = '0.4';
+        }, 3000);
+    }
 });
+
 // --- LOGIKA TOMBOL MELAYANG RESPONSIVE (PERBAIKAN HP & PC) ---
 const fab = document.getElementById('floatingBackBtn');
 const fabContainer = document.getElementById('fabContainer');
