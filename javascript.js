@@ -2608,8 +2608,13 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast("Sistem KTJ belum siap.", "error");
         }
     }
+	
+let isTouching = false; // Pelindung bentrok sentuhan
 
     function onStart(e) {
+        if (e.type === 'touchstart') isTouching = true;
+        if (e.type === 'mousedown' && isTouching) return; // Abaikan klik bayangan di HP
+
         if (e.target !== ball && !ball.contains(e.target)) return;
         ball.style.transition = 'none';
         isDrag = false;
@@ -2629,6 +2634,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function onMove(e) {
+        if (e.type === 'mousemove' && isTouching) return;
         if (startX === undefined) return;
         
         let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
@@ -2649,6 +2655,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function onEnd(e) {
+        if (e.type === 'mouseup' && isTouching) return;
+
         clearTimeout(timer);
         if (startX === undefined) return;
 
@@ -2658,7 +2666,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 tapTimer = setTimeout(() => {
                     handleSingleTap();
                     clickCount = 0;
-                }, 250); 
+                }, 300); // Waktu tunggu double tap disesuaikan
             } else if (clickCount === 2) {
                 clearTimeout(tapTimer);
                 handleDoubleTap();
@@ -2670,6 +2678,11 @@ document.addEventListener("DOMContentLoaded", () => {
         
         startX = undefined;
         isDrag = false;
+
+        // Reset pelindung setelah jari diangkat
+        if (e.type === 'touchend') {
+            setTimeout(() => { isTouching = false; }, 400); 
+        }
     }
 
     function snapToEdge() {
