@@ -796,12 +796,16 @@ function switchTab(tab, isBack = false, isReplace = false) {
             // Cek otorisasi spesifik dari string peran
             const canAccessSekretariat = roleStr.includes("super") || roleStr.includes("admin") || roleStr.includes("sekret") || roleStr.includes("sekert") || roleStr.includes("pendeta") || roleStr.includes("multi") || roleStr.includes("media");
             const canAccessSensus = roleStr.includes("sensus") || roleStr.includes("pendata") || roleStr.includes("super") || roleStr.includes("admin") || (isAdmin && !canAccessSekretariat);
+			const canAccessCetakStruk = roleStr.includes("super") || roleStr.includes("admin") || (isAdmin && !canAccessCetakStruk);
 
             if (canAccessSekretariat) {
                 adminButtons += `<button onclick="window.location.href='sekretariat.html'" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 p-2.5 transition duration-500 font-bold bg-purple-950/30 rounded-xl border border-purple-900/50 flex items-center justify-center gap-1.5 mt-2">🔒 Panel Sekretariat & Media</button>`;
             }
             if (canAccessSensus) {
                 adminButtons += `<button onclick="window.location.href='sensus.html'" class="w-full text-center text-[11px] text-amber-400 hover:text-amber-300 p-2.5 transition duration-500 font-bold bg-amber-950/30 rounded-xl border border-amber-900/50 flex items-center justify-center gap-1.5 mt-2">📊 Panel Petugas Sensus</button>`;
+            }
+			    if (canAccessCetakStruk) {
+                adminButtons += `<button onclick="window.location.href='cetakstruk.html'" class="w-full text-center text-[11px] text-amber-400 hover:text-amber-300 p-2.5 transition duration-500 font-bold bg-amber-950/30 rounded-xl border border-amber-900/50 flex items-center justify-center gap-1.5 mt-2">📊 Panel Cetak Struk</button>`;
             }
             // --- AKHIR LOGIKA MULTI-ROLE PANEL ---
 
