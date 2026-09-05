@@ -68,6 +68,7 @@
                         <i data-lucide="settings-2" class="w-4 h-4"></i> 1. Pilih Jenis Transaksi
                     </h2>
                     <select id="tx-type-select" onchange="changeTransactionType(this.value)" class="w-full sm:w-auto bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-sm text-emerald-400 font-bold focus:outline-none focus:border-emerald-500 cursor-pointer shadow-inner">
+                        <option value="gambar">🖼️ Cetak Gambar Asli (Tanpa Scan AI)</option>
                         <option value="pln">⚡ PLN Prabayar (Token)</option>
                         <option value="pulsa">📱 Pulsa / Data</option>
                         <option value="tagihan">🧾 Tagihan (BPJS, PDAM, dll)</option>
@@ -323,20 +324,33 @@
 
         function changeTransactionType(type) {
             state.transactionType = type;
+    
             document.getElementById('form-pln').classList.add('hidden');
             document.getElementById('form-pulsa').classList.add('hidden');
             document.getElementById('form-tagihan').classList.add('hidden');
             document.getElementById('form-transfer').classList.add('hidden');
-            document.getElementById('form-' + type).classList.remove('hidden');
+    
+            // Tampilkan/sembunyikan form pembungkus utama
+            if (type !== 'gambar') {
+                document.getElementById('dynamic-form-container').style.display = 'block';
+                document.getElementById('form-' + type).classList.remove('hidden');
+            } else {
+                document.getElementById('dynamic-form-container').style.display = 'none';
+            }
 
             if (type === 'pln') state.title = 'STRUK PEMBELIAN LISTRIK PRABAYAR';
             if (type === 'pulsa') state.title = 'STRUK PEMBELIAN PULSA / DATA';
             if (type === 'tagihan') state.title = 'STRUK PEMBAYARAN TAGIHAN';
             if (type === 'transfer') state.title = 'BUKTI TRANSFER PUSAT';
+            if (type === 'gambar') state.title = 'CETAK GAMBAR ASLI';
 
-            populateFormInputs();
-            renderReceipt();
-        }
+            if (type !== 'gambar') {
+                populateFormInputs();
+                renderReceipt();
+            } else {
+                document.getElementById('printable-receipt').innerHTML = '<p class="text-center text-slate-400 py-10 font-sans">Pilih gambar/screenshot untuk dicetak...</p>';
+            }
+}
 
         function populateFormInputs() {
             document.getElementById('f-title').value = state.title;
@@ -408,10 +422,26 @@
         async function handleImageUpload(e) {
             const file = e.target.files?.[0];
             if (!file) return;
-            
+    
             document.getElementById('uploadPreviewImg').src = URL.createObjectURL(file);
             document.getElementById('uploadStatusContainer').style.display = 'flex';
             const statusTxt = document.getElementById('ocrStatusText');
+    
+            // BLOK BARU: Bypass AI untuk cetak gambar asli
+            if (state.transactionType === 'gambar') {
+                statusTxt.className = "text-[11px] text-emerald-400 flex items-center gap-1 mt-1";
+                statusTxt.innerHTML = `<i data-lucide="check-circle-2" class="w-3 h-3"></i> Gambar siap dicetak.`;
+                lucide.createIcons();
+        
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    // Menyematkan efek B&W agar ramah tinta termal
+                    document.getElementById('printable-receipt').innerHTML = `<img src="${event.target.result}" class="w-full h-auto" style="filter: grayscale(100%) contrast(120%);" />`;
+                };
+                reader.readAsDataURL(file);
+                return; // Hentikan fungsi di sini (AI tidak berjalan)
+            }
+
             statusTxt.className = "text-[11px] text-yellow-400 flex items-center gap-1 mt-1";
             statusTxt.innerHTML = `<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Mengekstrak data khusus ${state.transactionType.toUpperCase()}...`;
             lucide.createIcons();
@@ -674,8 +704,26 @@ function formatLR(left, right) {
 }
 
 async function handlePrint() {
+    // ROUTE 1: Jalur RawBT khusus untuk Gambar Asli
+    if (state.transactionType === 'gambar') {
+        const isAndroid = /android/i.test(navigator.userAgent);
+        if (isAndroid) {
+            try {
+                const el = document.getElementById('printable-receipt');
+                const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff' });
+                const b64 = canvas.toDataURL('image/png').split(',')[1];
+                window.location.href = "intent:base64," + b64 + "#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;";
+            } catch (err) {
+                alert("Gagal memproses gambar.");
+            }
+        } else {
+            window.print();
+        }
+        return; // Hentikan eksekusi, jangan lanjut ke Web Bluetooth
+    }
+
+    // ROUTE 2: Jalur Web Bluetooth API (ESC/POS) untuk teks struk biasa
     try {
-        // 1. Rakit Perintah ESC/POS Berbasis Byte Array
         let bytes = [];
         const addBytes = (arr) => bytes.push(...arr);
         const addText = (text) => addBytes(new TextEncoder().encode(text));
