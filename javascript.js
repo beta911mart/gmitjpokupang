@@ -2229,6 +2229,8 @@ async function openHymnsList(isBack = false) {
     const main = document.querySelector("main");
     document.getElementById("headerTitle").innerText = "Kidung Jemaat";
     triggerPageTransition();
+    
+    // Siapkan kerangka UI (Kotak Pencarian & Wadah Daftar)
     main.innerHTML = `
         <div class="flex flex-col h-[calc(100vh-140px)] relative">
             <div class="sticky top-0 bg-slate-950 pt-1 pb-3 z-30 border-b border-slate-800 space-y-3 shrink-0">
@@ -2239,10 +2241,23 @@ async function openHymnsList(isBack = false) {
             </div>
         </div>
     `;
+
+    // LOGIKA CACHING: Cek apakah data kidung sudah pernah diunduh dan tersimpan di memori
+    if (window.allHymns && window.allHymns.length > 0) {
+        // Jika sudah ada, langsung tampilkan tanpa loading ke server
+        renderHymnsList(window.allHymns);
+        return; // Hentikan fungsi di sini
+    }
+
+    // Jika belum ada di memori, baru lakukan penarikan data dari server (Google Apps Script)
     try {
         const response = await fetch(`${SCRIPT_URL}?action=getHymns`);
         const result = await response.json();
+        
+        // Simpan hasil tarikan ke variabel global memori
         window.allHymns = result.hymns || [];
+        
+        // Tampilkan ke layar
         renderHymnsList(window.allHymns);
     } catch (err) {
         document.getElementById("hymnsContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data kidung.</p>`;
