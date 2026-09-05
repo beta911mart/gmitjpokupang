@@ -664,23 +664,35 @@
         }
 
 async function handlePrint() {
-    // Mengecek apakah pengguna menggunakan Android
     const isAndroid = /android/i.test(navigator.userAgent);
     
     if (isAndroid) {
-        // Konversi struk HTML menjadi gambar (seperti fitur Export PNG)
-        const el = document.getElementById('printable-receipt');
-        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff' });
-        const imgData = canvas.toDataURL('image/png');
-        
-        // Buat link khusus (Intent) untuk membangunkan aplikasi RawBT
-        const b64 = imgData.split(',')[1]; 
-        const intentUrl = "intent:base64," + b64 + "#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;";
-        
-        // Lempar gambar ke RawBT
-        window.location.href = intentUrl;
+        const btn = document.querySelector('button[onclick="handlePrint()"]');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Memproses...`;
+        lucide.createIcons();
+
+        try {
+            const el = document.getElementById('printable-receipt');
+            const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff' });
+            const imgData = canvas.toDataURL('image/png');
+            
+            // Ambil kode Base64 murni tanpa prefix
+            const b64 = imgData.split(',')[1]; 
+            
+            // Format Intent khusus untuk RawBT
+            const intentUrl = "intent:base64," + b64 + "#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;";
+            
+            // Eksekusi pelemparan data ke RawBT
+            window.location.href = intentUrl;
+        } catch (error) {
+            console.error("Gagal mencetak:", error);
+            alert("Terjadi kesalahan saat memproses struk.");
+        } finally {
+            btn.innerHTML = originalText;
+            lucide.createIcons();
+        }
     } else {
-        // Jika dibuka di Laptop/PC/iOS, gunakan print bawaan
         window.print();
     }
 }
