@@ -664,45 +664,23 @@
         }
 
 async function handlePrint() {
+    // Mengecek apakah pengguna menggunakan Android
     const isAndroid = /android/i.test(navigator.userAgent);
     
     if (isAndroid) {
-        // Tombol berubah menjadi status loading
-        const btn = document.querySelector('button[onclick="handlePrint()"]');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Memproses...`;
-        lucide.createIcons();
-
-        try {
-            const el = document.getElementById('printable-receipt');
-            // Render menjadi gambar
-            const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff' });
-            const imgData = canvas.toDataURL('image/jpeg', 0.9);
-            
-            // Ekstrak hanya kode Base64 murni tanpa prefix Data URL
-            const base64Data = imgData.split(',')[1];
-            
-            // Format perintah khusus aplikasi Bluetooth Print: <IMAGE>A#Base64
-            // A = 1 (Align Center)
-            const printCommand = "<IMAGE>1#" + base64Data;
-            
-            // Encode teks menjadi format URL yang aman
-            const encodedCommand = encodeURIComponent(printCommand);
-            
-            // Konstruksi URL Intent untuk Android
-            const intentUrl = `intent:?action=android.intent.action.SEND&type=text/plain&S.android.intent.extra.TEXT=${encodedCommand}#Intent;package=mate.bluetoothprint;end;`;
-            
-            // Arahkan browser untuk membuka aplikasi Bluetooth Print
-            window.location.href = intentUrl;
-        } catch (error) {
-            console.error(error);
-            alert("Gagal memproses gambar untuk dicetak.");
-        } finally {
-            // Kembalikan status tombol
-            btn.innerHTML = originalText;
-        }
+        // Konversi struk HTML menjadi gambar (seperti fitur Export PNG)
+        const el = document.getElementById('printable-receipt');
+        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff' });
+        const imgData = canvas.toDataURL('image/png');
+        
+        // Buat link khusus (Intent) untuk membangunkan aplikasi RawBT
+        const b64 = imgData.split(',')[1]; 
+        const intentUrl = "intent:base64," + b64 + "#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;";
+        
+        // Lempar gambar ke RawBT
+        window.location.href = intentUrl;
     } else {
-        // Jika bukan di Android, gunakan fitur print bawaan browser
+        // Jika dibuka di Laptop/PC/iOS, gunakan print bawaan
         window.print();
     }
 }
