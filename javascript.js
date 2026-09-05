@@ -2586,6 +2586,8 @@ function redirectToRolePanel() {
         if (
             role.includes("super") || 
             role.includes("admin") || 
+			role.includes("petugas") || 
+			role.includes("sensus") || 
             role.includes("sekret") || 
             role.includes("sekert") || 
             role.includes("pendeta") || 
