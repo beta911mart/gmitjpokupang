@@ -798,9 +798,8 @@ function switchTab(tab, isBack = false, isReplace = false) {
             const canAccessSekretariat = roleStr.includes("sekretariat") || roleStr.includes("pendeta") || roleStr.includes("admin") || roleStr.includes("super") || roleStr.includes("developer");
             
             const canAccessSensus = roleStr.includes("sensus") || roleStr.includes("pendata") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
-            
-            // Titik koma (;) di tengah baris telah dihapus
-            const canAccessAdmin = roleStr.includes("developer") || roleStr.includes("super") || roleStr.includes("admin") || roleStr.includes("multimedia");
+
+			const canAccessAdmin = roleStr.includes("developer") || roleStr.includes("super") || roleStr.includes("admin") || roleStr.includes("multi") || roleStr.includes("media");
 			
             const canAccessCetakStruk = roleStr.includes("struk") || roleStr.includes("kasir") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
 
