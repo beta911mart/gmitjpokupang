@@ -318,6 +318,7 @@
 
         function initApp() {
             lucide.createIcons();
+            changeTransactionType(document.getElementById('tx-type-select').value);
             populateFormInputs();
             renderReceipt();
         }
@@ -702,31 +703,87 @@ function formatLR(left, right) {
     if (spaceCount <= 0) return strLeft.substring(0, maxLen - strRight.length - 1) + " " + strRight + "\n";
     return strLeft + " ".repeat(spaceCount) + strRight + "\n";
 }
-
-async function handlePrint() {
-    // ROUTE 1: Jalur RawBT khusus untuk Gambar Asli
-    if (state.transactionType === 'gambar') {
-        const isAndroid = /android/i.test(navigator.userAgent);
-        if (isAndroid) {
-            try {
-                const el = document.getElementById('printable-receipt');
-                const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff' });
-                const b64 = canvas.toDataURL('image/png').split(',')[1];
-                window.location.href = "intent:base64," + b64 + "#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;";
-            } catch (err) {
-                alert("Gagal memproses gambar.");
+// Mengubah Canvas menjadi kode biner ESC/POS (GS v 0)
+function canvasToEscPos(canvas) {
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    
+    // Printer 58mm umumnya memiliki lebar 384 dot (titik)
+    const printWidth = 384; 
+    const scale = printWidth / canvas.width;
+    const printHeight = Math.floor(canvas.height * scale);
+    
+    // Buat canvas sementara untuk resize ke 384px
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = printWidth;
+    tempCanvas.height = printHeight;
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    // Gambar ulang dengan latar putih (agar transparan tidak jadi hitam)
+    tempCtx.fillStyle = '#FFFFFF';
+    tempCtx.fillRect(0, 0, printWidth, printHeight);
+    tempCtx.drawImage(canvas, 0, 0, printWidth, printHeight);
+    
+    const imgData = tempCtx.getImageData(0, 0, printWidth, printHeight).data;
+    
+    // Printer membutuhkan lebar dalam satuan byte (1 byte = 8 pixel)
+    const bytesWidth = Math.ceil(printWidth / 8);
+    const data = new Uint8Array(bytesWidth * printHeight);
+    
+    for (let y = 0; y < printHeight; y++) {
+        for (let x = 0; x < printWidth; x++) {
+            const idx = (y * printWidth + x) * 4;
+            const r = imgData[idx];
+            const g = imgData[idx + 1];
+            const b = imgData[idx + 2];
+            
+            // Konversi ke Grayscale dan Threshold (Di bawah 128 = Hitam)
+            const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
+            const isBlack = brightness < 128;
+            
+            if (isBlack) {
+                const byteIdx = y * bytesWidth + Math.floor(x / 8);
+                const bitIdx = 7 - (x % 8);
+                data[byteIdx] |= (1 << bitIdx); // Set bit menjadi 1 (Hitam)
             }
-        } else {
-            window.print();
         }
-        return; // Hentikan eksekusi, jangan lanjut ke Web Bluetooth
     }
-
-    // ROUTE 2: Jalur Web Bluetooth API (ESC/POS) untuk teks struk biasa
+    
+    // Header instruksi ESC/POS untuk gambar (GS v 0)
+    const header = new Uint8Array([
+        0x1D, 0x76, 0x30, 0x00,
+        bytesWidth & 0xFF, (bytesWidth >> 8) & 0xFF,
+        printHeight & 0xFF, (printHeight >> 8) & 0xFF
+    ]);
+    
+    return new Uint8Array([...header, ...data, 0x0A, 0x0A, 0x0A]);
+}
+async function handlePrint() {
     try {
-        let bytes = [];
-        const addBytes = (arr) => bytes.push(...arr);
-        const addText = (text) => addBytes(new TextEncoder().encode(text));
+        let finalDataByte;
+
+        // ROUTE 1: Jika yang dicetak adalah Gambar
+        if (state.transactionType === 'gambar') {
+            const imgElement = document.querySelector('#printable-receipt img');
+            if (!imgElement) {
+                alert("Harap unggah gambar terlebih dahulu!");
+                return;
+            }
+            
+            // Buat canvas dari gambar yang diunggah
+            const canvas = document.createElement('canvas');
+            canvas.width = imgElement.naturalWidth;
+            canvas.height = imgElement.naturalHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(imgElement, 0, 0);
+            
+            // Konversi gambar ke biner printer
+            finalDataByte = canvasToEscPos(canvas);
+        } 
+        // ROUTE 2: Jika yang dicetak adalah Teks Struk Biasa
+        else {
+            let bytes = [];
+            const addBytes = (arr) => bytes.push(...arr);
+            const addText = (text) => addBytes(new TextEncoder().encode(text));
         
         // Kamus Perintah Mesin Printer
         const INIT = [0x1B, 0x40];
@@ -817,18 +874,14 @@ async function handlePrint() {
         // Kemas Semua Instruksi
         const finalDataByte = new Uint8Array(bytes);
 
-        // 2. Eksekusi Pengiriman Web Bluetooth
+        // 2. Eksekusi Pengiriman Web Bluetooth Sama untuk Gambar & Teks
         const btn = document.querySelector('button[onclick="handlePrint()"]');
         const originalText = btn.innerHTML;
         btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Mencari...`;
         
         const device = await navigator.bluetooth.requestDevice({
             acceptAllDevices: true,
-            optionalServices: [
-                '000018f0-0000-1000-8000-00805f9b34fb', 
-                'e7810a71-73ae-499d-8c15-faa9aef0c3f2', 
-                '49535343-fe7d-4ae5-8fa9-9fafd205e455'
-            ]
+            optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', 'e7810a71-73ae-499d-8c15-faa9aef0c3f2', '49535343-fe7d-4ae5-8fa9-9fafd205e455']
         });
 
         btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Menghubungkan...`;
@@ -851,12 +904,12 @@ async function handlePrint() {
 
         btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Mencetak...`;
 
-        // Chunking agar memori printer tidak penuh
-        const chunkSize = 20;
+        // Chunking (Pecah data menjadi 20-50 byte per pengiriman agar printer tidak hang)
+        const chunkSize = 40; 
         for (let i = 0; i < finalDataByte.length; i += chunkSize) {
             const chunk = finalDataByte.slice(i, i + chunkSize);
             await characteristic.writeValue(chunk);
-            await new Promise(resolve => setTimeout(resolve, 15)); 
+            await new Promise(resolve => setTimeout(resolve, 10)); 
         }
 
         btn.innerHTML = originalText;
