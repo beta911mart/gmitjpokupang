@@ -34,38 +34,40 @@
         </button>
     </div>
 
-    <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-        <div class="flex items-center space-x-3">
-            <div class="bg-indigo-600 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-500/20">
+    <!-- RESPONSIVE HEADER: flex-col on mobile, sm:flex-row for larger screens -->
+    <header class="bg-slate-800 border-b border-slate-700 px-4 py-3 flex flex-col sm:flex-row items-center justify-between sticky top-0 z-50 gap-4">
+        <div class="flex items-center space-x-3 w-full sm:w-auto justify-center sm:justify-start">
+            <div class="bg-indigo-600 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-500/20 shrink-0">
                 <i data-lucide="zap" class="w-6 h-6"></i>
             </div>
             <div>
-                <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    ToDek AI <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">Targeted OCR v2.1</span>
+                <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                    ToDek AI <span class="text-[10px] sm:text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">Targeted OCR v2.1</span>
                 </h1>
-                <p class="text-xs text-slate-400">PLN, Pulsa, Tagihan, dan Transfer Bank (Masked Name Supported)</p>
+                <p class="text-[10px] sm:text-xs text-slate-400">PLN, Pulsa, Tagihan, dan Transfer Bank</p>
             </div>
         </div>
-        <div class="flex items-center gap-3">
-            <button onclick="exportToPNG()" class="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition border border-slate-600 cursor-pointer">
+        <div class="flex items-center justify-center gap-2 w-full sm:w-auto">
+            <button onclick="exportToPNG()" class="flex-1 sm:flex-none flex justify-center items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition border border-slate-600 cursor-pointer">
                 <i data-lucide="download" class="w-4 h-4"></i> Export PNG
             </button>
-            <button onclick="handlePrint()" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-600/30 transition cursor-pointer">
+            <button onclick="handlePrint()" class="flex-1 sm:flex-none flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-medium shadow-lg shadow-indigo-600/30 transition cursor-pointer">
                 <i data-lucide="printer" class="w-4 h-4"></i> Cetak Termal
             </button>
         </div>
     </header>
 
-    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 max-w-[1600px] w-full mx-auto">
+    <!-- RESPONSIVE PADDING & GAP -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 p-4 sm:p-6 max-w-[1600px] w-full mx-auto">
         
-        <div class="lg:col-span-7 flex flex-col gap-6">
+        <div class="lg:col-span-7 flex flex-col gap-4 sm:gap-6">
             
-            <div class="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl p-5 shadow-xl">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-700">
-                    <h2 class="text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+            <div class="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl p-4 sm:p-5 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-700">
+                    <h2 class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
                         <i data-lucide="settings-2" class="w-4 h-4"></i> 1. Pilih Jenis Transaksi
                     </h2>
-                    <select id="tx-type-select" onchange="changeTransactionType(this.value)" class="bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-sm text-emerald-400 font-bold focus:outline-none focus:border-emerald-500 cursor-pointer shadow-inner">
+                    <select id="tx-type-select" onchange="changeTransactionType(this.value)" class="w-full sm:w-auto bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-sm text-emerald-400 font-bold focus:outline-none focus:border-emerald-500 cursor-pointer shadow-inner">
                         <option value="pln">⚡ PLN Prabayar (Token)</option>
                         <option value="pulsa">📱 Pulsa / Data</option>
                         <option value="tagihan">🧾 Tagihan (BPJS, PDAM, dll)</option>
@@ -74,7 +76,7 @@
                 </div>
 
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                    <h2 class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
                         <i data-lucide="scan-text" class="w-4 h-4"></i> 2. Upload Screenshot
                     </h2>
                 </div>
@@ -85,174 +87,177 @@
                         <div class="p-3 bg-indigo-500/10 text-indigo-400 rounded-full group-hover:scale-110 transition">
                             <i data-lucide="upload" class="w-6 h-6"></i>
                         </div>
-                        <p class="text-sm font-medium text-slate-200">Drop screenshot transaksi di sini atau <span class="text-indigo-400 underline">Browse</span></p>
-                        <p class="text-xs text-slate-500">Mendukung tangkapan layar DANA, Flip, m-Banking, dll.</p>
+                        <p class="text-xs sm:text-sm font-medium text-slate-200">Drop screenshot transaksi di sini atau <span class="text-indigo-400 underline">Browse</span></p>
+                        <p class="text-[10px] sm:text-xs text-slate-500">Mendukung tangkapan layar DANA, Flip, m-Banking, dll.</p>
                     </div>
                 </div>
 
-                <div id="uploadStatusContainer" class="mt-4 hidden items-center gap-4 bg-slate-900 p-3 rounded-xl border border-slate-700">
-                    <img id="uploadPreviewImg" src="" alt="Uploaded receipt preview" class="w-16 h-16 object-cover rounded-lg border border-slate-700" />
+                <div id="uploadStatusContainer" class="mt-4 hidden items-center gap-3 bg-slate-900 p-3 rounded-xl border border-slate-700">
+                    <img id="uploadPreviewImg" src="" alt="Uploaded receipt preview" class="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg border border-slate-700 shrink-0" />
                     <div class="flex-1 min-w-0">
-                        <p class="text-xs font-medium text-slate-300 truncate" id="processLabel">Memproses Gambar...</p>
-                        <p id="ocrStatusText" class="text-[11px] text-yellow-400 flex items-center gap-1 mt-1">
+                        <p class="text-[11px] sm:text-xs font-medium text-slate-300 truncate" id="processLabel">Memproses Gambar...</p>
+                        <p id="ocrStatusText" class="text-[10px] sm:text-[11px] text-yellow-400 flex items-center gap-1 mt-1">
                             <i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Mengekstrak teks, mohon tunggu...
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl p-5 shadow-xl flex-1 flex flex-col">
+            <div class="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl p-4 sm:p-5 shadow-xl flex-1 flex flex-col">
                 <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
-                    <h2 class="text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
-                        <i data-lucide="edit-3" class="w-4 h-4"></i> 3. Form Editor (Tidak Ada Hitung Otomatis)
+                    <h2 class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i> 3. Form Editor
                     </h2>
                 </div>
 
-                <div class="space-y-4 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar" id="dynamic-form-container">
+                <div class="space-y-4 overflow-y-auto max-h-[500px] pr-1 sm:pr-2 custom-scrollbar" id="dynamic-form-container">
                     
-                    <div class="grid grid-cols-2 gap-4">
+                    <!-- GRID RESPONSIVE: grid-cols-1 sm:grid-cols-2 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="text-xs text-slate-400 font-medium mb-1 block">Title / Header Struk</label>
+                            <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Title / Header Struk</label>
                             <input type="text" id="f-title" oninput="updateData('title', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400 font-medium mb-1 block">No Referensi / Transaksi</label>
+                            <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">No Referensi / Transaksi</label>
                             <input type="text" id="f-noRef" oninput="updateData('noRef', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                         </div>
                     </div>
 
                     <div id="form-pln" class="space-y-4 border-t border-slate-700 pt-4">
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Nama Pelanggan</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Nama Pelanggan</label>
                                 <input type="text" id="f-nama" oninput="updateData('nama', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">No Meter / ID</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">No Meter / ID</label>
                                 <input type="text" id="f-noMeter" oninput="updateData('noMeter', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Tarif / Daya</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Tarif / Daya</label>
                                 <input type="text" id="f-tarifDaya" oninput="updateData('tarifDaya', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Total KWH</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Total KWH</label>
                                 <input type="text" id="f-jmlKwh" oninput="updateData('jmlKwh', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400 font-medium mb-1 block">Nomor Token Listrik (20 Digit)</label>
+                            <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Nomor Token Listrik (20 Digit)</label>
                             <input type="text" id="f-stroomToken" oninput="updateData('stroomToken', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-indigo-400 font-bold focus:outline-none" />
                         </div>
-                        <div class="grid grid-cols-3 gap-3">
+                        
+                        <!-- GRID RESPONSIVE: grid-cols-1 sm:grid-cols-3 -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">RP STROOM (Rp)</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">RP STROOM (Rp)</label>
                                 <input type="number" id="f-rpStroom" oninput="updateData('rpStroom', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">PBJT-TL (Rp)</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">PBJT-TL (Rp)</label>
                                 <input type="number" id="f-pbjt" oninput="updateData('pbjt', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Admin (Rp)</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Admin (Rp)</label>
                                 <input type="number" id="f-biayaAdminPln" oninput="updateData('biayaAdmin', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                         </div>
                     </div>
 
                     <div id="form-pulsa" class="space-y-4 hidden border-t border-slate-700 pt-4">
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Nomor HP</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Nomor HP</label>
                                 <input type="text" id="f-noHp" oninput="updateData('noHp', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Produk (Contoh: Telkomsel Data)</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Produk (Contoh: Telkomsel Data)</label>
                                 <input type="text" id="f-produk" oninput="updateData('produk', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400 font-medium mb-1 block">Serial Number (SN) / Keterangan</label>
+                            <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Serial Number (SN) / Keterangan</label>
                             <input type="text" id="f-sn" oninput="updateData('sn', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                         </div>
                     </div>
 
                     <div id="form-tagihan" class="space-y-4 hidden border-t border-slate-700 pt-4">
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Jenis Tagihan (Cth: BPJS Kesehatan)</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Jenis Tagihan (Cth: BPJS)</label>
                                 <input type="text" id="f-tagihanType" oninput="updateData('tagihanType', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">No. Pelanggan / VA</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">No. Pelanggan / VA</label>
                                 <input type="text" id="f-tagihanId" oninput="updateData('tagihanId', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Nama Pelanggan</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Nama Pelanggan</label>
                                 <input type="text" id="f-tagihanNama" oninput="updateData('tagihanNama', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Periode / Keterangan</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Periode / Keterangan</label>
                                 <input type="text" id="f-tagihanDetail" oninput="updateData('tagihanDetail', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Tagihan Pokok (Rp)</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Tagihan Pokok (Rp)</label>
                                 <input type="number" id="f-tagihanPokok" oninput="updateData('tagihanPokok', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Admin (Rp)</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Admin (Rp)</label>
                                 <input type="number" id="f-biayaAdminTagihan" oninput="updateData('biayaAdmin', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                         </div>
                     </div>
 
                     <div id="form-transfer" class="space-y-4 hidden border-t border-slate-700 pt-4">
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Bank Tujuan</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Bank Tujuan</label>
                                 <input type="text" id="f-bankTujuan" oninput="updateData('bankTujuan', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Nomor Rekening Tujuan</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Nomor Rekening Tujuan</label>
                                 <input type="text" id="f-rekTujuan" oninput="updateData('rekTujuan', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400 font-medium mb-1 block">Nama Penerima</label>
+                            <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Nama Penerima</label>
                             <input type="text" id="f-namaPenerima" oninput="updateData('namaPenerima', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Bank Pengirim (Asal)</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Bank Pengirim (Asal)</label>
                                 <input type="text" id="f-bankPengirim" oninput="updateData('bankPengirim', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Nama Pengirim</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Nama Pengirim</label>
                                 <input type="text" id="f-pengirim" oninput="updateData('pengirim', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Nominal Transfer (Rp)</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Nominal Transfer (Rp)</label>
                                 <input type="number" id="f-nominalTransfer" oninput="updateData('nominalTransfer', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                             <div>
-                                <label class="text-xs text-slate-400 font-medium mb-1 block">Admin (Rp)</label>
+                                <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">Admin (Rp)</label>
                                 <input type="number" id="f-biayaAdminTrf" oninput="updateData('biayaAdmin', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none" />
                             </div>
                         </div>
                     </div>
 
                     <div class="pt-4 border-t border-slate-700 mt-4">
-                        <label class="text-xs text-slate-400 font-medium mb-1 block">TOTAL BAYAR (Rp) <span class="text-rose-400">*Wajib</span></label>
+                        <label class="text-[11px] sm:text-xs text-slate-400 font-medium mb-1 block">TOTAL BAYAR (Rp) <span class="text-rose-400">*Wajib</span></label>
                         <input type="number" id="f-rpBayar" oninput="updateData('rpBayar', Number(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-emerald-400 font-bold focus:outline-none focus:border-emerald-500" />
-                        <p class="text-[10px] text-slate-500 mt-1">Angka ini akan berdiri sendiri di struk sebagai penagihan akhir pelanggan.</p>
+                        <p class="text-[9px] sm:text-[10px] text-slate-500 mt-1">Angka ini akan berdiri sendiri di struk sebagai penagihan akhir pelanggan.</p>
                     </div>
 
                 </div>
@@ -260,15 +265,16 @@
 
         </div>
 
-        <div class="lg:col-span-5 flex flex-col gap-6">
+        <div class="lg:col-span-5 flex flex-col gap-4 sm:gap-6">
             <div class="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl p-4 shadow-xl flex items-center justify-between">
-                <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
-                    <i data-lucide="printer" class="w-4 h-4"></i> 4. Preview Kertas Termal (58mm)
+                <span class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                    <i data-lucide="printer" class="w-4 h-4"></i> 4. Preview Kertas (58mm)
                 </span>
                 <span class="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300">Siap Cetak</span>
             </div>
 
-            <div class="bg-slate-950 border border-slate-700 rounded-2xl p-6 shadow-2xl flex items-center justify-center relative overflow-hidden min-h-[620px]">
+            <!-- RESPONSIVE MIN-HEIGHT -->
+            <div class="bg-slate-950 border border-slate-700 rounded-2xl p-4 sm:p-6 shadow-2xl flex items-center justify-center relative overflow-hidden min-h-[400px] md:min-h-[620px]">
                 <div id="printable-receipt" class="w-full max-w-[320px] bg-[#fefcf6] text-slate-800 shadow-2xl rounded-sm p-4 relative font-mono text-xs border-dashed border-2 border-slate-300 transition-all duration-300">
                 </div>
             </div>
