@@ -799,7 +799,7 @@ function switchTab(tab, isBack = false, isReplace = false) {
             
             const canAccessSensus = roleStr.includes("sensus") || roleStr.includes("pendata") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
             
-            const canAccessAdmin = roleStr.includes("developer") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
+            const canAccessAdmin = roleStr.includes("developer") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin"); || roleStr.includes("multimedia");
 			
 			const canAccessCetakStruk = roleStr.includes("struk") || roleStr.includes("kasir") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
 
