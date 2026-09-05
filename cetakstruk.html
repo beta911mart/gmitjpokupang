@@ -304,13 +304,13 @@
             sn: '-',
             tagihanType: 'Tagihan Pembayaran',
             tagihanId: '-',
-            tagihanNama: 'Manual Input',
+            tagihanNama: '-',
             tagihanDetail: '1 Bulan',
             tagihanPokok: 0,
             bankTujuan: '-',
             rekTujuan: '-',
-            namaPenerima: 'Manual Input',
-            pengirim: 'Manual Input',
+            namaPenerima: '-',
+            pengirim: '-',
             bankPengirim: '-',
             nominalTransfer: 0
         };
@@ -675,92 +675,119 @@ function formatLR(left, right) {
 
 async function handlePrint() {
     try {
-        // 1. Persiapkan Data ESC/POS
-        const ESC = 0x1B;
+        // 1. Rakit Perintah ESC/POS Berbasis Byte Array
+        let bytes = [];
+        const addBytes = (arr) => bytes.push(...arr);
+        const addText = (text) => addBytes(new TextEncoder().encode(text));
+        
+        // Kamus Perintah Mesin Printer
+        const INIT = [0x1B, 0x40];
+        const ALIGN_LEFT = [0x1B, 0x61, 0x00];
+        const ALIGN_CENTER = [0x1B, 0x61, 0x01];
+        const BOLD_ON = [0x1B, 0x45, 0x01];
+        const BOLD_OFF = [0x1B, 0x45, 0x00];
+        const ITALIC_ON = [0x1B, 0x34]; 
+        const ITALIC_OFF = [0x1B, 0x35];
+        
         const separator = "--------------------------------\n";
         
-        let teks = "\n"; // Padding atas
-        // Header (Center align tidak didukung sempurna di teks biasa tanpa kode hex rumit, kita gunakan spasi manual)
-        const titlePad = Math.max(0, Math.floor((32 - state.title.length) / 2));
-        teks += " ".repeat(titlePad) + state.title + "\n";
-        
-        const datePad = Math.max(0, Math.floor((32 - state.date.length) / 2));
-        teks += " ".repeat(datePad) + state.date + "\n";
-        teks += separator;
+        // --- AWAL STRUK ---
+        addBytes(INIT);
 
-        // 2. Susun Isi Struk Berdasarkan Tipe
+        // HEADER (Tengah & Tebal)
+        addBytes(ALIGN_CENTER);
+        addBytes(BOLD_ON);
+        addText(state.title + "\n");
+        addBytes(BOLD_OFF);
+        addText(state.date + "\n");
+        addText(separator);
+
+        // BODY (Kiri)
+        addBytes(ALIGN_LEFT);
+        let teksBody = "";
+        
         if (state.transactionType === 'pln') {
-            teks += formatLR("NO METER", state.noMeter);
-            teks += formatLR("NAMA", state.nama);
-            teks += formatLR("TARIF/DAYA", state.tarifDaya);
-            teks += formatLR("NO REF", state.noRef);
-            teks += separator;
-            teks += formatLR("BIAYA ADMIN", "Rp " + state.biayaAdmin.toLocaleString('id-ID'));
-            teks += formatLR("RP STROOM", "Rp " + state.rpStroom.toLocaleString('id-ID'));
-            teks += separator;
-            teks += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
-            teks += "\n   STROOM / TOKEN\n";
-            teks += " " + state.stroomToken + "\n\n";
+            teksBody += formatLR("NO METER", state.noMeter);
+            teksBody += formatLR("NAMA", state.nama);
+            teksBody += formatLR("TARIF/DAYA", state.tarifDaya);
+            teksBody += formatLR("NO REF", state.noRef);
+            teksBody += separator;
+            teksBody += formatLR("BIAYA ADMIN", "Rp " + state.biayaAdmin.toLocaleString('id-ID'));
+            teksBody += formatLR("RP STROOM", "Rp " + state.rpStroom.toLocaleString('id-ID'));
+            teksBody += separator;
+            teksBody += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
+            teksBody += "\n";
         } 
         else if (state.transactionType === 'pulsa') {
-            teks += formatLR("NO HP", state.noHp);
-            teks += formatLR("PRODUK", state.produk);
-            teks += formatLR("NO REF", state.noRef);
-            teks += formatLR("SN/KET", state.sn);
-            teks += separator;
-            teks += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
+            teksBody += formatLR("NO HP", state.noHp);
+            teksBody += formatLR("PRODUK", state.produk);
+            teksBody += formatLR("NO REF", state.noRef);
+            teksBody += formatLR("SN/KET", state.sn);
+            teksBody += separator;
+            teksBody += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
         }
         else if (state.transactionType === 'transfer') {
-            teks += formatLR("DARI", state.bankPengirim);
-            teks += formatLR("PENGIRIM", state.pengirim);
-            teks += formatLR("KE BANK", state.bankTujuan);
-            teks += formatLR("REK TUJUAN", state.rekTujuan);
-            teks += formatLR("PENERIMA", state.namaPenerima);
-            teks += separator;
-            teks += formatLR("NOMINAL TRF", "Rp " + state.nominalTransfer.toLocaleString('id-ID'));
-            teks += formatLR("BIAYA ADMIN", "Rp " + state.biayaAdmin.toLocaleString('id-ID'));
-            teks += separator;
-            teks += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
+            teksBody += formatLR("DARI", state.bankPengirim);
+            teksBody += formatLR("PENGIRIM", state.pengirim);
+            teksBody += formatLR("KE BANK", state.bankTujuan);
+            teksBody += formatLR("REK TUJUAN", state.rekTujuan);
+            teksBody += formatLR("PENERIMA", state.namaPenerima);
+            teksBody += separator;
+            teksBody += formatLR("NOMINAL TRF", "Rp " + state.nominalTransfer.toLocaleString('id-ID'));
+            teksBody += formatLR("BIAYA ADMIN", "Rp " + state.biayaAdmin.toLocaleString('id-ID'));
+            teksBody += separator;
+            teksBody += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
         }
         else {
-            teks += formatLR("PRODUK", state.tagihanType);
-            teks += formatLR("ID/VA", state.tagihanId);
-            teks += formatLR("NAMA", state.tagihanNama);
-            teks += separator;
-            teks += formatLR("TAGIHAN", "Rp " + state.tagihanPokok.toLocaleString('id-ID'));
-            teks += formatLR("ADMIN", "Rp " + state.biayaAdmin.toLocaleString('id-ID'));
-            teks += separator;
-            teks += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
+            teksBody += formatLR("PRODUK", state.tagihanType);
+            teksBody += formatLR("ID/VA", state.tagihanId);
+            teksBody += formatLR("NAMA", state.tagihanNama);
+            teksBody += separator;
+            teksBody += formatLR("TAGIHAN", "Rp " + state.tagihanPokok.toLocaleString('id-ID'));
+            teksBody += formatLR("ADMIN", "Rp " + state.biayaAdmin.toLocaleString('id-ID'));
+            teksBody += separator;
+            teksBody += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
+        }
+        
+        addText(teksBody);
+
+        // KHUSUS PLN TOKEN (Tengah & Tebal)
+        if (state.transactionType === 'pln') {
+            addBytes(ALIGN_CENTER);
+            addBytes(BOLD_ON);
+            addText("STROOM / TOKEN\n");
+            addText(state.stroomToken + "\n\n");
+            addBytes(BOLD_OFF);
         }
 
-        teks += "\nTERIMA KASIH\nSimpan struk ini sebagai bukti\npembayaran yang sah.\n\n\n";
+        // FOOTER (Tengah & Miring)
+        addBytes(ALIGN_CENTER);
+        addBytes(ITALIC_ON);
+        addText("\nTERIMA KASIH\nSimpan struk ini sebagai bukti\npembayaran yang sah.\n\n\n\n");
+        addBytes(ITALIC_OFF);
+        
+        // Kemas Semua Instruksi
+        const finalDataByte = new Uint8Array(bytes);
 
-        // Konversi string ke format byte array yang dibaca printer
-        const encoder = new TextEncoder();
-        const dataByte = encoder.encode(teks);
-
-        // 3. Eksekusi Web Bluetooth API
+        // 2. Eksekusi Pengiriman Web Bluetooth
         const btn = document.querySelector('button[onclick="handlePrint()"]');
         const originalText = btn.innerHTML;
         btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Mencari...`;
         
-        // Membuka popup bawaan Chrome untuk mencari perangkat Bluetooth
         const device = await navigator.bluetooth.requestDevice({
             acceptAllDevices: true,
             optionalServices: [
-                '000018f0-0000-1000-8000-00805f9b34fb', // Standard Thermal BLE
-                'e7810a71-73ae-499d-8c15-faa9aef0c3f2', // Universal Printer UUID
-                '49535343-fe7d-4ae5-8fa9-9fafd205e455'  // RPP02N specific UUID (Serial Port)
+                '000018f0-0000-1000-8000-00805f9b34fb', 
+                'e7810a71-73ae-499d-8c15-faa9aef0c3f2', 
+                '49535343-fe7d-4ae5-8fa9-9fafd205e455'
             ]
         });
 
         btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Menghubungkan...`;
         const server = await device.gatt.connect();
-        
-        // Mencari layanan (Service) yang tersedia pada printer
         const services = await server.getPrimaryServices();
-        let characteristic;
         
+        let characteristic;
         for (const service of services) {
             const characteristics = await service.getCharacteristics();
             for (const char of characteristics) {
@@ -772,27 +799,25 @@ async function handlePrint() {
             if (characteristic) break;
         }
 
-        if (!characteristic) throw new Error("Printer tidak memiliki titik tulis (Write Characteristic) yang valid.");
+        if (!characteristic) throw new Error("Printer tidak mendukung Write Characteristic.");
 
         btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Mencetak...`;
 
-        // Mengirim data byte per paket kecil (Chunking 20 byte) agar printer murah tidak macet
+        // Chunking agar memori printer tidak penuh
         const chunkSize = 20;
-        for (let i = 0; i < dataByte.length; i += chunkSize) {
-            const chunk = dataByte.slice(i, i + chunkSize);
+        for (let i = 0; i < finalDataByte.length; i += chunkSize) {
+            const chunk = finalDataByte.slice(i, i + chunkSize);
             await characteristic.writeValue(chunk);
-            // Delay super tipis agar buffer printer RPP02N sempat mengolah data
             await new Promise(resolve => setTimeout(resolve, 15)); 
         }
 
         btn.innerHTML = originalText;
-        alert("Cetak selesai!");
 
     } catch (error) {
         console.error(error);
         const btn = document.querySelector('button[onclick="handlePrint()"]');
         btn.innerHTML = `<i data-lucide="printer" class="w-4 h-4"></i> Cetak Termal`;
-        alert("Pencetakan dibatalkan atau gagal terhubung: " + error.message);
+        alert("Pencetakan dibatalkan/gagal: " + error.message);
     }
 }
 
