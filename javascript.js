@@ -794,14 +794,15 @@ function switchTab(tab, isBack = false, isReplace = false) {
             const roleStr = (user.adminRole || user.role || user.status_pelayanan || "").toLowerCase();
             let adminButtons = '';
             
-            // Cek otorisasi spesifik (Ditambahkan 'developer' dan perbaikan error Cetak Struk)
-            const canAccessSekretariat = roleStr.includes("sekretariat") || roleStr.includes("pendeta") || roleStr.includes("admin") || roleStr.includes("super") || roleStr.includes("developr");
+            // Cek otorisasi spesifik 
+            const canAccessSekretariat = roleStr.includes("sekretariat") || roleStr.includes("pendeta") || roleStr.includes("admin") || roleStr.includes("super") || roleStr.includes("developer");
             
             const canAccessSensus = roleStr.includes("sensus") || roleStr.includes("pendata") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
             
-            const canAccessAdmin = roleStr.includes("developer") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin") || roleStr.includes("multimedia");
+            // Titik koma (;) di tengah baris telah dihapus
+            const canAccessAdmin = roleStr.includes("developer") || roleStr.includes("super") || roleStr.includes("admin") || roleStr.includes("multimedia");
 			
-			const canAccessCetakStruk = roleStr.includes("struk") || roleStr.includes("kasir") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
+            const canAccessCetakStruk = roleStr.includes("struk") || roleStr.includes("kasir") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
 
             if (canAccessSekretariat) {
                 adminButtons += `<button onclick="window.location.href='sekretariat.html'" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 p-2.5 transition duration-500 font-bold bg-purple-950/30 rounded-xl border border-purple-900/50 flex items-center justify-center gap-1.5 mt-2">🔒 Panel Sekretariat</button>`;
@@ -809,13 +810,14 @@ function switchTab(tab, isBack = false, isReplace = false) {
             if (canAccessSensus) {
                 adminButtons += `<button onclick="window.location.href='sensus.html'" class="w-full text-center text-[11px] text-amber-400 hover:text-amber-300 p-2.5 transition duration-500 font-bold bg-amber-950/30 rounded-xl border border-amber-900/50 flex items-center justify-center gap-1.5 mt-2">📊 Panel Petugas Sensus</button>`;
             }
-			if (canAccessAdmin) {
-                adminButtons += `<button onclick="window.location.href='admin.html'" class="w-full text-center text-[11px] text-emerald-400 hover:text-amber-300 p-2.5 transition duration-500 font-bold bg-emerald-950/30 rounded-xl border border-amber-900/50 flex items-center justify-center gap-1.5 mt-2">📊 Panel Multi Media</button>`;
+            if (canAccessAdmin) {
+                adminButtons += `<button onclick="window.location.href='admin.html'" class="w-full text-center text-[11px] text-emerald-400 hover:text-emerald-300 p-2.5 transition duration-500 font-bold bg-emerald-950/30 rounded-xl border border-emerald-900/50 flex items-center justify-center gap-1.5 mt-2">🖥️ Panel Multi Media</button>`;
             }
             if (canAccessCetakStruk) {
-                adminButtons += `<button onclick="window.location.href='cetakstruk.html'" class="w-full text-center text-[11px] text-rose400 hover:text-rose-300 p-2.5 transition duration-500 font-bold bg-zinc-950/30 rounded-xl border border-emerald-900/50 flex items-center justify-center gap-1.5 mt-2">🖨️ Panel Cetak Struk</button>`;
+                // Memperbaiki class warna teks (text-rose-400)
+                adminButtons += `<button onclick="window.location.href='cetakstruk.html'" class="w-full text-center text-[11px] text-rose-400 hover:text-rose-300 p-2.5 transition duration-500 font-bold bg-zinc-950/30 rounded-xl border border-emerald-900/50 flex items-center justify-center gap-1.5 mt-2">🖨️ Panel Cetak Struk</button>`;
             }
-            // --- AKHIR LOGIKA MULTI-ROLE PANEL ---
+// --- AKHIR LOGIKA MULTI-ROLE PANEL ---
 
             const rawFotoUrl = user.foto_profil || user.foto || user.url_foto || "";
             const safeFotoUrl = rawFotoUrl ? rawFotoUrl.replace("i.ibb.co/", "i.ibb.co.com/") : "";
