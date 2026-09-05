@@ -784,95 +784,96 @@ async function handlePrint() {
             let bytes = [];
             const addBytes = (arr) => bytes.push(...arr);
             const addText = (text) => addBytes(new TextEncoder().encode(text));
-        
-        // Kamus Perintah Mesin Printer
-        const INIT = [0x1B, 0x40];
-        const ALIGN_LEFT = [0x1B, 0x61, 0x00];
-        const ALIGN_CENTER = [0x1B, 0x61, 0x01];
-        const BOLD_ON = [0x1B, 0x45, 0x01];
-        const BOLD_OFF = [0x1B, 0x45, 0x00];
-        const ITALIC_ON = [0x1B, 0x34]; 
-        const ITALIC_OFF = [0x1B, 0x35];
-        
-        const separator = "--------------------------------\n";
-        
-        // --- AWAL STRUK ---
-        addBytes(INIT);
+            
+            // Kamus Perintah Mesin Printer
+            const INIT = [0x1B, 0x40];
+            const ALIGN_LEFT = [0x1B, 0x61, 0x00];
+            const ALIGN_CENTER = [0x1B, 0x61, 0x01];
+            const BOLD_ON = [0x1B, 0x45, 0x01];
+            const BOLD_OFF = [0x1B, 0x45, 0x00];
+            const ITALIC_ON = [0x1B, 0x34]; 
+            const ITALIC_OFF = [0x1B, 0x35];
+            
+            const separator = "--------------------------------\n";
+            
+            // --- AWAL STRUK ---
+            addBytes(INIT);
 
-        // HEADER (Tengah & Tebal)
-        addBytes(ALIGN_CENTER);
-        addBytes(BOLD_ON);
-        addText(state.title + "\n");
-        addBytes(BOLD_OFF);
-        addText(state.date + "\n");
-        addText(separator);
-
-        // BODY (Kiri)
-        addBytes(ALIGN_LEFT);
-        let teksBody = "";
-        
-        if (state.transactionType === 'pln') {
-            teksBody += formatLR("NO METER", state.noMeter);
-            teksBody += formatLR("NAMA", state.nama);
-            teksBody += formatLR("TARIF/DAYA", state.tarifDaya);
-            teksBody += formatLR("NO REF", state.noRef);
-            teksBody += separator;
-            teksBody += formatLR("BIAYA ADMIN", "Rp " + state.biayaAdmin.toLocaleString('id-ID'));
-            teksBody += formatLR("RP STROOM", "Rp " + state.rpStroom.toLocaleString('id-ID'));
-            teksBody += separator;
-            teksBody += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
-            teksBody += "\n";
-        } 
-        else if (state.transactionType === 'pulsa') {
-            teksBody += formatLR("NO HP", state.noHp);
-            teksBody += formatLR("PRODUK", state.produk);
-            teksBody += formatLR("NO REF", state.noRef);
-            teksBody += formatLR("SN/KET", state.sn);
-            teksBody += separator;
-            teksBody += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
-        }
-        else if (state.transactionType === 'transfer') {
-            teksBody += formatLR("DARI", state.bankPengirim);
-            teksBody += formatLR("PENGIRIM", state.pengirim);
-            teksBody += formatLR("KE BANK", state.bankTujuan);
-            teksBody += formatLR("REK TUJUAN", state.rekTujuan);
-            teksBody += formatLR("PENERIMA", state.namaPenerima);
-            teksBody += separator;
-            teksBody += formatLR("NOMINAL TRF", "Rp " + state.nominalTransfer.toLocaleString('id-ID'));
-            teksBody += formatLR("BIAYA ADMIN", "Rp " + state.biayaAdmin.toLocaleString('id-ID'));
-            teksBody += separator;
-            teksBody += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
-        }
-        else {
-            teksBody += formatLR("PRODUK", state.tagihanType);
-            teksBody += formatLR("ID/VA", state.tagihanId);
-            teksBody += formatLR("NAMA", state.tagihanNama);
-            teksBody += separator;
-            teksBody += formatLR("TAGIHAN", "Rp " + state.tagihanPokok.toLocaleString('id-ID'));
-            teksBody += formatLR("ADMIN", "Rp " + state.biayaAdmin.toLocaleString('id-ID'));
-            teksBody += separator;
-            teksBody += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
-        }
-        
-        addText(teksBody);
-
-        // KHUSUS PLN TOKEN (Tengah & Tebal)
-        if (state.transactionType === 'pln') {
+            // HEADER (Tengah & Tebal)
             addBytes(ALIGN_CENTER);
             addBytes(BOLD_ON);
-            addText("STROOM / TOKEN\n");
-            addText(state.stroomToken + "\n\n");
+            addText(state.title + "\n");
             addBytes(BOLD_OFF);
-        }
+            addText(state.date + "\n");
+            addText(separator);
 
-        // FOOTER (Tengah & Miring)
-        addBytes(ALIGN_CENTER);
-        addBytes(ITALIC_ON);
-        addText("\nTERIMA KASIH\nSimpan struk ini sebagai bukti\npembayaran yang sah.\n\n\n\n");
-        addBytes(ITALIC_OFF);
-        
-        // Kemas Semua Instruksi
-        const finalDataByte = new Uint8Array(bytes);
+            // BODY (Kiri)
+            addBytes(ALIGN_LEFT);
+            let teksBody = "";
+            
+            if (state.transactionType === 'pln') {
+                teksBody += formatLR("NO METER", state.noMeter);
+                teksBody += formatLR("NAMA", state.nama);
+                teksBody += formatLR("TARIF/DAYA", state.tarifDaya);
+                teksBody += formatLR("NO REF", state.noRef);
+                teksBody += separator;
+                teksBody += formatLR("BIAYA ADMIN", "Rp " + state.biayaAdmin.toLocaleString('id-ID'));
+                teksBody += formatLR("RP STROOM", "Rp " + state.rpStroom.toLocaleString('id-ID'));
+                teksBody += separator;
+                teksBody += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
+                teksBody += "\n";
+            } 
+            else if (state.transactionType === 'pulsa') {
+                teksBody += formatLR("NO HP", state.noHp);
+                teksBody += formatLR("PRODUK", state.produk);
+                teksBody += formatLR("NO REF", state.noRef);
+                teksBody += formatLR("SN/KET", state.sn);
+                teksBody += separator;
+                teksBody += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
+            }
+            else if (state.transactionType === 'transfer') {
+                teksBody += formatLR("DARI", state.bankPengirim);
+                teksBody += formatLR("PENGIRIM", state.pengirim);
+                teksBody += formatLR("KE BANK", state.bankTujuan);
+                teksBody += formatLR("REK TUJUAN", state.rekTujuan);
+                teksBody += formatLR("PENERIMA", state.namaPenerima);
+                teksBody += separator;
+                teksBody += formatLR("NOMINAL TRF", "Rp " + state.nominalTransfer.toLocaleString('id-ID'));
+                teksBody += formatLR("BIAYA ADMIN", "Rp " + state.biayaAdmin.toLocaleString('id-ID'));
+                teksBody += separator;
+                teksBody += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
+            }
+            else {
+                teksBody += formatLR("PRODUK", state.tagihanType);
+                teksBody += formatLR("ID/VA", state.tagihanId);
+                teksBody += formatLR("NAMA", state.tagihanNama);
+                teksBody += separator;
+                teksBody += formatLR("TAGIHAN", "Rp " + state.tagihanPokok.toLocaleString('id-ID'));
+                teksBody += formatLR("ADMIN", "Rp " + state.biayaAdmin.toLocaleString('id-ID'));
+                teksBody += separator;
+                teksBody += formatLR("TOTAL BAYAR", "Rp " + state.rpBayar.toLocaleString('id-ID'));
+            }
+            
+            addText(teksBody);
+
+            // KHUSUS PLN TOKEN (Tengah & Tebal)
+            if (state.transactionType === 'pln') {
+                addBytes(ALIGN_CENTER);
+                addBytes(BOLD_ON);
+                addText("STROOM / TOKEN\n");
+                addText(state.stroomToken + "\n\n");
+                addBytes(BOLD_OFF);
+            }
+
+            // FOOTER (Tengah & Miring)
+            addBytes(ALIGN_CENTER);
+            addBytes(ITALIC_ON);
+            addText("\nTERIMA KASIH\nSimpan struk ini sebagai bukti\npembayaran yang sah.\n\n\n\n");
+            addBytes(ITALIC_OFF);
+            
+            // Kemas Semua Instruksi (Menghapus const yang membuat error)
+            finalDataByte = new Uint8Array(bytes);
+        } // <-- INI ADALAH KURUNG KURAWAL YANG HILANG SEBELUMNYA
 
         // 2. Eksekusi Pengiriman Web Bluetooth Sama untuk Gambar & Teks
         const btn = document.querySelector('button[onclick="handlePrint()"]');
