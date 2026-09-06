@@ -713,7 +713,7 @@ if (tab === 'home') {
         setTimeout(() => {
             cekAbsensiMinggu();
         }, 1500); 
-    }
+	
     } else if (tab === 'notifikasi') {
         checkAuthBeforeAction(async () => {
             document.getElementById("headerTitle").innerText = "Notifikasi & Kotak Masuk";
