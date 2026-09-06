@@ -849,19 +849,21 @@ if (tab === 'home') {
 
             main.innerHTML = `
                 <div class="space-y-6 pt-2">
-                    <div class="text-center space-y-2">
-                        <div class="w-20 h-20 bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full mx-auto shadow-inner border border-purple-800 overflow-hidden">
-                            ${profileImageHtml}
-                        </div>
-                        <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
-                        
-                        <div class="space-y-3 flex flex-col items-center">
-                            <div>${verifiedBadge}</div>
-                            <div class="w-full text-left">${verificationBanner}</div>
-                        </div>
-                        
-                        <p class="text-xs text-purple-400 font-medium">${user.status_pelayanan || 'Jemaat'}</p>
-                    </div>
+				<div class="text-center space-y-2">
+    				<!-- WADAH FOTO PROFIL DENGAN TOMBOL UPLOAD CEPAT -->
+    				<div class="relative w-20 h-20 mx-auto">
+        				<div onclick="document.getElementById('quickProfileUpload').click()" class="w-full h-full bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full shadow-inner border border-purple-800 overflow-hidden relative group cursor-pointer">
+            				${profileImageHtml}
+            				<!-- Overlay Kamera -->
+            				<div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                				<span class="text-white text-xl">📷</span>
+            				</div>
+        				</div>
+        				<!-- Input File Tersembunyi -->
+        				<input type="file" id="quickProfileUpload" accept="image/*" class="hidden" onchange="prosesGantiFotoCepat(event)">
+    				</div>
+    
+    				<h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
 
                     <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs shadow-sm">
                         <div class="border-b border-slate-800 pb-2"><span class="text-slate-400 block text-[10px]">Username Unik</span><span class="text-purple-300 font-mono font-bold">${user.username || '-'}</span></div>
@@ -2972,4 +2974,81 @@ async function kirimDataAbsen(ibadah, user, tipeKehadiran, toastEl) {
         toastEl.remove();
         showToast("Kesalahan koneksi saat mengirim absen.", "error");
     }
+}
+async function prosesGantiFotoCepat(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    showToast("Memproses gambar...");
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = async function() {
+            // 1. Kompresi Gambar
+            const MAX_WIDTH = 200, MAX_HEIGHT = 200;
+            let width = img.width, height = img.height;
+            if (width > height) {
+                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            } else {
+                if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            const base64Murni = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+            
+            try {
+                showToast("Mengunggah foto ke server...");
+                const imgbbApiKey = "1a837d888693ad38769e982062e82d88"; 
+                const formData = new FormData();
+                formData.append("image", base64Murni);
+                const safeName = window.currentUser.nama_lengkap.replace(/\s+/g, '_');
+                formData.append("name", "Profil_" + safeName);
+
+                // 2. Kirim ke ImgBB
+                const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, { method: "POST", body: formData });
+                const uploadResult = await uploadRes.json();
+
+                if (uploadResult.success) {
+                    const fotoUrlFinal = uploadResult.data.url.replace("i.ibb.co/", "i.ibb.co.com/");
+                    showToast("Menyimpan ke database...");
+                    
+                    // 3. Simpan ke Google Sheets (Menyisipkan data lama agar tidak hilang)
+                    const user = window.currentUser;
+                    const updatedData = {
+                        action: "updateExtendedProfile",
+                        user_id: user.id,
+                        jenis_kelamin: user.jenis_kelamin || "-",
+                        alamat: user.alamat || "-",
+                        pekerjaan: user.pekerjaan || "-",
+                        golongan_darah: user.golongan_darah || "-",
+                        minat_pelayanan: user.minat_pelayanan || "-",
+                        foto_profil: fotoUrlFinal 
+                    };
+
+                    const dbRes = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(updatedData) });
+                    const dbResult = await dbRes.json();
+
+                    if (dbResult.status === "success") {
+                        // 4. Perbarui penyimpanan lokal dan segarkan layar
+                        window.currentUser.foto_profil = fotoUrlFinal;
+                        localStorage.setItem("user_gereja", JSON.stringify(window.currentUser));
+                        showToast("Foto profil berhasil diperbarui!");
+                        setTimeout(() => switchTab('profil', false, true), 800); 
+                    } else {
+                        showToast("Gagal menyimpan ke database.", "error");
+                    }
+                } else {
+                    showToast("Gagal mengunggah gambar.", "error");
+                }
+            } catch (err) {
+                showToast("Koneksi bermasalah.", "error");
+            }
+        };
+    };
+    reader.readAsDataURL(file);
 }
