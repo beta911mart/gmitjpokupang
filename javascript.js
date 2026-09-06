@@ -2920,17 +2920,20 @@ function munculkanToastAbsen(ibadah, user, tipeKehadiran) {
 
     const toast = document.createElement("div");
     toast.id = "realtimeToastBanner";
-    toast.className = "fixed bottom-20 left-1/2 transform -translate-x-1/2 w-11/12 max-w-[340px] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] border border-emerald-500 z-[9999] text-xs flex items-center gap-3 animate-bounce cursor-pointer";
+    
+    // CLASS CSS DIPERBARUI: Menggunakan left-0 right-0 mx-auto untuk rata tengah absolut
+    toast.className = "fixed bottom-20 left-0 right-0 mx-auto w-[92%] max-w-[340px] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] border border-emerald-500 z-[9999] text-xs flex items-center gap-3 animate-bounce cursor-pointer";
     
     const ikon = tipeKehadiran.includes("Offline") ? "📍" : "📺";
 
-    toast.innerHTML = `
-        <span class="text-2xl drop-shadow-md">${ikon}</span>
-        <div class="flex-1 pointer-events-none">
-            <p class="font-bold text-emerald-400">Syalom, Absen Yuk!</p>
-            <p class="text-[10px] text-slate-300 mt-0.5">Kehadiran <b>${ibadah}</b> tercatat via <b>${tipeKehadiran}</b>. Klik untuk konfirmasi.</p>
-        </div>
-    `;
+	toast.innerHTML = `
+        	<span class="text-2xl drop-shadow-md mt-1">${ikon}</span>
+        	<div class="flex-1 pointer-events-none">
+            	<p class="font-bold text-emerald-400">Syalom, Absen Yuk!</p>
+            	<p class="text-[10px] text-slate-200 mt-0.5 leading-snug">Kehadiran <b>${ibadah}</b> tercatat via <b>${tipeKehadiran}</b>. Klik untuk konfirmasi.</p>
+            	<p class="text-[9px] text-emerald-400/70 italic mt-1 leading-tight border-t border-emerald-500/30 pt-1">*Mohon aktifkan dan izinkan akses Lokasi (GPS) pada browser HP Anda agar sistem dapat mendeteksi kehadiran di gereja.</p>
+        	</div>
+    	`;
     
     toast.onclick = () => kirimDataAbsen(ibadah, user, tipeKehadiran, toast);
     document.body.appendChild(toast);
