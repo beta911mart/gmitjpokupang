@@ -148,21 +148,37 @@ if ('serviceWorker' in navigator) {
 function munculkanPopupUpdate() {
     if (document.getElementById('updatePopup')) return;
 
+    // --- UBAH CATATAN INI SETIAP KALI ANDA RILIS VERSI BARU ---
+    const catatanPembaruan = [
+        "Tombol unggah foto profil kilat",
+        "Keterangan waktu pada Pusat Dokumen",
+        "Penyesuaian tata letak banner aplikasi"
+    ];
+
+    // Mengubah array di atas menjadi daftar elemen HTML (list)
+    const listHtml = catatanPembaruan.map(item => 
+        `<li class="flex items-start gap-1.5"><span class="text-indigo-400 mt-0.5">✓</span> <span class="leading-tight">${item}</span></li>`
+    ).join('');
+
     const popup = document.createElement('div');
     popup.id = 'updatePopup';
-    // Muncul melayang dari atas layar
     popup.className = "fixed top-10 left-0 right-0 mx-auto w-[92%] max-w-[340px] bg-indigo-950 p-4 rounded-2xl shadow-[0_10px_30px_rgba(79,70,229,0.5)] border border-indigo-500 z-[99999] flex flex-col gap-3 animate-slide-in";
     
     popup.innerHTML = `
-        <div class="flex items-center gap-3">
-            <span class="text-3xl animate-bounce">🚀</span>
-            <div>
+        <div class="flex items-start gap-3">
+            <span class="text-3xl animate-bounce mt-1">🚀</span>
+            <div class="flex-1">
                 <h4 class="font-bold text-indigo-300 text-sm">Versi Baru Tersedia!</h4>
-                <p class="text-[11px] text-slate-300 mt-0.5 leading-relaxed">Aplikasi telah diperbarui dengan data atau fitur terbaru. Terapkan sekarang?</p>
+                <p class="text-[10px] text-slate-300 mt-0.5 leading-relaxed">Aplikasi JPO telah diperbarui. Berikut yang baru:</p>
+                
+                <!-- Wadah Change Log -->
+                <ul class="text-[10px] text-slate-200 mt-2 space-y-1.5 bg-indigo-900/40 p-2.5 rounded-lg border border-indigo-500/30">
+                    ${listHtml}
+                </ul>
             </div>
         </div>
         <div class="flex gap-2 mt-1">
-            <button onclick="terapkanUpdate()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-xl text-xs font-bold transition duration-300 shadow-md">Perbarui</button>
+            <button onclick="terapkanUpdate()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-xl text-xs font-bold transition duration-300 shadow-md">Terapkan</button>
             <button onclick="document.getElementById('updatePopup').remove()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-semibold transition duration-300 border border-slate-700">Nanti</button>
         </div>
     `;
