@@ -708,6 +708,10 @@ function switchTab(tab, isBack = false, isReplace = false) {
                 </div>
             </div>
         `;
+		setTimeout(() => {
+            cekAbsensiMinggu();
+        }, 1500); // Banner absen akan melompat 1,5 detik setelah beranda terbuka
+    }
     } else if (tab === 'notifikasi') {
         checkAuthBeforeAction(async () => {
             document.getElementById("headerTitle").innerText = "Notifikasi & Kotak Masuk";
@@ -2873,29 +2877,22 @@ function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
 
 function cekAbsensiMinggu() {
     const user = window.currentUser || JSON.parse(localStorage.getItem("user_gereja"));
-    if (!user) return; 
+    if (!user) {
+        showToast("Login terlebih dahulu untuk tes absen.", "error");
+        return; 
+    }
 
-    const now = new Date();
-    if (now.getDay() !== 0) return; 
-
-    const absensiHariIni = localStorage.getItem("absen_minggu_terakhir");
-    if (absensiHariIni === now.toLocaleDateString('id-ID')) return; 
-
-    const hour = now.getHours();
-    let ibadahAktif = "";
-    
-    if (hour >= 5 && hour < 8) ibadahAktif = "Ibadah I (06:00)";
-    else if (hour >= 8 && hour < 11) ibadahAktif = "Ibadah II (08:00)";
-    else if (hour >= 15 && hour < 19) ibadahAktif = "Ibadah Sore (17:00)";
-    else return; 
+    // BYPASS: Kita matikan aturan hari Minggu, jam ibadah, dan riwayat absen
+    let ibadahAktif = "Ibadah Uji Coba (Test Mode)";
 
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition((position) => {
+            // Kalkulasi jarak GPS tetap berjalan agar Anda bisa tes deteksi radius
             const distance = getDistanceFromLatLonInM(position.coords.latitude, position.coords.longitude, CHURCH_LAT, CHURCH_LON);
             const tipeKehadiran = distance <= 100 ? "Offline (Di Gereja)" : "Online (Di Rumah)";
             munculkanToastAbsen(ibadahAktif, user, tipeKehadiran);
         }, (error) => {
-            munculkanToastAbsen(ibadahAktif, user, "Online (Tanpa GPS)");
+            munculkanToastAbsen(ibadahAktif, user, "Online (GPS Ditolak/Mati)");
         });
     } else {
         munculkanToastAbsen(ibadahAktif, user, "Online (Perangkat Lawas)");
