@@ -609,22 +609,30 @@
 
         // --- INIT APP ---
         async function initApp() {
-            try {
-                activeDownloads = await apiGetDownloads();
+            // 1. Langsung hilangkan loader utama dalam 0.3 detik agar UI instan
+            setTimeout(() => {
+                const loader = document.getElementById('globalLoader');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.display = 'none', 500);
+                }
+            }, 300);
+
+            // 2. Tarik data di latar belakang tanpa memblokir layar (Non-blocking)
+            apiGetDownloads().then(data => {
+                activeDownloads = data;
                 renderPublicDownloads();
                 renderAdminDownloads();
+            });
 
-                activeGallery = await apiGetGallery();
+            apiGetGallery().then(data => {
+                activeGallery = data;
                 renderPublicGallery();
                 renderAdminGallery();
-                
-                setTimeout(() => {
-                    document.getElementById('globalLoader').style.opacity = '0';
-                    setTimeout(() => document.getElementById('globalLoader').style.display = 'none', 500);
-                }, 500);
-            } catch (error) {
-                document.getElementById('globalLoader').innerHTML = `<p class="text-rose-600 font-bold">Gagal memuat aplikasi.</p>`;
-            }
+            });
+
+            // Catatan: Data jemaat (apiGetMembers) sengaja tidak dipanggil di sini 
+            // agar lebih ringan. Data baru akan ditarik saat Admin membuka tab "Data Jemaat".
         }
 
         function renderPublicDownloads() {
