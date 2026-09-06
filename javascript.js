@@ -2849,8 +2849,8 @@ function unduhKTJ() {
 }
 
 // --- FITUR ABSENSI MANDIRI ---
-const CHURCH_LAT = -10.167018152232243; 
-const CHURCH_LON = 123.5995364576716; 
+const CHURCH_LAT = -10.166861066758923; 
+const CHURCH_LON = 123.59959948958289; 
 
 function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
     const R = 6371e3; 
