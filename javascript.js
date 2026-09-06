@@ -1927,7 +1927,6 @@ async function openDownloadCenter(isBack = false) {
             <div class="text-center py-8 text-xs text-slate-400 animate-pulse">Memuat data dokumen terbaru...</div>
         </div>
     `;
-
 	try {
         const res = await fetch(SCRIPT_URL, {
             method: "POST",
