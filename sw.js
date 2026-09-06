@@ -1,5 +1,5 @@
 // Naikkan versi untuk memaksa browser memperbarui cache di HP jemaat
-const CACHE_NAME = 'jpo-pwa-v2'; 
+const CACHE_NAME = 'jpo-pwa-v3'; 
 
 // Daftar file yang wajib di-download saat pertama kali buka aplikasi
 const ASSETS_TO_CACHE = [
@@ -20,7 +20,7 @@ self.addEventListener('install', (event) => {
             return cache.addAll(ASSETS_TO_CACHE);
         })
     );
-    self.skipWaiting();
+    // CATATAN: self.skipWaiting() dihapus dari sini agar popup pembaruan bisa muncul
 });
 
 // 2. Mengaktifkan Service Worker & Membersihkan Cache Lama
@@ -48,12 +48,9 @@ self.addEventListener('fetch', (event) => {
     if (!(event.request.url.indexOf('http') === 0)) return;
 
     // A. STRATEGI KHUSUS API (Google Apps Script) -> Jaringan Pertama
-    // Jangan simpan respons dinamis server ke dalam Cache statis
     if (event.request.url.includes('script.google.com')) {
         event.respondWith(
             fetch(event.request).catch(() => {
-                // Beri respons JSON error palsu agar javascript.js tidak crash, 
-                // melainkan memicu blok catch() untuk menarik data localStorage
                 return new Response(JSON.stringify({ status: "error", message: "Offline" }), {
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -65,20 +62,15 @@ self.addEventListener('fetch', (event) => {
     // B. STRATEGI FILE STATIS (HTML, CSS, JS) -> Stale-While-Revalidate
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
-            // Jika file ada di memori HP, tampilkan instan (bisa Offline)
             if (cachedResponse) {
-                // Update cache secara diam-diam di background jika ada sinyal
                 fetch(event.request).then((networkResponse) => {
                     caches.open(CACHE_NAME).then((cache) => {
                         cache.put(event.request, networkResponse.clone());
                     });
-                }).catch(() => {
-                    // Abaikan jika tidak ada sinyal, jemaat tetap melihat UI dari cache
-                });
+                }).catch(() => {});
                 return cachedResponse;
             }
 
-            // Jika belum ada di cache, ambil dari internet lalu simpan
             return fetch(event.request).then((networkResponse) => {
                 return caches.open(CACHE_NAME).then((cache) => {
                     cache.put(event.request, networkResponse.clone());
@@ -89,4 +81,11 @@ self.addEventListener('fetch', (event) => {
             });
         })
     );
+});
+
+// 4. PEMICU UPDATE POPUP: Menerima perintah dari aplikasi untuk menggunakan versi terbaru
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.action === 'skipWaiting') {
+        self.skipWaiting();
+    }
 });
