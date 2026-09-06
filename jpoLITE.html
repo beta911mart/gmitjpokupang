@@ -721,18 +721,21 @@
 
         function renderPublicGallery() {
             const container = document.getElementById('displayGalleryGrid');
+            
+            // Mengubah kontainer dari Grid menjadi Flexbox horizontal yang bisa di-scroll
+            container.className = "flex overflow-x-auto gap-4 pb-6 snap-x hide-scrollbar animate-slide-up";
+            
             if(activeGallery.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center text-slate-500 py-6">Belum ada foto galeri.</div>`;
+                container.innerHTML = `<div class="w-full text-center text-slate-500 py-6">Belum ada foto galeri.</div>`;
                 return;
             }
             
             let html = '';
-            // Batasi maksimal 6 foto terbaru agar halaman tidak terlalu panjang
-            const galeriDibatasi = activeGallery.slice(0, 6);
             
-            galeriDibatasi.forEach(g => {
+            // Menampilkan seluruh foto (tanpa batasan slice)
+            activeGallery.forEach(g => {
                 html += `
-                    <div class="group relative overflow-hidden rounded-xl aspect-[4/3] bg-slate-800">
+                    <div class="group relative overflow-hidden rounded-xl bg-slate-800 shrink-0 w-64 md:w-80 aspect-[4/3] snap-center shadow-lg border border-slate-700">
                         <img src="${g.url}" alt="${g.title}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500" onerror="this.src='https://placehold.co/600x450/1e293b/94a3b8?text=Foto+Galeri'">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                             <p class="font-bold text-sm">${g.title}</p>
