@@ -504,49 +504,107 @@
             document.getElementById('customModal').classList.remove('flex');
         };
 
-        // --- API FUNCTIONS ---
+// --- API FUNCTIONS (SINKRON DENGAN APLIKASI UTAMA) ---
+        
         async function apiGetDownloads() {
             try {
-                const res = await fetch(`${SCRIPT_URL}?action=getDownloads`);
-                if(res.ok) return await res.json();
+                // Di aplikasi utama, Anda memakai metode POST dengan action 'getDaftarDokumen'
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "getDaftarDokumen" })
+                });
+                const result = await res.json();
+                
+                if (result.status === "success" && result.data) {
+                    return result.data.map(d => ({
+                        title: d.judul || 'Dokumen',
+                        subtitle: d.kategori || 'Berkas Gereja',
+                        url: d.url || '#',
+                        icon: "fa-regular fa-file-pdf"
+                    }));
+                }
             } catch(e) { console.log("Gagal tarik unduhan", e); }
-            const local = localStorage.getItem('gmit_lite_downloads');
-            return local ? JSON.parse(local) : DEFAULT_DOWNLOADS;
-        }
-
-        async function apiSaveDownloads(arr) {
-            try { await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "saveDownloads", data: arr }), mode: 'no-cors' }); } catch(e) {}
-            localStorage.setItem('gmit_lite_downloads', JSON.stringify(arr));
+            return DEFAULT_DOWNLOADS;
         }
 
         async function apiGetGallery() {
             try {
+                // Di aplikasi utama, Anda memakai metode GET dengan action 'getGallery'
                 const res = await fetch(`${SCRIPT_URL}?action=getGallery`);
-                if(res.ok) return await res.json();
+                const result = await res.json();
+                
+                if (result.gallery) {
+                    return result.gallery.map(g => ({
+                        title: g.judul || 'Galeri',
+                        url: g.url || '#'
+                    }));
+                }
             } catch(e) { console.log("Gagal tarik galeri", e); }
-            const local = localStorage.getItem('gmit_lite_gallery');
-            return local ? JSON.parse(local) : DEFAULT_GALLERY;
-        }
-
-        async function apiSaveGallery(arr) {
-            try { await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "saveGallery", data: arr }), mode: 'no-cors' }); } catch(e) {}
-            localStorage.setItem('gmit_lite_gallery', JSON.stringify(arr));
+            return DEFAULT_GALLERY;
         }
 
         async function apiGetMembers() {
             try {
-                const res = await fetch(`${SCRIPT_URL}?action=getMembers`);
-                if(res.ok) return await res.json();
+                // Di aplikasi utama, sensus ditarik via 'getAllUsers'
+                const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`);
+                const result = await res.json();
+                let rawData = result.users || result.data || [];
+                
+                let formatted = [];
+                // Menyesuaikan jika format data berbentuk array bersarang (2D)
+                if (Array.isArray(rawData[0])) {
+                    for (let i = 1; i < rawData.length; i++) {
+                        formatted.push({
+                            name: rawData[i][1] || 'Anonim', 
+                            phone: rawData[i][2] || '-',
+                            gender: rawData[i][16] || '-',
+                            birthPlace: rawData[i][3] || '-',
+                            birthDate: rawData[i][4] || '-',
+                            rayon: rawData[i][6] || '-',
+                            isBaptized: "-",
+                            isSidi: "-",
+                            registeredAt: new Date().toISOString()
+                        });
+                    }
+                } else {
+                    // Menyesuaikan jika format JSON Objek biasa
+                    formatted = rawData.map(m => ({
+                        name: m.nama_lengkap || m.nama || '-',
+                        phone: m.no_whatsapp || m.telp || '-',
+                        gender: m.jenis_kelamin || '-',
+                        birthPlace: m.tempat_lahir || '-',
+                        birthDate: m.tanggal_lahir || '-',
+                        rayon: m.rayon || '-',
+                        isBaptized: "-",
+                        isSidi: "-",
+                        registeredAt: new Date().toISOString()
+                    }));
+                }
+                return formatted;
             } catch(e) { console.log("Gagal tarik jemaat", e); }
-            const local = localStorage.getItem('gmit_lite_members');
-            return local ? JSON.parse(local) : [];
+            return [];
+        }
+
+        async function apiSaveDownloads(arr) {
+            try { await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "saveDownloads", data: arr }), mode: 'no-cors' }); } catch(e) {}
+        }
+
+        async function apiSaveGallery(arr) {
+            try { await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "saveGallery", data: arr }), mode: 'no-cors' }); } catch(e) {}
         }
 
         async function apiAddMember(memberData) {
-            try { await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "addMember", data: memberData }), mode: 'no-cors' }); } catch(e) {}
-            const members = await apiGetMembers();
-            members.push(memberData);
-            localStorage.setItem('gmit_lite_members', JSON.stringify(members));
+            try { 
+                // Di aplikasi utama, daftar baru pakai action 'register'
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: "register", 
+                        nama_lengkap: memberData.name, 
+                        no_whatsapp: memberData.phone 
+                    }) 
+                }); 
+            } catch(e) {}
         }
 
         // --- INIT APP ---
