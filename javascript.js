@@ -915,23 +915,32 @@ if (tab === 'home') {
                    </div>`
                 : '';
 
-            main.innerHTML = `
+			main.innerHTML = `
                 <div class="space-y-6 pt-2">
-				<div class="text-center space-y-2">
-    				<!-- WADAH FOTO PROFIL DENGAN TOMBOL UPLOAD CEPAT -->
-    				<div class="relative w-20 h-20 mx-auto">
-        				<div onclick="document.getElementById('quickProfileUpload').click()" class="w-full h-full bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full shadow-inner border border-purple-800 overflow-hidden relative group cursor-pointer">
-            				${profileImageHtml}
-            				<!-- Overlay Kamera -->
-            				<div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                				<span class="text-white text-xl">📷</span>
-            				</div>
-        				</div>
-        				<!-- Input File Tersembunyi -->
-        				<input type="file" id="quickProfileUpload" accept="image/*" class="hidden" onchange="prosesGantiFotoCepat(event)">
-    				</div>
-    
-    				<h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
+                    <div class="text-center space-y-2">
+                        <!-- WADAH FOTO PROFIL DENGAN TOMBOL UPLOAD CEPAT -->
+                        <div class="relative w-20 h-20 mx-auto">
+                            <div onclick="document.getElementById('quickProfileUpload').click()" class="w-full h-full bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full shadow-inner border border-purple-800 overflow-hidden relative group cursor-pointer">
+                                ${profileImageHtml}
+                                <!-- Overlay Kamera -->
+                                <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                    <span class="text-white text-xl">📷</span>
+                                </div>
+                            </div>
+                            <!-- Input File Tersembunyi -->
+                            <input type="file" id="quickProfileUpload" accept="image/*" class="hidden" onchange="prosesGantiFotoCepat(event)">
+                        </div>
+        
+                        <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
+                        
+                        <!-- LENCANA VERIFIKASI & STATUS (DIKEMBALIKAN) -->
+                        <div class="space-y-3 flex flex-col items-center">
+                            <div>${verifiedBadge}</div>
+                            <div class="w-full text-left">${verificationBanner}</div>
+                        </div>
+                        
+                        <p class="text-xs text-purple-400 font-medium">${user.status_pelayanan || 'Jemaat'}</p>
+                    </div>
 
                     <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs shadow-sm">
                         <div class="border-b border-slate-800 pb-2"><span class="text-slate-400 block text-[10px]">Username Unik</span><span class="text-purple-300 font-mono font-bold">${user.username || '-'}</span></div>
