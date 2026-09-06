@@ -1928,7 +1928,7 @@ async function openDownloadCenter(isBack = false) {
         </div>
     `;
 
-    try {
+	try {
         const res = await fetch(SCRIPT_URL, {
             method: "POST",
             body: JSON.stringify({ action: "getDaftarDokumen" })
@@ -1950,11 +1950,16 @@ async function openDownloadCenter(isBack = false) {
         `;
 
         if (wartaDok) {
+            // Membaca kolom tanggal/timestamp dan memformatnya
+            const dateStr = wartaDok.tanggal || wartaDok.timestamp;
+            const tglText = dateStr ? new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Terbaru';
+            
             htmlContent += `
                 <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover">
                     <div class="space-y-1">
                         <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded font-semibold">Warta Jemaat</span>
                         <h4 class="text-xs font-bold text-white">${wartaDok.judul || 'Warta Jemaat'}</h4>
+                        <p class="text-[9px] text-slate-400">Diperbarui: ${tglText}</p>
                     </div>
                     <a href="${wartaDok.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-500">Lihat / Unduh</a>
                 </div>
@@ -1962,11 +1967,15 @@ async function openDownloadCenter(isBack = false) {
         }
 
         if (liturgiDok) {
+            const dateStr = liturgiDok.tanggal || liturgiDok.timestamp;
+            const tglText = dateStr ? new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Terbaru';
+            
             htmlContent += `
                 <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover">
                     <div class="space-y-1">
                         <span class="bg-emerald-900/60 text-emerald-300 text-[10px] px-2 py-0.5 rounded font-semibold">Lembar Liturgi</span>
                         <h4 class="text-xs font-bold text-white">${liturgiDok.judul || 'Lembar Liturgi'}</h4>
+                        <p class="text-[9px] text-slate-400">Diperbarui: ${tglText}</p>
                     </div>
                     <a href="${liturgiDok.url}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-500">Lihat / Unduh</a>
                 </div>
@@ -1974,11 +1983,15 @@ async function openDownloadCenter(isBack = false) {
         }
 
         dokumenLainnya.forEach(doc => {
+            const dateStr = doc.tanggal || doc.timestamp;
+            const tglText = dateStr ? new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Terbaru';
+            
             htmlContent += `
                 <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover">
-                    <div>
+                    <div class="space-y-1">
                         <span class="bg-emerald-900/60 text-emerald-300 text-[10px] px-2 py-0.5 rounded font-semibold">${doc.kategori || 'Dokumen'}</span>
                         <h5 class="text-xs font-bold text-white">${doc.judul || 'Tanpa Judul'}</h5>
+                        <p class="text-[9px] text-slate-400">Diperbarui: ${tglText}</p>
                     </div>
                     <a href="${doc.url}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-purple-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition duration-500">Unduh</a>
                 </div>
@@ -1990,7 +2003,6 @@ async function openDownloadCenter(isBack = false) {
     } catch (err) {
         main.innerHTML = `<p class="text-xs text-rose-400 text-center py-10">Gagal memuat dokumen.</p>`;
     }
-}
 
 function previewImage(event) {
     const file = event.target.files[0];
