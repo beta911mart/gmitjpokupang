@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Gereja GMIT</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    },
+                    colors: {
+                        church: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                            gold: '#fbbf24',
+                            accent: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-slide-up { animation: slideUp 0.5s ease-out forwards; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .page-view { display: none; }
+        .page-view.active { display: block; animation: fadeIn 0.4s ease-out; }
+        
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #0284c7;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        pre { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.875rem; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased flex flex-col min-h-screen">
+
+    <nav class="bg-church-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
+                    <div class="bg-white/10 p-2 rounded-lg">
+                        <i class="fa-solid fa-church text-church-gold text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 id="navChurchName" class="font-bold text-lg leading-tight uppercase tracking-wide">GMIT Jemaat</h1>
+                        <p class="text-[10px] text-slate-300">Sistem Informasi Digital</p>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-1">
+                    <button onclick="navigateTo('home')" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-church-700 transition">Beranda</button>
+                    <button onclick="navigateTo('register')" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-church-700 transition">Pendataan Jemaat</button>
+                    <button onclick="showAdminLogin()" class="ml-4 px-4 py-2 rounded-full text-sm font-bold bg-church-gold text-church-900 hover:bg-yellow-400 transition shadow-md flex items-center gap-2">
+                        <i class="fa-solid fa-user-shield"></i> Panel Majelis
+                    </button>
+                </div>
+
+                <div class="flex items-center md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-slate-200 hover:text-white focus:outline-none p-2 rounded-md hover:bg-church-700">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mobileMenu" class="hidden md:hidden bg-church-800 border-t border-church-700 pb-4 pt-2 px-4 space-y-2 shadow-inner">
+            <button onclick="navigateTo('home'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 rounded-lg text-base font-medium hover:bg-church-700 bg-church-900/50">Beranda</button>
+            <button onclick="navigateTo('register'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 rounded-lg text-base font-medium hover:bg-church-700 bg-church-900/50">Pendataan Jemaat</button>
+            <button onclick="showAdminLogin(); toggleMobileMenu()" class="block w-full text-center px-4 py-3 mt-4 rounded-lg text-base font-bold text-church-900 bg-church-gold shadow-md">
+                <i class="fa-solid fa-user-shield mr-2"></i> Panel Majelis
+            </button>
+        </div>
+    </nav>
+
+    <div id="globalLoader" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="loader mb-4" style="width: 50px; height: 50px; border-width: 4px;"></div>
+        <p class="text-church-900 font-bold tracking-wide animate-pulse">Menghubungkan Database...</p>
+        <p class="text-xs text-slate-500 mt-2">Menyiapkan sistem webapp</p>
+    </div>
+
+    <main class="flex-grow">
+        
+        <div id="view-home" class="page-view active">
+            <div class="relative bg-church-900 text-white py-20 lg:py-28 overflow-hidden">
+                <div class="absolute inset-0 opacity-10">
+                    <svg class="h-full w-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1463 360">
+                        <path class="text-white" fill="currentColor" d="M-82.673 72l1761.849 472.086-134.327 501.315-1761.85-472.086z" />
+                        <path class="text-church-500" fill="currentColor" d="M-217.088 544.086L1544.761 72l134.327 501.316-1761.849 472.086z" />
+                    </svg>
+                </div>
+                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-slide-up">
+                    <span class="inline-block py-1 px-3 rounded-full bg-church-800 text-church-100 text-sm font-semibold mb-6 border border-church-700">
+                        Selamat Datang di Website Resmi
+                    </span>
+                    <h1 id="displayChurchName" class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 uppercase font-serif drop-shadow-md">
+                        Gereja Masehi Injili di Timor
+                    </h1>
+                    <p id="displayChurchSubtitle" class="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-10 font-light leading-relaxed">
+                        Mewujudkan jemaat yang misioner, mandiri, dan menjadi berkat bagi sesama.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <button onclick="navigateTo('register')" class="bg-church-gold hover:bg-yellow-400 text-church-900 font-bold py-3.5 px-8 rounded-full shadow-lg transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-file-signature"></i> Pendaftaran Jemaat
+                        </button>
+                        <a href="#info-section" class="bg-church-800 hover:bg-church-700 text-white font-medium py-3.5 px-8 rounded-full shadow border border-church-700 transition flex items-center justify-center gap-2">
+                            Lihat Warta Jemaat <i class="fa-solid fa-arrow-down"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div id="info-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-6 animate-slide-up" style="animation-delay: 0.1s;">
+                        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200">
+                            <div class="flex items-center gap-3 mb-4 text-church-600 border-b border-slate-100 pb-4">
+                                <div class="bg-church-50 p-3 rounded-lg"><i class="fa-solid fa-eye text-xl"></i></div>
+                                <h2 class="text-2xl font-bold font-serif text-slate-800">Visi Pelayanan</h2>
+                            </div>
+                            <p id="displayVision" class="text-slate-600 leading-relaxed whitespace-pre-line text-lg italic">Memuat visi...</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200">
+                            <div class="flex items-center gap-3 mb-4 text-church-600 border-b border-slate-100 pb-4">
+                                <div class="bg-church-50 p-3 rounded-lg"><i class="fa-solid fa-bullseye text-xl"></i></div>
+                                <h2 class="text-2xl font-bold font-serif text-slate-800">Misi Pelayanan</h2>
+                            </div>
+                            <p id="displayMission" class="text-slate-600 leading-relaxed whitespace-pre-line">Memuat misi...</p>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-1 animate-slide-up" style="animation-delay: 0.2s;">
+                        <div class="bg-gradient-to-b from-church-50 to-white rounded-2xl p-6 border border-church-100 h-full shadow-sm relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-24 h-24 bg-church-100 rounded-bl-full -z-10 opacity-50"></div>
+                            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-church-200">
+                                <div class="bg-church-600 text-white p-2.5 rounded-lg shadow-md">
+                                    <i class="fa-solid fa-newspaper"></i>
+                                </div>
+                                <h2 class="text-xl font-bold text-church-900">Warta Jemaat</h2>
+                            </div>
+                            <div id="displayAnnouncements" class="text-slate-700 text-sm leading-relaxed whitespace-pre-line space-y-4">
+                                <div class="flex items-center justify-center py-10"><div class="loader"></div></div>
+                            </div>
+                            <div class="mt-8 pt-4 border-t border-slate-100 text-center">
+                                <p class="text-xs text-slate-400"><i class="fa-regular fa-clock"></i> Diperbarui berkala oleh Majelis Jemaat</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="download-section" class="bg-slate-100 py-16 border-t border-slate-200">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-10 animate-slide-up">
+                        <span class="bg-church-200 text-church-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Materi & Berkas</span>
+                        <h2 class="text-3xl font-bold font-serif text-church-900 mt-3">Pusat Unduhan</h2>
+                        <p class="text-slate-500 mt-2">Dapatkan warta jemaat, tata ibadah, dan dokumen penting lainnya.</p>
+                    </div>
+                    
+                    <div id="displayDownloadsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up" style="animation-delay: 0.1s;">
+                        <div class="col-span-full text-center py-6 text-slate-400"><div class="loader mx-auto"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="about-section" class="py-16 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        <div class="animate-slide-up">
+                            <h2 class="text-3xl font-bold font-serif text-church-900 mb-6">Tentang Gereja</h2>
+                            
+                            <div class="space-y-6 mb-8">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 bg-church-50 text-church-600 rounded-lg flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-location-dot"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-800">Alamat Lengkap</h4>
+                                        <p id="displayAddress" class="text-slate-600 text-sm mt-1 leading-relaxed">Memuat alamat...</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 bg-church-50 text-church-600 rounded-lg flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-phone"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-800">Nomor Telepon / Kontak</h4>
+                                        <p id="displayPhone" class="text-slate-600 text-sm mt-1">Memuat kontak...</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 bg-church-50 text-church-600 rounded-lg flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-envelope"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-800">Email</h4>
+                                        <p id="displayEmail" class="text-slate-600 text-sm mt-1">Memuat email...</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-xl overflow-hidden shadow-md border border-slate-200 h-64 bg-slate-100 relative">
+                                <div class="absolute inset-0 flex items-center justify-center text-slate-400 z-0"><i class="fa-solid fa-map-location-dot text-4xl"></i></div>
+                                <iframe id="displayMaps" src="about:blank" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="relative z-10"></iframe>
+                            </div>
+                        </div>
+
+                        <div class="animate-slide-up" style="animation-delay: 0.1s;">
+                            <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200 h-full">
+                                <h3 class="text-2xl font-bold font-serif text-church-900 mb-6 flex items-center gap-3">
+                                    <i class="fa-solid fa-users-rectangle text-church-600"></i> Pelayan Firman
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                                        <div class="w-12 h-12 bg-church-100 text-church-700 rounded-full flex items-center justify-center text-lg font-bold">1</div>
+                                        <div>
+                                            <h4 id="displayPastor1" class="font-bold text-slate-800 text-lg">Memuat...</h4>
+                                            <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Ketua Majelis Jemaat</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                                        <div class="w-12 h-12 bg-church-100 text-church-700 rounded-full flex items-center justify-center text-lg font-bold">2</div>
+                                        <div>
+                                            <h4 id="displayPastor2" class="font-bold text-slate-800 text-lg">Memuat...</h4>
+                                            <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Pendeta Jemaat</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                                        <div class="w-12 h-12 bg-church-100 text-church-700 rounded-full flex items-center justify-center text-lg font-bold">3</div>
+                                        <div>
+                                            <h4 id="displayPastor3" class="font-bold text-slate-800 text-lg">Memuat...</h4>
+                                            <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Pendeta Jemaat</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                                        <div class="w-12 h-12 bg-church-100 text-church-700 rounded-full flex items-center justify-center text-lg font-bold">4</div>
+                                        <div>
+                                            <h4 id="displayPastor4" class="font-bold text-slate-800 text-lg">Memuat...</h4>
+                                            <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Pendeta Jemaat</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="gallery-section" class="py-16 bg-slate-900 text-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-10 animate-slide-up">
+                        <h2 class="text-3xl font-bold font-serif text-white mb-2">Galeri Kegiatan</h2>
+                        <p class="text-slate-400">Potret kebersamaan dan pelayanan jemaat.</p>
+                    </div>
+                    
+                    <div id="displayGalleryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4 animate-slide-up" style="animation-delay: 0.1s;">
+                        <div class="col-span-full text-center py-6 text-slate-500"><div class="loader mx-auto"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-register" class="page-view py-12 px-4 bg-slate-100 min-h-screen">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-8 animate-slide-up">
+                    <span class="bg-church-200 text-church-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Formulir Sensus</span>
+                    <h2 class="text-3xl font-bold text-church-900 font-serif mt-3 mb-2">Pendataan Jemaat GMIT</h2>
+                    <p class="text-slate-500">Silakan lengkapi data dengan benar sesuai KTP/KK untuk keperluan administrasi gereja.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 md:p-10 animate-slide-up" style="animation-delay: 0.1s;">
+                    <form id="registrationForm" onsubmit="handleRegistration(event)" class="space-y-6">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <h3 class="text-sm font-bold text-church-700 mb-4 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-id-card"></i> Data Pribadi</h3>
+                            <div class="space-y-5">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Nama Lengkap *</label>
+                                    <input type="text" id="regName" required class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 focus:ring-2 focus:ring-church-200 outline-none transition" placeholder="Sesuai KTP/KK">
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Tempat Lahir *</label>
+                                        <input type="text" id="regBirthPlace" required class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 focus:ring-2 focus:ring-church-200 outline-none transition" placeholder="Kota/Kabupaten">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Tanggal Lahir *</label>
+                                        <input type="date" id="regBirthDate" required class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 focus:ring-2 focus:ring-church-200 outline-none transition">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Jenis Kelamin *</label>
+                                        <select id="regGender" required class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 focus:ring-2 focus:ring-church-200 outline-none transition bg-white">
+                                            <option value="">-- Pilih --</option>
+                                            <option value="Laki-laki">Laki-laki</option>
+                                            <option value="Perempuan">Perempuan</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Rayon / KUB *</label>
+                                        <select id="regRayon" required class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 focus:ring-2 focus:ring-church-200 outline-none transition bg-white">
+                                            <option value="">-- Pilih Rayon --</option>
+                                            <option value="Rayon 1">Rayon 1</option>
+                                            <option value="Rayon 2">Rayon 2</option>
+                                            <option value="Rayon 3">Rayon 3</option>
+                                            <option value="Rayon 4">Rayon 4</option>
+                                            <option value="Rayon 5">Rayon 5</option>
+                                            <option value="Rayon 6">Rayon 6</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <h3 class="text-sm font-bold text-church-700 mb-4 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-map-location-dot"></i> Kontak & Alamat</h3>
+                            <div class="space-y-5">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1.5">No. Telepon / WhatsApp</label>
+                                    <input type="tel" id="regPhone" class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 focus:ring-2 focus:ring-church-200 outline-none transition" placeholder="Misal: 08123456789">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Alamat Domisili Lengkap *</label>
+                                    <textarea id="regAddress" required rows="3" class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 focus:ring-2 focus:ring-church-200 outline-none transition" placeholder="Nama Jalan, RT/RW, Kelurahan..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <h3 class="text-sm font-bold text-church-700 mb-4 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-cross"></i> Status Sakramen</h3>
+                            <div class="flex flex-col sm:flex-row gap-6 bg-white p-4 rounded-lg border border-slate-200">
+                                <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded transition w-full">
+                                    <input type="checkbox" id="regBaptis" class="w-5 h-5 rounded text-church-600 focus:ring-church-500 border-gray-300">
+                                    <span class="text-sm font-medium text-slate-700">Sudah Dibaptis</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded transition w-full">
+                                    <input type="checkbox" id="regSidi" class="w-5 h-5 rounded text-church-600 focus:ring-church-500 border-gray-300">
+                                    <span class="text-sm font-medium text-slate-700">Sudah Sidi</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="pt-6">
+                            <button type="submit" id="btnSubmitReg" class="w-full flex justify-center items-center gap-3 bg-church-600 hover:bg-church-700 text-white font-bold py-4 px-4 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 text-lg">
+                                <span>Kirim Data Jemaat</span>
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-admin" class="page-view bg-slate-100 min-h-[calc(100vh-64px)] pb-12">
+            <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-40">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex overflow-x-auto py-3 gap-2 hide-scrollbar items-center">
+                        <button onclick="switchAdminTab('cms')" id="tabBtn-cms" class="admin-tab-btn whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold bg-church-600 text-white shadow transition">
+                            <i class="fa-solid fa-pen-to-square mr-1"></i> Edit Konten Web
+                        </button>
+                        <button onclick="switchAdminTab('downloads')" id="tabBtn-downloads" class="admin-tab-btn whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 transition">
+                            <i class="fa-solid fa-download mr-1"></i> Kelola Unduhan
+                        </button>
+                        <button onclick="switchAdminTab('gallery')" id="tabBtn-gallery" class="admin-tab-btn whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 transition">
+                            <i class="fa-solid fa-images mr-1"></i> Kelola Galeri
+                        </button>
+                        <button onclick="switchAdminTab('data')" id="tabBtn-data" class="admin-tab-btn whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 transition">
+                            <i class="fa-solid fa-users mr-1"></i> Data Jemaat
+                        </button>
+                        <button onclick="switchAdminTab('setup')" id="tabBtn-setup" class="admin-tab-btn whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 transition">
+                            <i class="fa-solid fa-database mr-1"></i> Setup G-Sheet
+                        </button>
+                        <div class="flex-grow"></div>
+                        <button onclick="logoutAdmin()" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+                
+                <!-- TAB 1: CMS (Edit Web) -->
+                <div id="adminTab-cms" class="admin-tab-content bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 animate-fade-in">
+                    <div class="mb-8 border-b border-slate-100 pb-4">
+                        <h2 class="text-2xl font-bold text-slate-800">Panel Pengelola Konten (CMS)</h2>
+                        <p class="text-sm text-slate-500 mt-1">Ubah teks informasi gereja secara langsung.</p>
+                    </div>
+
+                    <form id="cmsForm" onsubmit="handleCMSUpdate(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Nama Gereja</label>
+                                <input type="text" id="cmsChurchName" required class="w-full rounded-lg border-slate-300 border px-4 py-3 focus:border-church-500 focus:ring-2 outline-none font-medium bg-slate-50">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Sub-judul / Tagline Beranda</label>
+                                <input type="text" id="cmsSubtitle" required class="w-full rounded-lg border-slate-300 border px-4 py-3 focus:border-church-500 focus:ring-2 outline-none bg-slate-50">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Visi Gereja</label>
+                                <textarea id="cmsVision" rows="4" required class="w-full rounded-lg border-slate-300 border px-4 py-3 focus:border-church-500 focus:ring-2 outline-none bg-slate-50"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Misi Gereja</label>
+                                <textarea id="cmsMission" rows="4" required class="w-full rounded-lg border-slate-300 border px-4 py-3 focus:border-church-500 focus:ring-2 outline-none bg-slate-50"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-200">
+                            <h3 class="font-bold text-lg text-church-900 mb-4">Informasi Kontak & Lokasi</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Nomor Telepon</label>
+                                        <input type="text" id="cmsPhone" required class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 outline-none bg-slate-50">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Email Gereja</label>
+                                        <input type="email" id="cmsEmail" required class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 outline-none bg-slate-50">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">URL Google Maps (Src Embed)</label>
+                                        <input type="url" id="cmsMaps" placeholder="https://www.google.com/maps/embed?pb=..." required class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 outline-none bg-slate-50 text-xs">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Alamat Lengkap</label>
+                                    <textarea id="cmsAddress" rows="7" required class="w-full rounded-lg border-slate-300 border px-4 py-3 focus:border-church-500 outline-none bg-slate-50"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-200">
+                            <h3 class="font-bold text-lg text-church-900 mb-4">Daftar Pelayan Firman / Pendeta</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">1. Ketua Majelis Jemaat (KMJ)</label>
+                                    <input type="text" id="cmsPastor1" required class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 outline-none bg-slate-50">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">2. Pendeta Jemaat</label>
+                                    <input type="text" id="cmsPastor2" class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 outline-none bg-slate-50">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">3. Pendeta Jemaat</label>
+                                    <input type="text" id="cmsPastor3" class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 outline-none bg-slate-50">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">4. Pendeta Jemaat</label>
+                                    <input type="text" id="cmsPastor4" class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 outline-none bg-slate-50">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Warta Jemaat (Pengumuman)</label>
+                            <textarea id="cmsAnnouncements" rows="8" required class="w-full rounded-lg border-slate-300 border px-4 py-3 focus:border-church-500 focus:ring-2 outline-none bg-slate-50 font-mono text-sm leading-relaxed"></textarea>
+                        </div>
+
+                        <div class="pt-4 flex justify-end">
+                            <button type="submit" id="btnSaveCms" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition flex items-center gap-2">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Publikasikan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- TAB 2: Kelola Unduhan -->
+                <div id="adminTab-downloads" class="admin-tab-content hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 animate-fade-in space-y-8">
+                    <div class="border-b border-slate-100 pb-4">
+                        <h2 class="text-2xl font-bold text-slate-800">Pusat Kelola Berkas Unduhan</h2>
+                        <p class="text-sm text-slate-500 mt-1">Tambah, edit judul, atau ganti tautan unduhan dokumen gereja.</p>
+                    </div>
+
+                    <form id="downloadForm" onsubmit="handleDownloadSubmit(event)" class="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4">
+                        <h3 class="font-bold text-church-900 text-sm"><i class="fa-solid fa-plus-circle mr-1"></i> Form Berkas Baru / Edit</h3>
+                        <input type="hidden" id="dlEditIndex" value="-1">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Judul Berkas</label>
+                                <input type="text" id="dlTitle" required placeholder="Contoh: Warta Jemaat" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white outline-none focus:border-church-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Sub-judul / Keterangan</label>
+                                <input type="text" id="dlSubtitle" required placeholder="Contoh: Edisi Minggu Ini" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white outline-none focus:border-church-500">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Tautan URL Berkas (Google Drive / Link Unduh)</label>
+                                <input type="url" id="dlUrl" required placeholder="https://..." class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white outline-none focus:border-church-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Ikon</label>
+                                <select id="dlIcon" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white outline-none focus:border-church-500">
+                                    <option value="fa-regular fa-file-pdf">📄 Dokumen PDF</option>
+                                    <option value="fa-solid fa-book-bible">📖 Buku / Liturgi</option>
+                                    <option value="fa-regular fa-file-word">📝 Dokumen Word</option>
+                                    <option value="fa-solid fa-file-lines">📊 Catatan / Laporan</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button type="button" onclick="resetDownloadForm()" class="px-4 py-2 text-xs bg-slate-200 text-slate-700 rounded-lg font-bold">Batal / Reset</button>
+                            <button type="submit" id="btnSaveDownload" class="px-5 py-2 text-xs bg-church-600 hover:bg-church-700 text-white rounded-lg font-bold shadow">Simpan Berkas</button>
+                        </div>
+                    </form>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="min-w-full divide-y divide-slate-200 text-sm">
+                            <thead class="bg-slate-50 text-xs font-bold text-slate-500 uppercase">
+                                <tr>
+                                    <th class="px-4 py-3 text-left">Berkas</th>
+                                    <th class="px-4 py-3 text-left">URL Tautan</th>
+                                    <th class="px-4 py-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminDownloadsList" class="bg-white divide-y divide-slate-200">
+                                <!-- Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 3: Kelola Galeri (Dukungan Google Photos/Drive) -->
+                <div id="adminTab-gallery" class="admin-tab-content hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 animate-fade-in space-y-8">
+                    <div class="border-b border-slate-100 pb-4">
+                        <h2 class="text-2xl font-bold text-slate-800">Kelola Galeri Foto (Google Photos / Drive)</h2>
+                        <p class="text-sm text-slate-500 mt-1">Tempelkan link gambar langsung (Direct Image Link / Preview URL dari Google Drive / Google Photos) untuk memperbarui galeri gereja.</p>
+                    </div>
+
+                    <form id="galleryForm" onsubmit="handleGallerySubmit(event)" class="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4">
+                        <h3 class="font-bold text-church-900 text-sm"><i class="fa-solid fa-plus-circle mr-1"></i> Tambah Foto Galeri Baru</h3>
+                        <input type="hidden" id="galEditIndex" value="-1">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Judul / Keterangan Foto</label>
+                                <input type="text" id="galTitle" required placeholder="Contoh: Ibadah Syukur Rayon" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white outline-none focus:border-church-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Link Gambar (URL Preview / Direct Link)</label>
+                                <input type="url" id="galUrl" required placeholder="https://lh3.googleusercontent.com/... atau https://..." class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white outline-none focus:border-church-500">
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button type="button" onclick="resetGalleryForm()" class="px-4 py-2 text-xs bg-slate-200 text-slate-700 rounded-lg font-bold">Batal</button>
+                            <button type="submit" id="btnSaveGallery" class="px-5 py-2 text-xs bg-church-600 hover:bg-church-700 text-white rounded-lg font-bold shadow">Simpan Foto</button>
+                        </div>
+                    </form>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="min-w-full divide-y divide-slate-200 text-sm">
+                            <thead class="bg-slate-50 text-xs font-bold text-slate-500 uppercase">
+                                <tr>
+                                    <th class="px-4 py-3 text-left">Preview</th>
+                                    <th class="px-4 py-3 text-left">Keterangan</th>
+                                    <th class="px-4 py-3 text-left">URL Gambar</th>
+                                    <th class="px-4 py-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminGalleryList" class="bg-white divide-y divide-slate-200">
+                                <!-- Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 4: Data Jemaat -->
+                <div id="adminTab-data" class="admin-tab-content hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 animate-fade-in">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 border-b border-slate-100 pb-4 gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">Data Jemaat Terdaftar</h2>
+                            <p class="text-sm text-slate-500 mt-1">Data ditarik dari Database Google Sheet.</p>
+                        </div>
+                        <button onclick="loadMembersData()" class="bg-church-50 text-church-700 border border-church-200 hover:bg-church-100 px-4 py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-sync"></i> Refresh Data
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                        <table class="min-w-full divide-y divide-slate-200">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Nama & Kontak</th>
+                                    <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">L/P</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">TTL</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Rayon</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Sakramen</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Tanggal Daftar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="membersTableBody" class="bg-white divide-y divide-slate-200 text-sm">
+                                <tr><td colspan="6" class="px-6 py-12 text-center text-slate-500"><div class="loader mx-auto"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 5: Setup Google Sheet -->
+                <div id="adminTab-setup" class="admin-tab-content hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 animate-fade-in">
+                    <div class="mb-6 border-b border-slate-100 pb-4">
+                        <h2 class="text-2xl font-bold text-slate-800">Integrasi Google Sheet Database</h2>
+                        <p class="text-sm text-slate-500 mt-1">Panduan menghubungkan WebApp ini dengan Google Sheets.</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-amber-50 p-5 rounded-xl border border-amber-200">
+                            <label class="block text-sm font-bold text-amber-900 mb-2">1. Masukkan URL Web App Google Apps Script Anda:</label>
+                            <div class="flex gap-2">
+                                <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full rounded-lg border-amber-300 border px-4 py-2.5 focus:border-amber-500 outline-none">
+                                <button onclick="saveGasUrl()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2.5 rounded-lg shadow transition whitespace-nowrap">Simpan URL</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                            <h3 class="font-bold text-slate-800 mb-3">2. Buat sheet baru bernama "Downloads" dan "Gallery" di Google Sheet Anda, lalu perbarui kode Apps Script:</h3>
+                            <div class="relative">
+                                <button onclick="copyGasCode()" class="absolute top-2 right-2 bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1 rounded transition">Copy Kode</button>
+                                <pre id="gasCodeBlock" class="text-xs">
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet();
+  var action = e.parameter.action;
+  var output = ContentService.createTextOutput();
+  output.setMimeType(ContentService.MimeType.JSON);
+  
+  if (action == "getContent") {
+    var contentSheet = sheet.getSheetByName("Content");
+    if(!contentSheet) return output.setContent(JSON.stringify({error: "Sheet 'Content' not found"}));
+    var data = contentSheet.getDataRange().getValues();
+    var result = {
+      churchName: data[1][0] || "", subtitle: data[1][1] || "", vision: data[1][2] || "",
+      mission: data[1][3] || "", announcements: data[1][4] || "", address: data[1][5] || "",
+      phone: data[1][6] || "", email: data[1][7] || "", mapsUrl: data[1][8] || "",
+      pastor1: data[1][9] || "", pastor2: data[1][10] || "", pastor3: data[1][11] || "", pastor4: data[1][12] || ""
+    };
+    return output.setContent(JSON.stringify(result));
+  }
+  if (action == "getDownloads") {
+    var s = sheet.getSheetByName("Downloads");
+    if(!s) return output.setContent(JSON.stringify([]));
+    var data = s.getDataRange().getValues();
+    var res = [];
+    for(var i=1; i<data.length; i++) {
+      if(data[i][0]) res.push({title: data[i][0], subtitle: data[i][1], url: data[i][2], icon: data[i][3]});
+    }
+    return output.setContent(JSON.stringify(res));
+  }
+  if (action == "getGallery") {
+    var s = sheet.getSheetByName("Gallery");
+    if(!s) return output.setContent(JSON.stringify([]));
+    var data = s.getDataRange().getValues();
+    var res = [];
+    for(var i=1; i<data.length; i++) {
+      if(data[i][0]) res.push({title: data[i][0], url: data[i][1]});
+    }
+    return output.setContent(JSON.stringify(res));
+  }
+  if (action == "getMembers") {
+    var s = sheet.getSheetByName("Members");
+    if(!s) return output.setContent(JSON.stringify([]));
+    var data = s.getDataRange().getValues();
+    var res = [];
+    for(var i=1; i<data.length; i++) {
+      res.push({
+        name: data[i][0], birthPlace: data[i][1], birthDate: data[i][2],
+        gender: data[i][3], rayon: data[i][4], phone: data[i][5],
+        address: data[i][6], isBaptized: data[i][7], isSidi: data[i][8], registeredAt: data[i][9]
+      });
+    }
+    return output.setContent(JSON.stringify(res));
+  }
+}
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet();
+  var payload = JSON.parse(e.postData.contents);
+  var action = payload.action;
+  if(action == "saveContent") {
+    var cs = sheet.getSheetByName("Content");
+    var headers = ["churchName", "subtitle", "vision", "mission", "announcements", "address", "phone", "email", "mapsUrl", "pastor1", "pastor2", "pastor3", "pastor4"];
+    var vals = [payload.data.churchName, payload.data.subtitle, payload.data.vision, payload.data.mission, payload.data.announcements, payload.data.address, payload.data.phone, payload.data.email, payload.data.mapsUrl, payload.data.pastor1, payload.data.pastor2, payload.data.pastor3, payload.data.pastor4];
+    cs.clear(); cs.getRange(1, 1, 1, 13).setValues([headers]); cs.getRange(2, 1, 1, 13).setValues([vals]);
+  } else if(action == "saveDownloads") {
+    var ds = sheet.getSheetByName("Downloads");
+    ds.clear(); ds.appendRow(["Title", "Subtitle", "URL", "Icon"]);
+    var arr = payload.data;
+    for(var i=0; i<arr.length; i++) { ds.appendRow([arr[i].title, arr[i].subtitle, arr[i].url, arr[i].icon]); }
+  } else if(action == "saveGallery") {
+    var gs = sheet.getSheetByName("Gallery");
+    gs.clear(); gs.appendRow(["Title", "URL"]);
+    var arr = payload.data;
+    for(var i=0; i<arr.length; i++) { gs.appendRow([arr[i].title, arr[i].url]); }
+  } else if(action == "addMember") {
+    var ms = sheet.getSheetByName("Members");
+    if(ms.getLastRow() == 0) ms.appendRow(["Name", "BirthPlace", "BirthDate", "Gender", "Rayon", "Phone", "Address", "Baptized", "Sidi", "RegisteredAt"]);
+    var m = payload.data;
+    ms.appendRow([m.name, m.birthPlace, m.birthDate, m.gender, m.rayon, m.phone, m.address, m.isBaptized, m.isSidi, m.registeredAt]);
+  }
+  return ContentService.createTextOutput(JSON.stringify({status: "success"})).setMimeType(ContentService.MimeType.JSON);
+}
+</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm flex flex-col items-center">
+            <i class="fa-solid fa-cross text-2xl text-slate-600 mb-3"></i>
+            <p>&copy; 2026 Majelis Jemaat GMIT. All rights reserved.</p>
+            <p class="mt-1 text-xs text-slate-500">Sistem Informasi Pelayanan Jemaat Terintegrasi Cloud</p>
+        </div>
+    </footer>
+
+    <div id="customModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[1000] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-slide-up transform transition-all">
+            <div id="modalHeader" class="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50">
+                <i id="modalIcon" class="fa-solid fa-info-circle text-blue-500 text-2xl"></i>
+                <h3 id="modalTitle" class="text-lg font-bold text-slate-800">Pemberitahuan</h3>
+            </div>
+            <div class="px-6 py-5">
+                <p id="modalMessage" class="text-slate-600 text-sm leading-relaxed"></p>
+                <div id="adminPinArea" class="hidden mt-5">
+                    <label class="block text-xs font-bold text-slate-500 mb-1">PIN Otorisasi Majelis</label>
+                    <input type="password" id="adminPinInput" placeholder="• • • •" class="w-full rounded-lg border-slate-300 border px-4 py-3 text-center text-2xl tracking-[0.5em] focus:border-church-500 focus:ring-2 outline-none font-mono bg-slate-50">
+                    <p class="text-[11px] text-amber-600 mt-2 text-center bg-amber-50 p-2 rounded border border-amber-100">PIN Demo: <strong>1234</strong></p>
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                <button id="modalBtnCancel" onclick="closeModal()" class="hidden px-4 py-2.5 rounded-lg text-sm font-bold text-slate-500 hover:bg-slate-200 transition">Batal</button>
+                <button id="modalBtnAction" onclick="closeModal()" class="px-6 py-2.5 rounded-lg text-sm font-bold bg-church-600 text-white hover:bg-church-700 transition shadow">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LS_GAS_URL_KEY = 'gmit_gas_url';
+        
+        const DEFAULT_CONTENT = {
+            churchName: "GMIT Pniel Oebobo",
+            subtitle: "Mewujudkan jemaat yang misioner, mandiri, dan menjadi berkat bagi sesama.",
+            vision: "Menjadi gereja yang berakar dalam Firman Tuhan, bertumbuh dalam iman, dan berbuah dalam kasih kepada sesama di tengah perubahan zaman.",
+            mission: "1. Meningkatkan kualitas ibadah dan spiritualitas jemaat.\n2. Memberdayakan ekonomi dan pendidikan jemaat.\n3. Meningkatkan pelayanan kasih (diakonia).\n4. Membangun persekutuan yang rukun dan damai.",
+            announcements: "• Ibadah Minggu dilaksanakan dalam 3 kebaktian: Jam 06.00, 08.00, dan 17.00 WITA.\n• Katekisasi bagi calon sidi baru akan dimulai bulan depan.",
+            address: "Jl. Kenangan No. 123, Oebobo, Kec. Oebobo, Kota Kupang, NTT",
+            phone: "0380-8123456",
+            email: "majelis@gmitpnieloebobo.org",
+            mapsUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3927.0270054763327!2d123.5939223!3d-10.1652392!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2c569cc069925e01%3A0x6b2e3ffb78c9d2f!2sKupang!5e0!3m2!1sid!2sid!4v1710000000000",
+            pastor1: "Pdt. Johanis Tulle, S.Th",
+            pastor2: "Pdt. Maria Therik, M.Th",
+            pastor3: "Pdt. Simon Peter, S.Th",
+            pastor4: "Pdt. Martha Ina, M.Si"
+        };
+
+        const DEFAULT_DOWNLOADS = [
+            { title: "Warta Jemaat", subtitle: "Edisi Minggu Ini", url: "#", icon: "fa-regular fa-file-pdf" },
+            { title: "Tata Ibadah / Liturgi", subtitle: "Ibadah Minggu", url: "#", icon: "fa-solid fa-book-bible" },
+            { title: "Formulir Pendaftaran", subtitle: "Baptis & Sidi", url: "#", icon: "fa-regular fa-file-word" },
+            { title: "Laporan Keuangan", subtitle: "Transparansi Bulanan", url: "#", icon: "fa-solid fa-file-lines" }
+        ];
+
+        const DEFAULT_GALLERY = [
+            { title: "Ibadah Minggu", url: "https://images.unsplash.com/photo-1543807535-eceef0bc6599?auto=format&fit=crop&q=80&w=600" },
+            { title: "Persekutuan Pemuda", url: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=600" },
+            { title: "Pelayanan Diakonia", url: "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&q=80&w=600" }
+        ];
+
+        let isAdminAuthed = false;
+        let activeDownloads = [...DEFAULT_DOWNLOADS];
+        let activeGallery = [...DEFAULT_GALLERY];
+
+        window.navigateTo = function(viewId) {
+            document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.toggleMobileMenu = function() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        };
+
+        window.showModal = function(type, title, message, actionCallback = null) {
+            const modal = document.getElementById('customModal');
+            const icon = document.getElementById('modalIcon');
+            const btnAction = document.getElementById('modalBtnAction');
+            const btnCancel = document.getElementById('modalBtnCancel');
+            
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerHTML = message;
+            document.getElementById('adminPinArea').classList.add('hidden');
+            
+            btnCancel.classList.add('hidden');
+            btnAction.innerText = 'Tutup';
+            btnAction.onclick = () => { closeModal(); if(actionCallback) actionCallback(); };
+            
+            if (type === 'success') {
+                icon.className = 'fa-solid fa-circle-check text-emerald-500 text-3xl';
+            } else if (type === 'error') {
+                icon.className = 'fa-solid fa-triangle-exclamation text-rose-500 text-3xl';
+            } else if (type === 'admin') {
+                icon.className = 'fa-solid fa-shield-halved text-amber-500 text-3xl';
+                document.getElementById('adminPinArea').classList.remove('hidden');
+                document.getElementById('adminPinInput').value = '';
+                btnCancel.classList.remove('hidden');
+                btnAction.innerText = 'Verifikasi';
+                btnAction.onclick = () => { processAdminLogin(); };
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if(type === 'admin') setTimeout(() => document.getElementById('adminPinInput').focus(), 100);
+        };
+
+        window.closeModal = function() {
+            document.getElementById('customModal').classList.add('hidden');
+            document.getElementById('customModal').classList.remove('flex');
+        };
+
+// --- KONEKSI DATABASE UTAMA ---
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
+
+async function apiGetDownloads() {
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getDownloads`);
+        if(res.ok) return await res.json();
+    } catch(e) { console.log("Gagal memuat unduhan", e); }
+    return [];
+}
+
+async function apiSaveDownloads(arr) {
+    try { 
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "saveDownloads", data: arr }), mode: 'no-cors' }); 
+    } catch(e) {}
+}
+
+async function apiGetGallery() {
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getGallery`);
+        if(res.ok) return await res.json();
+    } catch(e) { console.log("Gagal memuat galeri", e); }
+    return [];
+}
+
+async function apiSaveGallery(arr) {
+    try { 
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "saveGallery", data: arr }), mode: 'no-cors' }); 
+    } catch(e) {}
+}
+
+async function apiGetMembers() {
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getMembers`);
+        if(res.ok) return await res.json();
+    } catch(e) { console.log("Gagal memuat data jemaat", e); }
+    return [];
+}
+
+async function apiAddMember(memberData) {
+    try { 
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "addMember", data: memberData }), mode: 'no-cors' }); 
+    } catch(e) {}
+}
+
+        async function apiAddMember(memberData) {
+            const url = getGasUrl();
+            if (url) {
+                try { await fetch(url, { method: 'POST', body: JSON.stringify({ action: "addMember", data: memberData }), mode: 'no-cors' }); } catch(e) {}
+            }
+            const members = await apiGetMembers();
+            members.push(memberData);
+            localStorage.setItem('gmit_local_members', JSON.stringify(members));
+        }
+
+        async function initApp() {
+            const savedUrl = getGasUrl();
+            if(savedUrl) document.getElementById('gasUrlInput').value = savedUrl;
+
+            try {
+                const content = await apiGetContent();
+                updateUIWithContent(content);
+                populateCMSForm(content);
+                
+                activeDownloads = await apiGetDownloads();
+                renderPublicDownloads();
+                renderAdminDownloads();
+
+                activeGallery = await apiGetGallery();
+                renderPublicGallery();
+                renderAdminGallery();
+                
+                setTimeout(() => {
+                    document.getElementById('globalLoader').style.opacity = '0';
+                    setTimeout(() => document.getElementById('globalLoader').style.display = 'none', 500);
+                }, 500);
+            } catch (error) {
+                document.getElementById('globalLoader').innerHTML = `<p class="text-rose-600 font-bold">Gagal memuat aplikasi.</p>`;
+            }
+        }
+
+        function updateUIWithContent(data) {
+            document.title = data.churchName + " - GMIT";
+            document.getElementById('navChurchName').innerText = data.churchName;
+            document.getElementById('displayChurchName').innerText = data.churchName;
+            document.getElementById('displayChurchSubtitle').innerText = data.subtitle;
+            document.getElementById('displayVision').innerText = data.vision;
+            document.getElementById('displayMission').innerText = data.mission;
+            document.getElementById('displayAnnouncements').innerText = data.announcements;
+            document.getElementById('displayAddress').innerText = data.address || '-';
+            document.getElementById('displayPhone').innerText = data.phone || '-';
+            document.getElementById('displayEmail').innerText = data.email || '-';
+            if(data.mapsUrl) document.getElementById('displayMaps').src = data.mapsUrl;
+            document.getElementById('displayPastor1').innerText = data.pastor1 || '-';
+            document.getElementById('displayPastor2').innerText = data.pastor2 || '-';
+            document.getElementById('displayPastor3').innerText = data.pastor3 || '-';
+            document.getElementById('displayPastor4').innerText = data.pastor4 || '-';
+        }
+
+        function populateCMSForm(data) {
+            document.getElementById('cmsChurchName').value = data.churchName || '';
+            document.getElementById('cmsSubtitle').value = data.subtitle || '';
+            document.getElementById('cmsVision').value = data.vision || '';
+            document.getElementById('cmsMission').value = data.mission || '';
+            document.getElementById('cmsAnnouncements').value = data.announcements || '';
+            document.getElementById('cmsAddress').value = data.address || '';
+            document.getElementById('cmsPhone').value = data.phone || '';
+            document.getElementById('cmsEmail').value = data.email || '';
+            document.getElementById('cmsMaps').value = data.mapsUrl || '';
+            document.getElementById('cmsPastor1').value = data.pastor1 || '';
+            document.getElementById('cmsPastor2').value = data.pastor2 || '';
+            document.getElementById('cmsPastor3').value = data.pastor3 || '';
+            document.getElementById('cmsPastor4').value = data.pastor4 || '';
+        }
+
+        function renderPublicDownloads() {
+            const container = document.getElementById('displayDownloadsGrid');
+            if(activeDownloads.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center text-slate-400 py-6">Belum ada dokumen unduhan.</div>`;
+                return;
+            }
+            let html = '';
+            activeDownloads.forEach(d => {
+                html += `
+                    <a href="${d.url}" target="_blank" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md hover:border-church-500 transition group flex flex-col items-center text-center">
+                        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl mb-4 group-hover:bg-blue-600 group-hover:text-white transition">
+                            <i class="${d.icon || 'fa-regular fa-file-pdf'}"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-lg mb-1">${d.title}</h3>
+                        <p class="text-xs text-slate-500">${d.subtitle}</p>
+                    </a>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderAdminDownloads() {
+            const tbody = document.getElementById('adminDownloadsList');
+            let html = '';
+            activeDownloads.forEach((d, index) => {
+                html += `
+                    <tr>
+                        <td class="px-4 py-3">
+                            <div class="font-bold text-slate-800"><i class="${d.icon} text-church-600 mr-2"></i>${d.title}</div>
+                            <div class="text-xs text-slate-500">${d.subtitle}</div>
+                        </td>
+                        <td class="px-4 py-3 text-xs text-blue-600 truncate max-w-xs"><a href="${d.url}" target="_blank">${d.url}</a></td>
+                        <td class="px-4 py-3 text-center whitespace-nowrap">
+                            <button onclick="editDownload(${index})" class="text-amber-600 hover:text-amber-800 p-1 font-bold mr-2"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteDownload(${index})" class="text-rose-600 hover:text-rose-800 p-1 font-bold"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html || `<tr><td colspan="3" class="text-center py-4 text-slate-400">Kosong</td></tr>`;
+        }
+
+        window.handleDownloadSubmit = async function(e) {
+            e.preventDefault();
+            const idx = parseInt(document.getElementById('dlEditIndex').value);
+            const newItem = {
+                title: document.getElementById('dlTitle').value,
+                subtitle: document.getElementById('dlSubtitle').value,
+                url: document.getElementById('dlUrl').value,
+                icon: document.getElementById('dlIcon').value
+            };
+            if(idx > -1) {
+                activeDownloads[idx] = newItem;
+            } else {
+                activeDownloads.push(newItem);
+            }
+            await apiSaveDownloads(activeDownloads);
+            renderPublicDownloads();
+            renderAdminDownloads();
+            resetDownloadForm();
+            showModal('success', 'Berhasil', 'Berkas unduhan berhasil disimpan.');
+        };
+
+        window.editDownload = function(index) {
+            const d = activeDownloads[index];
+            document.getElementById('dlEditIndex').value = index;
+            document.getElementById('dlTitle').value = d.title;
+            document.getElementById('dlSubtitle').value = d.subtitle;
+            document.getElementById('dlUrl').value = d.url;
+            document.getElementById('dlIcon').value = d.icon;
+        };
+
+        window.deleteDownload = async function(index) {
+            if(confirm("Hapus berkas ini?")) {
+                activeDownloads.splice(index, 1);
+                await apiSaveDownloads(activeDownloads);
+                renderPublicDownloads();
+                renderAdminDownloads();
+            }
+        };
+
+        window.resetDownloadForm = function() {
+            document.getElementById('downloadForm').reset();
+            document.getElementById('dlEditIndex').value = "-1";
+        };
+
+        function renderPublicGallery() {
+            const container = document.getElementById('displayGalleryGrid');
+            if(activeGallery.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center text-slate-500 py-6">Belum ada foto galeri.</div>`;
+                return;
+            }
+            let html = '';
+            activeGallery.forEach(g => {
+                html += `
+                    <div class="group relative overflow-hidden rounded-xl aspect-[4/3] bg-slate-800">
+                        <img src="${g.url}" alt="${g.title}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500" onerror="this.src='https://placehold.co/600x450/1e293b/94a3b8?text=Foto+Galeri'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                            <p class="font-bold text-sm">${g.title}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderAdminGallery() {
+            const tbody = document.getElementById('adminGalleryList');
+            let html = '';
+            activeGallery.forEach((g, index) => {
+                html += `
+                    <tr>
+                        <td class="px-4 py-3"><img src="${g.url}" class="w-16 h-12 object-cover rounded shadow-sm" onerror="this.src='https://placehold.co/100x75?text=Error'"></td>
+                        <td class="px-4 py-3 font-bold text-slate-800">${g.title}</td>
+                        <td class="px-4 py-3 text-xs text-blue-600 truncate max-w-xs"><a href="${g.url}" target="_blank">${g.url}</a></td>
+                        <td class="px-4 py-3 text-center whitespace-nowrap">
+                            <button onclick="editGallery(${index})" class="text-amber-600 hover:text-amber-800 p-1 font-bold mr-2"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteGallery(${index})" class="text-rose-600 hover:text-rose-800 p-1 font-bold"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html || `<tr><td colspan="4" class="text-center py-4 text-slate-400">Kosong</td></tr>`;
+        }
+
+        window.handleGallerySubmit = async function(e) {
+            e.preventDefault();
+            const idx = parseInt(document.getElementById('galEditIndex').value);
+            const newItem = {
+                title: document.getElementById('galTitle').value,
+                url: document.getElementById('galUrl').value
+            };
+            if(idx > -1) {
+                activeGallery[idx] = newItem;
+            } else {
+                activeGallery.push(newItem);
+            }
+            await apiSaveGallery(activeGallery);
+            renderPublicGallery();
+            renderAdminGallery();
+            resetGalleryForm();
+            showModal('success', 'Berhasil', 'Foto galeri berhasil disimpan.');
+        };
+
+        window.editGallery = function(index) {
+            const g = activeGallery[index];
+            document.getElementById('galEditIndex').value = index;
+            document.getElementById('galTitle').value = g.title;
+            document.getElementById('galUrl').value = g.url;
+        };
+
+        window.deleteGallery = async function(index) {
+            if(confirm("Hapus foto ini dari galeri?")) {
+                activeGallery.splice(index, 1);
+                await apiSaveGallery(activeGallery);
+                renderPublicGallery();
+                renderAdminGallery();
+            }
+        };
+
+        window.resetGalleryForm = function() {
+            document.getElementById('galleryForm').reset();
+            document.getElementById('galEditIndex').value = "-1";
+        };
+
+        window.handleRegistration = async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitReg');
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Menyimpan...`;
+            btn.disabled = true;
+
+            const memberData = {
+                name: document.getElementById('regName').value,
+                birthPlace: document.getElementById('regBirthPlace').value,
+                birthDate: document.getElementById('regBirthDate').value,
+                gender: document.getElementById('regGender').value,
+                rayon: document.getElementById('regRayon').value,
+                phone: document.getElementById('regPhone').value,
+                address: document.getElementById('regAddress').value,
+                isBaptized: document.getElementById('regBaptis').checked ? "Ya" : "Tidak",
+                isSidi: document.getElementById('regSidi').checked ? "Ya" : "Tidak",
+                registeredAt: new Date().toISOString()
+            };
+
+            try {
+                await apiAddMember(memberData);
+                document.getElementById('registrationForm').reset();
+                showModal('success', 'Pendaftaran Berhasil', `Data jemaat <strong>${memberData.name}</strong> berhasil direkam.`);
+            } catch (error) {
+                showModal('error', 'Gagal', 'Terjadi kesalahan sistem.');
+            } finally {
+                btn.innerHTML = `<span>Kirim Data Jemaat</span> <i class="fa-solid fa-paper-plane"></i>`;
+                btn.disabled = false;
+            }
+        };
+
+        window.showAdminLogin = function() {
+            if (isAdminAuthed) {
+                navigateTo('admin');
+                switchAdminTab('cms');
+            } else {
+                showModal('admin', 'Autentikasi Majelis', 'Masukkan PIN otorisasi untuk mengakses Panel.');
+            }
+        };
+
+        window.processAdminLogin = function() {
+            const pin = document.getElementById('adminPinInput').value;
+            if (pin === '1234') {
+                isAdminAuthed = true;
+                closeModal();
+                navigateTo('admin');
+                switchAdminTab('cms');
+            } else {
+                document.getElementById('modalMessage').innerHTML = `<span class="text-rose-600 font-bold">PIN Salah!</span>`;
+                document.getElementById('adminPinInput').value = '';
+            }
+        };
+
+        window.logoutAdmin = function() {
+            isAdminAuthed = false;
+            navigateTo('home');
+            showModal('success', 'Berhasil Keluar', 'Anda keluar dari Panel Majelis.');
+        };
+
+        window.switchAdminTab = function(tabName) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.admin-tab-btn').forEach(el => {
+                el.classList.remove('bg-church-600', 'text-white', 'shadow');
+                el.classList.add('text-slate-600', 'hover:bg-slate-100');
+            });
+            document.getElementById(`tabBtn-${tabName}`).classList.remove('text-slate-600', 'hover:bg-slate-100');
+            document.getElementById(`tabBtn-${tabName}`).classList.add('bg-church-600', 'text-white', 'shadow');
+            document.getElementById(`adminTab-${tabName}`).classList.remove('hidden');
+
+            if(tabName === 'data') loadMembersData();
+            if(tabName === 'downloads') renderAdminDownloads();
+            if(tabName === 'gallery') renderAdminGallery();
+        };
+
+        window.handleCMSUpdate = async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveCms');
+            btn.innerHTML = `Menyimpan...`;
+            btn.disabled = true;
+
+            const updatedData = {
+                churchName: document.getElementById('cmsChurchName').value,
+                subtitle: document.getElementById('cmsSubtitle').value,
+                vision: document.getElementById('cmsVision').value,
+                mission: document.getElementById('cmsMission').value,
+                announcements: document.getElementById('cmsAnnouncements').value,
+                address: document.getElementById('cmsAddress').value,
+                phone: document.getElementById('cmsPhone').value,
+                email: document.getElementById('cmsEmail').value,
+                mapsUrl: document.getElementById('cmsMaps').value,
+                pastor1: document.getElementById('cmsPastor1').value,
+                pastor2: document.getElementById('cmsPastor2').value,
+                pastor3: document.getElementById('cmsPastor3').value,
+                pastor4: document.getElementById('cmsPastor4').value,
+            };
+
+            await apiSaveContent(updatedData);
+            updateUIWithContent(updatedData);
+            showModal('success', 'Tersimpan', 'Konten website berhasil dipublikasikan.');
+            btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Publikasikan Perubahan`;
+            btn.disabled = false;
+        };
+
+        window.loadMembersData = async function() {
+            const tbody = document.getElementById('membersTableBody');
+            tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500"><div class="loader mx-auto"></div></td></tr>`;
+            
+            const members = await apiGetMembers();
+            members.sort((a, b) => new Date(b.registeredAt) - new Date(a.registeredAt));
+            
+            if (members.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400 italic">Belum ada data jemaat.</td></tr>`;
+                return;
+            }
+            
+            let html = '';
+            members.forEach(m => {
+                const dateObj = new Date(m.registeredAt);
+                const formattedDate = `${dateObj.getDate()}/${dateObj.getMonth()+1}/${dateObj.getFullYear()}`;
+                html += `
+                    <tr class="hover:bg-church-50 transition-colors">
+                        <td class="px-6 py-4"><div class="font-bold text-slate-900">${m.name}</div><div class="text-xs text-slate-500">${m.phone || '-'}</div></td>
+                        <td class="px-4 py-4 text-slate-600 font-medium">${m.gender === 'Laki-laki' ? 'L' : 'P'}</td>
+                        <td class="px-6 py-4 text-slate-600 text-xs">${m.birthPlace}, ${m.birthDate}</td>
+                        <td class="px-6 py-4"><span class="px-2 py-1 bg-church-100 text-church-800 rounded text-xs font-bold">${m.rayon}</span></td>
+                        <td class="px-6 py-4">${m.isBaptized === "Ya" ? 'Baptis ' : ''}${m.isSidi === "Ya" ? 'Sidi' : ''}</td>
+                        <td class="px-6 py-4 text-xs text-slate-500">${formattedDate}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        };
+
+        window.saveGasUrl = function() {
+            const url = document.getElementById('gasUrlInput').value.trim();
+            localStorage.setItem(LS_GAS_URL_KEY, url);
+            showModal('success', 'URL Disimpan', 'Sistem terhubung ke Google Sheet.');
+        };
+
+        window.copyGasCode = function() {
+            navigator.clipboard.writeText(document.getElementById('gasCodeBlock').innerText);
+            alert("Kode berhasil disalin!");
+        };
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
