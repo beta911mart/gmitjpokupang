@@ -708,13 +708,8 @@ if (tab === 'home') {
                 </div>
             </div>
         `;
-        
-        // --- PELATUK UJI COBA ABSENSI ---
-        setTimeout(() => {
-            cekAbsensiMinggu();
-        }, 1500); 
-	
-    } else if (tab === 'notifikasi') {
+
+	    } else if (tab === 'notifikasi') {
         checkAuthBeforeAction(async () => {
             document.getElementById("headerTitle").innerText = "Notifikasi & Kotak Masuk";
             const badge = document.getElementById("unreadNotifBadge");
@@ -2879,17 +2874,35 @@ function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
 
 function cekAbsensiMinggu() {
     const user = window.currentUser || JSON.parse(localStorage.getItem("user_gereja"));
-    if (!user) {
-        showToast("Login terlebih dahulu untuk tes absen.", "error");
-        return; 
+    if (!user) return; // Berjalan senyap di latar belakang jika belum login
+
+    const now = new Date();
+    
+    // 1. Kunci Hari: Hanya berjalan di hari Minggu (0)
+    if (now.getDay() !== 0) return;
+
+    // 2. Kunci Jam Ibadah
+    const jam = now.getHours();
+    let ibadahAktif = "";
+
+    if (jam >= 6 && jam < 8) {
+        ibadahAktif = "Ibadah Pagi (06:00 WITA)";
+    } else if (jam >= 8 && jam < 11) {
+        ibadahAktif = "Ibadah Utama (08:00 WITA)";
+    } else if (jam >= 15 && jam < 19) {
+        ibadahAktif = "Ibadah Pemuda / Sore (17:00 WITA)";
+    } else {
+        return; // Hentikan skrip jika di luar jam ibadah
     }
 
-    // BYPASS: Kita matikan aturan hari Minggu, jam ibadah, dan riwayat absen
-    let ibadahAktif = "Ibadah Uji Coba (Test Mode)";
+    // 3. Kunci Ganda: Cek apakah hari ini jemaat sudah melakukan absen
+    const tanggalHariIni = now.toLocaleDateString('id-ID');
+    const absenTerakhir = localStorage.getItem("absen_minggu_terakhir");
+    if (absenTerakhir === tanggalHariIni) return; // Jika sudah absen, hentikan
 
+    // 4. Deteksi Lokasi Radius 100 Meter
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition((position) => {
-            // Kalkulasi jarak GPS tetap berjalan agar Anda bisa tes deteksi radius
             const distance = getDistanceFromLatLonInM(position.coords.latitude, position.coords.longitude, CHURCH_LAT, CHURCH_LON);
             const tipeKehadiran = distance <= 100 ? "Offline (Di Gereja)" : "Online (Di Rumah)";
             munculkanToastAbsen(ibadahAktif, user, tipeKehadiran);
