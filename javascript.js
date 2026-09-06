@@ -675,7 +675,7 @@ function switchTab(tab, isBack = false, isReplace = false) {
                             <span class="text-xs font-semibold text-slate-200">Renungan</span>
                         </div>
                         <div id="livestream-card" onclick="openLivestreamsMenu()" class="bg-slate-900 border border-orange-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-orange-400 transition duration-500 animate-card-hover relative">
-                            <div id="livestream-badge" class="absolute -top-2 -right-2 hidden">
+                            <div id="livestream-badge" class="absolute -top-2 -right-2">
                                 <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
                             </div>
                             <div class="h-16 bg-orange-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📺</div>
