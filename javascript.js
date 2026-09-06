@@ -2002,6 +2002,7 @@ async function openDownloadCenter(isBack = false) {
     } catch (err) {
         main.innerHTML = `<p class="text-xs text-rose-400 text-center py-10">Gagal memuat dokumen.</p>`;
     }
+}
 
 function previewImage(event) {
     const file = event.target.files[0];
