@@ -115,14 +115,66 @@ window.addEventListener('popstate', function (event) {
     }
 });
 
-
 // --- SERVICE WORKER & PWA ---
+let newWorker;
+
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-            .then((registration) => { console.log('SW terdaftar:', registration.scope); })
-            .catch((error) => { console.log('SW error:', error); });
+        navigator.serviceWorker.register('sw.js').then((registration) => {
+            console.log('SW terdaftar:', registration.scope);
+            
+            // Deteksi jika ada file versi baru yang sedang diunduh di latar belakang
+            registration.addEventListener('updatefound', () => {
+                newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                    // Jika unduhan selesai dan aplikasi sebelumnya sudah terinstal
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        munculkanPopupUpdate();
+                    }
+                });
+            });
+        }).catch((error) => { console.log('SW error:', error); });
     });
+
+    // Otomatis refresh halaman ketika Service Worker versi baru mengambil alih
+    let refreshing;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        window.location.reload();
+        refreshing = true;
+    });
+}
+
+function munculkanPopupUpdate() {
+    if (document.getElementById('updatePopup')) return;
+
+    const popup = document.createElement('div');
+    popup.id = 'updatePopup';
+    // Muncul melayang dari atas layar
+    popup.className = "fixed top-10 left-0 right-0 mx-auto w-[92%] max-w-[340px] bg-indigo-950 p-4 rounded-2xl shadow-[0_10px_30px_rgba(79,70,229,0.5)] border border-indigo-500 z-[99999] flex flex-col gap-3 animate-slide-in";
+    
+    popup.innerHTML = `
+        <div class="flex items-center gap-3">
+            <span class="text-3xl animate-bounce">🚀</span>
+            <div>
+                <h4 class="font-bold text-indigo-300 text-sm">Versi Baru Tersedia!</h4>
+                <p class="text-[11px] text-slate-300 mt-0.5 leading-relaxed">Aplikasi telah diperbarui dengan data atau fitur terbaru. Terapkan sekarang?</p>
+            </div>
+        </div>
+        <div class="flex gap-2 mt-1">
+            <button onclick="terapkanUpdate()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-xl text-xs font-bold transition duration-300 shadow-md">Perbarui</button>
+            <button onclick="document.getElementById('updatePopup').remove()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-semibold transition duration-300 border border-slate-700">Nanti</button>
+        </div>
+    `;
+    document.body.appendChild(popup);
+}
+
+function terapkanUpdate() {
+    document.getElementById('updatePopup').innerHTML = `<p class="text-xs text-center text-indigo-300 font-bold py-3 animate-pulse">Memperbarui Aplikasi...</p>`;
+    // Kirim perintah ke sw.js untuk segera menerapkan versi baru
+    if (newWorker) {
+        newWorker.postMessage({ action: 'skipWaiting' });
+    }
 }
 
 let deferredPrompt;
