@@ -323,6 +323,16 @@ function setTheme(theme, isInitialLoad = false) {
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #4c0519 !important; }
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #e11d48 !important; }
         `;
+	} else if (theme === 'ocean') {
+    app.className = `${baseAppClass} bg-sky-900 text-sky-50`;
+    body.className = "bg-slate-950 text-sky-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+    if(bannerContainer) bannerContainer.innerHTML = '';
+    cssRules = `
+            /* Warna latar elemen (Biru Laut Gelap / sky-900) */
+            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #0c4a6e !important; }
+            /* Warna garis batas (Biru Cerah / sky-600) */
+            #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #0284c7 !important; }
+        `;
 	} else if (theme === 'christmas') {
         app.className = `${baseAppClass} bg-gradient-to-b from-red-950 via-red-900 to-emerald-950 text-red-50`;
         body.className = "bg-red-950 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
