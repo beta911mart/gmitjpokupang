@@ -57,6 +57,9 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased flex flex-col min-h-screen">
@@ -80,7 +83,7 @@
                     <button onclick="showAdminLogin()" class="ml-4 px-4 py-2 rounded-full text-sm font-bold bg-church-gold text-church-900 hover:bg-yellow-400 transition shadow-md flex items-center gap-2">
                         <i class="fa-solid fa-user-shield"></i> Panel Majelis
                     </button>
-                    <a href="index.html" target="_top" class="ml-2 px-3 py-2 rounded-md text-xs font-bold text-slate-300 hover:text-white border border-slate-600 hover:border-slate-400 transition">Ke Versi Penuh</a>
+                    <a href="index.html" class="ml-2 px-3 py-2 rounded-md text-xs font-bold text-slate-300 hover:text-white border border-slate-600 hover:border-slate-400 transition">Ke Versi Penuh</a>
                 </div>
 
                 <div class="flex items-center md:hidden gap-2">
@@ -91,13 +94,13 @@
             </div>
         </div>
         
-        <div id="mobileMenu" class="hidden md:hidden bg-church-800 border-t border-church-700 pb-4 pt-2 px-4 space-y-2 shadow-inner">
+        <div id="mobileMenu" class="hidden md:hidden bg-church-800 border-t border-church-700 pb-4 pt-2 px-4 space-y-2 shadow-inner absolute w-full z-40">
             <button onclick="navigateTo('home'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 rounded-lg text-base font-medium hover:bg-church-700 bg-church-900/50">Beranda</button>
             <button onclick="navigateTo('register'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 rounded-lg text-base font-medium hover:bg-church-700 bg-church-900/50">Pendataan Jemaat</button>
             <button onclick="showAdminLogin(); toggleMobileMenu()" class="block w-full text-center px-4 py-3 mt-4 rounded-lg text-base font-bold text-church-900 bg-church-gold shadow-md">
                 <i class="fa-solid fa-user-shield mr-2"></i> Panel Majelis
             </button>
-            <a href="index.html" target="_top" class="block w-full text-center px-4 py-3 mt-2 rounded-lg text-sm font-bold text-slate-300 border border-slate-600 hover:bg-slate-700">
+            <a href="index.html" class="block w-full text-center px-4 py-3 mt-2 rounded-lg text-sm font-bold text-slate-300 border border-slate-600 hover:bg-slate-700">
                 Kembali ke Versi Penuh
             </a>
         </div>
@@ -110,8 +113,8 @@
     </div>
 
     <main class="flex-grow">
-        
         <div id="view-home" class="page-view active">
+            <!-- Hero Section -->
             <div class="relative bg-church-900 text-white py-20 lg:py-28 overflow-hidden">
                 <div class="absolute inset-0 opacity-10">
                     <svg class="h-full w-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1463 360">
@@ -140,7 +143,140 @@
                 </div>
             </div>
 
-            <div id="download-section" class="bg-slate-100 py-16">
+            <!-- Visi & Misi Section (Hardcoded) -->
+            <div id="info-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Visi -->
+                    <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 animate-slide-up">
+                        <div class="flex items-center gap-3 mb-4 text-church-600 border-b border-slate-100 pb-4">
+                            <div class="bg-church-50 p-3 rounded-lg"><i class="fa-solid fa-eye text-xl"></i></div>
+                            <h2 class="text-2xl font-bold font-serif text-slate-800">Visi Pelayanan</h2>
+                        </div>
+                        <p class="text-slate-600 leading-relaxed text-lg italic">Menjadi gereja yang berakar dalam Firman Tuhan, bertumbuh dalam iman, dan berbuah dalam kasih kepada sesama di tengah perubahan zaman.</p>
+                    </div>
+                    <!-- Misi -->
+                    <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 animate-slide-up" style="animation-delay: 0.1s;">
+                        <div class="flex items-center gap-3 mb-4 text-church-600 border-b border-slate-100 pb-4">
+                            <div class="bg-church-50 p-3 rounded-lg"><i class="fa-solid fa-bullseye text-xl"></i></div>
+                            <h2 class="text-2xl font-bold font-serif text-slate-800">Misi Pelayanan</h2>
+                        </div>
+                        <ul class="text-slate-600 leading-relaxed space-y-2 list-decimal list-inside font-medium">
+                            <li>Meningkatkan kualitas ibadah dan spiritualitas jemaat.</li>
+                            <li>Memberdayakan ekonomi dan pendidikan jemaat.</li>
+                            <li>Meningkatkan pelayanan kasih (diakonia) kepada yang membutuhkan.</li>
+                            <li>Membangun persekutuan yang rukun dan damai.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tentang Gereja Section (Hardcoded) -->
+            <div id="about-section" class="py-16 bg-white border-t border-slate-100">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        <!-- Alamat & Maps -->
+                        <div class="animate-slide-up">
+                            <h2 class="text-3xl font-bold font-serif text-church-900 mb-6">Tentang Gereja</h2>
+                            
+                            <div class="space-y-6 mb-8">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 bg-church-50 text-church-600 rounded-lg flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-location-dot"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-800">Alamat Lengkap</h4>
+                                        <p class="text-slate-600 text-sm mt-1 leading-relaxed">Jl. Kenangan No. 123, Oebobo, Kec. Oebobo, Kota Kupang, NTT</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 bg-church-50 text-church-600 rounded-lg flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-phone"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-800">Nomor Telepon / Kontak</h4>
+                                        <p class="text-slate-600 text-sm mt-1 font-medium">0380-8123456</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 bg-church-50 text-church-600 rounded-lg flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-envelope"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-800">Email</h4>
+                                        <p class="text-slate-600 text-sm mt-1 font-medium">majelis@gmitpnieloebobo.org</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-xl overflow-hidden shadow-md border border-slate-200 h-64 bg-slate-100 relative">
+                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3927.0270054763327!2d123.5939223!3d-10.1652392!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2c569cc069925e01%3A0x6b2e3ffb78c9d2f!2sKupang!5e0!3m2!1sid!2sid!4v1710000000000" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="relative z-10"></iframe>
+                            </div>
+                        </div>
+
+	<!-- Daftar Pendeta -->
+                        <div class="animate-slide-up" style="animation-delay: 0.1s;">
+                            <div class="bg-slate-50 rounded-2xl p-6 md:p-8 border border-slate-200 h-full">
+                                <h3 class="text-2xl font-bold font-serif text-church-900 mb-6 flex items-center gap-3">
+                                    <i class="fa-solid fa-users-rectangle text-church-600"></i> Pendeta Malayani
+                                </h3>
+                                <!-- Menggunakan space-y-4 untuk format 1 kolom vertikal -->
+                                <div class="space-y-4">
+                                    
+                                    <div class="bg-white border border-slate-200 p-4 rounded-2xl space-y-3 text-xs shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                                        <h4 class="font-bold text-church-700 border-b border-slate-100 pb-1">Koord. Lingk: I, II, III, IV</h4>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-14 h-14 bg-slate-100 border border-slate-200 rounded-full flex items-center justify-center overflow-hidden shadow-inner shrink-0">
+                                                <img src="pdtselvy.png" alt="Pdt. Selviany" class="w-full h-full object-cover">
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-slate-800 text-[13px] leading-tight mb-1">Pdt. Selviany A. Pollo-Milla, S.Si-Teol</p>
+                                                <p class="text-[11px] text-slate-500"><i class="fa-solid fa-phone text-[9px] mr-1"></i>081339250917</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white border border-slate-200 p-4 rounded-2xl space-y-3 text-xs shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                                        <h4 class="font-bold text-church-700 border-b border-slate-100 pb-1">Koord. Lingk: V, VI, VII, VIII</h4>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-14 h-14 bg-slate-100 border border-slate-200 rounded-full flex items-center justify-center overflow-hidden shadow-inner shrink-0">
+                                                <img src="pdttyas.png" alt="Pdt. Tyas" class="w-full h-full object-cover">
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-slate-800 text-[13px] leading-tight mb-1">Pdt. Tentremingtyas Messakh, S.Si</p>
+                                                <p class="text-[11px] text-slate-500"><i class="fa-solid fa-phone text-[9px] mr-1"></i>08113812875</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-white border border-slate-200 p-4 rounded-2xl space-y-3 text-xs shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                                        <h4 class="font-bold text-church-700 border-b border-slate-100 pb-1">Koord. Lingk: IX, X, XI, XII</h4>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-14 h-14 bg-slate-100 border border-slate-200 rounded-full flex items-center justify-center overflow-hidden shadow-inner shrink-0">
+                                                <img src="pdtmaria.png" alt="Pdt. Maria" class="w-full h-full object-cover">
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-slate-800 text-[13px] leading-tight mb-1">Pdt. Maria A. Litelnoni-Johannes</p>
+                                                <p class="text-[11px] text-slate-500"><i class="fa-solid fa-phone text-[9px] mr-1"></i>08113911409</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-white border border-slate-200 p-4 rounded-2xl space-y-3 text-xs shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                                        <h4 class="font-bold text-church-700 border-b border-slate-100 pb-1">Koord. Lingk: XIII, XIV, XV, XVI</h4>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-14 h-14 bg-slate-100 border border-slate-200 rounded-full flex items-center justify-center overflow-hidden shadow-inner shrink-0">
+                                                <img src="pdtwempi.png" alt="Pdt. Wempi" class="w-full h-full object-cover">
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-slate-800 text-[13px] leading-tight mb-1">Pdt. Wempi M. Rini, S.Th</p>
+                                                <p class="text-[11px] text-slate-500"><i class="fa-solid fa-phone text-[9px] mr-1"></i>085238339227</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unduhan Section -->
+            <div id="download-section" class="bg-slate-100 py-16 border-t border-slate-200">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="text-center mb-10 animate-slide-up">
                         <span class="bg-church-200 text-church-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Materi & Berkas</span>
@@ -154,20 +290,22 @@
                 </div>
             </div>
 
-            <div id="gallery-section" class="py-16 bg-slate-900 text-white border-t border-slate-800">
+            <!-- Galeri Section (Horizontal Scroll) -->
+            <div id="gallery-section" class="py-16 bg-slate-900 text-white border-t border-slate-800 overflow-hidden">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="text-center mb-10 animate-slide-up">
                         <h2 class="text-3xl font-bold font-serif text-white mb-2">Galeri Kegiatan</h2>
                         <p class="text-slate-400">Potret kebersamaan dan pelayanan jemaat.</p>
                     </div>
                     
-                    <div id="displayGalleryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4 animate-slide-up" style="animation-delay: 0.1s;">
-                        <div class="col-span-full text-center py-6 text-slate-500"><div class="loader mx-auto"></div></div>
+                    <div id="displayGalleryGrid" class="flex overflow-x-auto gap-4 pb-6 snap-x hide-scrollbar animate-slide-up" style="animation-delay: 0.1s;">
+                        <div class="w-full text-center py-6 text-slate-500"><div class="loader mx-auto"></div></div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Registration View -->
         <div id="view-register" class="page-view py-12 px-4 bg-slate-100 min-h-[calc(100vh-140px)]">
             <div class="max-w-3xl mx-auto">
                 <div class="text-center mb-8 animate-slide-up">
@@ -205,15 +343,16 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Rayon / Lingkungan *</label>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Lingkungan *</label>
                                         <select id="regRayon" required class="w-full rounded-lg border-slate-300 border px-4 py-2.5 focus:border-church-500 focus:ring-2 focus:ring-church-200 outline-none transition bg-white">
-                                            <option value="">-- Pilih Rayon --</option>
-                                            <option value="Rayon 1">Rayon 1</option>
-                                            <option value="Rayon 2">Rayon 2</option>
-                                            <option value="Rayon 3">Rayon 3</option>
-                                            <option value="Rayon 4">Rayon 4</option>
-                                            <option value="Rayon 5">Rayon 5</option>
-                                            <option value="Rayon 6">Rayon 6</option>
+                                            <option value="">-- Pilih Lingkungan --</option>
+                                            <option value="Lingkungan I">Lingkungan I</option>
+                                            <option value="Lingkungan II">Lingkungan II</option>
+                                            <option value="Lingkungan III">Lingkungan III</option>
+                                            <option value="Lingkungan IV">Lingkungan IV</option>
+                                            <option value="Lingkungan V">Lingkungan V</option>
+                                            <option value="Lingkungan VI">Lingkungan VI</option>
+                                            <!-- Tambahkan opsi lain jika diperlukan -->
                                         </select>
                                     </div>
                                 </div>
@@ -259,6 +398,7 @@
             </div>
         </div>
 
+        <!-- Admin View -->
         <div id="view-admin" class="page-view bg-slate-100 min-h-[calc(100vh-64px)] pb-12">
             <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-40">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -399,13 +539,12 @@
                                     <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Nama & Kontak</th>
                                     <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">L/P</th>
                                     <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">TTL</th>
-                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Rayon</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Lingkungan</th>
                                     <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Sakramen</th>
-                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Tanggal Daftar</th>
                                 </tr>
                             </thead>
                             <tbody id="membersTableBody" class="bg-white divide-y divide-slate-200 text-sm">
-                                <tr><td colspan="6" class="px-6 py-12 text-center text-slate-500"><div class="loader mx-auto"></div></td></tr>
+                                <tr><td colspan="5" class="px-6 py-12 text-center text-slate-500"><div class="loader mx-auto"></div></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -447,11 +586,7 @@
         // KONEKSI UTAMA KE BACKEND GOOGLE APPS SCRIPT ANDA
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
 
-        const DEFAULT_DOWNLOADS = [
-            { title: "Warta Jemaat", subtitle: "Edisi Minggu Ini", url: "#", icon: "fa-regular fa-file-pdf" },
-            { title: "Tata Ibadah / Liturgi", subtitle: "Ibadah Minggu", url: "#", icon: "fa-solid fa-book-bible" }
-        ];
-
+        const DEFAULT_DOWNLOADS = [];
         const DEFAULT_GALLERY = [];
 
         let isAdminAuthed = false;
@@ -504,11 +639,9 @@
             document.getElementById('customModal').classList.remove('flex');
         };
 
-// --- API FUNCTIONS (SINKRON DENGAN APLIKASI UTAMA) ---
-        
+        // --- API FUNCTIONS (SINKRON DENGAN APLIKASI UTAMA) ---
         async function apiGetDownloads() {
             try {
-                // Di aplikasi utama, Anda memakai metode POST dengan action 'getDaftarDokumen'
                 const res = await fetch(SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({ action: "getDaftarDokumen" })
@@ -529,7 +662,6 @@
 
         async function apiGetGallery() {
             try {
-                // Di aplikasi utama, Anda memakai metode GET dengan action 'getGallery'
                 const res = await fetch(`${SCRIPT_URL}?action=getGallery`);
                 const result = await res.json();
                 
@@ -545,13 +677,11 @@
 
         async function apiGetMembers() {
             try {
-                // Di aplikasi utama, sensus ditarik via 'getAllUsers'
                 const res = await fetch(`${SCRIPT_URL}?action=getAllUsers`);
                 const result = await res.json();
                 let rawData = result.users || result.data || [];
                 
                 let formatted = [];
-                // Menyesuaikan jika format data berbentuk array bersarang (2D)
                 if (Array.isArray(rawData[0])) {
                     for (let i = 1; i < rawData.length; i++) {
                         formatted.push({
@@ -562,12 +692,10 @@
                             birthDate: rawData[i][4] || '-',
                             rayon: rawData[i][6] || '-',
                             isBaptized: "-",
-                            isSidi: "-",
-                            registeredAt: new Date().toISOString()
+                            isSidi: "-"
                         });
                     }
                 } else {
-                    // Menyesuaikan jika format JSON Objek biasa
                     formatted = rawData.map(m => ({
                         name: m.nama_lengkap || m.nama || '-',
                         phone: m.no_whatsapp || m.telp || '-',
@@ -576,8 +704,7 @@
                         birthDate: m.tanggal_lahir || '-',
                         rayon: m.rayon || '-',
                         isBaptized: "-",
-                        isSidi: "-",
-                        registeredAt: new Date().toISOString()
+                        isSidi: "-"
                     }));
                 }
                 return formatted;
@@ -595,7 +722,6 @@
 
         async function apiAddMember(memberData) {
             try { 
-                // Di aplikasi utama, daftar baru pakai action 'register'
                 await fetch(SCRIPT_URL, { 
                     method: 'POST', 
                     body: JSON.stringify({ 
@@ -607,9 +733,8 @@
             } catch(e) {}
         }
 
-        // --- INIT APP ---
+        // --- INIT APP (Optimasi Responsivitas Non-Blocking) ---
         async function initApp() {
-            // 1. Langsung hilangkan loader utama dalam 0.3 detik agar UI instan
             setTimeout(() => {
                 const loader = document.getElementById('globalLoader');
                 if (loader) {
@@ -618,7 +743,6 @@
                 }
             }, 300);
 
-            // 2. Tarik data di latar belakang tanpa memblokir layar (Non-blocking)
             apiGetDownloads().then(data => {
                 activeDownloads = data;
                 renderPublicDownloads();
@@ -630,9 +754,6 @@
                 renderPublicGallery();
                 renderAdminGallery();
             });
-
-            // Catatan: Data jemaat (apiGetMembers) sengaja tidak dipanggil di sini 
-            // agar lebih ringan. Data baru akan ditarik saat Admin membuka tab "Data Jemaat".
         }
 
         function renderPublicDownloads() {
@@ -721,18 +842,12 @@
 
         function renderPublicGallery() {
             const container = document.getElementById('displayGalleryGrid');
-            
-            // Mengubah kontainer dari Grid menjadi Flexbox horizontal yang bisa di-scroll
-            container.className = "flex overflow-x-auto gap-4 pb-6 snap-x hide-scrollbar animate-slide-up";
-            
             if(activeGallery.length === 0) {
                 container.innerHTML = `<div class="w-full text-center text-slate-500 py-6">Belum ada foto galeri.</div>`;
                 return;
             }
             
             let html = '';
-            
-            // Menampilkan seluruh foto (tanpa batasan slice)
             activeGallery.forEach(g => {
                 html += `
                     <div class="group relative overflow-hidden rounded-xl bg-slate-800 shrink-0 w-64 md:w-80 aspect-[4/3] snap-center shadow-lg border border-slate-700">
@@ -818,8 +933,7 @@
                 phone: document.getElementById('regPhone').value,
                 address: document.getElementById('regAddress').value,
                 isBaptized: document.getElementById('regBaptis').checked ? "Ya" : "Tidak",
-                isSidi: document.getElementById('regSidi').checked ? "Ya" : "Tidak",
-                registeredAt: new Date().toISOString()
+                isSidi: document.getElementById('regSidi').checked ? "Ya" : "Tidak"
             };
 
             try {
@@ -845,7 +959,7 @@
 
         window.processAdminLogin = function() {
             const pin = document.getElementById('adminPinInput').value;
-            if (pin === '4321') { // Ubah sesuai PIN keamanan Anda
+            if (pin === '1234') { // PIN Statis (akan diganti sistem dinamis)
                 isAdminAuthed = true;
                 closeModal();
                 navigateTo('admin');
@@ -879,28 +993,24 @@
 
         window.loadMembersData = async function() {
             const tbody = document.getElementById('membersTableBody');
-            tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500"><div class="loader mx-auto"></div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500"><div class="loader mx-auto"></div></td></tr>`;
             
             const members = await apiGetMembers();
-            members.sort((a, b) => new Date(b.registeredAt) - new Date(a.registeredAt));
             
             if (members.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400 italic">Belum ada data jemaat.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400 italic">Belum ada data jemaat.</td></tr>`;
                 return;
             }
             
             let html = '';
             members.forEach(m => {
-                const dateObj = new Date(m.registeredAt);
-                const formattedDate = `${dateObj.getDate()}/${dateObj.getMonth()+1}/${dateObj.getFullYear()}`;
                 html += `
                     <tr class="hover:bg-church-50 transition-colors">
                         <td class="px-6 py-4"><div class="font-bold text-slate-900">${m.name}</div><div class="text-xs text-slate-500">${m.phone || '-'}</div></td>
-                        <td class="px-4 py-4 text-slate-600 font-medium">${m.gender === 'Laki-laki' ? 'L' : 'P'}</td>
+                        <td class="px-4 py-4 text-slate-600 font-medium">${m.gender === 'Laki-laki' ? 'L' : (m.gender === 'Perempuan' ? 'P' : m.gender)}</td>
                         <td class="px-6 py-4 text-slate-600 text-xs">${m.birthPlace}, ${m.birthDate}</td>
                         <td class="px-6 py-4"><span class="px-2 py-1 bg-church-100 text-church-800 rounded text-xs font-bold">${m.rayon}</span></td>
                         <td class="px-6 py-4">${m.isBaptized === "Ya" ? 'Baptis ' : ''}${m.isSidi === "Ya" ? 'Sidi' : ''}</td>
-                        <td class="px-6 py-4 text-xs text-slate-500">${formattedDate}</td>
                     </tr>
                 `;
             });
