@@ -53,21 +53,21 @@
 
     <main class="flex-grow py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         
-        <!-- MENU TAB NAVIGASI -->
-        <div class="flex overflow-x-auto gap-2 pb-4 hide-scrollbar mb-4 animate-slide-up">
-            <a href="/" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-800 text-white shadow-sm whitespace-nowrap transition flex items-center gap-2">
+        <!-- MENU TAB NAVIGASI (Responsive Wrap) -->
+        <div class="flex flex-wrap gap-2 mb-6 animate-slide-up">
+            <a href="/" class="flex-auto sm:flex-none justify-center px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-800 text-white shadow-sm transition flex items-center gap-2">
                 <i class="fa-solid fa-house"></i> Beranda
             </a>
-            <button onclick="switchTab('jadwal')" id="tab-jadwal" class="roster-tab active px-4 py-2.5 rounded-xl text-xs font-bold bg-purple-600 text-white shadow-sm whitespace-nowrap transition flex items-center gap-2">
+            <button onclick="switchTab('jadwal')" id="tab-jadwal" class="roster-tab active flex-auto sm:flex-none justify-center px-4 py-2.5 rounded-xl text-xs font-bold bg-purple-600 text-white shadow-sm transition flex items-center gap-2">
                 <i class="fa-solid fa-calendar-days"></i> Daftar Jadwal
             </button>
-            <button onclick="switchTab('rekap')" id="tab-rekap" class="roster-tab px-4 py-2.5 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 shadow-sm whitespace-nowrap transition flex items-center gap-2">
+            <button onclick="switchTab('rekap')" id="tab-rekap" class="roster-tab flex-auto sm:flex-none justify-center px-4 py-2.5 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 shadow-sm transition flex items-center gap-2">
                 <i class="fa-solid fa-chart-pie"></i> Rekap Data
             </button>
-            <button onclick="switchTab('konfirmasi')" id="tab-konfirmasi" class="roster-tab px-4 py-2.5 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 shadow-sm whitespace-nowrap transition flex items-center gap-2">
+            <button onclick="switchTab('konfirmasi')" id="tab-konfirmasi" class="roster-tab flex-auto sm:flex-none justify-center px-4 py-2.5 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 shadow-sm transition flex items-center gap-2">
                 <i class="fa-solid fa-check-double"></i> Konfirmasi Kehadiran
             </button>
-            <a href="sekretariat.html" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-sm whitespace-nowrap transition flex items-center gap-2">
+            <a href="sekretariat.html" class="flex-auto sm:flex-none justify-center px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-sm transition flex items-center gap-2">
                 <i class="fa-solid fa-file-pen"></i> Panel Sekretariat
             </a>
         </div>
