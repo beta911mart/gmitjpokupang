@@ -189,12 +189,23 @@
                         <option value="Tukar Jadwal">Tukar Jadwal / Hari</option>
                     </select>
                 </div>
-                <div id="areaTukar" class="hidden">
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan (Alasan / Ganti dengan siapa) *</label>
-                    <input type="text" id="konfKeterangan" placeholder="Contoh: Digantikan oleh Bpk. Andi" class="w-full rounded-lg border-slate-300 border px-4 py-2.5 text-sm focus:border-purple-500 outline-none">
+                
+                <!-- Area Tukar (Dropdown Mention & Keterangan) -->
+                <div id="areaTukar" class="hidden space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Pengganti (Mention)</label>
+                        <select id="konfPengganti" class="w-full rounded-lg border-slate-300 border px-4 py-2.5 text-sm focus:border-purple-500 outline-none bg-white">
+                            <!-- Diisi otomatis oleh JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan / Alasan *</label>
+                        <input type="text" id="konfKeterangan" placeholder="Contoh: Sedang dinas luar kota..." class="w-full rounded-lg border-slate-300 border px-4 py-2.5 text-sm focus:border-purple-500 outline-none">
+                    </div>
                 </div>
+
                 <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeFormAksi()" class="w-1/3 bg-slate-200 text-slate-700 font-bold py-2.5 rounded-lg text-xs">Batal</button>
+                    <button type="button" onclick="closeFormAksi()" class="w-1/3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 rounded-lg text-xs transition">Batal</button>
                     <button type="submit" id="btnSubmitKonf" class="w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg shadow-sm transition text-xs">Kirim Laporan</button>
                 </div>
             </form>
@@ -268,9 +279,23 @@
 
             let html = '';
             filteredData.forEach(r => {
-                const isConfirmed = r.nama_petugas.includes("(Hadir)") ? "bg-emerald-50/50" : (r.nama_petugas.includes("(Tidak") || r.nama_petugas.includes("(Tukar") ? "bg-amber-50/50" : "");
+                // Parsing Visual Otomatis pada Teks Nama
+                let displayPetugas = r.nama_petugas || '-';
+                
+                // Warnai (Hadir) jadi hijau
+                displayPetugas = displayPetugas.replace(/\(Hadir\)/gi, '<span class="text-emerald-600 font-bold text-[10px] bg-emerald-50 px-1 py-0.5 rounded ml-1 border border-emerald-200 inline-block">(Hadir)</span>');
+                
+                // Warnai (Tidak Hadir...) jadi merah
+                displayPetugas = displayPetugas.replace(/\(Tidak Hadir[^)]*\)/gi, match => `<span class="text-rose-600 font-bold text-[10px] bg-rose-50 px-1.5 py-0.5 rounded ml-1 border border-rose-200 inline-block mt-1">${match}</span>`);
+                
+                // Warnai (Tukar Jadwal...) jadi kuning + Parsing @Mention
+                displayPetugas = displayPetugas.replace(/\(Tukar Jadwal[^)]*\)/gi, match => {
+                    let parsedMention = match.replace(/@([a-zA-Z0-9\s.]+)(?=\s-|\)|$)/g, '<span class="text-blue-600 bg-blue-100 px-1 py-0.5 rounded border border-blue-200 inline-block mx-0.5 shadow-sm">@$1</span>');
+                    return `<span class="text-amber-700 font-bold text-[10px] bg-amber-50 px-1.5 py-0.5 rounded ml-1 border border-amber-200 inline-block mt-1 leading-relaxed">${parsedMention}</span>`;
+                });
+
                 html += `
-                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100 ${isConfirmed}">
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
                         <td class="px-4 py-3 align-top whitespace-nowrap">
                             <div class="font-bold text-slate-800 text-xs">${r.tanggal}</div>
                             <div class="text-[10px] text-slate-500 mt-0.5">${r.waktu || '-'} <br> <span class="text-purple-600 font-medium">${r.jenis_ibadah || '-'}</span></div>
@@ -278,7 +303,7 @@
                         <td class="px-4 py-3 align-top whitespace-nowrap">
                             <span class="inline-block px-2 py-1 bg-slate-100 text-slate-700 rounded text-[10px] font-bold border border-slate-200">${r.kategori_tugas || '-'}</span>
                         </td>
-                        <td class="px-4 py-3 font-bold text-slate-900 text-xs whitespace-normal min-w-[120px]">${r.nama_petugas || '-'}</td>
+                        <td class="px-4 py-3 font-semibold text-slate-800 text-xs whitespace-normal min-w-[140px] leading-relaxed">${displayPetugas}</td>
                     </tr>
                 `;
             });
@@ -398,10 +423,35 @@
             if (val === 'Tukar Jadwal' || val === 'Tidak Hadir') {
                 area.classList.remove('hidden');
                 inputKeterangan.required = true;
+                populatePenggantiDropdown(); // Tarik nama-nama petugas
             } else {
                 area.classList.add('hidden');
                 inputKeterangan.required = false;
             }
+        }
+
+        function populatePenggantiDropdown() {
+            const select = document.getElementById('konfPengganti');
+            let allNames = [];
+            // Ekstrak nama unik dari seluruh jadwal yang ada
+            activeRoster.forEach(r => {
+                if(r.nama_petugas) {
+                    let splitNames = r.nama_petugas.split(','); // Pisahkan jika ada koma
+                    splitNames.forEach(n => {
+                        let cleanName = n.replace(/\(.*\)/g, '').trim(); // Bersihkan status (Hadir), dll
+                        if(cleanName && !allNames.includes(cleanName)) allNames.push(cleanName);
+                    });
+                }
+            });
+            allNames.sort();
+            
+            let html = '<option value="">-- Kosongkan jika belum ada --</option>';
+            allNames.forEach(name => {
+                if(name.toLowerCase() !== currentUser.nama_lengkap.toLowerCase()) {
+                    html += `<option value="${name}">${name}</option>`;
+                }
+            });
+            select.innerHTML = html;
         }
 
         async function submitKonfirmasi(e) {
@@ -411,15 +461,32 @@
             btn.disabled = true;
 
             const status = document.getElementById('konfStatus').value;
+            const pengganti = document.getElementById('konfPengganti').value;
             const keterangan = document.getElementById('konfKeterangan').value;
             
-            let catatanTambahan = ` (${status})`;
-            if (status !== 'Hadir' && keterangan) {
-                catatanTambahan = ` (${status}: ${keterangan})`;
+            // Format Status Baru
+            let detailStatus = status;
+            if (status === 'Tukar Jadwal' || status === 'Tidak Hadir') {
+                if (pengganti) detailStatus += ` diganti @${pengganti}`;
+                if (keterangan) detailStatus += ` - ${keterangan}`;
             }
+            
+            let catatanTambahan = status === 'Hadir' ? ` (Hadir)` : ` (${detailStatus})`;
 
-            let namaBersih = tempSelectedRoster.nama_petugas.replace(/\s*\(.*\)/g, '');
-            let namaUpdate = namaBersih + catatanTambahan;
+            // Logika Partial Replacement (Hanya ubah nama milik user yang login)
+            let currentFullString = tempSelectedRoster.nama_petugas;
+            let myName = currentUser.nama_lengkap;
+            
+            // Regex cerdas: Cari nama user diikuti spasi dan kurung (jika sebelumnya sudah pernah isi)
+            let escapeRegex = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            let nameRegex = new RegExp(escapeRegex(myName) + "\\s*(?:\\(.*?\\))?", "gi");
+            
+            let namaUpdate = currentFullString.replace(nameRegex, myName + catatanTambahan);
+            
+            // Fallback: Jika nama user ditulis beda di database (tidak match), tempel saja di akhir string
+            if(namaUpdate === currentFullString && !currentFullString.toLowerCase().includes(myName.toLowerCase())) {
+                 namaUpdate = currentFullString + ", " + myName + catatanTambahan;
+            }
 
             const payload = {
                 action: "updateRoster",
