@@ -1592,8 +1592,7 @@ async function openBibleMenu(isBack = false) {
     
     main.innerHTML = `
         <div class="space-y-4">
-            
-            <div class="text-center py-10 text-slate-400 text-sm animate-pulse">Memuat renungan hari ini...</div>
+            <div class="text-center py-10 text-slate-500 dark:text-slate-400 text-sm animate-pulse">Memuat renungan hari ini...</div>
         </div>
     `;
     
@@ -1608,41 +1607,41 @@ async function openBibleMenu(isBack = false) {
             
             let formattedHtml = "";
             if (lines.length > 0) {
-                let judul = `<h4 class="font-bold text-white text-base mb-3">${lines[0]}</h4>`;
+                let judul = `<h4 class="font-bold text-slate-900 dark:text-white text-base mb-3">${lines[0]}</h4>`;
                 let isiTengah = "";
                 let quote = "";
                 
                 if (lines.length > 2) {
                     let lastLine = lines[lines.length - 1];
-                    quote = `<blockquote class="border-l-2 border-purple-500 pl-3 italic text-purple-200/90 my-3 text-xs">"${lastLine}"</blockquote>`;
+                    quote = `<blockquote class="border-l-2 border-purple-600 dark:border-purple-500 pl-3 italic text-purple-700 dark:text-purple-200/90 my-3 text-xs">"${lastLine}"</blockquote>`;
                     let middleLines = lines.slice(1, lines.length - 1);
                     isiTengah = middleLines.join("<br><br>");
                 } else if (lines.length === 2) {
                     isiTengah = lines[1];
                 }
                 
-                formattedHtml = `${judul}<div class="space-y-2 text-slate-300">${isiTengah}</div>${quote}`;
+                formattedHtml = `${judul}<div class="space-y-2 text-slate-700 dark:text-slate-300">${isiTengah}</div>${quote}`;
             } else {
                 formattedHtml = "Belum ada isi renungan.";
             }
 
             main.innerHTML = `
                 <div class="space-y-4">
-                    
-                    
-                    <div class="bg-gradient-to-br from-emerald-950 to-slate-900 border border-emerald-500/40 p-5 rounded-2xl text-center space-y-3 shadow-lg">
-                        <span class="bg-emerald-900/80 text-emerald-300 text-[10px] px-2.5 py-1 rounded-full font-semibold">✨ Ayat Emas Harian (${item.tanggal ? new Date(item.tanggal).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'}) : ''})</span>
-                        <blockquote class="text-sm text-slate-100 italic leading-relaxed font-serif">
+                    <!-- Kotak Ayat Emas Harian -->
+                    <div class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-slate-900 border border-emerald-300 dark:border-emerald-500/40 p-5 rounded-2xl text-center space-y-3 shadow-md">
+                        <span class="bg-emerald-200 text-emerald-800 dark:bg-emerald-900/80 dark:text-emerald-300 text-[10px] px-2.5 py-1 rounded-full font-semibold">✨ Ayat Emas Harian (${item.tanggal ? new Date(item.tanggal).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'}) : ''})</span>
+                        <blockquote class="text-sm text-slate-800 dark:text-slate-100 italic leading-relaxed font-serif">
                             "${item.isi_ayat}"
                         </blockquote>
-                        <p class="text-xs font-bold text-emerald-400">— ${item.ayat_harian} —</p>
+                        <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400">— ${item.ayat_harian} —</p>
                     </div>
 
-                    <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3 shadow-lg">
+                    <!-- Kotak Renungan Harian -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-3 shadow-md">
                         <div class="flex items-center space-x-2">
-                            <span class="bg-purple-900/80 text-purple-300 text-[10px] px-2.5 py-1 rounded-full font-semibold">✝️ Renungan Harian</span>
+                            <span class="bg-purple-100 text-purple-800 dark:bg-purple-900/80 dark:text-purple-300 text-[10px] px-2.5 py-1 rounded-full font-semibold">✝️ Renungan Harian</span>
                         </div>
-                        <div class="text-sm text-slate-300 leading-relaxed space-y-2 font-sans">
+                        <div class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed space-y-2 font-sans">
                             ${formattedHtml}
                         </div>
                     </div>
@@ -1651,16 +1650,14 @@ async function openBibleMenu(isBack = false) {
         } else {
             main.innerHTML = `
                 <div class="space-y-4">
-                    
-                    <div class="text-center py-10 text-slate-400 text-sm">Belum ada renungan yang dipublikasikan hari ini.</div>
+                    <div class="text-center py-10 text-slate-500 dark:text-slate-400 text-sm">Belum ada renungan yang dipublikasikan hari ini.</div>
                 </div>
             `;
         }
     } catch (err) {
         main.innerHTML = `
             <div class="space-y-4">
-                
-                <div class="text-center py-10 text-rose-400 text-sm">Gagal memuat data renungan.</div>
+                <div class="text-center py-10 text-rose-500 dark:text-rose-400 text-sm">Gagal memuat data renungan.</div>
             </div>
         `;
     }
