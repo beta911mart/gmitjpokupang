@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Roster - GMIT JPO Digital</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #9333ea; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: slideUp 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased flex flex-col min-h-screen">
+
+    <!-- NAVBAR DENGAN SAPAAN OTOMATIS -->
+    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center h-16 justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-slate-900 leading-tight" id="greetingSyalom">Syalom, Pelayan</h1>
+                        <p class="text-[10px] text-slate-500 font-medium">Panel Manajemen Roster (Role Duty)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        
+        <!-- MENU TAB NAVIGASI -->
+        <div class="flex overflow-x-auto gap-2 pb-4 hide-scrollbar mb-4 animate-slide-up">
+            <a href="/" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-800 text-white shadow-sm whitespace-nowrap transition flex items-center gap-2">
+                <i class="fa-solid fa-house"></i> Beranda
+            </a>
+            <button onclick="switchTab('jadwal')" id="tab-jadwal" class="roster-tab active px-4 py-2.5 rounded-xl text-xs font-bold bg-purple-600 text-white shadow-sm whitespace-nowrap transition flex items-center gap-2">
+                <i class="fa-solid fa-calendar-days"></i> Daftar Jadwal
+            </button>
+            <button onclick="switchTab('rekap')" id="tab-rekap" class="roster-tab px-4 py-2.5 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 shadow-sm whitespace-nowrap transition flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie"></i> Rekap Data
+            </button>
+            <button onclick="switchTab('konfirmasi')" id="tab-konfirmasi" class="roster-tab px-4 py-2.5 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 shadow-sm whitespace-nowrap transition flex items-center gap-2">
+                <i class="fa-solid fa-check-double"></i> Konfirmasi Kehadiran
+            </button>
+            <a href="sekretariat.html" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-sm whitespace-nowrap transition flex items-center gap-2">
+                <i class="fa-solid fa-file-pen"></i> Panel Sekretariat
+            </a>
+        </div>
+
+        <!-- 1. VIEW: DAFTAR JADWAL -->
+        <div id="view-jadwal" class="view-section active">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6">
+                <div class="mb-4 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fa-solid fa-search text-slate-400"></i></div>
+                    <input type="text" oninput="renderTable('rosterTableBody', this.value, activeRoster)" placeholder="Cari jadwal, ibadah, tugas, atau nama petugas..." class="w-full rounded-xl border border-slate-300 pl-10 pr-4 py-3 text-sm focus:border-purple-500 outline-none bg-slate-50">
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200 hide-scrollbar">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-[11px] font-bold text-slate-500 uppercase">Waktu & Ibadah</th>
+                                <th class="px-4 py-3 text-left text-[11px] font-bold text-slate-500 uppercase">Tugas</th>
+                                <th class="px-4 py-3 text-left text-[11px] font-bold text-slate-500 uppercase">Petugas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rosterTableBody" class="bg-white divide-y divide-slate-100 text-sm">
+                            <tr><td colspan="3" class="px-6 py-12 text-center"><div class="loader mx-auto"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. VIEW: REKAP DATA -->
+        <div id="view-rekap" class="view-section">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6">
+                <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Rekap Pelayanan</h2>
+                        <p class="text-xs text-slate-500">Filter data jadwal berdasarkan periode waktu.</p>
+                    </div>
+                    <div class="flex bg-slate-100 p-1 rounded-lg w-full md:w-auto">
+                        <button onclick="filterRekap('minggu')" id="btnRekap-minggu" class="rekap-btn active-rekap flex-1 px-3 py-1.5 rounded-md text-xs font-bold bg-white text-purple-700 shadow-sm">Minggu Ini</button>
+                        <button onclick="filterRekap('bulan')" id="btnRekap-bulan" class="rekap-btn flex-1 px-3 py-1.5 rounded-md text-xs font-bold text-slate-600 hover:bg-white/50">Bulan Ini</button>
+                        <button onclick="filterRekap('tahun')" id="btnRekap-tahun" class="rekap-btn flex-1 px-3 py-1.5 rounded-md text-xs font-bold text-slate-600 hover:bg-white/50">Tahun Ini</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200 hide-scrollbar">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-[11px] font-bold text-slate-500 uppercase">Waktu & Ibadah</th>
+                                <th class="px-4 py-3 text-left text-[11px] font-bold text-slate-500 uppercase">Tugas</th>
+                                <th class="px-4 py-3 text-left text-[11px] font-bold text-slate-500 uppercase">Petugas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rekapTableBody" class="bg-white divide-y divide-slate-100 text-sm">
+                            <tr><td colspan="3" class="px-6 py-8 text-center text-slate-400 italic text-xs">Pilih periode rekap di atas.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. VIEW: KONFIRMASI KEHADIRAN (OTOMATIS) -->
+        <div id="view-konfirmasi" class="view-section">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 max-w-2xl mx-auto">
+                <div class="mb-6 border-b border-slate-100 pb-4 text-center">
+                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xl mx-auto mb-3">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
+                    </div>
+                    <h2 class="text-lg font-bold text-slate-900">Jadwal Tugas Anda</h2>
+                    <p class="text-xs text-slate-500">Konfirmasi hanya terbuka 1 jam setelah jam ibadah dimulai.</p>
+                </div>
+
+                <!-- Hasil Render Jadwal Pribadi -->
+                <div id="jadwalPribadiArea" class="space-y-4">
+                    <div class="text-center py-6"><div class="loader mx-auto"></div></div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Konfirmasi/Notifikasi -->
+    <div id="rosterModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xs overflow-hidden animate-slide-up p-5 text-center">
+            <i id="modalIcon" class="fa-solid fa-circle-check text-4xl text-emerald-500 mb-3"></i>
+            <h3 id="modalTitle" class="text-base font-bold text-slate-800 mb-1">Berhasil</h3>
+            <p id="modalMessage" class="text-xs text-slate-500 mb-5">Data berhasil disimpan.</p>
+            <button onclick="closeModal()" class="w-full bg-slate-800 text-white font-bold py-2 rounded-lg text-xs">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Modal Form Aksi Konfirmasi -->
+    <div id="formAksiModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-slide-up p-5">
+            <h3 class="text-sm font-bold text-purple-700 mb-3 border-b border-slate-100 pb-2"><i class="fa-solid fa-clipboard-check mr-1"></i> Form Konfirmasi Kehadiran</h3>
+            <form onsubmit="submitKonfirmasi(event)" class="space-y-4">
+                <input type="hidden" id="konfIdTugas">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Status Kehadiran *</label>
+                    <select id="konfStatus" onchange="toggleTukarForm()" required class="w-full rounded-lg border-slate-300 border px-4 py-2.5 text-sm focus:border-purple-500 outline-none bg-white">
+                        <option value="">-- Pilih Status --</option>
+                        <option value="Hadir">Sedia / Hadir</option>
+                        <option value="Tidak Hadir">Berhalangan (Tidak Hadir)</option>
+                        <option value="Tukar Jadwal">Tukar Jadwal / Hari</option>
+                    </select>
+                </div>
+                <div id="areaTukar" class="hidden">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan (Alasan / Ganti dengan siapa) *</label>
+                    <input type="text" id="konfKeterangan" placeholder="Contoh: Digantikan oleh Bpk. Andi" class="w-full rounded-lg border-slate-300 border px-4 py-2.5 text-sm focus:border-purple-500 outline-none">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeFormAksi()" class="w-1/3 bg-slate-200 text-slate-700 font-bold py-2.5 rounded-lg text-xs">Batal</button>
+                    <button type="submit" id="btnSubmitKonf" class="w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg shadow-sm transition text-xs">Kirim Laporan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqCwFMS7vcIzpWt6sfXtdjpEk1QlnndTlSA6nZYlQwfWFY_oLHzA/exec";
+        let activeRoster = [];
+        let currentUser = { nama_lengkap: "" }; 
+
+        // DETEKSI AKUN LOGIN ONLOAD
+        function detectUser() {
+            // Asumsi data user utama disimpan di localStorage dengan key "user_profile" atau sejenisnya
+            const savedUser = localStorage.getItem("user_profile") || localStorage.getItem("petugas_sensus") || localStorage.getItem("admin_data");
+            if (savedUser) {
+                try {
+                    const parsed = JSON.parse(savedUser);
+                    currentUser.nama_lengkap = parsed.nama_lengkap || parsed.nama || "Pelayan Tuhan";
+                } catch(e) { currentUser.nama_lengkap = "Pelayan Tuhan"; }
+            } else {
+                currentUser.nama_lengkap = "Pelayan Tuhan"; // Fallback jika tidak ditemukan
+            }
+            document.getElementById('greetingSyalom').innerText = `Syalom, ${currentUser.nama_lengkap}`;
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.roster-tab').forEach(el => {
+                el.classList.remove('bg-purple-600', 'text-white', 'active');
+                el.classList.add('bg-white', 'text-slate-600');
+            });
+            
+            document.getElementById(`view-${tabId}`).classList.add('active');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.remove('bg-white', 'text-slate-600');
+            activeBtn.classList.add('bg-purple-600', 'text-white', 'active');
+
+            if(tabId === 'rekap') filterRekap('minggu');
+            if(tabId === 'konfirmasi') renderKonfirmasiPribadi();
+        }
+
+        async function fetchRosterData() {
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getDutyRoster`);
+                const result = await res.json();
+                if (result.status === "success" && result.data) {
+                    activeRoster = result.data;
+                    renderTable('rosterTableBody', '', activeRoster);
+                    if(document.getElementById('view-konfirmasi').classList.contains('active')) {
+                        renderKonfirmasiPribadi();
+                    }
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function renderTable(targetBodyId, filterText, dataset) {
+            const tbody = document.getElementById(targetBodyId);
+            const keyword = filterText.toLowerCase().trim();
+            const filteredData = dataset.filter(r => 
+                (r.nama_petugas && r.nama_petugas.toLowerCase().includes(keyword)) ||
+                (r.kategori_tugas && r.kategori_tugas.toLowerCase().includes(keyword)) ||
+                (r.jenis_ibadah && r.jenis_ibadah.toLowerCase().includes(keyword)) ||
+                (r.tanggal && r.tanggal.toLowerCase().includes(keyword))
+            );
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="px-4 py-8 text-center text-slate-400 font-medium italic text-xs">Data tidak ditemukan.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            filteredData.forEach(r => {
+                const isConfirmed = r.nama_petugas.includes("(Hadir)") ? "bg-emerald-50/50" : (r.nama_petugas.includes("(Tidak") || r.nama_petugas.includes("(Tukar") ? "bg-amber-50/50" : "");
+                html += `
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100 ${isConfirmed}">
+                        <td class="px-4 py-3 align-top whitespace-nowrap">
+                            <div class="font-bold text-slate-800 text-xs">${r.tanggal}</div>
+                            <div class="text-[10px] text-slate-500 mt-0.5">${r.waktu || '-'} <br> <span class="text-purple-600 font-medium">${r.jenis_ibadah || '-'}</span></div>
+                        </td>
+                        <td class="px-4 py-3 align-top whitespace-nowrap">
+                            <span class="inline-block px-2 py-1 bg-slate-100 text-slate-700 rounded text-[10px] font-bold border border-slate-200">${r.kategori_tugas || '-'}</span>
+                        </td>
+                        <td class="px-4 py-3 font-bold text-slate-900 text-xs whitespace-normal min-w-[120px]">${r.nama_petugas || '-'}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function filterRekap(periode) {
+            document.querySelectorAll('.rekap-btn').forEach(el => {
+                el.classList.remove('bg-white', 'text-purple-700', 'shadow-sm');
+                el.classList.add('text-slate-600');
+            });
+            document.getElementById(`btnRekap-${periode}`).classList.remove('text-slate-600');
+            document.getElementById(`btnRekap-${periode}`).classList.add('bg-white', 'text-purple-700', 'shadow-sm');
+
+            const now = new Date();
+            const filtered = activeRoster.filter(r => {
+                if(!r.tanggal) return false;
+                const d = new Date(r.tanggal);
+                if (periode === 'tahun') return d.getFullYear() === now.getFullYear();
+                if (periode === 'bulan') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                if (periode === 'minggu') {
+                    const diffTime = d - now;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays >= -1 && diffDays <= 7;
+                }
+                return true;
+            });
+            renderTable('rekapTableBody', '', filtered);
+        }
+
+        // --- RENDER KONFIRMASI (DETEKSI WAKTU) ---
+        function renderKonfirmasiPribadi() {
+            const container = document.getElementById('jadwalPribadiArea');
+            if (currentUser.nama_lengkap === "Pelayan Tuhan" || !currentUser.nama_lengkap) {
+                container.innerHTML = `<div class="p-4 bg-rose-50 border border-rose-200 rounded-xl text-center text-xs text-rose-600">Sistem tidak mendeteksi akun login Anda. Silakan login kembali dari halaman utama.</div>`;
+                return;
+            }
+
+            const myName = currentUser.nama_lengkap.toLowerCase();
+            const myJadwal = activeRoster.filter(r => r.nama_petugas && r.nama_petugas.toLowerCase().includes(myName));
+
+            if (myJadwal.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6 italic border border-slate-200 rounded-xl bg-slate-50">Belum ada jadwal pelayanan atas nama Anda saat ini.</p>`;
+                return;
+            }
+
+            const now = new Date();
+            let html = '';
+
+            myJadwal.forEach(r => {
+                let btnHtml = '';
+                
+                // Kalkulasi Waktu Aktif (Tanggal Tugas + Jam Tugas + 1 Jam)
+                let isReady = false;
+                if (r.tanggal && r.waktu) {
+                    const dutyDate = new Date(r.tanggal);
+                    const timeParts = r.waktu.split(/[:.]/); // Misal "06:00" atau "06.00"
+                    
+                    if (timeParts.length >= 2) {
+                        dutyDate.setHours(parseInt(timeParts[0]) + 1, parseInt(timeParts[1]), 0); // Ditambah 1 Jam
+                        if (now >= dutyDate) {
+                            isReady = true;
+                        }
+                    }
+                }
+
+                if (isReady) {
+                    // Tombol Aktif
+                    btnHtml = `<button onclick='bukaFormAksi(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg text-xs shadow-sm transition">Berikan Konfirmasi</button>`;
+                } else {
+                    // Tombol Nonaktif (Belum Waktunya)
+                    btnHtml = `<div class="w-full mt-3 bg-slate-100 text-slate-400 font-bold py-2 rounded-lg text-xs text-center border border-slate-200 cursor-not-allowed">
+                        <i class="fa-solid fa-lock mr-1"></i> Aktif 1 jam setelah ibadah dimulai
+                    </div>`;
+                }
+
+                html += `
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-purple-100 text-purple-700 px-3 py-1 rounded-bl-lg text-[10px] font-bold">
+                            Tugas Anda
+                        </div>
+                        <p class="text-sm font-bold text-slate-900 mb-1">${r.tanggal} &bull; ${r.waktu}</p>
+                        <p class="text-xs text-slate-600 mb-3">${r.jenis_ibadah} - <span class="font-bold text-purple-600">${r.kategori_tugas}</span></p>
+                        ${btnHtml}
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        let tempSelectedRoster = null;
+        function bukaFormAksi(rosterItem) {
+            tempSelectedRoster = rosterItem;
+            document.getElementById('konfIdTugas').value = rosterItem.id;
+            
+            const modal = document.getElementById('formAksiModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeFormAksi() {
+            const modal = document.getElementById('formAksiModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('konfStatus').value = "";
+            toggleTukarForm();
+        }
+
+        function toggleTukarForm() {
+            const val = document.getElementById('konfStatus').value;
+            const area = document.getElementById('areaTukar');
+            const inputKeterangan = document.getElementById('konfKeterangan');
+            
+            if (val === 'Tukar Jadwal' || val === 'Tidak Hadir') {
+                area.classList.remove('hidden');
+                inputKeterangan.required = true;
+            } else {
+                area.classList.add('hidden');
+                inputKeterangan.required = false;
+            }
+        }
+
+        async function submitKonfirmasi(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitKonf');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses...`;
+            btn.disabled = true;
+
+            const status = document.getElementById('konfStatus').value;
+            const keterangan = document.getElementById('konfKeterangan').value;
+            
+            let catatanTambahan = ` (${status})`;
+            if (status !== 'Hadir' && keterangan) {
+                catatanTambahan = ` (${status}: ${keterangan})`;
+            }
+
+            let namaBersih = tempSelectedRoster.nama_petugas.replace(/\s*\(.*\)/g, '');
+            let namaUpdate = namaBersih + catatanTambahan;
+
+            const payload = {
+                action: "updateRoster",
+                roster_id: tempSelectedRoster.id,
+                nama_petugas: namaUpdate
+            };
+
+            try {
+                await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+                closeFormAksi();
+                showModal('success', 'Terkirim', 'Status pelayanan Anda telah diperbarui.');
+                fetchRosterData();
+            } catch (err) {
+                showModal('error', 'Gagal', 'Terjadi kesalahan sistem.');
+            } finally {
+                btn.innerHTML = `Kirim Laporan`;
+                btn.disabled = false;
+            }
+        }
+
+        function showModal(type, title, message) {
+            const modal = document.getElementById('rosterModal');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            
+            const icon = document.getElementById('modalIcon');
+            icon.className = type === 'success' ? 'fa-solid fa-circle-check text-4xl text-emerald-500 mb-3' : 'fa-solid fa-triangle-exclamation text-4xl text-rose-500 mb-3';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('rosterModal').classList.add('hidden');
+            document.getElementById('rosterModal').classList.remove('flex');
+        }
+
+        // Inisialisasi
+        window.addEventListener('DOMContentLoaded', () => {
+            detectUser();
+            fetchRosterData();
+        });
+    </script>
+</body>
+</html>
