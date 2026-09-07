@@ -124,7 +124,7 @@
             
     // LOGIKA TENDANGAN (REDIRECT) JIKA GAGAL ---
             alert("Akses Ditolak! 🛑\nAnda harus login melalui aplikasi utama menggunakan akun pengurus.");
-            window.location.replace("index.html"); // Menggunakan replace agar user tidak bisa menekan tombol 'Back' browser
+            window.location.replace("/"); // Menggunakan replace agar user tidak bisa menekan tombol 'Back' browser
         });
 
         // --- 2. DASHBOARD SEKRETARIAT ---
@@ -1214,7 +1214,7 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
             sessionStorage.removeItem("admin_gereja");
             localStorage.removeItem("admin_gereja");
             alert("Anda telah keluar dari Panel Sekretariat.");
-            window.location.href = "index.html";
+            window.location.href = "/";
         }
 
         // --- 10. BROADCAST ---
