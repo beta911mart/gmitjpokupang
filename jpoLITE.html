@@ -918,30 +918,48 @@
             document.getElementById('galEditIndex').value = "-1";
         };
 
-        window.handleRegistration = async function(e) {
+window.handleRegistration = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSubmitReg');
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Menyimpan...`;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Mengecek Data...`;
             btn.disabled = true;
 
             const memberData = {
-                name: document.getElementById('regName').value,
+                name: document.getElementById('regName').value.trim(),
                 birthPlace: document.getElementById('regBirthPlace').value,
                 birthDate: document.getElementById('regBirthDate').value,
                 gender: document.getElementById('regGender').value,
-                rayon: document.getElementById('regRayon').value,
-                phone: document.getElementById('regPhone').value,
+                lingkungan: document.getElementById('regRayon').value,
+                phone: document.getElementById('regPhone').value.trim(),
                 address: document.getElementById('regAddress').value,
-                isBaptized: document.getElementById('regBaptis').checked ? "Ya" : "Tidak",
-                isSidi: document.getElementById('regSidi').checked ? "Ya" : "Tidak"
+                isBaptized: document.getElementById('regBaptis').checked ? "Ya" : "Belum",
+                isSidi: document.getElementById('regSidi').checked ? "Ya" : "Belum"
             };
 
             try {
+                // 1. CEK DUPLIKASI DATA DENGAN DATABASE UTAMA
+                const existingMembers = await apiGetMembers();
+                const isDuplicate = existingMembers.some(m => 
+                    (memberData.phone !== "" && m.phone === memberData.phone) || 
+                    m.name.toLowerCase() === memberData.name.toLowerCase()
+                );
+
+                if (isDuplicate) {
+                    showModal('error', 'Pendaftaran Ditolak', 'Nama atau Nomor WhatsApp ini sudah terdaftar di database utama gereja.');
+                    btn.innerHTML = `<span>Kirim Data Jemaat</span> <i class="fa-solid fa-paper-plane"></i>`;
+                    btn.disabled = false;
+                    return; // Hentikan proses
+                }
+
+                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Menyimpan...`;
+
+                // 2. KIRIM DATA MENGGUNAKAN API BARU
                 await apiAddMember(memberData);
+                
                 document.getElementById('registrationForm').reset();
-                showModal('success', 'Pendaftaran Berhasil', `Data jemaat <strong>${memberData.name}</strong> berhasil direkam.`);
+                showModal('success', 'Pendaftaran Berhasil', `Data jemaat <strong>${memberData.name}</strong> berhasil direkam di sistem pusat.`);
             } catch (error) {
-                showModal('error', 'Gagal', 'Terjadi kesalahan sistem.');
+                showModal('error', 'Gagal', 'Terjadi kesalahan saat menghubungi server: ' + error.message);
             } finally {
                 btn.innerHTML = `<span>Kirim Data Jemaat</span> <i class="fa-solid fa-paper-plane"></i>`;
                 btn.disabled = false;
@@ -1018,6 +1036,37 @@
         };
 
         window.addEventListener('DOMContentLoaded', initApp);
+
+
+
+        async function apiAddMember(memberData) {
+            // Menggabungkan Status Sakramen agar bisa masuk ke Google Sheet tanpa menambah kolom baru
+            const statusSakramen = `Jemaat (Baptis: ${memberData.isBaptized}, Sidi: ${memberData.isSidi})`;
+
+            // Memanfaatkan endpoint 'sensusSaveData' dari aplikasi utama untuk menyimpan data lengkap
+            const res = await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    action: "sensusSaveData", 
+                    user_id: "", // Dikosongkan agar terbaca sebagai jemaat baru
+                    nama_lengkap: memberData.name, 
+                    tempat_lahir: memberData.birthPlace,
+                    tanggal_lahir: memberData.birthDate,
+                    status_pelayanan: statusSakramen,
+                    lingkungan: memberData.lingkungan,
+                    rayon: memberData.lingkungan,
+                    no_whatsapp: memberData.phone,
+                    alamat: memberData.address,
+                    jenis_kelamin: memberData.gender
+                }) 
+            });
+            
+            const result = await res.json();
+            if(result.status === "error" || result.status === "failed") {
+                throw new Error(result.message);
+            }
+            return result;
+        }
     </script>
 </body>
 </html>
