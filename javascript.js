@@ -1278,10 +1278,12 @@ async function openDutyRoster(isBack = false) {
             `;
         }).join('');
 
-        // Banner Tugas Pribadi...
+		// Banner Tugas Pribadi...
         const user = window.currentUser || JSON.parse(localStorage.getItem("user_gereja"));
         if (user) {
-            const myDuties = duties.filter(d => d.nama_petugas.toLowerCase().includes(user.nama_lengkap.toLowerCase()));
+            // Filter tugas utama yang namanya mengandung nama user tanpa ada atribut "@" di depannya (bukan sebagai pengganti)
+            const myDuties = duties.filter(d => d.nama_petugas.toLowerCase().includes(user.nama_lengkap.toLowerCase()) && !d.nama_petugas.toLowerCase().includes(`@${user.nama_lengkap.toLowerCase()}`));
+            
             if (myDuties.length > 0) {
                 const nextDuty = myDuties[0];
                 const dateObj = new Date(nextDuty.tanggal);
@@ -1296,12 +1298,75 @@ async function openDutyRoster(isBack = false) {
                         <p class="text-[11px] leading-relaxed">Syalom <b>${user.nama_lengkap}</b>, Anda terjadwal untuk tugas <b>${nextDuty.kategori_tugas}</b> pada <b>${nextDuty.jenis_ibadah}</b> (${formatTgl}). Persiapkan diri Anda.</p>
                     </div>
                 `;
+            } else {
+                // Pastikan wadah banner bersih jika tidak ada tugas utama
+                banner.innerHTML = "";
+            }
+
+            // =================================================================
+            // DETEKSI PERTUKARAN JADWAL (TUKAR / BERHALANGAN / MENTION)
+            // =================================================================
+            
+            // Menggunakan variabel 'duties' yang sudah ada di scope javascript.js
+            if (typeof duties !== 'undefined' && duties.length > 0) {
+                let swapBannerHtml = "";
+                const myName = user.nama_lengkap.toLowerCase();
+
+                // 1. JIKA ANDA DIMINTA SEBAGAI PENGGANTI (Mention @NamaAnda)
+                let asReplacement = duties.filter(r => 
+                    r.nama_petugas && r.nama_petugas.toLowerCase().includes(`@${myName}`)
+                );
+
+                asReplacement.forEach(task => {
+                    let peminta = task.nama_petugas.split('(')[0].trim();
+                    swapBannerHtml += `
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 rounded-2xl shadow-lg border border-blue-400 text-white animate-slide-in mb-4">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="text-lg">🤝</span>
+                                <h4 class="text-xs font-bold uppercase tracking-wider">Permintaan Ganti Tugas</h4>
+                            </div>
+                            <p class="text-[11px] leading-relaxed">Syalom <b>${user.nama_lengkap}</b>, Anda diminta oleh <b>${peminta}</b> untuk menggantikannya bertugas sebagai <b>${task.kategori_tugas}</b> pada <b>${task.jenis_ibadah}</b> (${task.tanggal}).</p>
+                        </div>
+                    `;
+                });
+
+                // 2. JIKA ANDA MEMINTA DIGANTIKAN ATAU BERHALANGAN
+                let asRequester = duties.filter(r => {
+                    if (!r.nama_petugas) return false;
+                    let names = r.nama_petugas.split(','); 
+                    return names.some(n => {
+                        let cleanName = n.split('(')[0].trim().toLowerCase();
+                        let hasSwapOrAbsent = n.includes('(Tukar') || n.includes('(Tidak Hadir');
+                        return cleanName === myName && hasSwapOrAbsent;
+                    });
+                });
+
+                asRequester.forEach(task => {
+                    let match = task.nama_petugas.match(/@([a-zA-Z0-9\s.]+)(?=\s-|\)|$)/);
+                    let pengganti = match ? match[1].trim() : "seseorang";
+                    let isAbsentOnly = task.nama_petugas.includes('(Tidak Hadir');
+                    
+                    let pesan = isAbsentOnly 
+                        ? `Anda telah mengonfirmasi <b>Berhalangan (Tidak Hadir)</b> untuk tugas <b>${task.kategori_tugas}</b> pada <b>${task.jenis_ibadah}</b> (${task.tanggal}).`
+                        : `Anda telah meminta pertukaran jadwal. Anda akan digantikan oleh <b>${pengganti}</b> untuk tugas <b>${task.kategori_tugas}</b> pada <b>${task.jenis_ibadah}</b> (${task.tanggal}).`;
+
+                    swapBannerHtml += `
+                        <div class="bg-gradient-to-r from-rose-600 to-red-500 p-4 rounded-2xl shadow-lg border border-rose-400 text-white animate-slide-in mb-4">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="text-lg">🔁</span>
+                                <h4 class="text-xs font-bold uppercase tracking-wider">Status Berhalangan / Tukar</h4>
+                            </div>
+                            <p class="text-[11px] leading-relaxed">${pesan}</p>
+                        </div>
+                    `;
+                });
+
+                // Tampilkan banner tambahan di bawah (atau sebagai banner tunggal jika banner utama kosong)
+                if (swapBannerHtml !== "") {
+                    banner.innerHTML += swapBannerHtml;
+                }
             }
         }
-    } catch (err) {
-        document.getElementById("dutyContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat jadwal pelayanan.</p>`;
-    }
-}
 
 function openSuratForm(jenisSurat, isBack = false) {
     if (!isBack) pushNavState('openSuratForm', [jenisSurat]);
