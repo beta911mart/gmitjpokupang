@@ -1170,8 +1170,200 @@ function openSuratSubMenu(isBack = false) {
     `;
 }
 
-async function openDutyRoster
+async function openDutyRoster(isBack = false) {
+    if (!isBack) pushNavState('openDutyRoster');
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Jadwal Pelayanan";
+    triggerPageTransition();
 
+    main.innerHTML = `
+        <div class="space-y-4">
+            <button onclick="openCategoriesMenu(true)" class="text-xs text-purple-400 font-semibold mb-2 flex items-center gap-1">
+                <i class="fa-solid fa-arrow-left"></i> Kembali ke Menu Sekretariat
+            </button>
+            
+            <div id="myDutyBanner"></div>
+
+            <div class="bg-indigo-950/40 border border-indigo-900/40 p-3 rounded-xl flex items-center gap-3 shadow-sm">
+                <span class="text-2xl">📋</span>
+                <p class="text-xs text-indigo-200 leading-relaxed">Jadwal pelayanan jemaat berdasarkan sesi ibadah.</p>
+            </div>
+
+            <!-- Wadah Tanggal Update (Muncul jika ada data) -->
+            <div id="lastUpdateInfo" class="text-center hidden pt-1"></div>
+
+            <div id="dutyContainer" class="space-y-4 pb-10">
+                <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat jadwal pelayanan...</p>
+            </div>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=getDutyRoster`);
+        const result = await response.json();
+        const container = document.getElementById("dutyContainer");
+        const banner = document.getElementById("myDutyBanner");
+        const duties = result.data || [];
+        
+        if (duties.length === 0) {
+            container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada jadwal pelayanan diterbitkan.</p>`;
+            return;
+        }
+
+        // LOGIKA PENCARIAN TIMESTAMP TERAKHIR DARI DATABASE
+        let latestTimeMs = 0;
+        const groupedRoster = {};
+        
+        duties.forEach(d => {
+            if (d.timestamp) {
+                const ms = new Date(d.timestamp).getTime();
+                if (ms > latestTimeMs) latestTimeMs = ms;
+            }
+
+            const eventKey = `${d.tanggal}|${d.jenis_ibadah}`;
+            if (!groupedRoster[eventKey]) {
+                groupedRoster[eventKey] = { tanggal: d.tanggal, jenis_ibadah: d.jenis_ibadah, kategori: {} };
+            }
+            if (!groupedRoster[eventKey].kategori[d.kategori_tugas]) {
+                groupedRoster[eventKey].kategori[d.kategori_tugas] = [];
+            }
+            groupedRoster[eventKey].kategori[d.kategori_tugas].push({ nama: d.nama_petugas, jam: d.waktu });
+        });
+
+        // TAMPILKAN TANGGAL UPDATE KE LAYAR JEMAAT
+        if (latestTimeMs > 0) {
+            const dateObj = new Date(latestTimeMs);
+            const formatWaktu = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' - ' + dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WITA';
+            const updateDiv = document.getElementById("lastUpdateInfo");
+            updateDiv.innerHTML = `<span class="bg-slate-900 border border-slate-800 text-purple-400 text-[10px] px-3 py-1.5 rounded-full font-bold inline-block shadow-sm">🔄 Terakhir Diperbarui: ${formatWaktu}</span>`;
+            updateDiv.classList.remove("hidden");
+        }
+
+        container.innerHTML = Object.values(groupedRoster).map(event => {
+            const dateObj = new Date(event.tanggal);
+            const formatTgl = !isNaN(dateObj) ? dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) : event.tanggal;
+
+            return `
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm animate-card-hover">
+                    <div class="border-b border-slate-800 pb-3 mb-3">
+                        <h4 class="text-sm font-bold text-purple-400">${event.jenis_ibadah}</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5">📅 ${formatTgl}</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        ${Object.keys(event.kategori).map(kat => {
+                            const petugasSorted = event.kategori[kat].sort((a, b) => (a.jam || "").localeCompare(b.jam || ""));
+                            return `
+                            <div>
+                                <span class="bg-indigo-900 text-indigo-300 text-[10px] px-2 py-0.5 rounded font-bold inline-block mb-2">${kat}</span>
+                                <div class="text-[11px] text-slate-300 pl-1 space-y-1.5">
+                                    ${petugasSorted.map(petugas => {
+                                        const daftarNama = (petugas.nama || "").split(',').map(n => n.trim()).filter(n => n !== "");
+                                        return daftarNama.map(namaIndividu => `
+                                            <div class="flex items-start gap-1.5">
+                                                <span class="text-slate-500 font-bold">-</span>
+                                                <span>${namaIndividu} <span class="text-slate-500 text-[9px] font-normal ml-0.5">(${petugas.jam || ""})</span></span>
+                                            </div>
+                                        `).join('');
+                                    }).join('')}
+                                </div>
+                            </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Banner Tugas Pribadi...
+        const user = window.currentUser || JSON.parse(localStorage.getItem("user_gereja"));
+        if (user) {
+            // Aman: menggunakan fallback (d.nama_petugas || "") untuk mencegah error jika data null
+            const myDuties = duties.filter(d => (d.nama_petugas || "").toLowerCase().includes(user.nama_lengkap.toLowerCase()) && !(d.nama_petugas || "").toLowerCase().includes(`@${user.nama_lengkap.toLowerCase()}`));
+            
+            if (myDuties.length > 0) {
+                const nextDuty = myDuties[0];
+                const dateObj = new Date(nextDuty.tanggal);
+                const formatTgl = !isNaN(dateObj) ? dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : nextDuty.tanggal;
+                
+                banner.innerHTML = `
+                    <div class="bg-gradient-to-r from-amber-600 to-orange-500 p-4 rounded-2xl shadow-lg border border-amber-400 text-white animate-slide-in mb-4">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="text-lg">🔔</span>
+                            <h4 class="text-xs font-bold uppercase tracking-wider">Pengingat Tugas!</h4>
+                        </div>
+                        <p class="text-[11px] leading-relaxed">Syalom <b>${user.nama_lengkap}</b>, Anda terjadwal untuk tugas <b>${nextDuty.kategori_tugas}</b> pada <b>${nextDuty.jenis_ibadah}</b> (${formatTgl}). Persiapkan diri Anda.</p>
+                    </div>
+                `;
+            } else {
+                banner.innerHTML = "";
+            }
+
+            // DETEKSI PERTUKARAN JADWAL (TUKAR / BERHALANGAN / MENTION)
+            if (typeof duties !== 'undefined' && duties.length > 0) {
+                let swapBannerHtml = "";
+                const myName = user.nama_lengkap.toLowerCase();
+
+                let asReplacement = duties.filter(r => 
+                    (r.nama_petugas || "").toLowerCase().includes(`@${myName}`)
+                );
+
+                asReplacement.forEach(task => {
+                    let peminta = (task.nama_petugas || "").split('(')[0].trim();
+                    swapBannerHtml += `
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 rounded-2xl shadow-lg border border-blue-400 text-white animate-slide-in mb-4">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="text-lg">🤝</span>
+                                <h4 class="text-xs font-bold uppercase tracking-wider">Permintaan Ganti Tugas</h4>
+                            </div>
+                            <p class="text-[11px] leading-relaxed">Syalom <b>${user.nama_lengkap}</b>, Anda diminta oleh <b>${peminta}</b> untuk menggantikannya bertugas sebagai <b>${task.kategori_tugas}</b> pada <b>${task.jenis_ibadah}</b> (${task.tanggal}).</p>
+                        </div>
+                    `;
+                });
+
+                let asRequester = duties.filter(r => {
+                    if (!r.nama_petugas) return false;
+                    let names = r.nama_petugas.split(','); 
+                    return names.some(n => {
+                        let cleanName = n.split('(')[0].trim().toLowerCase();
+                        let hasSwapOrAbsent = n.includes('(Tukar') || n.includes('(Tidak Hadir');
+                        return cleanName === myName && hasSwapOrAbsent;
+                    });
+                });
+
+                asRequester.forEach(task => {
+                    let match = (task.nama_petugas || "").match(/@([a-zA-Z0-9\s.]+)(?=\s-|\)|$)/);
+                    let pengganti = match ? match[1].trim() : "seseorang";
+                    let isAbsentOnly = (task.nama_petugas || "").includes('(Tidak Hadir');
+                    
+                    let pesan = isAbsentOnly 
+                        ? `Anda telah mengonfirmasi <b>Berhalangan (Tidak Hadir)</b> untuk tugas <b>${task.kategori_tugas}</b> pada <b>${task.jenis_ibadah}</b> (${task.tanggal}).`
+                        : `Anda telah meminta pertukaran jadwal. Anda akan digantikan oleh <b>${pengganti}</b> untuk tugas <b>${task.kategori_tugas}</b> pada <b>${task.jenis_ibadah}</b> (${task.tanggal}).`;
+
+                    swapBannerHtml += `
+                        <div class="bg-gradient-to-r from-rose-600 to-red-500 p-4 rounded-2xl shadow-lg border border-rose-400 text-white animate-slide-in mb-4">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="text-lg">🔁</span>
+                                <h4 class="text-xs font-bold uppercase tracking-wider">Status Berhalangan / Tukar</h4>
+                            </div>
+                            <p class="text-[11px] leading-relaxed">${pesan}</p>
+                        </div>
+                    `;
+                });
+
+                if (swapBannerHtml !== "") {
+                    banner.innerHTML += swapBannerHtml;
+                }
+            }
+        }
+    // PENAMBAHAN CATCH BLOCK YANG HILANG SEBELUMNYA
+    } catch (err) {
+        const container = document.getElementById("dutyContainer");
+        if (container) {
+            container.innerHTML = `<p class="text-xs text-rose-400 text-center py-6">Gagal memuat jadwal pelayanan.</p>`;
+        }
+    }
+}
 function openSuratForm(jenisSurat, isBack = false) {
     if (!isBack) pushNavState('openSuratForm', [jenisSurat]);
     const main = document.querySelector("main");
