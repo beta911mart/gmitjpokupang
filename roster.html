@@ -132,12 +132,23 @@
         <!-- 3. VIEW: KONFIRMASI KEHADIRAN (OTOMATIS) -->
         <div id="view-konfirmasi" class="view-section">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 max-w-2xl mx-auto">
-                <div class="mb-6 border-b border-slate-100 pb-4 text-center">
+                <div class="mb-4 border-b border-slate-100 pb-4 text-center">
                     <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xl mx-auto mb-3">
                         <i class="fa-solid fa-hand-holding-heart"></i>
                     </div>
                     <h2 class="text-lg font-bold text-slate-900">Jadwal Tugas Anda</h2>
-                    <p class="text-xs text-slate-500">Konfirmasi hanya terbuka 1 jam setelah jam ibadah dimulai.</p>
+                </div>
+
+                <!-- Kotak Informasi & Aturan Konfirmasi -->
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-5 shadow-sm">
+                    <h3 class="text-xs font-bold text-blue-800 mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info"></i> Aturan Konfirmasi Kehadiran
+                    </h3>
+                    <ul class="text-[11px] text-blue-700 space-y-1.5 list-disc list-inside leading-relaxed">
+                        <li>Tombol konfirmasi sengaja dikunci sebelum ibadah berjalan.</li>
+                        <li>Tombol otomatis aktif <strong class="font-bold">30 menit setelah</strong> jam ibadah resmi dimulai.</li>
+                        <li>Tidak ada batas waktu akhir, Anda tetap dapat mengisi konfirmasi setelah ibadah selesai.</li>
+                    </ul>
                 </div>
 
                 <!-- Hasil Render Jadwal Pribadi -->
@@ -316,14 +327,17 @@
             myJadwal.forEach(r => {
                 let btnHtml = '';
                 
-                // Kalkulasi Waktu Aktif (Tanggal Tugas + Jam Tugas + 1 Jam)
+            // Kalkulasi Waktu Aktif (Tanggal Tugas + Jam Tugas + 30 Menit)
                 let isReady = false;
                 if (r.tanggal && r.waktu) {
                     const dutyDate = new Date(r.tanggal);
-                    const timeParts = r.waktu.split(/[:.]/); // Misal "06:00" atau "06.00"
+                    const timeParts = r.waktu.split(/[:.]/); // Memecah format jam "06:00" atau "06.00"
                     
                     if (timeParts.length >= 2) {
-                        dutyDate.setHours(parseInt(timeParts[0]) + 1, parseInt(timeParts[1]), 0); // Ditambah 1 Jam
+                        // Menyetel jam ibadah dan menambahkannya +30 Menit pada bagian menit (timeParts[1])
+                        dutyDate.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]) + 30, 0); 
+                        
+                        // Jika waktu saat ini (now) sudah melewati jam ibadah + 30 menit, tombol diaktifkan
                         if (now >= dutyDate) {
                             isReady = true;
                         }
@@ -334,9 +348,9 @@
                     // Tombol Aktif
                     btnHtml = `<button onclick='bukaFormAksi(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg text-xs shadow-sm transition">Berikan Konfirmasi</button>`;
                 } else {
-                    // Tombol Nonaktif (Belum Waktunya)
+                    // Tombol Nonaktif (Teks diubah menjadi 30 menit)
                     btnHtml = `<div class="w-full mt-3 bg-slate-100 text-slate-400 font-bold py-2 rounded-lg text-xs text-center border border-slate-200 cursor-not-allowed">
-                        <i class="fa-solid fa-lock mr-1"></i> Aktif 1 jam setelah ibadah dimulai
+                        <i class="fa-solid fa-lock mr-1"></i> Aktif 30 menit setelah ibadah dimulai
                     </div>`;
                 }
 
