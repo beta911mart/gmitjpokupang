@@ -146,12 +146,11 @@
                 <!-- Kotak Informasi & Aturan Konfirmasi -->
                 <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-5 shadow-sm">
                     <h3 class="text-xs font-bold text-blue-800 mb-2 flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-info"></i> Aturan Konfirmasi Kehadiran
+                        <i class="fa-solid fa-circle-info"></i> Aturan Konfirmasi & Pertukaran
                     </h3>
                     <ul class="text-[11px] text-blue-700 space-y-1.5 list-disc list-inside leading-relaxed">
-                        <li>Tombol konfirmasi sengaja dikunci sebelum ibadah berjalan.</li>
-                        <li>Tombol otomatis aktif <strong class="font-bold">30 menit setelah</strong> jam ibadah resmi dimulai.</li>
-                        <li>Tidak ada batas waktu akhir, Anda tetap dapat mengisi konfirmasi setelah ibadah selesai.</li>
+                        <li>Pengajuan <b>Tukar Jadwal / Batal</b> bisa dilakukan kapan saja sejak jadwal rilis.</li>
+                        <li>Opsi konfirmasi <b>Sedia / Hadir</b> otomatis terbuka <strong class="font-bold">30 menit setelah</strong> jam ibadah resmi dimulai.</li>
                     </ul>
                 </div>
 
@@ -184,10 +183,11 @@
                     <label class="block text-xs font-bold text-slate-700 mb-1">Status Kehadiran *</label>
                     <select id="konfStatus" onchange="toggleTukarForm()" required class="w-full rounded-lg border-slate-300 border px-4 py-2.5 text-sm focus:border-purple-500 outline-none bg-white">
                         <option value="">-- Pilih Status --</option>
-                        <option value="Hadir">Sedia / Hadir</option>
+                        <option value="Hadir" id="optHadir">Sedia / Hadir</option>
                         <option value="Tidak Hadir">Berhalangan (Tidak Hadir)</option>
                         <option value="Tukar Jadwal">Tukar Jadwal / Hari</option>
                     </select>
+                    <p id="infoWaktuKonf" class="text-[10px] text-amber-600 mt-1 hidden"><i class="fa-solid fa-circle-info"></i> Opsi 'Hadir' baru terbuka 30 menit setelah ibadah dimulai.</p>
                 </div>
                 
                 <!-- Area Tukar (Dropdown Mention & Keterangan) -->
@@ -219,15 +219,14 @@
 
         // DETEKSI AKUN LOGIN ONLOAD
         function detectUser() {
-            // Asumsi data user utama disimpan di localStorage dengan key "user_profile" atau sejenisnya
-            const savedUser = localStorage.getItem("user_profile") || localStorage.getItem("petugas_sensus") || localStorage.getItem("admin_data");
+            const savedUser = localStorage.getItem("user_profile") || localStorage.getItem("petugas_sensus") || localStorage.getItem("admin_data") || localStorage.getItem("user_gereja");
             if (savedUser) {
                 try {
                     const parsed = JSON.parse(savedUser);
                     currentUser.nama_lengkap = parsed.nama_lengkap || parsed.nama || "Pelayan Tuhan";
                 } catch(e) { currentUser.nama_lengkap = "Pelayan Tuhan"; }
             } else {
-                currentUser.nama_lengkap = "Pelayan Tuhan"; // Fallback jika tidak ditemukan
+                currentUser.nama_lengkap = "Pelayan Tuhan"; 
             }
             document.getElementById('greetingSyalom').innerText = `Syalom, ${currentUser.nama_lengkap}`;
         }
@@ -235,14 +234,19 @@
         function switchTab(tabId) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.roster-tab').forEach(el => {
-                el.classList.remove('bg-purple-600', 'text-white', 'active');
-                el.classList.add('bg-white', 'text-slate-600');
+                el.classList.remove('active', 'opacity-100', 'ring-2', 'ring-purple-600', 'ring-blue-600', 'ring-emerald-600', 'ring-offset-2');
+                el.classList.add('opacity-70', 'hover:opacity-100');
             });
             
-            document.getElementById(`view-${tabId}`).classList.add('active');
             const activeBtn = document.getElementById(`tab-${tabId}`);
-            activeBtn.classList.remove('bg-white', 'text-slate-600');
-            activeBtn.classList.add('bg-purple-600', 'text-white', 'active');
+            activeBtn.classList.remove('opacity-70', 'hover:opacity-100');
+            activeBtn.classList.add('active', 'opacity-100', 'ring-2', 'ring-offset-2');
+            
+            if (tabId === 'jadwal') activeBtn.classList.add('ring-purple-600');
+            if (tabId === 'rekap') activeBtn.classList.add('ring-blue-600');
+            if (tabId === 'konfirmasi') activeBtn.classList.add('ring-emerald-600');
+
+            document.getElementById(`view-${tabId}`).classList.add('active');
 
             if(tabId === 'rekap') filterRekap('minggu');
             if(tabId === 'konfirmasi') renderKonfirmasiPribadi();
@@ -279,16 +283,10 @@
 
             let html = '';
             filteredData.forEach(r => {
-                // Parsing Visual Otomatis pada Teks Nama
                 let displayPetugas = r.nama_petugas || '-';
                 
-                // Warnai (Hadir) jadi hijau
                 displayPetugas = displayPetugas.replace(/\(Hadir\)/gi, '<span class="text-emerald-600 font-bold text-[10px] bg-emerald-50 px-1 py-0.5 rounded ml-1 border border-emerald-200 inline-block">(Hadir)</span>');
-                
-                // Warnai (Tidak Hadir...) jadi merah
                 displayPetugas = displayPetugas.replace(/\(Tidak Hadir[^)]*\)/gi, match => `<span class="text-rose-600 font-bold text-[10px] bg-rose-50 px-1.5 py-0.5 rounded ml-1 border border-rose-200 inline-block mt-1">${match}</span>`);
-                
-                // Warnai (Tukar Jadwal...) jadi kuning + Parsing @Mention
                 displayPetugas = displayPetugas.replace(/\(Tukar Jadwal[^)]*\)/gi, match => {
                     let parsedMention = match.replace(/@([a-zA-Z0-9\s.]+)(?=\s-|\)|$)/g, '<span class="text-blue-600 bg-blue-100 px-1 py-0.5 rounded border border-blue-200 inline-block mx-0.5 shadow-sm">@$1</span>');
                     return `<span class="text-amber-700 font-bold text-[10px] bg-amber-50 px-1.5 py-0.5 rounded ml-1 border border-amber-200 inline-block mt-1 leading-relaxed">${parsedMention}</span>`;
@@ -334,7 +332,7 @@
             renderTable('rekapTableBody', '', filtered);
         }
 
-        // --- RENDER KONFIRMASI (DETEKSI WAKTU) ---
+        // --- RENDER KONFIRMASI (DETEKSI WAKTU & TOMBOL SELALU AKTIF) ---
         function renderKonfirmasiPribadi() {
             const container = document.getElementById('jadwalPribadiArea');
             if (currentUser.nama_lengkap === "Pelayan Tuhan" || !currentUser.nama_lengkap) {
@@ -354,34 +352,28 @@
             let html = '';
 
             myJadwal.forEach(r => {
-                let btnHtml = '';
-                
-            // Kalkulasi Waktu Aktif (Tanggal Tugas + Jam Tugas + 30 Menit)
-                let isReady = false;
+                // Kalkulasi Waktu Aktif KHUSUS HADIR (Tanggal Tugas + Jam Tugas + 30 Menit)
+                let isReadyForHadir = false;
                 if (r.tanggal && r.waktu) {
                     const dutyDate = new Date(r.tanggal);
-                    const timeParts = r.waktu.split(/[:.]/); // Memecah format jam "06:00" atau "06.00"
+                    const timeParts = r.waktu.split(/[:.]/); 
                     
                     if (timeParts.length >= 2) {
-                        // Menyetel jam ibadah dan menambahkannya +30 Menit pada bagian menit (timeParts[1])
                         dutyDate.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]) + 30, 0); 
-                        
-                        // Jika waktu saat ini (now) sudah melewati jam ibadah + 30 menit, tombol diaktifkan
                         if (now >= dutyDate) {
-                            isReady = true;
+                            isReadyForHadir = true;
                         }
                     }
                 }
 
-                if (isReady) {
-                    // Tombol Aktif
-                    btnHtml = `<button onclick='bukaFormAksi(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg text-xs shadow-sm transition">Berikan Konfirmasi</button>`;
-                } else {
-                    // Tombol Nonaktif (Teks diubah menjadi 30 menit)
-                    btnHtml = `<div class="w-full mt-3 bg-slate-100 text-slate-400 font-bold py-2 rounded-lg text-xs text-center border border-slate-200 cursor-not-allowed">
-                        <i class="fa-solid fa-lock mr-1"></i> Aktif 30 menit setelah ibadah dimulai
-                    </div>`;
-                }
+                // Tombol sekarang selalu aktif. Teks & Warna disesuaikan dengan waktu.
+                let btnText = isReadyForHadir ? "Konfirmasi Kehadiran" : "Ajukan Batal / Tukar";
+                let btnClass = isReadyForHadir ? "bg-emerald-600 hover:bg-emerald-700" : "bg-amber-500 hover:bg-amber-600";
+                let iconClass = isReadyForHadir ? "fa-check" : "fa-right-left";
+
+                let btnHtml = `<button onclick='bukaFormAksi(${JSON.stringify(r).replace(/'/g, "&#39;")}, ${isReadyForHadir})' class="w-full mt-3 ${btnClass} text-white font-bold py-2 rounded-lg text-xs shadow-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid ${iconClass}"></i> ${btnText}
+                </button>`;
 
                 html += `
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
@@ -398,9 +390,24 @@
         }
 
         let tempSelectedRoster = null;
-        function bukaFormAksi(rosterItem) {
+        
+        function bukaFormAksi(rosterItem, isReadyForHadir) {
             tempSelectedRoster = rosterItem;
             document.getElementById('konfIdTugas').value = rosterItem.id;
+            
+            // Logika Kunci/Buka Opsi Hadir
+            const optHadir = document.getElementById('optHadir');
+            const infoWaktu = document.getElementById('infoWaktuKonf');
+
+            if (isReadyForHadir) {
+                optHadir.disabled = false;
+                optHadir.text = "Sedia / Hadir";
+                infoWaktu.classList.add('hidden');
+            } else {
+                optHadir.disabled = true;
+                optHadir.text = "Sedia / Hadir (Terkunci saat ini)";
+                infoWaktu.classList.remove('hidden');
+            }
             
             const modal = document.getElementById('formAksiModal');
             modal.classList.remove('hidden');
@@ -433,12 +440,11 @@
         function populatePenggantiDropdown() {
             const select = document.getElementById('konfPengganti');
             let allNames = [];
-            // Ekstrak nama unik dari seluruh jadwal yang ada
             activeRoster.forEach(r => {
                 if(r.nama_petugas) {
-                    let splitNames = r.nama_petugas.split(','); // Pisahkan jika ada koma
+                    let splitNames = r.nama_petugas.split(','); 
                     splitNames.forEach(n => {
-                        let cleanName = n.replace(/\(.*\)/g, '').trim(); // Bersihkan status (Hadir), dll
+                        let cleanName = n.replace(/\(.*\)/g, '').trim(); 
                         if(cleanName && !allNames.includes(cleanName)) allNames.push(cleanName);
                     });
                 }
@@ -464,7 +470,6 @@
             const pengganti = document.getElementById('konfPengganti').value;
             const keterangan = document.getElementById('konfKeterangan').value;
             
-            // Format Status Baru
             let detailStatus = status;
             if (status === 'Tukar Jadwal' || status === 'Tidak Hadir') {
                 if (pengganti) detailStatus += ` diganti @${pengganti}`;
@@ -473,17 +478,14 @@
             
             let catatanTambahan = status === 'Hadir' ? ` (Hadir)` : ` (${detailStatus})`;
 
-            // Logika Partial Replacement (Hanya ubah nama milik user yang login)
             let currentFullString = tempSelectedRoster.nama_petugas;
             let myName = currentUser.nama_lengkap;
             
-            // Regex cerdas: Cari nama user diikuti spasi dan kurung (jika sebelumnya sudah pernah isi)
             let escapeRegex = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             let nameRegex = new RegExp(escapeRegex(myName) + "\\s*(?:\\(.*?\\))?", "gi");
             
             let namaUpdate = currentFullString.replace(nameRegex, myName + catatanTambahan);
             
-            // Fallback: Jika nama user ditulis beda di database (tidak match), tempel saja di akhir string
             if(namaUpdate === currentFullString && !currentFullString.toLowerCase().includes(myName.toLowerCase())) {
                  namaUpdate = currentFullString + ", " + myName + catatanTambahan;
             }
