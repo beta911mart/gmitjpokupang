@@ -886,9 +886,11 @@ if (tab === 'home') {
             
             const canAccessSensus = roleStr.includes("sensus") || roleStr.includes("pendata") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
 
-			const canAccessAdmin = roleStr.includes("developer") || roleStr.includes("super") || roleStr.includes("admin") || roleStr.includes("multi") || roleStr.includes("media");
-			
+            const canAccessAdmin = roleStr.includes("developer") || roleStr.includes("super") || roleStr.includes("admin") || roleStr.includes("multi") || roleStr.includes("media");
+            
             const canAccessCetakStruk = roleStr.includes("struk") || roleStr.includes("kasir") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
+
+            const canAccessRoster = roleStr.includes("duty") || roleStr.includes("roster") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin") || roleStr.includes("pendeta");
 
             if (canAccessSekretariat) {
                 adminButtons += `<button onclick="window.location.href='sekretariat.html'" class="w-full text-center text-[11px] text-purple-400 hover:text-purple-300 p-2.5 transition duration-500 font-bold bg-purple-950/30 rounded-xl border border-purple-900/50 flex items-center justify-center gap-1.5 mt-2">🔒 Panel Sekretariat</button>`;
@@ -900,8 +902,10 @@ if (tab === 'home') {
                 adminButtons += `<button onclick="window.location.href='admin.html'" class="w-full text-center text-[11px] text-emerald-400 hover:text-emerald-300 p-2.5 transition duration-500 font-bold bg-emerald-950/30 rounded-xl border border-emerald-900/50 flex items-center justify-center gap-1.5 mt-2">🖥️ Panel Multi Media</button>`;
             }
             if (canAccessCetakStruk) {
-                // Memperbaiki class warna teks (text-rose-400)
                 adminButtons += `<button onclick="window.location.href='cetakstruk.html'" class="w-full text-center text-[11px] text-rose-400 hover:text-rose-300 p-2.5 transition duration-500 font-bold bg-zinc-950/30 rounded-xl border border-emerald-900/50 flex items-center justify-center gap-1.5 mt-2">🖨️ Panel Cetak Struk</button>`;
+            }
+            if (canAccessRoster) {
+                adminButtons += `<button onclick="window.location.href='roster.html'" class="w-full text-center text-[11px] text-blue-400 hover:text-blue-300 p-2.5 transition duration-500 font-bold bg-blue-950/30 rounded-xl border border-blue-900/50 flex items-center justify-center gap-1.5 mt-2">📋 Panel Manajemen Roster</button>`;
             }
 // --- AKHIR LOGIKA MULTI-ROLE PANEL ---
 
@@ -2694,8 +2698,6 @@ function redirectToRolePanel() {
         if (
             role.includes("super") || 
             role.includes("admin") || 
-			role.includes("petugas") || 
-			role.includes("sensus") || 
             role.includes("sekret") || 
             role.includes("sekert") || 
             role.includes("pendeta") || 
@@ -2703,8 +2705,19 @@ function redirectToRolePanel() {
             role.includes("media")
         ) {
             window.location.href = "sekretariat.html";
-        } else {
+        } else if (
+            role.includes("petugas") || 
+            role.includes("sensus")
+        ) {
             window.location.href = "sensus.html"; 
+        } else if (
+            role.includes("duty") || 
+            role.includes("roster")
+        ) {
+            window.location.href = "roster.html"; 
+        } else {
+            // Fallback jika punya role tapi bukan admin spesifik
+            alert("Akun Anda tidak memiliki akses ke panel khusus.");
         }
     } catch (e) {
         alert("Data sesi rusak. Silakan muat ulang aplikasi.");
