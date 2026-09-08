@@ -2779,9 +2779,6 @@ async function handleSendDonation(e) {
  * Menghidupkan atau meredam mekanisme fitur kemudahan pembacaan skala dimensi antarmuka aplikasi (Mode Lansia) berdasarkan intervensi.
  */
 function toggleSeniorMode(isInitialLoad = false) {
-    const app = document.getElementById("app");
-    if (!app) return;
-
     let isSenior;
     
     if (isInitialLoad) {
@@ -2791,11 +2788,12 @@ function toggleSeniorMode(isInitialLoad = false) {
         localStorage.setItem('gmit_senior_mode', isSenior.toString());
     }
 
+    // Menggunakan class CSS alih-alih scale tailwind
     if (isSenior) {
-        app.classList.add('scale-[1.05]', 'origin-top', 'pb-10');
+        document.body.classList.add('senior-mode');
         if (!isInitialLoad) showToast("Mode Lansia (Teks Besar) Diaktifkan");
     } else {
-        app.classList.remove('scale-[1.05]', 'origin-top', 'pb-10');
+        document.body.classList.remove('senior-mode');
         if (!isInitialLoad) showToast("Mode Normal Diaktifkan");
     }
 }
