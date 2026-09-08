@@ -13,20 +13,22 @@ setInterval(() => {
     }
 }, 5000);
 
-function setTransitionStyle(style) {
+function setTransitionStyle(style, isInitialLoad = false) {
     localStorage.setItem('gmit_transition_style', style);
     const fadeBtn = document.getElementById('transFadeBtn');
     const zoomBtn = document.getElementById('transZoomBtn');
+    
     if (style === 'zoom') {
         if (fadeBtn) fadeBtn.className = "text-left px-3 py-2 rounded-xl text-xs bg-slate-900 text-slate-300 border border-slate-800 hover:border-purple-500 transition duration-500";
         if (zoomBtn) zoomBtn.className = "text-left px-3 py-2 rounded-xl text-xs bg-purple-600 text-white border border-purple-500 transition duration-500";
-        showToast("Model transisi Scale & Zoom diaktifkan!");
+        if (!isInitialLoad) showToast("Model transisi Scale & Zoom diaktifkan!");
     } else {
         if (fadeBtn) fadeBtn.className = "text-left px-3 py-2 rounded-xl text-xs bg-purple-600 text-white border border-purple-500 transition duration-500";
         if (zoomBtn) zoomBtn.className = "text-left px-3 py-2 rounded-xl text-xs bg-slate-900 text-slate-300 border border-slate-800 hover:border-purple-500 transition duration-500";
-        showToast("Model transisi Smooth Fade & Slide diaktifkan!");
+        if (!isInitialLoad) showToast("Model transisi Smooth Fade & Slide diaktifkan!");
     }
-    toggleSidebar(false);
+    
+    if (!isInitialLoad) toggleSidebar(false);
 }
 
 function triggerPageTransition() {
@@ -2787,10 +2789,28 @@ function redirectToRolePanel() {
 
 // --- INIT APP & ASSISTIVE BALL ---
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. PENTING: Panggil halaman Beranda agar tidak blank!
+    // 1. BACA & TERAPKAN SEMUA PENGATURAN TERSIMPAN
+    
+    // Tema
+    const savedTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
+    setTheme(savedTheme, true); 
+    
+    // Mode Lansia
+    toggleSeniorMode(true);
+    
+    // Gaya Transisi
+    const savedTransition = localStorage.getItem('gmit_transition_style') || 'fade';
+    setTransitionStyle(savedTransition, true);
+    
+    // Mode LITE (Jika Anda memiliki fungsi toggleLiteMode, pastikan ia menerima parameter isInitialLoad)
+    if (typeof toggleLiteMode === 'function') {
+        toggleLiteMode(true);
+    }
+
+    // 2. PENTING: Panggil halaman Beranda agar tidak blank!
     switchTab('home', true, true);
     
-    // 2. Inisialisasi Assistive Ball
+    // 3. Inisialisasi Assistive Ball
     const ball = document.getElementById('assistiveBall');
     if (!ball) return;
 
@@ -2805,13 +2825,14 @@ document.addEventListener("DOMContentLoaded", () => {
     resetIdle();
     snapToEdge();
 
-    // Event Listeners
+    // Event Listeners Assistive Ball...
     ball.addEventListener('mousedown', onStart);
     ball.addEventListener('touchstart', onStart, { passive: false });
     document.addEventListener('mousemove', onMove, { passive: false });
     document.addEventListener('touchmove', onMove, { passive: false });
     document.addEventListener('mouseup', onEnd);
     document.addEventListener('touchend', onEnd);
+
 
     function handleSingleTap() {
         if (typeof toggleSidebar === 'function') toggleSidebar(true);
