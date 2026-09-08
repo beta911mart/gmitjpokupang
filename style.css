@@ -31,3 +31,31 @@
     touch-action: none;
     user-select: none;
 }
+/* --- Mode Lansia (Teks Besar Tanpa Scale) --- */
+.senior-mode p, 
+.senior-mode span, 
+.senior-mode button, 
+.senior-mode a, 
+.senior-mode label {
+    font-size: 1.1rem !important; /* Setara ~17.6px */
+    line-height: 1.6 !important;
+}
+
+.senior-mode h3, 
+.senior-mode h4, 
+.senior-mode h5 {
+    font-size: 1.35rem !important; /* Setara ~21.6px */
+    line-height: 1.4 !important;
+}
+
+/* Penyesuaian khusus agar ikon tetap proporsional */
+.senior-mode i {
+    font-size: 1.15rem !important;
+}
+
+/* Memastikan teks yang berada di dalam badge/label sangat kecil tetap terbaca */
+.senior-mode .text-\[9px\], 
+.senior-mode .text-\[10px\], 
+.senior-mode .text-\[11px\] {
+    font-size: 0.95rem !important; /* Setara ~15px */
+}
