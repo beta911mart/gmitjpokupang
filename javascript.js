@@ -2,7 +2,53 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLTEI5pSm4gjnBQHcqC
 const waNomorSekretariat = "6281234567890";
 
 let backPressCount = 0;
+let newWorker;
+let deferredPrompt;
+let currentActiveGallery = [];
+let currentPhotoIndex = 0;
 
+const BIBLE_BOOKS = [
+    {code: "GEN", name: "Kejadian", chapters: 50}, {code: "EXO", name: "Keluaran", chapters: 40},
+    {code: "LEV", name: "Imamat", chapters: 27}, {code: "NUM", name: "Bilangan", chapters: 36},
+    {code: "DEU", name: "Ulangan", chapters: 34}, {code: "JOS", name: "Yosua", chapters: 24},
+    {code: "JDG", name: "Hakim-hakim", chapters: 21}, {code: "RUT", name: "Rut", chapters: 4},
+    {code: "1SA", name: "1 Samuel", chapters: 31}, {code: "2SA", name: "2 Samuel", chapters: 24},
+    {code: "1KI", name: "1 Raja-raja", chapters: 22}, {code: "2KI", name: "2 Raja-raja", chapters: 25},
+    {code: "1CH", name: "1 Tawarikh", chapters: 29}, {code: "2CH", name: "2 Tawarikh", chapters: 36},
+    {code: "EZR", name: "Ezra", chapters: 10}, {code: "NEH", name: "Nehemia", chapters: 13},
+    {code: "EST", name: "Ester", chapters: 10}, {code: "JOB", name: "Ayub", chapters: 42},
+    {code: "PSA", name: "Mazmur", chapters: 150}, {code: "PRO", name: "Amsal", chapters: 31},
+    {code: "ECC", name: "Pengkhotbah", chapters: 12}, {code: "SNG", name: "Kidung Agung", chapters: 8},
+    {code: "ISA", name: "Yesaya", chapters: 66}, {code: "JER", name: "Yeremia", chapters: 52},
+    {code: "LAM", name: "Ratapan", chapters: 5}, {code: "EZK", name: "Yehezkiel", chapters: 48},
+    {code: "DAN", name: "Daniel", chapters: 12}, {code: "HOS", name: "Hosea", chapters: 14},
+    {code: "JOL", name: "Yoel", chapters: 3}, {code: "AMO", name: "Amos", chapters: 9},
+    {code: "OBA", name: "Obaja", chapters: 1}, {code: "JON", name: "Yunus", chapters: 4},
+    {code: "MIC", name: "Mikha", chapters: 7}, {code: "NAM", name: "Nahum", chapters: 3},
+    {code: "HAB", name: "Habakuk", chapters: 3}, {code: "ZEP", name: "Zefanya", chapters: 3},
+    {code: "HAG", name: "Hagai", chapters: 2}, {code: "ZEC", name: "Zakharia", chapters: 14},
+    {code: "MAL", name: "Maleakhi", chapters: 4}, {code: "MAT", name: "Matius", chapters: 28},
+    {code: "MRK", name: "Markus", chapters: 16}, {code: "LUK", name: "Lukas", chapters: 24},
+    {code: "JHN", name: "Yohanes", chapters: 21}, {code: "ACT", name: "Kisah Para Rasul", chapters: 28},
+    {code: "ROM", name: "Roma", chapters: 16}, {code: "1CO", name: "1 Korintus", chapters: 16},
+    {code: "2CO", name: "2 Korintus", chapters: 13}, {code: "GAL", name: "Galatia", chapters: 6},
+    {code: "EPH", name: "Efesus", chapters: 6}, {code: "PHP", name: "Filipi", chapters: 4},
+    {code: "COL", name: "Kolose", chapters: 4}, {code: "1TH", name: "1 Tesalonika", chapters: 5},
+    {code: "2TH", name: "2 Tesalonika", chapters: 3}, {code: "1TI", name: "1 Timotius", chapters: 6},
+    {code: "2TI", name: "2 Timotius", chapters: 4}, {code: "TIT", name: "Titus", chapters: 3},
+    {code: "PHM", name: "Filemon", chapters: 1}, {code: "HEB", name: "Ibrani", chapters: 13},
+    {code: "JAS", name: "Yakobus", chapters: 5}, {code: "1PE", name: "1 Petrus", chapters: 5},
+    {code: "2PE", name: "2 Petrus", chapters: 3}, {code: "1JN", name: "1 Yohanes", chapters: 5},
+    {code: "2JN", name: "2 Yohanes", chapters: 1}, {code: "3JN", name: "3 Yohanes", chapters: 1},
+    {code: "JUD", name: "Yudas", chapters: 1}, {code: "REV", name: "Wahyu", chapters: 22}
+];
+
+const CHURCH_LAT = -10.166861066758923; 
+const CHURCH_LON = 123.59959948958289; 
+
+/**
+ * Menjalankan animasi rotasi pada ikon gereja setiap 5 detik.
+ */
 setInterval(() => {
     const icon = document.getElementById("churchIconSpin");
     if (icon) {
@@ -13,6 +59,9 @@ setInterval(() => {
     }
 }, 5000);
 
+/**
+ * Mengatur preferensi gaya transisi halaman pengguna (zoom atau fade) dan menyimpannya di localStorage.
+ */
 function setTransitionStyle(style, isInitialLoad = false) {
     localStorage.setItem('gmit_transition_style', style);
     const fadeBtn = document.getElementById('transFadeBtn');
@@ -31,6 +80,9 @@ function setTransitionStyle(style, isInitialLoad = false) {
     if (!isInitialLoad) toggleSidebar(false);
 }
 
+/**
+ * Memicu animasi transisi perpindahan halaman dan mengatur visibilitas tombol kembali (floating button) berdasarkan status halaman.
+ */
 function triggerPageTransition() {
     const main = document.querySelector("main");
     if (!main) return;
@@ -41,34 +93,37 @@ function triggerPageTransition() {
     void main.offsetWidth; 
     main.classList.add(animClass);
 
-// --- LOGIKA PERUBAHAN TOMBOL MELAYANG ---
-// (Pastikan blok ini tetap berada di dalam fungsi pembaruan UI Anda, misalnya di triggerPageTransition)
     const activeHeader = document.getElementById("headerTitle").innerText;
     const floatingBtn = document.getElementById("floatingBackBtn");
     
     if (floatingBtn) {
-        // Sembunyikan tombol melayang jika berada di 3 Tab Utama (Beranda, Notifikasi, Akun)
         if (activeHeader.includes("PNIEL Oebobo") || activeHeader.includes("Notifikasi") || activeHeader.includes("Akun")) {
             floatingBtn.classList.add("hidden");
         } else {
-            // Munculkan hanya sebagai tombol Kembali di halaman dalam (sub-menu)
             floatingBtn.classList.remove("hidden");
             floatingBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i> Kembali';
             floatingBtn.className = "absolute pointer-events-auto bg-purple-600/90 backdrop-blur-md text-white px-4 py-3 rounded-full shadow-[0_4px_15px_rgba(147,51,234,0.5)] border border-purple-400 font-bold text-xs flex items-center gap-2 cursor-move active:scale-95 transition-all duration-300";
         }
     }
 }
-// <-- Akhir dari fungsi pembaruan UI (sesuaikan dengan tutup kurung kurawal fungsi asli Anda)
 
-// --- MANAJEMEN NAVIGASI (HISTORY API) ---
+/**
+ * Menambahkan state fungsi navigasi baru ke dalam history session browser pengguna.
+ */
 function pushNavState(funcName, args = []) {
     history.pushState({ func: funcName, args: args }, "", "");
 }
 
+/**
+ * Mengganti state fungsi navigasi saat ini di dalam history browser tanpa menambah riwayat baru.
+ */
 function replaceNavState(funcName, args = []) {
     history.replaceState({ func: funcName, args: args }, "", "");
 }
 
+/**
+ * Menangani event klik tombol "Kembali" perangkat/browser untuk menutup modal atau beralih ke halaman sebelumnya.
+ */
 window.addEventListener('popstate', function (event) {
     const ktjModal = document.getElementById("ktjModal");
     if (ktjModal && !ktjModal.classList.contains("hidden")) {
@@ -117,19 +172,16 @@ window.addEventListener('popstate', function (event) {
     }
 });
 
-// --- SERVICE WORKER & PWA ---
-let newWorker;
-
+/**
+ * Menginisialisasi pendaftaran file service worker dan memantau status pembaruan versi aplikasi PWA.
+ */
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').then((registration) => {
             console.log('SW terdaftar:', registration.scope);
-            
-            // Deteksi jika ada file versi baru yang sedang diunduh di latar belakang
             registration.addEventListener('updatefound', () => {
                 newWorker = registration.installing;
                 newWorker.addEventListener('statechange', () => {
-                    // Jika unduhan selesai dan aplikasi sebelumnya sudah terinstal
                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                         munculkanPopupUpdate();
                     }
@@ -138,7 +190,6 @@ if ('serviceWorker' in navigator) {
         }).catch((error) => { console.log('SW error:', error); });
     });
 
-    // Otomatis refresh halaman ketika Service Worker versi baru mengambil alih
     let refreshing;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (refreshing) return;
@@ -147,17 +198,18 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+/**
+ * Menampilkan jendela popup informatif jika pembaruan service worker versi baru telah terdeteksi.
+ */
 function munculkanPopupUpdate() {
     if (document.getElementById('updatePopup')) return;
 
-    // --- UBAH CATATAN INI SETIAP KALI ANDA RILIS VERSI BARU ---
     const catatanPembaruan = [
         "Tombol unggah foto profil kilat",
         "Keterangan waktu pada Pusat Dokumen",
         "Penyesuaian tata letak banner aplikasi"
     ];
 
-    // Mengubah array di atas menjadi daftar elemen HTML (list)
     const listHtml = catatanPembaruan.map(item => 
         `<li class="flex items-start gap-1.5"><span class="text-indigo-400 mt-0.5">✓</span> <span class="leading-tight">${item}</span></li>`
     ).join('');
@@ -172,8 +224,6 @@ function munculkanPopupUpdate() {
             <div class="flex-1">
                 <h4 class="font-bold text-indigo-300 text-sm">Versi Baru Tersedia!</h4>
                 <p class="text-[10px] text-slate-300 mt-0.5 leading-relaxed">Aplikasi JPO telah diperbarui. Berikut yang baru:</p>
-                
-                <!-- Wadah Change Log -->
                 <ul class="text-[10px] text-slate-200 mt-2 space-y-1.5 bg-indigo-900/40 p-2.5 rounded-lg border border-indigo-500/30">
                     ${listHtml}
                 </ul>
@@ -187,19 +237,27 @@ function munculkanPopupUpdate() {
     document.body.appendChild(popup);
 }
 
+/**
+ * Mengirim instruksi eksekusi pembaruan ke service worker untuk mengaplikasikan versi baru secara instan.
+ */
 function terapkanUpdate() {
     document.getElementById('updatePopup').innerHTML = `<p class="text-xs text-center text-indigo-300 font-bold py-3 animate-pulse">Memperbarui Aplikasi...</p>`;
-    // Kirim perintah ke sw.js untuk segera menerapkan versi baru
     if (newWorker) {
         newWorker.postMessage({ action: 'skipWaiting' });
     }
 }
 
-let deferredPrompt;
+/**
+ * Menangkap dan menahan event instalasi aplikasi default hingga dipicu secara manual.
+ */
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
 });
+
+/**
+ * Memunculkan pemberitahuan status ringan berdurasi (toast) dengan jenis sukses atau kesalahan.
+ */
 function showToast(message, type = "success") {
     const container = document.getElementById("toastContainer");
     container.innerHTML = ""; 
@@ -219,6 +277,9 @@ function showToast(message, type = "success") {
     }, 3000);
 }
 
+/**
+ * Mengecek ketersediaan notifikasi pop-up global (push notification) dari server dan menampilkannya.
+ */
 async function checkPushNotification() {
     if (sessionStorage.getItem('notif_seen') === 'true') return;
 
@@ -243,11 +304,18 @@ async function checkPushNotification() {
         console.log("Gagal memuat notifikasi", err);
     }
 }
+
+/**
+ * Menutup lapisan penutup overlay pop-up notifikasi global.
+ */
 function closePushNotif() {
     const overlay = document.getElementById('pushNotifOverlay');
     if (overlay) overlay.classList.add('hidden');
 }
 
+/**
+ * Mengubah indikator warna dan status jaringan di antarmuka sesuai keadaan konektivitas perangkat.
+ */
 function updateNetworkStatus() {
     const dot = document.getElementById("syncDot");
     const text = document.getElementById("syncText");
@@ -263,6 +331,9 @@ function updateNetworkStatus() {
 window.addEventListener('online', updateNetworkStatus);
 window.addEventListener('offline', updateNetworkStatus);
 
+/**
+ * Membuka atau menyembunyikan bilah menu samping beserta bayangan latar belakangnya.
+ */
 function toggleSidebar(show) {
     const sidebar = document.getElementById("sidebarMenu");
     const overlay = document.getElementById("sidebarOverlay");
@@ -275,12 +346,14 @@ function toggleSidebar(show) {
     }
 }
 
+/**
+ * Mengonfigurasi skema warna antarmuka pengguna secara dinamis dan menyuntikkan kelas styling khusus.
+ */
 function setTheme(theme, isInitialLoad = false) {
     const app = document.getElementById("app");
     const body = document.getElementById("appBody");
     const bannerContainer = document.getElementById("seasonalBannerContainer");
     
-    // 1. Bersihkan ornamen dan gaya tema sebelumnya
     const existingOrnamen = document.getElementById("ornamenIdCard");
     if (existingOrnamen) existingOrnamen.remove();
     const existingOverride = document.getElementById("dynamicThemeOverride");
@@ -293,7 +366,7 @@ function setTheme(theme, isInitialLoad = false) {
 
     document.querySelectorAll('.home-menu-icon').forEach(el => {
         el.className = `relative w-14 h-14 flex items-center justify-center mb-1 overflow-hidden border-2 border-white transition-all duration-500 shadow-md ${menuShapeClass}`;
-		el.style.animation = '';
+        el.style.animation = '';
     });
     document.querySelectorAll('.home-menu-inner').forEach(el => {
         el.className = `text-xl ${innerShapeTransform}`;
@@ -325,17 +398,15 @@ function setTheme(theme, isInitialLoad = false) {
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #4c0519 !important; }
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #e11d48 !important; }
         `;
-	} else if (theme === 'ocean') {
-    app.className = `${baseAppClass} bg-sky-900 text-sky-50`;
-    body.className = "bg-slate-950 text-sky-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
-    if(bannerContainer) bannerContainer.innerHTML = '';
-    cssRules = `
-            /* Warna latar elemen (Biru Laut Gelap / sky-900) */
+    } else if (theme === 'ocean') {
+        app.className = `${baseAppClass} bg-sky-900 text-sky-50`;
+        body.className = "bg-slate-950 text-sky-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+        if(bannerContainer) bannerContainer.innerHTML = '';
+        cssRules = `
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #0c4a6e !important; }
-            /* Warna garis batas (Biru Cerah / sky-600) */
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #0284c7 !important; }
         `;
-	} else if (theme === 'christmas') {
+    } else if (theme === 'christmas') {
         app.className = `${baseAppClass} bg-gradient-to-b from-red-950 via-red-900 to-emerald-950 text-red-50`;
         body.className = "bg-red-950 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         
@@ -387,11 +458,9 @@ function setTheme(theme, isInitialLoad = false) {
             #app h3 { text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         `;
 
-		// Injeksi Paksa Animasi Glow Kilat
         setTimeout(() => {
             const menuButtons = document.querySelectorAll('.home-menu-icon, main .grid button');
             menuButtons.forEach((btn, index) => {
-                // Durasi diubah menjadi sangat singkat: 0.2s, 0.3s, dan 0.15s
                 if (index % 3 === 0) btn.style.setProperty('animation', 'glowRed 1s infinite alternate', 'important');
                 else if (index % 3 === 1) btn.style.setProperty('animation', 'glowGreen 3s infinite alternate', 'important');
                 else btn.style.setProperty('animation', 'glowGold 1.18s infinite alternate', 'important');
@@ -426,7 +495,7 @@ function setTheme(theme, isInitialLoad = false) {
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #e2e8f0 !important; }
             #app .text-white, #app .text-slate-100, #app .text-slate-200, #app .text-slate-300, #sidebarMenu .text-white, #sidebarMenu .text-slate-400 { color: #0f172a !important; }
             #app .text-slate-400 { color: #475569 !important; }
-            #sidebarMenu .text-purple-400 { color: #2563eb !important; } /* Ubah teks ungu menjadi biru di tema terang */
+            #sidebarMenu .text-purple-400 { color: #2563eb !important; }
         `;
     } else {
         app.className = `${baseAppClass} bg-slate-950 text-slate-100`;
@@ -434,7 +503,6 @@ function setTheme(theme, isInitialLoad = false) {
         if(bannerContainer) bannerContainer.innerHTML = '';
     }
 
-    // 3. Suntikkan aturan CSS ke seluruh halaman
     if (cssRules !== "") {
         const style = document.createElement("style");
         style.id = "dynamicThemeOverride";
@@ -457,6 +525,9 @@ function setTheme(theme, isInitialLoad = false) {
     }
 }
 
+/**
+ * Menampilkan jendela sistem operasi untuk menginstal aplikasi ini (PWA) di layar beranda.
+ */
 async function installPWA() {
     if (deferredPrompt) {
         deferredPrompt.prompt();
@@ -469,6 +540,9 @@ async function installPWA() {
     }
 }
 
+/**
+ * Mengecek apakah pengguna sudah masuk (login) sebelum mengizinkannya memicu suatu aksi atau halaman khusus.
+ */
 function checkAuthBeforeAction(actionCallback) {
     const savedUser = localStorage.getItem("user_gereja");
     if (savedUser) {
@@ -480,6 +554,9 @@ function checkAuthBeforeAction(actionCallback) {
     }
 }
 
+/**
+ * Melakukan perenderan antarmuka formulir login dan registrasi jika sesi pengguna belum terautentikasi.
+ */
 function renderAuthPageForAction(callbackOnSuccess, isBack = false) {
     window.pendingAuthAction = callbackOnSuccess;
     const main = document.querySelector("main");
@@ -488,17 +565,14 @@ function renderAuthPageForAction(callbackOnSuccess, isBack = false) {
     
     main.innerHTML = `
         <div class="space-y-6 pt-2">
-            
             <div class="text-center">
                 <h2 class="text-lg font-bold text-purple-400">Verifikasi Akun Diperlukan</h2>
                 <p class="text-xs text-slate-400 mt-1">Masuk atau daftar untuk terhubung ke sistem jemaat.</p>
             </div>
-
             <div class="flex border-b border-slate-800">
                 <button id="tabLoginBtn" onclick="toggleAuthTab('login')" class="flex-1 pb-2 font-semibold text-purple-400 border-b-2 border-purple-400 text-xs">Masuk</button>
                 <button id="tabRegBtn" onclick="toggleAuthTab('register')" class="flex-1 pb-2 text-slate-500 text-xs">Daftar Baru</button>
             </div>
-
             <form id="formLogin" onsubmit="handleLoginForAction(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Username Unik atau Nama Lengkap</label>
@@ -510,7 +584,6 @@ function renderAuthPageForAction(callbackOnSuccess, isBack = false) {
                 </div>
                 <button type="submit" id="btnLoginSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition duration-500">Masuk</button>
             </form>
-
             <form id="formRegister" onsubmit="handleRegisterForAction(event)" class="space-y-4 hidden">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
@@ -526,6 +599,9 @@ function renderAuthPageForAction(callbackOnSuccess, isBack = false) {
     `;
 }
 
+/**
+ * Menangani proses permohonan pendaftaran profil pengguna baru menggunakan permintaan API ke server.
+ */
 async function handleRegisterForAction(e) {
     e.preventDefault();
     const btn = document.getElementById("btnRegSubmit");
@@ -536,14 +612,14 @@ async function handleRegisterForAction(e) {
     btn.innerHTML = "Membuat Akun...";
 
     try {
-		const response = await fetch(SCRIPT_URL, {
-		    method: "POST",
-		    redirect: "follow",
-		    headers: {
-		        "Content-Type": "text/plain;charset=utf-8"
-		    },
-		    body: JSON.stringify({ action: "register", nama_lengkap: nama, no_whatsapp: wa })
-		});
+        const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            redirect: "follow",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify({ action: "register", nama_lengkap: nama, no_whatsapp: wa })
+        });
         const result = await response.json();
 
         if (result.status === "success") {
@@ -587,6 +663,9 @@ async function handleRegisterForAction(e) {
     }
 }
 
+/**
+ * Mengganti tampilan tab pada antarmuka halaman autentikasi antara mode masuk (login) dan pendaftaran.
+ */
 function toggleAuthTab(type) {
     const loginForm = document.getElementById("formLogin");
     const regForm = document.getElementById("formRegister");
@@ -606,6 +685,9 @@ function toggleAuthTab(type) {
     }
 }
 
+/**
+ * Menangani peristiwa penyerahan (submit) form login dan memvalidasi akses data pengguna dengan server.
+ */
 async function handleLoginForAction(e) {
     e.preventDefault();
     const btn = document.getElementById("btnLoginSubmit");
@@ -616,14 +698,14 @@ async function handleLoginForAction(e) {
     btn.innerHTML = "Memproses...";
 
     try {
-		const response = await fetch(SCRIPT_URL, {
-		    method: "POST",
-		    redirect: "follow",
-		    headers: {
-		        "Content-Type": "text/plain;charset=utf-8"
-		    },
-		    body: JSON.stringify({ action: "login", nama_lengkap: nama, pin_4_digit: pin })
-		});
+        const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            redirect: "follow",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify({ action: "login", nama_lengkap: nama, pin_4_digit: pin })
+        });
         const result = await response.json();
 
         if (result.status === "success") {
@@ -650,6 +732,9 @@ async function handleLoginForAction(e) {
     }
 }
 
+/**
+ * Merender konten spesifik yang sesuai dengan tab utama yang dipilih (Beranda, Notifikasi, atau Profil).
+ */
 function switchTab(tab, isBack = false, isReplace = false) {
     if (!isBack) {
         if (isReplace) replaceNavState('switchTab', [tab]);
@@ -658,7 +743,6 @@ function switchTab(tab, isBack = false, isReplace = false) {
     
     const main = document.querySelector("main");
     
-    // 1. PINDAHKAN LOGIKA JUDUL KE SINI (SEBELUM TRANSISI)
     if (tab === 'home') {
         document.getElementById("headerTitle").innerText = "GMIT Jemaat PNIEL Oebobo";
     } else if (tab === 'notifikasi') {
@@ -667,14 +751,13 @@ function switchTab(tab, isBack = false, isReplace = false) {
         document.getElementById("headerTitle").innerText = "Akun & Profil Jemaat";
     }
     
-    // 2. SETELAH JUDUL TEPAT, BARU JALANKAN TRANSISI
     triggerPageTransition();
 
     const savedTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
     const menuShapeClass = savedTheme === 'easter' ? 'rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]' : (savedTheme === 'christmas' ? 'rounded-2xl transform rotate-45' : 'rounded-full');
     const innerShapeTransform = savedTheme === 'christmas' ? 'transform -rotate-45' : '';
     
-if (tab === 'home') {
+    if (tab === 'home') {
         main.innerHTML = `
             <div class="space-y-6 pt-2">
                 <div class="grid grid-cols-4 gap-4 text-center">
@@ -684,49 +767,42 @@ if (tab === 'home') {
                         </div>
                         <span class="text-[11px] text-slate-300 font-medium group-hover:text-cyan-400 transition">Tentang</span>
                     </div>
-
                     <div onclick="openDownloadCenter()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
                         <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(245,158,11,0.7)]">
                             <span class="home-menu-inner ${innerShapeTransform}">📥</span>
                         </div>
                         <span class="text-[11px] text-slate-300 font-medium group-hover:text-amber-400 transition">Download</span>
                     </div>
-
                     <div onclick="openLibraryMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
                         <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(168,85,247,0.7)]">
                             <span class="home-menu-inner ${innerShapeTransform}">📖</span>
                         </div>
                         <span class="text-[11px] text-slate-300 font-medium group-hover:text-purple-300 transition">Alkitab & KJ</span>
                     </div>
-
                     <div onclick="openEventsList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
                         <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(14,165,233,0.7)]">
                             <span class="home-menu-inner ${innerShapeTransform}">📅</span>
                         </div>
                         <span class="text-[11px] text-slate-300 font-medium group-hover:text-sky-400 transition">Kegiatan</span>
                     </div>
-
                     <div onclick="openChatRoom()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
                         <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-600 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(236,72,153,0.7)]">
                             <span class="home-menu-inner ${innerShapeTransform}">💬</span>
                         </div>
                         <span class="text-[11px] text-slate-300 font-medium group-hover:text-pink-400 transition">Komunitas</span>
                     </div>
-
                     <div onclick="openBirthdayList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
                         <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-emerald-400 to-teal-600 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(52,211,153,0.7)]">
                             <span class="home-menu-inner ${innerShapeTransform}">🎂</span>
                         </div>
                         <span class="text-[11px] text-slate-300 font-medium group-hover:text-emerald-400 transition">Ulang Tahun</span>
                     </div>
-
                     <div onclick="openPrayerMenu()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
                         <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-green-300 to-emerald-500 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(110,231,183,0.7)]">
                             <span class="home-menu-inner ${innerShapeTransform}">🙏</span>
                         </div>
                         <span class="text-[11px] text-slate-300 font-medium group-hover:text-green-400 transition">Dukungan Doa</span>
                     </div>
-
                     <div onclick="openDonationList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
                         <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-blue-400 to-indigo-600 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(96,165,250,0.7)]">
                             <span class="home-menu-inner ${innerShapeTransform}">🎁</span>
@@ -754,28 +830,20 @@ if (tab === 'home') {
                             <div class="h-16 bg-emerald-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">✝️</div>
                             <span class="text-xs font-semibold text-slate-200">Renungan</span>
                         </div>
-                        
                         <div id="livestream-card" onclick="openLivestreamsMenu()" class="bg-slate-900 rounded-xl p-2.5 text-center cursor-pointer transition duration-500 animate-card-hover relative border border-orange-200/40 hover:border-orange-400">
-                            <!-- Lapisan Khusus Efek Border Merah Berkedip -->
                             <div id="livestream-border" class="absolute inset-0 border-2 border-rose-600 rounded-xl animate-pulse shadow-[0_0_15px_rgba(225,29,72,0.4)] pointer-events-none hidden"></div>
-                            
-                            <!-- Badge LIVE -->
                             <div id="livestream-badge" class="absolute -top-2 -right-2 z-10 hidden">
                                 <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
                             </div>
-                            
-                            <!-- Konten Menu -->
                             <div class="relative z-10 h-16 bg-orange-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📺</div>
                             <span class="relative z-10 text-[11px] font-semibold text-slate-200">Livestreams</span>
                         </div>
-                        
                         <div onclick="openStatistikMenu()" class="bg-slate-900 border border-pink-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-pink-400 transition duration-500 animate-card-hover">
                             <div class="h-16 bg-pink-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📊</div>
                             <span class="text-xs font-semibold text-slate-200">Statistik</span>
                         </div>
                     </div>
                 </div>
-
                 <div onclick="window.location.href='games.html'" class="w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 border border-purple-500/30 p-5 rounded-2xl shadow-xl cursor-pointer transition duration-500 hover:border-purple-400 flex justify-between items-center group my-4">
                     <div class="space-y-1.5 pr-2">
                         <span class="bg-purple-600/40 text-purple-300 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-purple-400/30 inline-block">✨ Fitur Baru & Hiburan</span>
@@ -788,8 +856,7 @@ if (tab === 'home') {
                 </div>
             </div>
         `;
-
-	    } else if (tab === 'notifikasi') {
+    } else if (tab === 'notifikasi') {
         checkAuthBeforeAction(async () => {
             document.getElementById("headerTitle").innerText = "Notifikasi & Kotak Masuk";
             const badge = document.getElementById("unreadNotifBadge");
@@ -866,32 +933,24 @@ if (tab === 'home') {
                         </div>
                     `;
                 }
-} catch (err) {
+            } catch (err) {
                 const container = document.getElementById("notifListContainer");
                 if (container) {
                     container.innerHTML = `<p class="text-xs text-rose-400 text-center py-6">Gagal memuat daftar notifikasi.</p>`;
                 }
             }
-        }); // Penutup dari checkAuthBeforeAction untuk notifikasi
+        });
     } else if (tab === 'profil') {
-
         checkAuthBeforeAction(() => {
             const user = window.currentUser;
-            
-// --- AWAL LOGIKA MULTI-ROLE PANEL ---
             const isAdmin = user.isAdmin || false;
             const roleStr = (user.adminRole || user.role || user.status_pelayanan || "").toLowerCase();
             let adminButtons = '';
             
-            // Cek otorisasi spesifik 
             const canAccessSekretariat = roleStr.includes("sekretariat") || roleStr.includes("pendeta") || roleStr.includes("admin") || roleStr.includes("super") || roleStr.includes("developer");
-            
             const canAccessSensus = roleStr.includes("sensus") || roleStr.includes("pendata") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
-
             const canAccessAdmin = roleStr.includes("developer") || roleStr.includes("super") || roleStr.includes("admin") || roleStr.includes("multi") || roleStr.includes("media");
-            
             const canAccessCetakStruk = roleStr.includes("struk") || roleStr.includes("kasir") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin");
-
             const canAccessRoster = roleStr.includes("duty") || roleStr.includes("roster") || roleStr.includes("super") || roleStr.includes("developer") || roleStr.includes("admin") || roleStr.includes("pendeta");
 
             if (canAccessSekretariat) {
@@ -909,7 +968,6 @@ if (tab === 'home') {
             if (canAccessRoster) {
                 adminButtons += `<button onclick="window.location.href='roster.html'" class="w-full text-center text-[11px] text-blue-400 hover:text-blue-300 p-2.5 transition duration-500 font-bold bg-blue-950/30 rounded-xl border border-blue-900/50 flex items-center justify-center gap-1.5 mt-2">📋 Panel Manajemen Roster</button>`;
             }
-// --- AKHIR LOGIKA MULTI-ROLE PANEL ---
 
             const rawFotoUrl = user.foto_profil || user.foto || user.url_foto || "";
             const safeFotoUrl = rawFotoUrl ? rawFotoUrl.replace("i.ibb.co/", "i.ibb.co.com/") : "";
@@ -931,33 +989,25 @@ if (tab === 'home') {
                    </div>`
                 : '';
 
-			main.innerHTML = `
+            main.innerHTML = `
                 <div class="space-y-6 pt-2">
                     <div class="text-center space-y-2">
-                        <!-- WADAH FOTO PROFIL DENGAN TOMBOL UPLOAD CEPAT -->
                         <div class="relative w-20 h-20 mx-auto">
                             <div onclick="document.getElementById('quickProfileUpload').click()" class="w-full h-full bg-purple-900 text-purple-200 font-bold text-2xl flex items-center justify-center rounded-full shadow-inner border border-purple-800 overflow-hidden relative group cursor-pointer">
                                 ${profileImageHtml}
-                                <!-- Overlay Kamera -->
                                 <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
                                     <span class="text-white text-xl">📷</span>
                                 </div>
                             </div>
-                            <!-- Input File Tersembunyi -->
                             <input type="file" id="quickProfileUpload" accept="image/*" class="hidden" onchange="prosesGantiFotoCepat(event)">
                         </div>
-        
                         <h3 class="font-bold text-lg text-white">${user.nama_lengkap}</h3>
-                        
-                        <!-- LENCANA VERIFIKASI & STATUS (DIKEMBALIKAN) -->
                         <div class="space-y-3 flex flex-col items-center">
                             <div>${verifiedBadge}</div>
                             <div class="w-full text-left">${verificationBanner}</div>
                         </div>
-                        
                         <p class="text-xs text-purple-400 font-medium">${user.status_pelayanan || 'Jemaat'}</p>
                     </div>
-
                     <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs shadow-sm">
                         <div class="border-b border-slate-800 pb-2"><span class="text-slate-400 block text-[10px]">Username Unik</span><span class="text-purple-300 font-mono font-bold">${user.username || '-'}</span></div>
                         <div class="border-b border-slate-800 pb-2"><span class="text-slate-400 block text-[10px]">Jenis Kelamin</span><span class="text-slate-200 font-medium">${user.jenis_kelamin || '<span class="text-amber-400 italic">Belum diisi</span>'}</span></div>
@@ -968,7 +1018,6 @@ if (tab === 'home') {
                         <div class="border-b border-slate-800 pb-2"><span class="text-slate-400 block text-[10px]">Golongan Darah</span><span class="text-slate-200 font-medium">${user.golongan_darah || '-'}</span></div>
                         <div><span class="text-slate-400 block text-[10px]">Minat Pelayanan / Komisi</span><span class="text-slate-200 font-medium">${user.minat_pelayanan || '-'}</span></div>
                     </div>
-
                     <div class="space-y-2">
                         <button onclick="bukaPopupKTJ()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold text-xs shadow-md transition duration-500 flex items-center justify-center gap-1.5">
                             <span>🪪</span> Tampilkan KTJ (Kartu Tanda Jemaat)
@@ -987,42 +1036,9 @@ if (tab === 'home') {
     }
 }
 
-const BIBLE_BOOKS = [
-    {code: "GEN", name: "Kejadian", chapters: 50}, {code: "EXO", name: "Keluaran", chapters: 40},
-    {code: "LEV", name: "Imamat", chapters: 27}, {code: "NUM", name: "Bilangan", chapters: 36},
-    {code: "DEU", name: "Ulangan", chapters: 34}, {code: "JOS", name: "Yosua", chapters: 24},
-    {code: "JDG", name: "Hakim-hakim", chapters: 21}, {code: "RUT", name: "Rut", chapters: 4},
-    {code: "1SA", name: "1 Samuel", chapters: 31}, {code: "2SA", name: "2 Samuel", chapters: 24},
-    {code: "1KI", name: "1 Raja-raja", chapters: 22}, {code: "2KI", name: "2 Raja-raja", chapters: 25},
-    {code: "1CH", name: "1 Tawarikh", chapters: 29}, {code: "2CH", name: "2 Tawarikh", chapters: 36},
-    {code: "EZR", name: "Ezra", chapters: 10}, {code: "NEH", name: "Nehemia", chapters: 13},
-    {code: "EST", name: "Ester", chapters: 10}, {code: "JOB", name: "Ayub", chapters: 42},
-    {code: "PSA", name: "Mazmur", chapters: 150}, {code: "PRO", name: "Amsal", chapters: 31},
-    {code: "ECC", name: "Pengkhotbah", chapters: 12}, {code: "SNG", name: "Kidung Agung", chapters: 8},
-    {code: "ISA", name: "Yesaya", chapters: 66}, {code: "JER", name: "Yeremia", chapters: 52},
-    {code: "LAM", name: "Ratapan", chapters: 5}, {code: "EZK", name: "Yehezkiel", chapters: 48},
-    {code: "DAN", name: "Daniel", chapters: 12}, {code: "HOS", name: "Hosea", chapters: 14},
-    {code: "JOL", name: "Yoel", chapters: 3}, {code: "AMO", name: "Amos", chapters: 9},
-    {code: "OBA", name: "Obaja", chapters: 1}, {code: "JON", name: "Yunus", chapters: 4},
-    {code: "MIC", name: "Mikha", chapters: 7}, {code: "NAM", name: "Nahum", chapters: 3},
-    {code: "HAB", name: "Habakuk", chapters: 3}, {code: "ZEP", name: "Zefanya", chapters: 3},
-    {code: "HAG", name: "Hagai", chapters: 2}, {code: "ZEC", name: "Zakharia", chapters: 14},
-    {code: "MAL", name: "Maleakhi", chapters: 4}, {code: "MAT", name: "Matius", chapters: 28},
-    {code: "MRK", name: "Markus", chapters: 16}, {code: "LUK", name: "Lukas", chapters: 24},
-    {code: "JHN", name: "Yohanes", chapters: 21}, {code: "ACT", name: "Kisah Para Rasul", chapters: 28},
-    {code: "ROM", name: "Roma", chapters: 16}, {code: "1CO", name: "1 Korintus", chapters: 16},
-    {code: "2CO", name: "2 Korintus", chapters: 13}, {code: "GAL", name: "Galatia", chapters: 6},
-    {code: "EPH", name: "Efesus", chapters: 6}, {code: "PHP", name: "Filipi", chapters: 4},
-    {code: "COL", name: "Kolose", chapters: 4}, {code: "1TH", name: "1 Tesalonika", chapters: 5},
-    {code: "2TH", name: "2 Tesalonika", chapters: 3}, {code: "1TI", name: "1 Timotius", chapters: 6},
-    {code: "2TI", name: "2 Timotius", chapters: 4}, {code: "TIT", name: "Titus", chapters: 3},
-    {code: "PHM", name: "Filemon", chapters: 1}, {code: "HEB", name: "Ibrani", chapters: 13},
-    {code: "JAS", name: "Yakobus", chapters: 5}, {code: "1PE", name: "1 Petrus", chapters: 5},
-    {code: "2PE", name: "2 Petrus", chapters: 3}, {code: "1JN", name: "1 Yohanes", chapters: 5},
-    {code: "2JN", name: "2 Yohanes", chapters: 1}, {code: "3JN", name: "3 Yohanes", chapters: 1},
-    {code: "JUD", name: "Yudas", chapters: 1}, {code: "REV", name: "Wahyu", chapters: 22}
-];
-
+/**
+ * Membuka jendela dialog interaktif (menu pencarian) untuk mengambil ayat-ayat spesifik dari Alkitab digital.
+ */
 function openBibleSearch(isBack = false) {
     if (!isBack) pushNavState('openBibleSearch');
     const main = document.querySelector("main");
@@ -1031,7 +1047,6 @@ function openBibleSearch(isBack = false) {
     
     main.innerHTML = `
         <div class="space-y-4">
-            
             <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl flex items-center gap-2 shadow-sm">
                 <select id="bibleBook" class="flex-1 p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none">
                     ${BIBLE_BOOKS.map(b => `<option value="${b.code}">${b.name}</option>`).join('')}
@@ -1039,7 +1054,6 @@ function openBibleSearch(isBack = false) {
                 <input type="number" id="bibleChapter" value="1" min="1" max="150" class="w-16 p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none text-center" placeholder="Pasal">
                 <button onclick="fetchBibleVerse()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2.5 rounded-xl text-xs font-semibold transition duration-500 whitespace-nowrap">Muat</button>
             </div>
-
             <div id="bibleResult" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-xs text-slate-300 leading-relaxed min-h-[250px] shadow-sm">
                 Silakan pilih kitab dan pasal di atas lalu tekan tombol Muat.
             </div>
@@ -1047,6 +1061,9 @@ function openBibleSearch(isBack = false) {
     `;
 }
 
+/**
+ * Melakukan permintaan pengambilan teks referensi Alkitab dari sumber eksternal API dan mencetaknya di layar aplikasi.
+ */
 async function fetchBibleVerse() {
     const bookCode = document.getElementById("bibleBook").value;
     const chapter = document.getElementById("bibleChapter").value;
@@ -1082,6 +1099,9 @@ async function fetchBibleVerse() {
     }
 }
 
+/**
+ * Menyajikan tampilan direktori pendaftaran administrasi layanan publik serta informasi peribadatan jemaat.
+ */
 function openCategoriesMenu(isBack = false) {
     if (!isBack) pushNavState('openCategoriesMenu');
     const main = document.querySelector("main");
@@ -1090,13 +1110,10 @@ function openCategoriesMenu(isBack = false) {
     
     main.innerHTML = `
         <div class="space-y-4">
-            
             <div class="bg-amber-950/40 border border-amber-900/40 p-4 rounded-xl shadow-inner">
                 <p class="text-xs text-amber-200 leading-relaxed text-center">Pilih layanan administrasi atau lihat informasi jadwal pelayanan gereja.</p>
             </div>
-
             <div class="grid grid-cols-1 gap-3 mt-4">
-                <!-- Tombol ke Layanan Surat -->
                 <div onclick="openSuratSubMenu()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center gap-4 cursor-pointer hover:border-amber-500 transition duration-500 shadow-sm animate-card-hover group">
                     <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-2xl group-hover:bg-amber-500/20 transition">
                         ✉️
@@ -1106,8 +1123,6 @@ function openCategoriesMenu(isBack = false) {
                         <p class="text-[10px] text-slate-400">Pengajuan surat keterangan, pindah, atau pengantar sakramen.</p>
                     </div>
                 </div>
-
-                <!-- Tombol ke Jadwal Pelayanan -->
                 <div onclick="openDutyRoster()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center gap-4 cursor-pointer hover:border-indigo-500 transition duration-500 shadow-sm animate-card-hover group">
                     <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-2xl group-hover:bg-indigo-500/20 transition">
                         📋
@@ -1122,6 +1137,9 @@ function openCategoriesMenu(isBack = false) {
     `;
 }
 
+/**
+ * Menyusun subkategori pembuatan dokumen pengajuan surat ke badan gereja melalui opsi-opsi yang tersedia.
+ */
 function openSuratSubMenu(isBack = false) {
     if (!isBack) pushNavState('openSuratSubMenu');
     const main = document.querySelector("main");
@@ -1130,11 +1148,9 @@ function openSuratSubMenu(isBack = false) {
     
     main.innerHTML = `
         <div class="space-y-4">
-            
-			<div class="bg-amber-950/40 border border-amber-900/40 p-3 rounded-xl">
+            <div class="bg-amber-950/40 border border-amber-900/40 p-3 rounded-xl">
                 <p class="text-xs text-amber-200">Pilih jenis layanan surat menyurat yang Anda butuhkan di bawah ini, atau cek menu <a href="javascript:void(0)" onclick="openDownloadCenter()" class="font-bold text-amber-400 underline hover:text-amber-300 transition">Download</a> secara berkala.</p>
             </div>
-
             <div class="space-y-3">
                 <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
                     <div>
@@ -1143,7 +1159,6 @@ function openSuratSubMenu(isBack = false) {
                     </div>
                     <button onclick="checkAuthBeforeAction(() => openSuratForm('Surat Keterangan / Pindah'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition duration-500 shrink-0 ml-2">Buat Pengajuan</button>
                 </div>
-
                 <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
                     <div>
                         <h4 class="text-xs font-bold text-white">⛪ Pengantar Sakramen & Nikah</h4>
@@ -1151,7 +1166,6 @@ function openSuratSubMenu(isBack = false) {
                     </div>
                     <button onclick="checkAuthBeforeAction(() => openSuratForm('Pengantar Sakramen / Nikah'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition duration-500 shrink-0 ml-2">Buat Pengajuan</button>
                 </div>
-
                 <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
                     <div>
                         <h4 class="text-xs font-bold text-white">📄 Surat Rekomendasi Umum</h4>
@@ -1159,8 +1173,7 @@ function openSuratSubMenu(isBack = false) {
                     </div>
                     <button onclick="checkAuthBeforeAction(() => openSuratForm('Surat Rekomendasi Umum'))" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition duration-500 shrink-0 ml-2">Buat Pengajuan</button>
                 </div>
-
-				<div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
+                <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
                     <div>
                         <h4 class="text-xs font-bold text-white">📄 Izin Penggunaan Fasilitas / Inventaris</h4>
                         <p class="text-[10px] text-slate-400">Keperluan penggunaan fasilitas dan inventaris Gereja.</p>
@@ -1172,6 +1185,9 @@ function openSuratSubMenu(isBack = false) {
     `;
 }
 
+/**
+ * Menghubungi database backend untuk mengumpulkan dan memproyeksikan jadwal distribusi pelayanan beserta pemberitahuan pribadi.
+ */
 async function openDutyRoster(isBack = false) {
     if (!isBack) pushNavState('openDutyRoster');
     const main = document.querySelector("main");
@@ -1183,17 +1199,12 @@ async function openDutyRoster(isBack = false) {
             <button onclick="openCategoriesMenu(true)" class="text-xs text-purple-400 font-semibold mb-2 flex items-center gap-1">
                 <i class="fa-solid fa-arrow-left"></i> Kembali ke Menu Sekretariat
             </button>
-            
             <div id="myDutyBanner"></div>
-
             <div class="bg-indigo-950/40 border border-indigo-900/40 p-3 rounded-xl flex items-center gap-3 shadow-sm">
                 <span class="text-2xl">📋</span>
                 <p class="text-xs text-indigo-200 leading-relaxed">Jadwal pelayanan jemaat berdasarkan sesi ibadah.</p>
             </div>
-
-            <!-- Wadah Tanggal Update (Muncul jika ada data) -->
             <div id="lastUpdateInfo" class="text-center hidden pt-1"></div>
-
             <div id="dutyContainer" class="space-y-4 pb-10">
                 <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat jadwal pelayanan...</p>
             </div>
@@ -1212,7 +1223,6 @@ async function openDutyRoster(isBack = false) {
             return;
         }
 
-        // LOGIKA PENCARIAN TIMESTAMP TERAKHIR DARI DATABASE
         let latestTimeMs = 0;
         const groupedRoster = {};
         
@@ -1232,7 +1242,6 @@ async function openDutyRoster(isBack = false) {
             groupedRoster[eventKey].kategori[d.kategori_tugas].push({ nama: d.nama_petugas, jam: d.waktu });
         });
 
-        // TAMPILKAN TANGGAL UPDATE KE LAYAR JEMAAT
         if (latestTimeMs > 0) {
             const dateObj = new Date(latestTimeMs);
             const formatWaktu = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' - ' + dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WITA';
@@ -1251,7 +1260,6 @@ async function openDutyRoster(isBack = false) {
                         <h4 class="text-sm font-bold text-purple-400">${event.jenis_ibadah}</h4>
                         <p class="text-[11px] text-slate-400 mt-0.5">📅 ${formatTgl}</p>
                     </div>
-                    
                     <div class="space-y-4">
                         ${Object.keys(event.kategori).map(kat => {
                             const petugasSorted = event.kategori[kat].sort((a, b) => (a.jam || "").localeCompare(b.jam || ""));
@@ -1277,10 +1285,8 @@ async function openDutyRoster(isBack = false) {
             `;
         }).join('');
 
-        // Banner Tugas Pribadi...
         const user = window.currentUser || JSON.parse(localStorage.getItem("user_gereja"));
         if (user) {
-            // Aman: menggunakan fallback (d.nama_petugas || "") untuk mencegah error jika data null
             const myDuties = duties.filter(d => (d.nama_petugas || "").toLowerCase().includes(user.nama_lengkap.toLowerCase()) && !(d.nama_petugas || "").toLowerCase().includes(`@${user.nama_lengkap.toLowerCase()}`));
             
             if (myDuties.length > 0) {
@@ -1301,7 +1307,6 @@ async function openDutyRoster(isBack = false) {
                 banner.innerHTML = "";
             }
 
-            // DETEKSI PERTUKARAN JADWAL (TUKAR / BERHALANGAN / MENTION)
             if (typeof duties !== 'undefined' && duties.length > 0) {
                 let swapBannerHtml = "";
                 const myName = user.nama_lengkap.toLowerCase();
@@ -1358,7 +1363,6 @@ async function openDutyRoster(isBack = false) {
                 }
             }
         }
-    // PENAMBAHAN CATCH BLOCK YANG HILANG SEBELUMNYA
     } catch (err) {
         const container = document.getElementById("dutyContainer");
         if (container) {
@@ -1366,6 +1370,10 @@ async function openDutyRoster(isBack = false) {
         }
     }
 }
+
+/**
+ * Mendemonstrasikan kerangka antarmuka pemasukan data khusus guna mengajukan surat yang dibutuhkan oleh jemaat.
+ */
 function openSuratForm(jenisSurat, isBack = false) {
     if (!isBack) pushNavState('openSuratForm', [jenisSurat]);
     const main = document.querySelector("main");
@@ -1383,22 +1391,18 @@ function openSuratForm(jenisSurat, isBack = false) {
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3">
                 <h3 class="text-sm font-bold text-white border-b border-slate-800 pb-2">Formulir ${jenisSurat}</h3>
                 <input type="hidden" id="jenisSuratVal" value="${jenisSurat}">
-                
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">Nama Lengkap</label>
                     <input type="text" id="inputNama" value="${user.nama_lengkap || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" readonly>
                 </div>
-
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">Nomor WhatsApp Aktif</label>
                     <input type="text" id="inputWa" value="${user.no_whatsapp || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" placeholder="Contoh: 08123456789">
                 </div>
-
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">Keterangan / Keperluan Detail</label>
                     <textarea id="inputKeterangan" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white" placeholder="Tuliskan detail atau tujuan pengajuan surat ini..."></textarea>
                 </div>
-
                 <button onclick="submitAndRedirectWA()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg transition duration-500">
                     Simpan & Kirim Konfirmasi ke WA Sekretariat
                 </button>
@@ -1407,6 +1411,9 @@ function openSuratForm(jenisSurat, isBack = false) {
     `;
 }
 
+/**
+ * Menyimpan rangkuman dokumen pengajuan melalui tautan basis data dan membimbing pengguna menuju percakapan kontak WhatsApp admin.
+ */
 function submitAndRedirectWA() {
     const jenisSurat = document.getElementById("jenisSuratVal").value;
     const nama = document.getElementById("inputNama").value;
@@ -1455,6 +1462,9 @@ function submitAndRedirectWA() {
     });
 }
 
+/**
+ * Menyajikan elemen pustaka dan penayangan rekaman video yang tertaut dengan profil YouTube jemaat.
+ */
 function openVideosMenu(isBack = false) {
     if (!isBack) pushNavState('openVideosMenu');
     const main = document.querySelector("main");
@@ -1462,15 +1472,12 @@ function openVideosMenu(isBack = false) {
     triggerPageTransition();
     main.innerHTML = `
         <div class="space-y-4">
-            
-            
             <div class="bg-sky-950/40 border border-sky-900/40 p-3 rounded-xl mb-4 flex items-center justify-between gap-3">
                 <p class="text-xs text-sky-200">Selengkapnya kunjungi channel JPO</p>
                 <a href="https://www.youtube.com/@GMITPNIELOebobo" target="_blank" class="shrink-0 hover:scale-105 transition-transform duration-200">
                     <img src="button.ico" alt="Buka YouTube" class="h-14 w-auto object-contain animate-bounce">
                 </a>
             </div>
-
             <div class="grid grid-cols-1 landscape:sm:grid-cols-2 gap-4">
                 <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 shadow-sm">
                     <h4 class="text-xs font-bold text-white">Ekspresif</h4>
@@ -1478,14 +1485,12 @@ function openVideosMenu(isBack = false) {
                         <iframe class="w-full h-full" src="https://www.youtube.com/embed/KyYWzaNAZxY?list=PLAxMCJ5BwwFSroLQBQBgRUrrH0GkvU4v6" title="Live Stream" frameborder="0" allowfullscreen></iframe>
                     </div>
                 </div>
-
                 <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 shadow-sm">
                     <h4 class="text-xs font-bold text-white">Cuplikan Video - Pniel Oebobo</h4>
                     <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
                         <iframe class="w-full h-full" src="https://www.youtube.com/embed/crC4ssoP9SI" title="YouTube video" frameborder="0" allowfullscreen></iframe>
                     </div>
                 </div>
-
                 <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 flex flex-col items-center shadow-sm landscape:sm:col-span-2">
                     <h4 class="text-xs font-bold text-white w-full">📱 Cuplikan Singkat (Shorts)</h4>
                     <div class="relative w-[250px] aspect-[9/16] rounded-lg overflow-hidden bg-black">
@@ -1497,6 +1502,9 @@ function openVideosMenu(isBack = false) {
     `;
 }
 
+/**
+ * Menyusun prasarana menu interaksi yang memuat arsip foto-foto dan filter navigasi ke direktori portofolio digital.
+ */
 async function openGaleryMenu(isBack = false) { 
     if (!isBack) pushNavState('openGaleryMenu');
     const main = document.querySelector("main");
@@ -1505,8 +1513,6 @@ async function openGaleryMenu(isBack = false) {
     
     main.innerHTML = `
         <div class="space-y-4">
-            
-            
             <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 text-xs shadow-sm">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -1539,7 +1545,6 @@ async function openGaleryMenu(isBack = false) {
                     <input type="date" id="filterDate" onchange="filterGallery()" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none">
                 </div>
             </div>
-
             <div id="galleryGrid" class="grid grid-cols-4 landscape:sm:grid-cols-6 gap-2">
                 <p class="col-span-full text-xs text-slate-400 text-center py-10 animate-pulse">Memuat galeri foto...</p>
             </div>
@@ -1572,9 +1577,9 @@ async function openGaleryMenu(isBack = false) {
     }
 }
 
-let currentActiveGallery = [];
-let currentPhotoIndex = 0;
-
+/**
+ * Melangsungkan pengolahan injeksi grafis daftar item yang terdapat di dalam variabel pengangkut array foto.
+ */
 function renderGallery(photos) {
     currentActiveGallery = photos; 
     const grid = document.getElementById("galleryGrid");
@@ -1600,9 +1605,13 @@ function renderGallery(photos) {
                 </button>
             </div>
         </div>
-    `}).join('');
+        `;
+    }).join('');
 }
 
+/**
+ * Mengeliminasi elemen array objek galeri menggunakan tolok ukur kriteria pencarian (kategorial, momen, tanggal).
+ */
 function filterGallery() {
     const kategorialVal = document.getElementById("filterKategorial").value;
     const momentVal = document.getElementById("filterMoment").value;
@@ -1617,6 +1626,9 @@ function filterGallery() {
     renderGallery(filtered);
 }
 
+/**
+ * Mendorong perbesaran skala resolusi gambar galeri saat modul dialog fokus pada item yang diklik.
+ */
 function openLightbox(index, isBack = false) {
     if (!isBack) pushNavState('openLightbox', [index]);
     currentPhotoIndex = index;
@@ -1629,6 +1641,9 @@ function openLightbox(index, isBack = false) {
     document.getElementById("lightboxModal").classList.remove("hidden");
 }
 
+/**
+ * Menghilangkan pemfokusan dari pratinjau gambar penuh yang berada di jangkauan modul overlay lightbox.
+ */
 function closeLightbox(event, fromPopState = false) {
     if (!event || event.target.id === "lightboxModal" || event.target.tagName === "BUTTON") {
         document.getElementById("lightboxModal").classList.add("hidden");
@@ -1638,6 +1653,9 @@ function closeLightbox(event, fromPopState = false) {
     }
 }
 
+/**
+ * Menerapkan alur navigasi urutan gambar kiri maupun kanan dalam skala mode penuh lightbox.
+ */
 function slidePhoto(direction) {
     currentPhotoIndex += direction;
     if (currentPhotoIndex < 0) {
@@ -1651,6 +1669,9 @@ function slidePhoto(direction) {
     document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
 }
 
+/**
+ * Mendapatkan muatan bacaan rohani atau teks renungan religius harian yang dibubuhi tautan koneksi server terkait.
+ */
 async function openBibleMenu(isBack = false) {
     if (!isBack) pushNavState('openBibleMenu');
     const main = document.querySelector("main");
@@ -1694,7 +1715,6 @@ async function openBibleMenu(isBack = false) {
 
             main.innerHTML = `
                 <div class="space-y-4">
-                    <!-- Kotak Ayat Emas Harian -->
                     <div class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-slate-900 border border-emerald-300 dark:border-emerald-500/40 p-5 rounded-2xl text-center space-y-3 shadow-md">
                         <span class="bg-emerald-200 text-emerald-800 dark:bg-emerald-900/80 dark:text-emerald-300 text-[10px] px-2.5 py-1 rounded-full font-semibold">✨ Ayat Emas Harian (${item.tanggal ? new Date(item.tanggal).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'}) : ''})</span>
                         <blockquote class="text-sm text-slate-800 dark:text-slate-100 italic leading-relaxed font-serif">
@@ -1702,8 +1722,6 @@ async function openBibleMenu(isBack = false) {
                         </blockquote>
                         <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400">— ${item.ayat_harian} —</p>
                     </div>
-
-                    <!-- Kotak Renungan Harian -->
                     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-3 shadow-md">
                         <div class="flex items-center space-x-2">
                             <span class="bg-purple-100 text-purple-800 dark:bg-purple-900/80 dark:text-purple-300 text-[10px] px-2.5 py-1 rounded-full font-semibold">✝️ Renungan Harian</span>
@@ -1730,6 +1748,9 @@ async function openBibleMenu(isBack = false) {
     }
 }
 
+/**
+ * Menayangkan modul player sematan untuk pemutaran peribadatan jemaat melalui jalur live streaming Youtube.
+ */
 function openLivestreamsMenu(isBack = false) {
     if (!isBack) pushNavState('openLivestreamsMenu');
     const main = document.querySelector("main");
@@ -1737,7 +1758,6 @@ function openLivestreamsMenu(isBack = false) {
     triggerPageTransition();
     main.innerHTML = `
         <div class="space-y-4">
-            
             <div class="bg-orange-950/40 border border-orange-900/40 p-3 rounded-xl flex justify-between items-center shadow-sm">
                 <p class="text-xs text-orange-200">Video siaran langsung Ibadah Minggu akan mulai secara otomatis dan real-time pada setiap Ibadah Utama ke-2 Pukul 08:00 WITA.</p>
                 <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
@@ -1752,6 +1772,9 @@ function openLivestreamsMenu(isBack = false) {
     `;
 }
 
+/**
+ * Mengakses panel perantara data visualisasi statistik perihal profil umum kependudukan jemaat.
+ */
 function openStatistikMenu(isBack = false) {
     if (!isBack) pushNavState('openStatistikMenu');
     const main = document.querySelector("main");
@@ -1770,6 +1793,9 @@ function openStatistikMenu(isBack = false) {
     loadStatisticsData();
 }
 
+/**
+ * Mendapatkan dan memilah data mentah pengguna, mengkonversinya ke dalam persentase, lalu memetakannya pada antarmuka diagram batang statis.
+ */
 async function loadStatisticsData() {
     const container = document.getElementById("statsContainer");
     if (!container) return;
@@ -1955,6 +1981,10 @@ async function loadStatisticsData() {
         container.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-rose-500">Terjadi kesalahan koneksi server.</div>`;
     }
 }
+
+/**
+ * Menyuguhkan informasi struktural pendeta, alamat operasional, sampai koordinasi pelayanan di dalam laman perkenalan gereja.
+ */
 function openAboutPage(isBack = false) {
     if (!isBack) pushNavState('openAboutPage');
     const main = document.querySelector("main");
@@ -1962,8 +1992,6 @@ function openAboutPage(isBack = false) {
     triggerPageTransition();
     main.innerHTML = `
         <div class="space-y-4">
-            
-            
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs shadow-sm">
                 <div class="text-center pb-2 border-b border-slate-800">
                     <h3 class="font-bold text-sm text-purple-300">GMIT Jemaat Pniel Oebobo</h3>
@@ -1980,7 +2008,6 @@ function openAboutPage(isBack = false) {
                     </div>
                 </div>
             </div>
-
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs shadow-sm">
                 <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Pendeta</h4>
                 <div class="flex items-center gap-3">
@@ -2029,7 +2056,6 @@ function openAboutPage(isBack = false) {
                     </div>
                 </div>
             </div>
-
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 text-xs shadow-sm">
                 <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Jadwal & Jam Kebaktian Minggu</h4>
                 <ul class="space-y-1.5 text-slate-300 text-[11px] pt-1">
@@ -2038,7 +2064,6 @@ function openAboutPage(isBack = false) {
                     <li class="flex justify-between"><span>Ibadah Sore / Pemuda:</span> <strong class="text-white">17:00 WITA</strong></li>
                 </ul>
             </div>
-
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs shadow-sm">
                 <h4 class="font-bold text-purple-400 border-b border-slate-800 pb-1">Daftar Koordinator Lingkungan / Rayon</h4>
                 <div class="space-y-2 text-[11px]">
@@ -2063,6 +2088,10 @@ function openAboutPage(isBack = false) {
         </div>
     `;
 }
+
+/**
+ * Menghimpun arsip fail PDF yang menampung lembar warta jemaat dan liturgi publik agar dapat diunduh ke ruang memori perangkat.
+ */
 async function openDownloadCenter(isBack = false) {
     if (!isBack) pushNavState('openDownloadCenter');
     const main = document.querySelector("main");
@@ -2071,14 +2100,13 @@ async function openDownloadCenter(isBack = false) {
 
     main.innerHTML = `
         <div class="space-y-4">
-            
             <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
                 <p class="text-xs text-purple-200">Lihat warta mingguan, lembar liturgi, dan dokumen penting gereja.</p>
             </div>
             <div class="text-center py-8 text-xs text-slate-400 animate-pulse">Memuat data dokumen terbaru...</div>
         </div>
     `;
-	try {
+    try {
         const res = await fetch(SCRIPT_URL, {
             method: "POST",
             body: JSON.stringify({ action: "getDaftarDokumen" })
@@ -2092,7 +2120,6 @@ async function openDownloadCenter(isBack = false) {
 
         let htmlContent = `
             <div class="space-y-4">
-                
                 <div class="bg-purple-950/40 border border-purple-900/40 p-3 rounded-xl">
                     <p class="text-xs text-purple-200">Lihat warta mingguan, lembar liturgi, dan dokumen penting gereja.</p>
                 </div>
@@ -2100,7 +2127,6 @@ async function openDownloadCenter(isBack = false) {
         `;
 
         if (wartaDok) {
-            // Membaca kolom tanggal/timestamp dan memformatnya
             const dateStr = wartaDok.tanggal || wartaDok.timestamp;
             const tglText = dateStr ? new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Terbaru';
             
@@ -2155,6 +2181,9 @@ async function openDownloadCenter(isBack = false) {
     }
 }
 
+/**
+ * Menyiapkan, mengompresi, serta menyisipkan format pratinjau citra wajah yang diunggah dari galeri lokal pengguna.
+ */
 function previewImage(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -2187,6 +2216,9 @@ function previewImage(event) {
     reader.readAsDataURL(file);
 }
 
+/**
+ * Menampilkan isian antarmuka yang memungkinkan jemaat untuk memperbarui riwayat biodata serta potret profil milik mereka secara mandiri.
+ */
 function openExtendedProfileForm(isEditing = false, isBack = false) {
     if (!isBack) pushNavState('openExtendedProfileForm', [isEditing]);
     const main = document.querySelector("main");
@@ -2231,6 +2263,9 @@ function openExtendedProfileForm(isEditing = false, isBack = false) {
     `;
 }
 
+/**
+ * Mendorong perbaruan data diri menuju pangkalan data dan mengekstrak unggahan gambar profil baru dengan memanfaatkan tautan ImgBB.
+ */
 async function handleSaveExtendedProfile(e) {
     e.preventDefault();
     const btn = e.target.querySelector("button[type='submit']");
@@ -2240,33 +2275,24 @@ async function handleSaveExtendedProfile(e) {
     let fotoData = document.getElementById("fotoBase64").value;
     let fotoUrlFinal = window.currentUser.foto_profil || "";
 
-    // 1. Cek apakah ada foto baru yang diunggah (format Base64)
     if (fotoData && fotoData.startsWith("data:image")) {
         try {
             btn.innerText = "Mengunggah Foto...";
-            
-            // Hilangkan prefix 'data:image/...;base64,' agar diterima ImgBB
             const base64Murni = fotoData.split(',')[1]; 
-            
-            // GANTI DENGAN API KEY IMGBB ANDA
             const imgbbApiKey = "1a837d888693ad38769e982062e82d88"; 
-            
             const formData = new FormData();
             formData.append("image", base64Murni);
             
-            // Format penamaan otomatis: Profil_Nama_Jemaat
             const safeName = window.currentUser.nama_lengkap.replace(/\s+/g, '_');
             formData.append("name", "Profil_" + safeName);
 
-            // Upload ke ImgBB
             const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
                 method: "POST",
                 body: formData
             });
             const uploadResult = await uploadRes.json();
 
-			if (uploadResult.success) {
-                // Terapkan logika Anda: langsung ubah domain URL sebelum dikirim ke database
+            if (uploadResult.success) {
                 fotoUrlFinal = uploadResult.data.url.replace("i.ibb.co/", "i.ibb.co.com/");
             } else {
                 throw new Error("Gagal dari server gambar.");
@@ -2275,14 +2301,12 @@ async function handleSaveExtendedProfile(e) {
             showToast("Gagal mengunggah foto profil.", "error");
             btn.disabled = false;
             btn.innerText = "Simpan Data";
-            return; // Hentikan proses jika gagal upload
+            return; 
         }
     } else if (fotoData) {
-        // Jika fotoData bukan Base64 (misal sudah berupa URL lama)
         fotoUrlFinal = fotoData;
     }
 
-    // 2. Kirim URL gambar beserta data lainnya ke Google Sheets
     btn.innerText = "Menyimpan Profil...";
     const updatedData = {
         action: "updateExtendedProfile",
@@ -2292,7 +2316,7 @@ async function handleSaveExtendedProfile(e) {
         pekerjaan: document.getElementById("extPekerjaan").value,
         golongan_darah: "-",
         minat_pelayanan: "Umum",
-        foto_profil: fotoUrlFinal // Mengirim URL ImgBB, BUKAN teks panjang Base64
+        foto_profil: fotoUrlFinal 
     };
 
     try {
@@ -2316,6 +2340,9 @@ async function handleSaveExtendedProfile(e) {
     }
 }
 
+/**
+ * Menghadirkan area teks masukan yang memungkinkan audiens untuk merekomendasikan wujud bantuan spiritual atau komitmen pokok doa.
+ */
 function openFormPrayer(isBack = false) {
     if (!isBack) pushNavState('openFormPrayer');
     checkAuthBeforeAction(() => {
@@ -2345,6 +2372,9 @@ function openFormPrayer(isBack = false) {
     });
 }
 
+/**
+ * Mencatat penyerahan rincian permohonan doa yang dikirim jemaat ke pangkalan data permohonan spiritual global.
+ */
 async function handleSendPrayer(e) {
     e.preventDefault();
     const btn = document.getElementById("btnPrayerSubmit");
@@ -2368,6 +2398,9 @@ async function handleSendPrayer(e) {
     }
 }
 
+/**
+ * Membersihkan parameter autentikasi lokal untuk mengakhiri sesi interaksi akun pengguna di antarmuka web.
+ */
 function logout() {
     localStorage.removeItem("user_gereja");
     showToast("Anda telah keluar.");
@@ -2375,6 +2408,9 @@ function logout() {
     setTimeout(() => switchTab('home'), 500);
 }
 
+/**
+ * Menayangkan direktori literatur keagamaan yang mengalokasikan entri Alkitab dan kidung puji-pujian jemaat.
+ */
 async function openLibraryMenu(isBack = false) {
     if (!isBack) pushNavState('openLibraryMenu');
     const main = document.querySelector("main");
@@ -2382,7 +2418,6 @@ async function openLibraryMenu(isBack = false) {
     triggerPageTransition();
     main.innerHTML = `
         <div class="space-y-4">
-            
             <div class="grid grid-cols-2 gap-3">
                 <div onclick="openBibleSearch()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-500 shadow-sm animate-card-hover">
                     <div class="text-3xl mb-2">✝️</div>
@@ -2399,13 +2434,15 @@ async function openLibraryMenu(isBack = false) {
     `;
 }
 
+/**
+ * Menyajikan kumpulan katalog judul Kidung Jemaat sembari menyimpan referensi repositorinya (caching) demi mempercepat akses selanjutnya.
+ */
 async function openHymnsList(isBack = false) {
     if (!isBack) pushNavState('openHymnsList');
     const main = document.querySelector("main");
     document.getElementById("headerTitle").innerText = "Kidung Jemaat";
     triggerPageTransition();
     
-    // Siapkan kerangka UI (Kotak Pencarian & Wadah Daftar)
     main.innerHTML = `
         <div class="flex flex-col h-[calc(100vh-140px)] relative">
             <div class="sticky top-0 bg-slate-950 pt-1 pb-3 z-30 border-b border-slate-800 space-y-3 shrink-0">
@@ -2417,28 +2454,25 @@ async function openHymnsList(isBack = false) {
         </div>
     `;
 
-    // LOGIKA CACHING: Cek apakah data kidung sudah pernah diunduh dan tersimpan di memori
     if (window.allHymns && window.allHymns.length > 0) {
-        // Jika sudah ada, langsung tampilkan tanpa loading ke server
         renderHymnsList(window.allHymns);
-        return; // Hentikan fungsi di sini
+        return; 
     }
 
-    // Jika belum ada di memori, baru lakukan penarikan data dari server (Google Apps Script)
     try {
         const response = await fetch(`${SCRIPT_URL}?action=getHymns`);
         const result = await response.json();
         
-        // Simpan hasil tarikan ke variabel global memori
         window.allHymns = result.hymns || [];
-        
-        // Tampilkan ke layar
         renderHymnsList(window.allHymns);
     } catch (err) {
         document.getElementById("hymnsContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data kidung.</p>`;
     }
 }
 
+/**
+ * Mencetak barisan judul maupun nomor lirik Kidung Jemaat sesuai data koleksi yang diekstrak dari server.
+ */
 function renderHymnsList(hymns) {
     const container = document.getElementById("hymnsContainer");
     if (hymns.length === 0) {
@@ -2447,7 +2481,6 @@ function renderHymnsList(hymns) {
     }
     
     container.innerHTML = hymns.map((h) => {
-        // Melacak index asli lagu dari daftar keseluruhan (allHymns)
         const originalIndex = window.allHymns.findIndex(item => item.nomor === h.nomor);
         
         return `
@@ -2461,12 +2494,18 @@ function renderHymnsList(hymns) {
     }).join('');
 }
 
+/**
+ * Memilah data referensi Kidung Jemaat (berdasarkan judul atau nomor) yang cocok dengan rentetan input pada kolom pencarian.
+ */
 function filterHymns() {
     const keyword = document.getElementById("hymnSearchInput").value.toLowerCase();
     const filtered = window.allHymns.filter(h => String(h.nomor).toLowerCase().includes(keyword) || h.judul.toLowerCase().includes(keyword));
     renderHymnsList(filtered);
 }
 
+/**
+ * Menayangkan modul dialog melayang yang mengusung syair lirik dari Kidung Jemaat yang direkomendasikan.
+ */
 function openHymnModal(index, isBack = false) {
     if (!isBack) pushNavState('openHymnModal', [index]);
     const h = window.allHymns[index];
@@ -2477,11 +2516,17 @@ function openHymnModal(index, isBack = false) {
     document.getElementById("hymnModal").classList.remove("hidden");
 }
 
+/**
+ * Menyembunyikan pop-up dialog bait Kidung Jemaat yang terhampar di latar depan.
+ */
 function closeHymnModal(fromPopState = false) {
     document.getElementById("hymnModal").classList.add("hidden");
     if (fromPopState !== true) history.back(); 
 }
 
+/**
+ * Mengakses agenda kegiatan eksternal dan menampilkan kronologis penyertaan acara komunal pada portal komunitas gereja.
+ */
 async function openEventsList(isBack = false) {
     if (!isBack) pushNavState('openEventsList');
     const main = document.querySelector("main");
@@ -2489,7 +2534,6 @@ async function openEventsList(isBack = false) {
     triggerPageTransition();
     main.innerHTML = `
         <div class="space-y-4">
-            
             <div id="eventsContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat agenda kegiatan...</p></div>
         </div>
     `;
@@ -2516,6 +2560,9 @@ async function openEventsList(isBack = false) {
     }
 }
 
+/**
+ * Membuka ruang chat atau wadah komunitas Minnit dengan menyematkan parameter script terkait pada wadah utama.
+ */
 function openChatRoom(isBack = false) {
     if (!isBack) pushNavState('openChatRoom');
     const main = document.querySelector("main");
@@ -2523,7 +2570,6 @@ function openChatRoom(isBack = false) {
     triggerPageTransition();
     main.innerHTML = `
         <div class="space-y-4">
-            
             <div class="bg-slate-900 border border-slate-800 p-2 rounded-2xl flex flex-col items-center justify-center min-h-[500px]">
                 <span style="display: none;" class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/880184913737266/c/Main?embed" data-style="width:100%; height:500px;" data-version="1.55">Chat</span>
             </div>
@@ -2538,6 +2584,9 @@ function openChatRoom(isBack = false) {
     }
 }
 
+/**
+ * Menyajikan kumpulan individu pada hierarki jemaat yang sedang beralih ke tahapan perayaan hari ulang tahun kelahiran mereka di hari yang sama.
+ */
 async function openBirthdayList(isBack = false) {
     if (!isBack) pushNavState('openBirthdayList');
     const main = document.querySelector("main");
@@ -2545,7 +2594,6 @@ async function openBirthdayList(isBack = false) {
     triggerPageTransition();
     main.innerHTML = `
         <div class="space-y-4">
-            
             <div id="birthdayContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat data ulang tahun...</p></div>
         </div>
     `;
@@ -2572,6 +2620,9 @@ async function openBirthdayList(isBack = false) {
     }
 }
 
+/**
+ * Menyusun ruang perantara dukungan permohonan doa (prayer wall) beserta pengarahan ke isian penyerahan kontribusi afirmasi doa baru.
+ */
 function openPrayerMenu(isBack = false) {
     if (!isBack) pushNavState('openPrayerMenu');
     const savedUser = localStorage.getItem("user_gereja");
@@ -2585,7 +2636,6 @@ function openPrayerMenu(isBack = false) {
     triggerPageTransition();
     main.innerHTML = `
         <div class="space-y-4">
-            
             <div onclick="openFormPrayer()" class="bg-gradient-to-r from-emerald-900/60 to-slate-900 border border-emerald-500/40 p-4 rounded-2xl flex items-center justify-between shadow-md cursor-pointer">
                 <div>
                     <h4 class="text-xs font-bold text-white">✍️ Kirim Pokok Doa</h4>
@@ -2601,6 +2651,9 @@ function openPrayerMenu(isBack = false) {
     loadPublicPrayerListContent(window.currentUser);
 }
 
+/**
+ * Melangsungkan penguraian hasil rekam daftar permohonan pokok doa anggota persekutuan dari database menuju format penayangan dinding doa publik.
+ */
 async function loadPublicPrayerListContent(user) {
     try {
         const response = await fetch(`${SCRIPT_URL}?action=getPrayers`);
@@ -2625,6 +2678,9 @@ async function loadPublicPrayerListContent(user) {
     }
 }
 
+/**
+ * Menayangkan daftar riwayat peruntukan dan kontribusi persembahan (donasi) pada antarmuka, dengan validasi sesi jemaat wajib terlebih dahulu.
+ */
 async function openDonationList(isBack = false) {
     if (!isBack) pushNavState('openDonationList');
     const savedUser = localStorage.getItem("user_gereja");
@@ -2635,7 +2691,6 @@ async function openDonationList(isBack = false) {
     triggerPageTransition();
     main.innerHTML = `
         <div class="space-y-4">
-            
             <button onclick="openFormDonation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md transition duration-500">➕ Konfirmasi Donasi Baru</button>
             <div id="donationContainer" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat data donasi...</p></div>
         </div>
@@ -2665,6 +2720,9 @@ async function openDonationList(isBack = false) {
     }
 }
 
+/**
+ * Menyajikan elemen form yang menaungi penulisan konfirmasi atas penyaluran donasi atau partisipasi transfer persembahan dari pengguna.
+ */
 function openFormDonation(isBack = false) {
     if (!isBack) pushNavState('openFormDonation');
     const main = document.querySelector("main");
@@ -2688,6 +2746,9 @@ function openFormDonation(isBack = false) {
     `;
 }
 
+/**
+ * Mendepositokan spesifikasi konfirmasi persembahan yang diserahkan pemohon ke database pusat lewat metode kirim POST.
+ */
 async function handleSendDonation(e) {
     e.preventDefault();
     const btn = e.target.querySelector("button[type='submit']");
@@ -2714,22 +2775,23 @@ async function handleSendDonation(e) {
     }
 }
 
+/**
+ * Menghidupkan atau meredam mekanisme fitur kemudahan pembacaan skala dimensi antarmuka aplikasi (Mode Lansia) berdasarkan intervensi.
+ */
 function toggleSeniorMode(isInitialLoad = false) {
     const app = document.getElementById("app");
     if (!app) return;
 
     let isSenior;
     
-    // Cek apakah ini muat awal atau klik tombol
     if (isInitialLoad) {
         isSenior = localStorage.getItem('gmit_senior_mode') === 'true';
     } else {
-        isSenior = localStorage.getItem('gmit_senior_mode') !== 'true'; // Balikkan status
+        isSenior = localStorage.getItem('gmit_senior_mode') !== 'true'; 
         localStorage.setItem('gmit_senior_mode', isSenior.toString());
     }
 
     if (isSenior) {
-        // Menggunakan scale Tailwind yang sangat aman untuk semua browser HP
         app.classList.add('scale-[1.05]', 'origin-top', 'pb-10');
         if (!isInitialLoad) showToast("Mode Lansia (Teks Besar) Diaktifkan");
     } else {
@@ -2738,12 +2800,18 @@ function toggleSeniorMode(isInitialLoad = false) {
     }
 }
 
+/**
+ * Menyesuaikan representasi wujud teks pintasan masuk login atau konfigurasi akun berpedoman pada keberadaan status sesi lokal pengguna.
+ */
 function updateAuthNavText() {
     const navText = document.getElementById("accountNavText");
     if (!navText) return;
     navText.innerText = localStorage.getItem("user_gereja") ? "Akun" : "Login";
 }
 
+/**
+ * Menuntun arus pendaratan akses laman kendali berdasarkan hak wewenang jabatan kepengurusan di direktori status pelayanan jemaat.
+ */
 function redirectToRolePanel() {
     const sessionData = sessionStorage.getItem("user_gereja") || localStorage.getItem("user_gereja");
     if (!sessionData) { 
@@ -2754,10 +2822,8 @@ function redirectToRolePanel() {
     try {
         let userData = JSON.parse(sessionData);
         
-        // Membaca semua kemungkinan kolom data jemaat
         const role = (userData.adminRole || userData.role || userData.status_pelayanan || "").toLowerCase().trim();
         
-        // Gunakan kata kunci yang lebih pendek dan luas
         if (
             role.includes("super") || 
             role.includes("admin") || 
@@ -2779,7 +2845,6 @@ function redirectToRolePanel() {
         ) {
             window.location.href = "roster.html"; 
         } else {
-            // Fallback jika punya role tapi bukan admin spesifik
             alert("Akun Anda tidak memiliki akses ke panel khusus.");
         }
     } catch (e) {
@@ -2787,30 +2852,35 @@ function redirectToRolePanel() {
     }
 }
 
-// --- INIT APP & ASSISTIVE BALL ---
+/**
+ * Merampungkan penyusunan variabel memori lokal, menghimpun inisialisasi awal, dan menetapkan serangkaian event pengendali pergerakan Assistive Ball.
+ */
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. BACA & TERAPKAN SEMUA PENGATURAN TERSIMPAN
-    
-    // Tema
+    // 1. CEK DAN ALIHKAN KE LITE SECARA INSTAN
+    if (localStorage.getItem('gmit_lite_mode') === 'true') {
+        window.location.href = 'jpoLITE.html'; 
+        return; 
+    }
+
+    // 2. BACA & TERAPKAN PENGATURAN TERSIMPAN (Tema & Lansia)
     const savedTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
     setTheme(savedTheme, true); 
     
-    // Mode Lansia
+    // --> TAMBAHKAN DUA BARIS INI UNTUK DROPDOWN TEMA <--
+    const themeDropdown = document.getElementById('themeSelector');
+    if (themeDropdown) themeDropdown.value = savedTheme;
+    
     toggleSeniorMode(true);
     
-    // Gaya Transisi
     const savedTransition = localStorage.getItem('gmit_transition_style') || 'fade';
     setTransitionStyle(savedTransition, true);
     
-    // Mode LITE (Jika Anda memiliki fungsi toggleLiteMode, pastikan ia menerima parameter isInitialLoad)
     if (typeof toggleLiteMode === 'function') {
         toggleLiteMode(true);
     }
 
-    // 2. PENTING: Panggil halaman Beranda agar tidak blank!
     switchTab('home', true, true);
     
-    // 3. Inisialisasi Assistive Ball
     const ball = document.getElementById('assistiveBall');
     if (!ball) return;
 
@@ -2819,13 +2889,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let startX, startY;
     let clickCount = 0;
 
-    // Posisi Awal (Tengah Kanan)
     ball.style.top = (window.innerHeight / 2) + 'px';
     ball.style.left = (window.innerWidth - 70) + 'px';
     resetIdle();
     snapToEdge();
 
-    // Event Listeners Assistive Ball...
     ball.addEventListener('mousedown', onStart);
     ball.addEventListener('touchstart', onStart, { passive: false });
     document.addEventListener('mousemove', onMove, { passive: false });
@@ -2833,11 +2901,16 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('mouseup', onEnd);
     document.addEventListener('touchend', onEnd);
 
-
+    /**
+     * Memanggil pembukaan sidebar ketika Assistive Ball mendapatkan ketukan tunggal.
+     */
     function handleSingleTap() {
         if (typeof toggleSidebar === 'function') toggleSidebar(true);
     }
 
+    /**
+     * Beralih secara berlawanan arah dari mode gelap ke mode terang ataupun sebaliknya pada saat menerima intervensi ketukan ganda.
+     */
     function handleDoubleTap() {
         const currentTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
         if (currentTheme === 'light') {
@@ -2849,6 +2922,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /**
+     * Mengantarkan permohonan modul popup (Kartu Tanda Jemaat) usai menerima gestur penahanan (long press) berkelanjutan.
+     */
     function handleLongPress() {
         if (navigator.vibrate) navigator.vibrate(50); 
         if (typeof bukaPopupKTJ === 'function') {
@@ -2857,12 +2933,15 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast("Sistem KTJ belum siap.", "error");
         }
     }
-	
-let isTouching = false; // Pelindung bentrok sentuhan
+    
+    let isTouching = false; 
 
+    /**
+     * Menjalankan pengukuran parameter ketukan maupun pergeseran Assistive Ball awal seraya mendeteksi ambang waktu untuk aksi tekanan lama.
+     */
     function onStart(e) {
         if (e.type === 'touchstart') isTouching = true;
-        if (e.type === 'mousedown' && isTouching) return; // Abaikan klik bayangan di HP
+        if (e.type === 'mousedown' && isTouching) return; 
 
         if (e.target !== ball && !ball.contains(e.target)) return;
         ball.style.transition = 'none';
@@ -2882,6 +2961,9 @@ let isTouching = false; // Pelindung bentrok sentuhan
         resetIdle();
     }
 
+    /**
+     * Menyusun titik reposisi Assistive Ball merujuk pada perubahan jarak kursor penunjuk atau pelacakan sentuhan usap di layar perangkat.
+     */
     function onMove(e) {
         if (e.type === 'mousemove' && isTouching) return;
         if (startX === undefined) return;
@@ -2903,6 +2985,9 @@ let isTouching = false; // Pelindung bentrok sentuhan
         }
     }
 
+    /**
+     * Mengatur pelimpahan tugas (tap atau pergerakan bebas) pada proses pelepasan klik/sentuh, berikut pelekatan bola bantuan ke sisi terdekat.
+     */
     function onEnd(e) {
         if (e.type === 'mouseup' && isTouching) return;
 
@@ -2915,7 +3000,7 @@ let isTouching = false; // Pelindung bentrok sentuhan
                 tapTimer = setTimeout(() => {
                     handleSingleTap();
                     clickCount = 0;
-                }, 300); // Waktu tunggu double tap disesuaikan
+                }, 300); 
             } else if (clickCount === 2) {
                 clearTimeout(tapTimer);
                 handleDoubleTap();
@@ -2928,12 +3013,14 @@ let isTouching = false; // Pelindung bentrok sentuhan
         startX = undefined;
         isDrag = false;
 
-        // Reset pelindung setelah jari diangkat
         if (e.type === 'touchend') {
             setTimeout(() => { isTouching = false; }, 400); 
         }
     }
 
+    /**
+     * Menjalankan daya rekat otomatis (magnetisasi tepi) demi menyematkan Assistive Ball ke sisi horizontal terdekat guna meminimalisir distraksi baca.
+     */
     function snapToEdge() {
         const ballRect = ball.getBoundingClientRect();
         const screenWidth = window.innerWidth;
@@ -2947,6 +3034,9 @@ let isTouching = false; // Pelindung bentrok sentuhan
         resetIdle();
     }
 
+    /**
+     * Memulihkan kejelasan elemen visual ke titik teredup selepas tidak ada aksi atau geseran jari selama rentang durasi tertentu.
+     */
     function resetIdle() {
         ball.style.opacity = '1';
         clearTimeout(idleTimer);
@@ -2956,7 +3046,9 @@ let isTouching = false; // Pelindung bentrok sentuhan
     }
 });
 
-// --- FUNGSI KEMBALI STATIS ---
+/**
+ * Mencetuskan alur perjalanan kembali atau menyorongkan permintaan konfirmasi penutupan pada layar asal apabila sedang memantau beranda.
+ */
 function goBackOrHome(e) {
     const activeHeader = document.getElementById("headerTitle").innerText;
     if (activeHeader.includes("PNIEL Oebobo")) {
@@ -2978,7 +3070,9 @@ function goBackOrHome(e) {
     }
 }
 
-// --- SISTEM KTJ (KARTU TANDA JEMAAT) ---
+/**
+ * Menjadikan data informasi pendaftaran individu teraplikasi ke kanvas pop-up Kartu Tanda Jemaat disertai visualisasi kode QR personal.
+ */
 function bukaPopupKTJ(isBack = false) {
     if (!isBack) pushNavState('bukaPopupKTJ');
     const user = window.currentUser || JSON.parse(localStorage.getItem("user_gereja"));
@@ -3016,11 +3110,17 @@ function bukaPopupKTJ(isBack = false) {
     }
 }
 
+/**
+ * Mengeleminasi eksistensi perwajahan Kartu Tanda Jemaat (KTJ) dari ruang layar dan beringsut menutup rincian biodatanya.
+ */
 function tutupKTJ(fromPopState = false) {
     document.getElementById("ktjModal").classList.add("hidden");
     if (fromPopState !== true) history.back(); 
 }
 
+/**
+ * Menyandikan struktur HTML Kartu Tanda Jemaat ke dalam sketsa pratinjau matriks kanvas untuk memicu aksi unduh ke folder peranti lokal.
+ */
 function unduhKTJ() {
     showToast("Memproses gambar, mohon tunggu sebentar...");
     const cardElement = document.getElementById("idCardTemplate");
@@ -3050,10 +3150,9 @@ function unduhKTJ() {
     }
 }
 
-// --- FITUR ABSENSI MANDIRI ---
-const CHURCH_LAT = -10.166861066758923; 
-const CHURCH_LON = 123.59959948958289; 
-
+/**
+ * Menghitung dan menerjemahkan jarak spasial absolut (dalam satuan meter) berdasarkan persimpangan dua koordinat Latitude dan Longitude.
+ */
 function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
     const R = 6371e3; 
     const p1 = lat1 * Math.PI/180;
@@ -3065,16 +3164,17 @@ function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
     return R * c; 
 }
 
+/**
+ * Menganalisis parameter waktu lokal dan deteksi posisi GPS untuk menginisiasi rutinitas notifikasi absensi partisipasi jemaat pada ibadah hari Minggu.
+ */
 function cekAbsensiMinggu() {
     const user = window.currentUser || JSON.parse(localStorage.getItem("user_gereja"));
-    if (!user) return; // Berjalan senyap di latar belakang jika belum login
+    if (!user) return; 
 
     const now = new Date();
     
-    // 1. Kunci Hari: Hanya berjalan di hari Minggu (0)
     if (now.getDay() !== 0) return;
 
-    // 2. Kunci Jam Ibadah
     const jam = now.getHours();
     let ibadahAktif = "";
 
@@ -3085,15 +3185,13 @@ function cekAbsensiMinggu() {
     } else if (jam >= 15 && jam < 19) {
         ibadahAktif = "Ibadah Pemuda / Sore (17:00 WITA)";
     } else {
-        return; // Hentikan skrip jika di luar jam ibadah
+        return; 
     }
 
-    // 3. Kunci Ganda: Cek apakah hari ini jemaat sudah melakukan absen
     const tanggalHariIni = now.toLocaleDateString('id-ID');
     const absenTerakhir = localStorage.getItem("absen_minggu_terakhir");
-    if (absenTerakhir === tanggalHariIni) return; // Jika sudah absen, hentikan
+    if (absenTerakhir === tanggalHariIni) return; 
 
-    // 4. Deteksi Lokasi Radius 100 Meter
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition((position) => {
             const distance = getDistanceFromLatLonInM(position.coords.latitude, position.coords.longitude, CHURCH_LAT, CHURCH_LON);
@@ -3107,6 +3205,9 @@ function cekAbsensiMinggu() {
     }
 }
 
+/**
+ * Membuat kotak notifikasi pemberitahuan terapung di tepi layar (banner toast) yang menampung tombol verifikasi absensi manual.
+ */
 function munculkanToastAbsen(ibadah, user, tipeKehadiran) {
     let existing = document.getElementById("realtimeToastBanner");
     if (existing) existing.remove();
@@ -3114,24 +3215,26 @@ function munculkanToastAbsen(ibadah, user, tipeKehadiran) {
     const toast = document.createElement("div");
     toast.id = "realtimeToastBanner";
     
-    // CLASS CSS DIPERBARUI: Menggunakan left-0 right-0 mx-auto untuk rata tengah absolut
     toast.className = "fixed bottom-20 left-0 right-0 mx-auto w-[92%] max-w-[340px] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] border border-emerald-500 z-[9999] text-xs flex items-center gap-3 animate-bounce cursor-pointer";
     
     const ikon = tipeKehadiran.includes("Offline") ? "📍" : "📺";
 
-	toast.innerHTML = `
-        	<span class="text-2xl drop-shadow-md mt-1">${ikon}</span>
-        	<div class="flex-1 pointer-events-none">
-            	<p class="font-bold text-emerald-400">Syalom, Absen Yuk!</p>
-            	<p class="text-[10px] text-slate-200 mt-0.5 leading-snug">Kehadiran <b>${ibadah}</b> tercatat via <b>${tipeKehadiran}</b>. Klik untuk konfirmasi.</p>
-            	<p class="text-[9px] text-emerald-400/70 italic mt-1 leading-tight border-t border-emerald-500/30 pt-1">*Mohon aktifkan dan izinkan akses Lokasi (GPS) pada browser HP Anda agar sistem dapat mendeteksi kehadiran di gereja.</p>
-        	</div>
-    	`;
+    toast.innerHTML = `
+        <span class="text-2xl drop-shadow-md mt-1">${ikon}</span>
+        <div class="flex-1 pointer-events-none">
+            <p class="font-bold text-emerald-400">Syalom, Absen Yuk!</p>
+            <p class="text-[10px] text-slate-200 mt-0.5 leading-snug">Kehadiran <b>${ibadah}</b> tercatat via <b>${tipeKehadiran}</b>. Klik untuk konfirmasi.</p>
+            <p class="text-[9px] text-emerald-400/70 italic mt-1 leading-tight border-t border-emerald-500/30 pt-1">*Mohon aktifkan dan izinkan akses Lokasi (GPS) pada browser HP Anda agar sistem dapat mendeteksi kehadiran di gereja.</p>
+        </div>
+    `;
     
     toast.onclick = () => kirimDataAbsen(ibadah, user, tipeKehadiran, toast);
     document.body.appendChild(toast);
 }
 
+/**
+ * Menyambung permintaan asinkron (POST) perihal pembuktian konfirmasi kehadiran kebaktian Minggu ke rekam basis data absensi server.
+ */
 async function kirimDataAbsen(ibadah, user, tipeKehadiran, toastEl) {
     toastEl.onclick = null; 
     toastEl.classList.remove("animate-bounce");
@@ -3166,6 +3269,10 @@ async function kirimDataAbsen(ibadah, user, tipeKehadiran, toastEl) {
         showToast("Kesalahan koneksi saat mengirim absen.", "error");
     }
 }
+
+/**
+ * Memutar rangkaian operasi kilat pengerutan resolusi gambar secara asinkron, perantara API pemuat ke ImgBB, serta penggantian profil identitas jemaat di pangkalan data secara simultan.
+ */
 async function prosesGantiFotoCepat(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -3177,7 +3284,6 @@ async function prosesGantiFotoCepat(event) {
         const img = new Image();
         img.src = e.target.result;
         img.onload = async function() {
-            // 1. Kompresi Gambar
             const MAX_WIDTH = 200, MAX_HEIGHT = 200;
             let width = img.width, height = img.height;
             if (width > height) {
@@ -3200,7 +3306,6 @@ async function prosesGantiFotoCepat(event) {
                 const safeName = window.currentUser.nama_lengkap.replace(/\s+/g, '_');
                 formData.append("name", "Profil_" + safeName);
 
-                // 2. Kirim ke ImgBB
                 const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, { method: "POST", body: formData });
                 const uploadResult = await uploadRes.json();
 
@@ -3208,7 +3313,6 @@ async function prosesGantiFotoCepat(event) {
                     const fotoUrlFinal = uploadResult.data.url.replace("i.ibb.co/", "i.ibb.co.com/");
                     showToast("Menyimpan ke database...");
                     
-                    // 3. Simpan ke Google Sheets (Menyisipkan data lama agar tidak hilang)
                     const user = window.currentUser;
                     const updatedData = {
                         action: "updateExtendedProfile",
@@ -3225,7 +3329,6 @@ async function prosesGantiFotoCepat(event) {
                     const dbResult = await dbRes.json();
 
                     if (dbResult.status === "success") {
-                        // 4. Perbarui penyimpanan lokal dan segarkan layar
                         window.currentUser.foto_profil = fotoUrlFinal;
                         localStorage.setItem("user_gereja", JSON.stringify(window.currentUser));
                         showToast("Foto profil berhasil diperbarui!");
