@@ -73,13 +73,15 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg leading-tight uppercase tracking-wide">GMIT Pniel Oebobo</h1>
-                        <p class="text-[10px] text-slate-300">Sistem Informasi Digital (LITE)</p>
+                        <!-- ID ditambahkan di sini untuk Greeting Login -->
+                        <p id="headerGreeting" class="text-[10px] text-slate-300">Sistem Informasi Digital (LITE)</p>
                     </div>
                 </div>
                 
                 <div class="hidden md:flex items-center space-x-1">
                     <button onclick="navigateTo('home')" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-church-700 transition">Beranda</button>
-                    <button onclick="navigateTo('register')" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-church-700 transition">Pendataan Jemaat</button>
+                    <!-- ID ditambahkan di sini untuk manipulasi JS -->
+                    <button id="navBtnRegister" onclick="navigateTo('register')" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-church-700 transition">Pendataan Jemaat</button>
                     <button onclick="showAdminLogin()" class="ml-4 px-4 py-2 rounded-full text-sm font-bold bg-church-gold text-church-900 hover:bg-yellow-400 transition shadow-md flex items-center gap-2">
                         <i class="fa-solid fa-user-shield"></i> Panel Sekretariat
                     </button>
@@ -95,7 +97,8 @@
         
         <div id="mobileMenu" class="hidden md:hidden bg-church-800 border-t border-church-700 pb-4 pt-2 px-4 space-y-2 shadow-inner absolute w-full z-40">
             	<button onclick="navigateTo('home'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 rounded-lg text-base font-medium hover:bg-church-700 bg-church-900 text-white shadow-sm transition">Beranda</button>
-            	<button onclick="navigateTo('register'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 rounded-lg text-base font-medium hover:bg-church-700 bg-church-900 text-white shadow-sm transition">Pendataan Jemaat</button>
+                <!-- ID ditambahkan di sini untuk manipulasi JS -->
+            	<button id="mobBtnRegister" onclick="navigateTo('register'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 rounded-lg text-base font-medium hover:bg-church-700 bg-church-900 text-white shadow-sm transition">Pendataan Jemaat</button>
             	<button onclick="showAdminLogin(); toggleMobileMenu()" class="block w-full text-center px-4 py-3 mt-4 rounded-lg text-base font-bold text-church-900 bg-church-gold hover:bg-yellow-400 shadow-md transition">
                 	<i class="fa-solid fa-user-shield mr-2"></i> Panel Majelis
             	</button>
@@ -123,7 +126,8 @@
                         <span class="inline-block py-1 px-3 rounded-full bg-church-800 text-church-100 text-sm font-semibold border border-church-700">
                             Selamat Datang di Website Jemaat (Versi LITE)
                         </span>
-                        <a href="/" class="inline-block py-1 px-4 rounded-full bg-white/10 hover:bg-white/20 text-yellow-400 text-xs font-bold border border-white/20 transition backdrop-blur-sm shadow-sm">
+                        <!-- PERUBAHAN: Penambahan onclick untuk menghapus memori LITE -->
+                        <a href="/" onclick="localStorage.removeItem('gmit_lite_mode')" class="inline-block py-1 px-4 rounded-full bg-white/10 hover:bg-white/20 text-yellow-400 text-xs font-bold border border-white/20 transition backdrop-blur-sm shadow-sm">
                             Informasi dan Rincian Lengkap (ke Versi Aplikasi) <i class="fa-solid fa-arrow-right ml-1"></i>
                         </a>
                     </div>
@@ -134,7 +138,8 @@
                         Mewujudkan jemaat yang misioner, mandiri, dan menjadi berkat bagi sesama.
                     </p>
                     <div class="flex flex-col sm:flex-row justify-center gap-4">
-                        <button onclick="navigateTo('register')" class="bg-church-gold hover:bg-yellow-400 text-church-900 font-bold py-3.5 px-8 rounded-full shadow-lg transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                        <!-- ID ditambahkan di sini untuk manipulasi JS -->
+                        <button id="heroBtnRegister" onclick="navigateTo('register')" class="bg-church-gold hover:bg-yellow-400 text-church-900 font-bold py-3.5 px-8 rounded-full shadow-lg transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
                             <i class="fa-solid fa-file-signature"></i> Pendataan Jemaat Baru
                         </button>
                         <a href="#download-section" class="bg-church-800 hover:bg-church-700 text-white font-medium py-3.5 px-8 rounded-full shadow border border-church-700 transition flex items-center justify-center gap-2">
@@ -144,7 +149,7 @@
                 </div>
             </div>
 
-            <!-- Visi & Misi Section (Hardcoded) -->
+            <!-- Visi & Misi Section -->
             <div id="info-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <!-- Visi -->
@@ -171,7 +176,7 @@
                 </div>
             </div>
 
-            <!-- Tentang Gereja Section (Hardcoded) -->
+            <!-- Tentang Gereja Section -->
             <div id="about-section" class="py-16 bg-white border-t border-slate-100">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -208,13 +213,12 @@
                             </div>
                         </div>
 
-	<!-- Daftar Pendeta -->
+	                    <!-- Daftar Pendeta -->
                         <div class="animate-slide-up" style="animation-delay: 0.1s;">
                             <div class="bg-slate-50 rounded-2xl p-6 md:p-8 border border-slate-200 h-full">
                                 <h3 class="text-2xl font-bold font-serif text-church-900 mb-6 flex items-center gap-3">
                                     <i class="fa-solid fa-users-rectangle text-church-600"></i> Pendeta Malayani
                                 </h3>
-                                <!-- Menggunakan space-y-4 untuk format 1 kolom vertikal -->
                                 <div class="space-y-4">
                                     
                                     <div class="bg-white border border-slate-200 p-4 rounded-2xl space-y-3 text-xs shadow-sm transition hover:-translate-y-1 hover:shadow-md">
@@ -353,7 +357,6 @@
                                             <option value="Lingkungan IV">Lingkungan IV</option>
                                             <option value="Lingkungan V">Lingkungan V</option>
                                             <option value="Lingkungan VI">Lingkungan VI</option>
-                                            <!-- Tambahkan opsi lain jika diperlukan -->
                                         </select>
                                     </div>
                                 </div>
@@ -472,7 +475,6 @@
                                 </tr>
                             </thead>
                             <tbody id="adminDownloadsList" class="bg-white divide-y divide-slate-200">
-                                <!-- Injected -->
                             </tbody>
                         </table>
                     </div>
@@ -515,7 +517,6 @@
                                 </tr>
                             </thead>
                             <tbody id="adminGalleryList" class="bg-white divide-y divide-slate-200">
-                                <!-- Injected -->
                             </tbody>
                         </table>
                     </div>
@@ -635,10 +636,54 @@
             if(type === 'admin') setTimeout(() => document.getElementById('adminPinInput').focus(), 100);
         };
 
-        window.closeModal = function() {
-            document.getElementById('customModal').classList.add('hidden');
-            document.getElementById('customModal').classList.remove('flex');
-        };
+        // --- FUNGSI BARU: CEK STATUS LOGIN JEMAAT DARI APLIKASI UTAMA ---
+        function checkUserLoginStatus() {
+            const userStr = localStorage.getItem("user_gereja");
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    
+                    // 1. Ubah teks Header dengan sapaan
+                    const greetingEl = document.getElementById("headerGreeting");
+                    if (greetingEl) {
+                        greetingEl.innerHTML = `<span class="text-church-gold font-bold">Syalom, ${user.nama_lengkap}</span> <span class="opacity-70 ml-1">| LITE</span>`;
+                    }
+
+                    // 2. Ubah Tombol Navigasi Desktop ke Galeri
+                    const navBtn = document.getElementById("navBtnRegister");
+                    if (navBtn) {
+                        navBtn.innerHTML = '<i class="fa-solid fa-images mr-1"></i> Galeri Kegiatan';
+                        navBtn.onclick = function() { 
+                            navigateTo('home'); 
+                            setTimeout(() => document.getElementById('gallery-section').scrollIntoView({behavior: 'smooth'}), 100); 
+                        };
+                    }
+
+                    // 3. Ubah Tombol Navigasi Mobile ke Galeri
+                    const mobBtn = document.getElementById("mobBtnRegister");
+                    if (mobBtn) {
+                        mobBtn.innerHTML = '<i class="fa-solid fa-images mr-2"></i> Galeri Kegiatan';
+                        mobBtn.onclick = function() { 
+                            navigateTo('home'); 
+                            toggleMobileMenu(); 
+                            setTimeout(() => document.getElementById('gallery-section').scrollIntoView({behavior: 'smooth'}), 100); 
+                        };
+                    }
+
+                    // 4. Ubah Tombol Utama di Hero Section ke Galeri
+                    const heroBtn = document.getElementById("heroBtnRegister");
+                    if (heroBtn) {
+                        heroBtn.innerHTML = '<i class="fa-solid fa-images"></i> Lihat Galeri Kegiatan';
+                        heroBtn.onclick = function() { 
+                            navigateTo('home');
+                            document.getElementById('gallery-section').scrollIntoView({behavior: 'smooth'}); 
+                        };
+                    }
+                } catch (e) {
+                    console.log("Error membaca data user", e);
+                }
+            }
+        }
 
         // --- API FUNCTIONS (SINKRON DENGAN APLIKASI UTAMA) ---
         async function apiGetDownloads() {
@@ -721,19 +766,6 @@
             try { await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "saveGallery", data: arr }), mode: 'no-cors' }); } catch(e) {}
         }
 
-        async function apiAddMember(memberData) {
-            try { 
-                await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ 
-                        action: "register", 
-                        nama_lengkap: memberData.name, 
-                        no_whatsapp: memberData.phone 
-                    }) 
-                }); 
-            } catch(e) {}
-        }
-
         // --- INIT APP (Optimasi Responsivitas Non-Blocking) ---
         async function initApp() {
             setTimeout(() => {
@@ -743,6 +775,9 @@
                     setTimeout(() => loader.style.display = 'none', 500);
                 }
             }, 300);
+
+            // Menjalankan pengecekan status login
+            checkUserLoginStatus();
 
             apiGetDownloads().then(data => {
                 activeDownloads = data;
@@ -919,7 +954,7 @@
             document.getElementById('galEditIndex').value = "-1";
         };
 
-window.handleRegistration = async function(e) {
+        window.handleRegistration = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSubmitReg');
             btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Mengecek Data...`;
@@ -1037,8 +1072,6 @@ window.handleRegistration = async function(e) {
         };
 
         window.addEventListener('DOMContentLoaded', initApp);
-
-
 
         async function apiAddMember(memberData) {
             // Menggabungkan Status Sakramen agar bisa masuk ke Google Sheet tanpa menambah kolom baru
