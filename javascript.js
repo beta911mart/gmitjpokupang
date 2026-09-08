@@ -281,24 +281,34 @@ function showToast(message, type = "success") {
  * Mengecek ketersediaan notifikasi pop-up global (push notification) dari server dan menampilkannya.
  */
 async function checkPushNotification() {
-    if (sessionStorage.getItem('notif_seen') === 'true') return;
-
     try {
         const response = await fetch(`${SCRIPT_URL}?action=getNotification`);
         const result = await response.json();
         
         if (result.status === 'success' && result.data.is_active) {
             const msg = result.data.message;
-            const msgContainer = document.getElementById('pushNotifMessage');
+            const todayDate = new Date().toLocaleDateString('id-ID');
             
-            if (msg.startsWith('http://') || msg.startsWith('https://') || msg.match(/\.(jpeg|jpg|png|webp)$/i)) {
-                msgContainer.innerHTML = `<img src="${msg}" class="w-full h-auto rounded-xl shadow-md border border-slate-700 mx-auto" style="max-height: 350px; object-fit: contain;">`;
-            } else {
-                msgContainer.innerText = msg;
-            }
+            const lastSeenDate = localStorage.getItem('last_seen_notif_date');
+            const lastSeenMsg = localStorage.getItem('last_seen_notif_msg');
+            
+            // Tampilkan pop-up JIKA beda hari ATAU isi pesannya berubah
+            if (lastSeenDate !== todayDate || lastSeenMsg !== msg) {
+                const msgContainer = document.getElementById('pushNotifMessage');
+                
+                // Render gambar atau teks
+                if (msg.startsWith('http://') || msg.startsWith('https://') || msg.match(/\.(jpeg|jpg|png|webp)$/i)) {
+                    msgContainer.innerHTML = `<img src="${msg}" class="w-full h-auto rounded-xl shadow-md border border-slate-700 mx-auto" style="max-height: 350px; object-fit: contain;">`;
+                } else {
+                    msgContainer.innerText = msg;
+                }
 
-            document.getElementById('pushNotifOverlay').classList.remove('hidden');
-            sessionStorage.setItem('notif_seen', 'true');
+                document.getElementById('pushNotifOverlay').classList.remove('hidden');
+                
+                // Perbarui memori dengan tanggal hari ini dan pesan terbaru
+                localStorage.setItem('last_seen_notif_date', todayDate);
+                localStorage.setItem('last_seen_notif_msg', msg);
+            }
         }
     } catch (err) {
         console.log("Gagal memuat notifikasi", err);
