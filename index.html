@@ -49,33 +49,42 @@
 
     <div id="toastContainer" class="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"></div>
 
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-[100] hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar(false)"></div>
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-[100] hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar(false)"></div>
     <div id="sidebarMenu" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-slate-800 z-[100] transform -translate-x-full transition-transform duration-500 flex flex-col p-5 shadow-2xl">
-        <div class="flex justify-between items-center pb-4 border-b border-slate-800">
+        
+        <!-- Header Sidebar -->
+        <div class="flex justify-between items-center pb-4 border-b border-slate-800 shrink-0">
             <h3 class="font-bold text-sm text-purple-400">Pengaturan & Tema</h3>
             <button onclick="toggleSidebar(false)" class="text-slate-400 hover:text-white text-lg">✕</button>
         </div>
         
-        <div class="py-4 space-y-4 flex-1 overflow-y-auto">
+        <!-- Area Tengah (Bisa di-scroll jika layar kecil) -->
+        <div class="py-4 space-y-6 flex-1 overflow-y-auto">
+            
+            <!-- Blok Tema -->
             <div>
-                <p class="text-xs font-semibold text-slate-400 mb-2">Pilih Tema Aplikasi:</p>
-                <div class="grid grid-cols-1 gap-2">
-                    <button onclick="setTheme('slate')" class="text-left px-3 py-2 rounded-xl text-xs bg-slate-900 border border-slate-800 hover:border-purple-500 transition duration-500 flex items-center justify-between"><span>🌙 Slate Dark </span><span>🌘</span></button>
-                    <button onclick="setTheme('ocean')" class="text-left px-3 py-2 rounded-xl text-xs bg-sky-700/60 text-sky-100 border border-sky-500/60 hover:border-sky-300 transition duration-500 flex items-center justify-between"><span>🌊 Ocean Blue </span><span>🐋</span></button>
-                    <button onclick="setTheme('emerald')" class="text-left px-3 py-2 rounded-xl text-xs bg-emerald-700/60 text-emerald-100 border border-emerald-500/60 hover:border-emerald-300 transition duration-500 flex items-center justify-between"><span>🌿 Emerald Nature </span><span>🌳</span></button>
-                    <button onclick="setTheme('purple')" class="text-left px-3 py-2 rounded-xl text-xs bg-fuchsia-700/60 text-fuchsia-100 border border-fuchsia-500/60 hover:border-fuchsia-300 transition duration-500 flex items-center justify-between"><span>🍇 Royal Purple </span><span>🌷</span></button>
-                    <button onclick="setTheme('sunset')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-700/60 text-amber-100 border border-amber-500/60 hover:border-amber-300 transition duration-500 flex items-center justify-between"><span>🌅 Warm Sunset </span><span>🌞</span></button>
-                    <button onclick="setTheme('christmas')" class="text-left px-3 py-2 rounded-xl text-xs bg-red-950/60 border border-red-900/70 hover:border-red-500 transition duration-500 flex items-center justify-between"><span>🎄 Tema Natal</span><span>🎅🏻</span></button>
-                    <button onclick="setTheme('easter')" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-950/60 border border-amber-900/70 hover:border-amber-500 transition duration-500 flex items-center justify-between"><span>✝️ Tema Paskah</span><span>🕊️</span></button>
-                    <button onclick="setTheme('light')" class="text-left px-3 py-2 rounded-xl text-xs bg-white text-slate-900 border border-slate-300 hover:border-blue-500 hover:shadow-md transition duration-500 font-bold flex items-center justify-between"><span>☀️ Terang Fajar </span><span>✨</span></button>
-                    
-                    <button onclick="toggleSeniorMode()" id="seniorModeBtn" class="text-left px-3 py-2 rounded-xl text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-400 transition duration-500 flex items-center justify-between">
-                        <span>👓 Mode Lansia / Senior</span>
-                        <span>Aktifkan</span>
-                    </button>
+                <label for="themeSelector" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                    <i class="fa-solid fa-palette mr-1"></i> Tema Tampilan
+                </label>
+                <div class="relative">
+                    <select id="themeSelector" onchange="setTheme(this.value)" class="w-full appearance-none bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-xl px-4 py-3 outline-none focus:border-purple-500 hover:border-slate-700 transition duration-300 shadow-sm cursor-pointer">
+                        <option value="slate">🌙 Gelap (Dark Mode)</option>
+                        <option value="light">☀️ Terang (Light Mode)</option>
+                        <option value="emerald">🌿 Zamrud (Emerald)</option>
+                        <option value="purple">🍇 Ungu (Purple)</option>
+                        <option value="sunset">🌅 Senja (Sunset)</option>
+                        <option value="ocean">🌊 Biru Laut (Ocean)</option>
+                        <option value="easter">🕊️ Paskah (Spesial)</option>
+                        <option value="christmas">🎄 Natal (Spesial)</option>
+                    </select>
+                    <!-- Ikon Panah Dropdown -->
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </div>
                 </div>
             </div>
 
+            <!-- Blok Transisi -->
             <div class="pt-4 border-t border-slate-800">
                 <p class="text-xs font-semibold text-slate-400 mb-2">Model Transisi Halaman:</p>
                 <div class="grid grid-cols-1 gap-2">
@@ -84,25 +93,28 @@
                 </div>
             </div>
 
+            <!-- Blok Akses Cepat -->
             <div class="pt-4 border-t border-slate-800">
                 <p class="text-xs font-semibold text-slate-400 mb-2">Akses Cepat:</p>
                 <div class="space-y-2">
                     <button onclick="installPWA()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 px-3 rounded-xl text-xs font-semibold transition duration-500 flex items-center justify-center gap-2 shadow-md">
                         📲 Tambahkan ke Beranda
                     </button>
-                    <!-- Tombol Pengalihan ke LITE -->
                     <a href="jpoLITE.html" class="w-full bg-slate-800 hover:bg-slate-700 text-yellow-400 border border-slate-700 py-2.5 px-3 rounded-xl text-xs font-semibold transition duration-500 flex items-center justify-center gap-2 shadow-sm">
                         ⚡ Beralih ke Versi LITE
                     </a>
                 </div>
             </div>
-        </div>
 
-        <div class="mt-8 pt-4 border-t border-slate-800 text-center space-y-1">
+        </div> <!-- Penutup Area Tengah -->
+
+        <!-- Footer Sidebar -->
+        <div class="pt-4 border-t border-slate-800 text-center space-y-1 shrink-0 mt-2">
             <p class="text-[11px] font-semibold text-slate-400">GMIT JPO Digital v1.0</p>
             <p class="text-[10px] text-slate-500">Ⓒ Copyright by MulMedJPO ℗ 2026</p>
             <p class="text-[12px] text-purple-400 font-medium">Designed & Supported by ToDek™</p>
         </div>
+        
     </div>
 
     <div id="app" class="w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto bg-slate-950 min-h-screen flex flex-col shadow-2xl relative transition-all duration-500">
