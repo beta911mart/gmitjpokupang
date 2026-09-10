@@ -3355,3 +3355,74 @@ async function prosesGantiFotoCepat(event) {
     };
     reader.readAsDataURL(file);
 }
+// --- SKRIP DRAG UNTUK TOMBOL KEMBALI MELAYANG ---
+document.addEventListener("DOMContentLoaded", () => {
+    const floatBackBtn = document.getElementById('floatingBackBtn');
+    if (floatBackBtn) {
+        let isBackDrag = false;
+        let isBackMoved = false;
+        let startXBack, startYBack;
+        let initialLeftBack, initialTopBack;
+
+        const startDragBack = (e) => {
+            isBackDrag = true;
+            isBackMoved = false;
+            floatBackBtn.style.transition = 'none'; // Matikan animasi saat digeser agar lancar
+            
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            
+            startXBack = clientX;
+            startYBack = clientY;
+            initialLeftBack = floatBackBtn.offsetLeft;
+            initialTopBack = floatBackBtn.offsetTop;
+        };
+
+        const moveDragBack = (e) => {
+            if (!isBackDrag) return;
+            
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            
+            const dx = clientX - startXBack;
+            const dy = clientY - startYBack;
+
+            // Jika pergeseran lebih dari 5px, ini dihitung "Geser", bukan "Klik"
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                isBackMoved = true;
+                if (e.cancelable) e.preventDefault(); 
+                
+                let newLeft = initialLeftBack + dx;
+                let newTop = initialTopBack + dy;
+                
+                // Kunci batas layar agar tombol tidak hilang keluar HP
+                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - floatBackBtn.offsetWidth));
+                newTop = Math.max(0, Math.min(newTop, window.innerHeight - floatBackBtn.offsetHeight));
+
+                floatBackBtn.style.left = newLeft + 'px';
+                floatBackBtn.style.top = newTop + 'px';
+                floatBackBtn.style.bottom = 'auto'; 
+                floatBackBtn.style.right = 'auto'; 
+            }
+        };
+
+        const endDragBack = (e) => {
+            if (!isBackDrag) return;
+            isBackDrag = false;
+            floatBackBtn.style.transition = 'opacity 0.3s ease'; // Kembalikan transisi visibilitas
+            
+            // Panggil fungsi goBackOrHome JIKA tombol HANYA diklik (tidak digeser)
+            if (!isBackMoved) {
+                goBackOrHome(e);
+            }
+        };
+
+        // Pasang sensor sentuh/mouse ke tombol
+        floatBackBtn.addEventListener('mousedown', startDragBack);
+        floatBackBtn.addEventListener('touchstart', startDragBack, { passive: false });
+        document.addEventListener('mousemove', moveDragBack, { passive: false });
+        document.addEventListener('touchmove', moveDragBack, { passive: false });
+        document.addEventListener('mouseup', endDragBack);
+        document.addEventListener('touchend', endDragBack);
+    }
+});
