@@ -2875,7 +2875,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
     setTheme(savedTheme, true); 
     
-    // --> TAMBAHKAN DUA BARIS INI UNTUK DROPDOWN TEMA <--
     const themeDropdown = document.getElementById('themeSelector');
     if (themeDropdown) themeDropdown.value = savedTheme;
     
@@ -2888,8 +2887,79 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleLiteMode(true);
     }
 
+    // ---> 3. PEMANGGILAN PUSH NOTIFIKASI DI SINI <---
+    checkPushNotification();
+
     switchTab('home', true, true);
     
+    // ---> 4. SKRIP DRAG UNTUK TOMBOL KEMBALI MELAYANG <---
+    const floatBackBtn = document.getElementById('floatingBackBtn');
+    if (floatBackBtn) {
+        let isBackDrag = false;
+        let isBackMoved = false;
+        let startXBack, startYBack;
+        let initialLeftBack, initialTopBack;
+
+        const startDragBack = (e) => {
+            isBackDrag = true;
+            isBackMoved = false;
+            floatBackBtn.style.transition = 'none'; 
+            
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            
+            startXBack = clientX;
+            startYBack = clientY;
+            initialLeftBack = floatBackBtn.offsetLeft;
+            initialTopBack = floatBackBtn.offsetTop;
+        };
+
+        const moveDragBack = (e) => {
+            if (!isBackDrag) return;
+            
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            
+            const dx = clientX - startXBack;
+            const dy = clientY - startYBack;
+
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                isBackMoved = true;
+                if (e.cancelable) e.preventDefault(); 
+                
+                let newLeft = initialLeftBack + dx;
+                let newTop = initialTopBack + dy;
+                
+                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - floatBackBtn.offsetWidth));
+                newTop = Math.max(0, Math.min(newTop, window.innerHeight - floatBackBtn.offsetHeight));
+
+                floatBackBtn.style.left = newLeft + 'px';
+                floatBackBtn.style.top = newTop + 'px';
+                floatBackBtn.style.bottom = 'auto'; 
+                floatBackBtn.style.right = 'auto'; 
+            }
+        };
+
+        const endDragBack = (e) => {
+            if (!isBackDrag) return;
+            isBackDrag = false;
+            floatBackBtn.style.transition = 'opacity 0.3s ease'; 
+            
+            // Panggil fungsi goBackOrHome JIKA tombol HANYA diklik (tidak digeser)
+            if (!isBackMoved) {
+                goBackOrHome(e);
+            }
+        };
+
+        floatBackBtn.addEventListener('mousedown', startDragBack);
+        floatBackBtn.addEventListener('touchstart', startDragBack, { passive: false });
+        document.addEventListener('mousemove', moveDragBack, { passive: false });
+        document.addEventListener('touchmove', moveDragBack, { passive: false });
+        document.addEventListener('mouseup', endDragBack);
+        document.addEventListener('touchend', endDragBack);
+    }
+
+    // ---> 5. SKRIP ASSISTIVE BALL BAWAAN ANDA <---
     const ball = document.getElementById('assistiveBall');
     if (!ball) return;
 
@@ -2910,16 +2980,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('mouseup', onEnd);
     document.addEventListener('touchend', onEnd);
 
-    /**
-     * Memanggil pembukaan sidebar ketika Assistive Ball mendapatkan ketukan tunggal.
-     */
     function handleSingleTap() {
         if (typeof toggleSidebar === 'function') toggleSidebar(true);
     }
 
-    /**
-     * Beralih secara berlawanan arah dari mode gelap ke mode terang ataupun sebaliknya pada saat menerima intervensi ketukan ganda.
-     */
     function handleDoubleTap() {
         const currentTheme = localStorage.getItem('gmit_selected_theme') || 'slate';
         if (currentTheme === 'light') {
@@ -2931,9 +2995,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /**
-     * Mengantarkan permohonan modul popup (Kartu Tanda Jemaat) usai menerima gestur penahanan (long press) berkelanjutan.
-     */
     function handleLongPress() {
         if (navigator.vibrate) navigator.vibrate(50); 
         if (typeof bukaPopupKTJ === 'function') {
@@ -2945,9 +3006,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     let isTouching = false; 
 
-    /**
-     * Menjalankan pengukuran parameter ketukan maupun pergeseran Assistive Ball awal seraya mendeteksi ambang waktu untuk aksi tekanan lama.
-     */
     function onStart(e) {
         if (e.type === 'touchstart') isTouching = true;
         if (e.type === 'mousedown' && isTouching) return; 
@@ -2970,9 +3028,6 @@ document.addEventListener("DOMContentLoaded", () => {
         resetIdle();
     }
 
-    /**
-     * Menyusun titik reposisi Assistive Ball merujuk pada perubahan jarak kursor penunjuk atau pelacakan sentuhan usap di layar perangkat.
-     */
     function onMove(e) {
         if (e.type === 'mousemove' && isTouching) return;
         if (startX === undefined) return;
@@ -2994,9 +3049,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /**
-     * Mengatur pelimpahan tugas (tap atau pergerakan bebas) pada proses pelepasan klik/sentuh, berikut pelekatan bola bantuan ke sisi terdekat.
-     */
     function onEnd(e) {
         if (e.type === 'mouseup' && isTouching) return;
 
@@ -3027,9 +3079,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /**
-     * Menjalankan daya rekat otomatis (magnetisasi tepi) demi menyematkan Assistive Ball ke sisi horizontal terdekat guna meminimalisir distraksi baca.
-     */
     function snapToEdge() {
         const ballRect = ball.getBoundingClientRect();
         const screenWidth = window.innerWidth;
@@ -3043,9 +3092,6 @@ document.addEventListener("DOMContentLoaded", () => {
         resetIdle();
     }
 
-    /**
-     * Memulihkan kejelasan elemen visual ke titik teredup selepas tidak ada aksi atau geseran jari selama rentang durasi tertentu.
-     */
     function resetIdle() {
         ball.style.opacity = '1';
         clearTimeout(idleTimer);
