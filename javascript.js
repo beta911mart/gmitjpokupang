@@ -102,7 +102,8 @@ function triggerPageTransition() {
         } else {
             floatingBtn.classList.remove("hidden");
             floatingBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i> Kembali';
-            floatingBtn.className = "absolute pointer-events-auto bg-purple-600/90 backdrop-blur-md text-white px-4 py-3 rounded-full shadow-[0_4px_15px_rgba(147,51,234,0.5)] border border-purple-400 font-bold text-xs flex items-center gap-2 cursor-move active:scale-95 transition-all duration-300";
+            // Perubahan pada baris ini: absolute -> fixed, penambahan z-[9000], dan transition-opacity
+            floatingBtn.className = "fixed bottom-6 left-6 z-[9000] pointer-events-auto bg-purple-600/90 backdrop-blur-md text-white px-4 py-3 rounded-full shadow-[0_4px_15px_rgba(147,51,234,0.5)] border border-purple-400 font-bold text-xs flex items-center gap-2 cursor-move active:scale-95 transition-opacity duration-300";
         }
     }
 }
