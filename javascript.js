@@ -2892,7 +2892,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     switchTab('home', true, true);
     
-    // ---> 4. SKRIP DRAG UNTUK TOMBOL KEMBALI MELAYANG <---
+// ---> 4. SKRIP DRAG UNTUK TOMBOL KEMBALI MELAYANG <---
     const floatBackBtn = document.getElementById('floatingBackBtn');
     if (floatBackBtn) {
         let isBackDrag = false;
@@ -2944,21 +2944,37 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!isBackDrag) return;
             isBackDrag = false;
             floatBackBtn.style.transition = 'opacity 0.3s ease'; 
-            
-            // Panggil fungsi goBackOrHome JIKA tombol HANYA diklik (tidak digeser)
-            if (!isBackMoved) {
-                goBackOrHome(e);
-            }
         };
 
-        floatBackBtn.addEventListener('mousedown', startDragBack);
-        floatBackBtn.addEventListener('touchstart', startDragBack, { passive: false });
+        // Event Listener ke Dokumen (Untuk melacak pergerakan jari di layar)
         document.addEventListener('mousemove', moveDragBack, { passive: false });
         document.addEventListener('touchmove', moveDragBack, { passive: false });
         document.addEventListener('mouseup', endDragBack);
         document.addEventListener('touchend', endDragBack);
-    }
 
+        // Event Listener khusus ke Tombol (Anti Tembus / Ghost Click)
+        floatBackBtn.addEventListener('mousedown', startDragBack);
+        floatBackBtn.addEventListener('touchstart', (e) => {
+            e.stopPropagation(); // Blokir sentuhan menembus ke bawah
+            startDragBack(e);
+        }, { passive: false });
+
+        floatBackBtn.addEventListener('touchend', (e) => {
+            e.stopPropagation(); 
+            if (!isBackMoved) {
+                if (e.cancelable) e.preventDefault(); // Matikan ghost-click sistem HP
+                goBackOrHome(e);
+            }
+        });
+
+        floatBackBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (!isBackMoved) {
+                goBackOrHome(e);
+            }
+        });
+    }
     // ---> 5. SKRIP ASSISTIVE BALL BAWAAN ANDA <---
     const ball = document.getElementById('assistiveBall');
     if (!ball) return;
