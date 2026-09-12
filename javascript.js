@@ -1515,150 +1515,66 @@ function openVideosMenu(isBack = false) {
 }
 
 /**
- * Menyusun prasarana menu interaksi yang memuat arsip foto-foto dan filter navigasi ke direktori portofolio digital.
- */
-async function openGaleryMenu(isBack = false) { 
-    if (!isBack) pushNavState('openGaleryMenu');
-    const main = document.querySelector("main");
-    document.getElementById("headerTitle").innerText = "Galeri Foto Jemaat";
-    triggerPageTransition();
-    
-    main.innerHTML = `
-        <div class="space-y-4">
-            <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 text-xs shadow-sm">
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-[10px] text-slate-400 mb-1">Filter Kategorial</label>
-                        <select id="filterKategorial" onchange="filterGallery()" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none">
-                            <option value="">Semua Kategorial</option>
-                            <option value="Lansia">Lansia</option>
-                            <option value="PKB">PKB (Kaum Bapak)</option>
-                            <option value="PW">PW (Kaum Wanita)</option>
-                            <option value="Pemuda">Pemuda</option>
-                            <option value="Remaja">Remaja</option>
-                            <option value="Anak">Anak / SM</option>
-                            <option value="Others">Others</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-slate-400 mb-1">Filter Momen</label>
-                        <select id="filterMoment" onchange="filterGallery()" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none">
-                            <option value="">Semua Momen</option>
-                            <option value="Natal">Natal</option>
-                            <option value="Tahun Baru">Tahun Baru</option>
-                            <option value="Paskah">Paskah</option>
-                            <option value="Ultah Gereja">Ultah Gereja</option>
-                            <option value="Others">Others</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-[10px] text-slate-400 mb-1">Filter Berdasarkan Tanggal</label>
-                    <input type="date" id="filterDate" onchange="filterGallery()" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none">
-                </div>
-            </div>
-            <div id="galleryGrid" class="grid grid-cols-4 landscape:sm:grid-cols-6 gap-2">
-                <p class="col-span-full text-xs text-slate-400 text-center py-10 animate-pulse">Memuat galeri foto...</p>
-            </div>
-        </div>
-
-        <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-[99999] hidden flex items-center justify-center p-4" onclick="closeLightbox(event)">
-            <div class="relative max-w-lg landscape:max-w-3xl w-full flex flex-col items-center justify-center" onclick="event.stopPropagation()">
-                <button onclick="closeLightbox()" class="absolute -top-6 right-0 bg-rose-600 hover:bg-rose-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-2xl border-2 border-white z-50 transition duration-500 active:scale-95">
-                    ✕
-                </button>
-                <button onclick="slidePhoto(-1)" class="absolute -left-3 sm:-left-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition duration-500 active:scale-95">
-                    ❮
-                </button>
-                <img id="lightboxImg" src="" onclick="slidePhoto(1)" class="max-h-[75vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-slate-800 bg-black cursor-pointer">
-                <button onclick="slidePhoto(1)" class="absolute -right-3 sm:-right-12 top-1/2 -translate-y-1/2 bg-slate-800/80 hover:bg-slate-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-xl border border-slate-600 z-40 transition duration-500 active:scale-95">
-                    ❯
-                </button>
-                <p id="lightboxCaption" class="text-xs text-slate-300 mt-3 text-center font-medium px-2 truncate w-full"></p>
-            </div>
-        </div>
-    `;
-
-    try {
-        const response = await fetch(`${SCRIPT_URL}?action=getGallery`);
-        const result = await response.json();
-        window.allGalleryData = result.gallery || [];
-        renderGallery(window.allGalleryData);
-    } catch (err) {
-        document.getElementById("galleryGrid").innerHTML = `<p class="col-span-full text-xs text-rose-400 text-center">Gagal memuat galeri.</p>`;
-    }
-}
-
-/**
- * Melangsungkan pengolahan injeksi grafis daftar item yang terdapat di dalam variabel pengangkut array foto.
- */
-function renderGallery(photos) {
-    currentActiveGallery = photos; 
-    const grid = document.getElementById("galleryGrid");
-    
-    if (photos.length === 0) {
-        grid.innerHTML = `<p class="col-span-full text-xs text-slate-400 text-center py-10">Tidak ada foto yang sesuai dengan filter.</p>`;
-        return;
-    }
-
-    grid.innerHTML = photos.map((p, index) => {
-        const r = p.reactions || {}; 
-        let safeUrl = p.url ? `https://wsrv.nl/?url=${encodeURIComponent(p.url)}&w=600&fit=cover` : '';
-        
-        return `
-        <div class="bg-white p-1.5 pb-2 rounded shadow-md cursor-pointer transform animate-card-hover border border-slate-200 flex flex-col justify-between">
-            <div onclick="openLightbox(${index})" class="aspect-square bg-slate-100 overflow-hidden rounded-sm">
-                <img src="${safeUrl}" class="w-full h-full object-cover" loading="lazy">
-            </div>
-            <p class="text-[9px] text-slate-800 font-serif text-center truncate mt-1 px-0.5">${p.judul}</p>
-            <div class="mt-1 pt-1 border-t border-slate-100 flex justify-center">
-                <button onclick="handleReactionAndRefresh('galeri', '${p.id}', '❤️')" class="text-[10px] bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 px-2 py-1 rounded-lg transition duration-500 flex items-center justify-center border border-slate-200 hover:border-rose-200 w-full">
-                    ❤️ ${r["❤️"] ? `<span class="text-[10px] font-bold text-rose-500 ml-1">${r["❤️"]}</span>` : '<span class="ml-1">Suka</span>'}
-                </button>
-            </div>
-        </div>
-        `;
-    }).join('');
-}
-
-/**
- * Mengeliminasi elemen array objek galeri menggunakan tolok ukur kriteria pencarian (kategorial, momen, tanggal).
- */
-function filterGallery() {
-    const kategorialVal = document.getElementById("filterKategorial").value;
-    const momentVal = document.getElementById("filterMoment").value;
-    const dateVal = document.getElementById("filterDate").value;
-
-    let filtered = window.allGalleryData || [];
-
-    if (kategorialVal) filtered = filtered.filter(p => p.kategorial === kategorialVal);
-    if (momentVal) filtered = filtered.filter(p => p.moment === momentVal);
-    if (dateVal) filtered = filtered.filter(p => p.tanggal === dateVal);
-
-    renderGallery(filtered);
-}
-
-/**
- * Mendorong perbesaran skala resolusi gambar galeri saat modul dialog fokus pada item yang diklik.
+ * Mendorong perbesaran skala media galeri dan mendeteksi apakah file berupa Gambar atau Video (Google Drive/YouTube).
  */
 function openLightbox(index, isBack = false) {
     if (!isBack) pushNavState('openLightbox', [index]);
     currentPhotoIndex = index;
-    const photo = currentActiveGallery[currentPhotoIndex];
-    
-    let safeLargeUrl = photo.url ? `https://wsrv.nl/?url=${encodeURIComponent(photo.url)}&w=1200` : '';
-    
-    document.getElementById("lightboxImg").src = safeLargeUrl;
-    document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
+    updateLightboxContent();
     document.getElementById("lightboxModal").classList.remove("hidden");
 }
 
 /**
- * Menghilangkan pemfokusan dari pratinjau gambar penuh yang berada di jangkauan modul overlay lightbox.
+ * Menerapkan alur navigasi urutan media kiri maupun kanan.
+ */
+function slidePhoto(direction) {
+    currentPhotoIndex += direction;
+    if (currentPhotoIndex < 0) {
+        currentPhotoIndex = currentActiveGallery.length - 1;
+    } else if (currentPhotoIndex >= currentActiveGallery.length) {
+        currentPhotoIndex = 0;
+    }
+    updateLightboxContent();
+}
+
+/**
+ * Fungsi inti untuk menyuntikkan URL ke dalam tag Img atau Iframe secara dinamis.
+ */
+function updateLightboxContent() {
+    const photo = currentActiveGallery[currentPhotoIndex];
+    const imgEl = document.getElementById("lightboxImg");
+    const vidEl = document.getElementById("lightboxVideo");
+    
+    // Deteksi jika tautan berasal dari Google Drive, YouTube, atau berakhiran mp4
+    const isVideo = photo.url && (photo.url.includes('drive.google.com') || photo.url.includes('youtube.com') || photo.url.endsWith('.mp4'));
+
+    if (isVideo) {
+        imgEl.classList.add("hidden");
+        imgEl.src = ""; 
+        vidEl.classList.remove("hidden");
+        vidEl.src = photo.url; 
+    } else {
+        vidEl.classList.add("hidden");
+        vidEl.src = ""; 
+        imgEl.classList.remove("hidden");
+        let safeLargeUrl = photo.url ? `https://wsrv.nl/?url=${encodeURIComponent(photo.url)}&w=1200` : '';
+        imgEl.src = safeLargeUrl;
+    }
+
+    document.getElementById("lightboxCaption").innerText = `${photo.judul} (${photo.tanggal || '-'})`;
+}
+
+/**
+ * Menghilangkan pemfokusan dan menghentikan pemutaran video saat modal ditutup.
  */
 function closeLightbox(event, fromPopState = false) {
     if (!event || event.target.id === "lightboxModal" || event.target.tagName === "BUTTON") {
         document.getElementById("lightboxModal").classList.add("hidden");
+        
+        // Hapus src iframe agar suara video langsung mati saat modal ditutup
+        document.getElementById("lightboxVideo").src = "";
+        document.getElementById("lightboxImg").src = "";
+        
         if (fromPopState !== true) {
             history.back(); 
         }
