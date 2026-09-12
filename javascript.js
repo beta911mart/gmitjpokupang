@@ -6,6 +6,7 @@ let newWorker;
 let deferredPrompt;
 let currentActiveGallery = [];
 let currentPhotoIndex = 0;
+let totalOnlineUsers = 1;
 
 const BIBLE_BOOKS = [
     {code: "GEN", name: "Kejadian", chapters: 50}, {code: "EXO", name: "Keluaran", chapters: 40},
@@ -3488,3 +3489,56 @@ document.addEventListener("DOMContentLoaded", () => {
         document.addEventListener('touchend', endDragBack);
     }
 });
+
+/**
+ * Mengubah indikator warna dan status jaringan di antarmuka sesuai keadaan konektivitas perangkat.
+ */
+function updateNetworkStatus() {
+    const dot = document.getElementById("syncDot");
+    const text = document.getElementById("syncText");
+    if (!dot) return;
+    
+    if (navigator.onLine) {
+        dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+        if(text) { 
+            text.innerText = `${totalOnlineUsers} Online`; 
+            text.className = "text-[10px] text-slate-300 font-medium hidden sm:inline"; 
+        }
+    } else {
+        dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+        if(text) { 
+            text.innerText = "Offline"; 
+            text.className = "text-[10px] text-rose-400 hidden sm:inline"; 
+        }
+    }
+}
+window.addEventListener('online', updateNetworkStatus);
+window.addEventListener('offline', updateNetworkStatus);
+
+/**
+ * Mengirim sinyal (ping) ke server untuk melaporkan kehadiran dan mengambil total user aktif.
+ */
+async function trackOnlineUsers() {
+    if (!navigator.onLine) return; // Jangan kirim data jika HP sedang offline
+
+    try {
+        // Ambil nama user jika sudah login, atau beri nama Guest acak
+        let userId = "Guest_" + Math.floor(Math.random() * 10000);
+        const savedUser = localStorage.getItem("user_gereja");
+        if (savedUser) userId = JSON.parse(savedUser).username || JSON.parse(savedUser).nama_lengkap;
+
+        const response = await fetch(`${SCRIPT_URL}?action=pingOnline&user=${encodeURIComponent(userId)}`);
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            totalOnlineUsers = result.count;
+            updateNetworkStatus(); // Perbarui angka di layar
+        }
+    } catch (err) {
+        console.log("Gagal memuat status online.");
+    }
+}
+
+// Jalankan ping 2 detik setelah aplikasi dibuka, lalu ulangi setiap 2 menit (120000 ms)
+setTimeout(trackOnlineUsers, 2000);
+setInterval(trackOnlineUsers, 120000);
