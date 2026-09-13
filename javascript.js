@@ -2425,20 +2425,25 @@ function logout() {
 async function openLibraryMenu(isBack = false) {
     if (!isBack) pushNavState('openLibraryMenu');
     const main = document.querySelector("main");
-    document.getElementById("headerTitle").innerText = "Alkitab & Kidung Jemaat";
+    document.getElementById("headerTitle").innerText = "Alkitab, KJ & PKJ";
     triggerPageTransition();
     main.innerHTML = `
         <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-3">
-                <div onclick="openBibleSearch()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-500 shadow-sm animate-card-hover">
-                    <div class="text-3xl mb-2">✝️</div>
-                    <h4 class="font-bold text-xs text-white">Pustaka Alkitab</h4>
-                    <p class="text-[10px] text-slate-400 mt-1">Lengkap 66 Kitab</p>
+            <div class="grid grid-cols-3 gap-2">
+                <div onclick="openBibleSearch()" class="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-500 shadow-sm animate-card-hover">
+                    <div class="text-2xl mb-1">✝️</div>
+                    <h4 class="font-bold text-[11px] text-white">Alkitab</h4>
+                    <p class="text-[9px] text-slate-400 mt-0.5">66 Kitab</p>
                 </div>
-                <div onclick="openHymnsList()" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-500 shadow-sm animate-card-hover">
-                    <div class="text-3xl mb-2">📖</div>
-                    <h4 class="font-bold text-xs text-white">Kidung Jemaat</h4>
-                    <p class="text-[10px] text-slate-400 mt-1">Cari lirik lagu pujian</p>
+                <div onclick="openHymnsList()" class="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-500 shadow-sm animate-card-hover">
+                    <div class="text-2xl mb-1">📖</div>
+                    <h4 class="font-bold text-[11px] text-white">Kidung Jemaat</h4>
+                    <p class="text-[9px] text-slate-400 mt-0.5">KJ Hymns</p>
+                </div>
+                <div onclick="openPKJList()" class="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-500 shadow-sm animate-card-hover">
+                    <div class="text-2xl mb-1">🎶</div>
+                    <h4 class="font-bold text-[11px] text-white">Pelengkap KJ</h4>
+                    <p class="text-[9px] text-slate-400 mt-0.5">PKJ Hymns</p>
                 </div>
             </div>
         </div>
@@ -2534,7 +2539,88 @@ function closeHymnModal(fromPopState = false) {
     document.getElementById("hymnModal").classList.add("hidden");
     if (fromPopState !== true) history.back(); 
 }
+/**
+ * Menyajikan kumpulan katalog judul Pelengkap Kidung Jemaat (PKJ) dengan sistem caching.
+ */
+async function openPKJList(isBack = false) {
+    if (!isBack) pushNavState('openPKJList');
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Pelengkap Kidung Jemaat (PKJ)";
+    triggerPageTransition();
+    
+    main.innerHTML = `
+        <div class="flex flex-col h-[calc(100vh-140px)] relative">
+            <div class="sticky top-0 bg-slate-950 pt-1 pb-3 z-30 border-b border-slate-800 space-y-3 shrink-0">
+                 <input type="text" id="pkjSearchInput" oninput="filterPKJ()" placeholder="Cari nomor atau judul lagu PKJ..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-purple-500 shadow-md">
+            </div>
+            <div id="pkjContainer" class="space-y-2 pt-3 pb-20 overflow-y-auto flex-1">
+                <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat daftar PKJ...</p>
+            </div>
+        </div>
+    `;
 
+    if (window.allPKJ && window.allPKJ.length > 0) {
+        renderPKJList(window.allPKJ);
+        return; 
+    }
+
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=getPKJ`);
+        const result = await response.json();
+        
+        window.allPKJ = result.pkj || [];
+        renderPKJList(window.allPKJ);
+    } catch (err) {
+        document.getElementById("pkjContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data PKJ.</p>`;
+    }
+}
+
+/**
+ * Mencetak daftar nomor dan judul PKJ ke layar.
+ */
+function renderPKJList(pkjList) {
+    const container = document.getElementById("pkjContainer");
+    if (!container) return;
+    if (pkjList.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Lagu PKJ tidak ditemukan.</p>`;
+        return;
+    }
+    
+    container.innerHTML = pkjList.map((p) => {
+        const originalIndex = window.allPKJ.findIndex(item => item.nomor === p.nomor);
+        return `
+        <div onclick="openPKJModal(${originalIndex})" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-3.5 rounded-xl cursor-pointer transition duration-500 shadow-sm">
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-bold text-purple-400">PKJ No. ${p.nomor}</span>
+            </div>
+            <h5 class="text-xs font-semibold text-white mb-1">${p.judul}</h5>
+        </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Menyaring daftar PKJ berdasarkan kolom pencarian.
+ */
+function filterPKJ() {
+    const keyword = document.getElementById("pkjSearchInput").value.toLowerCase();
+    const filtered = window.allPKJ.filter(p => String(p.nomor).toLowerCase().includes(keyword) || p.judul.toLowerCase().includes(keyword));
+    renderPKJList(filtered);
+}
+
+/**
+ * Menayangkan modal lirik PKJ. Anda bisa menggunakan modal harian yang sama atau membuat modal terpisah.
+ */
+function openPKJModal(index, isBack = false) {
+    if (!isBack) pushNavState('openPKJModal', [index]);
+    const p = window.allPKJ[index];
+    if (!p) return;
+    
+    document.getElementById("modalHymnNo").innerText = `PKJ No. ${p.nomor}`;
+    document.getElementById("modalHymnTitle").innerText = p.judul;
+    document.getElementById("modalHymnContent").innerText = p.lirik;
+    document.getElementById("hymnModal").classList.remove("hidden");
+}
 /**
  * Mengakses agenda kegiatan eksternal dan menampilkan kronologis penyertaan acara komunal pada portal komunitas gereja.
  */
