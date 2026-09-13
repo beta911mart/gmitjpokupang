@@ -788,7 +788,7 @@ function switchTab(tab, isBack = false, isReplace = false) {
                         <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-purple-500 to-fuchsia-500 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(168,85,247,0.7)]">
                             <span class="home-menu-inner ${innerShapeTransform}">📖</span>
                         </div>
-                        <span class="text-[11px] text-slate-300 font-medium group-hover:text-purple-300 transition">Alkitab & KJ</span>
+                        <span class="text-[11px] text-slate-300 font-medium group-hover:text-purple-300 transition">Alkitab & Nyanyian</span>
                     </div>
                     <div onclick="openEventsList()" class="cursor-pointer flex flex-col items-center animate-card-hover group active:scale-95 transition-transform duration-100">
                         <div class="home-menu-icon relative w-14 h-14 bg-gradient-to-tr from-sky-500 to-blue-600 ${menuShapeClass} flex items-center justify-center text-xl mb-1 border-2 border-white transition-all duration-500 shadow-[0_0_12px_rgba(14,165,233,0.7)]">
