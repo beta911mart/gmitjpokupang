@@ -2889,8 +2889,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---> 3. PEMANGGILAN PUSH NOTIFIKASI DI SINI <---
     checkPushNotification();
-
     switchTab('home', true, true);
+    
+    // Panggil Walkthrough setelah jeda 1 detik untuk jemaat perdana
+    setTimeout(() => {
+        startGuidedWalkthrough();
+    }, 1000);
     
 // ---> 4. SKRIP DRAG UNTUK TOMBOL KEMBALI MELAYANG <---
     const floatBackBtn = document.getElementById('floatingBackBtn');
@@ -3476,3 +3480,143 @@ async function trackOnlineUsers() {
 // Jalankan ping 2 detik setelah aplikasi dibuka, lalu ulangi setiap 2 menit (120000 ms)
 setTimeout(trackOnlineUsers, 2000);
 setInterval(trackOnlineUsers, 120000);
+
+/**
+ * Memulai tur panduan interaktif (Guided Walkthrough) untuk pengguna perdana.
+ */
+function startGuidedWalkthrough() {
+    if (localStorage.getItem('gmit_ftue_done') === 'true') return;
+
+    // Definisikan urutan langkah dan ID elemen target di HTML
+    const steps = [
+        {
+            id: "btnPengaturan", // Sesuaikan dengan ID tombol Pengaturan di HTML Anda
+            title: "Selamat Datang!",
+            desc: "Silahkan ikuti langkah awal berikut untuk mempermudah mengakses dan menggunakan aplikasi web ini. Ini adalah tombol Pengaturan.",
+            preAction: null
+        },
+        {
+            id: "btnInstallApp", // Sesuaikan dengan ID tombol Install PWA di HTML Anda
+            title: "Pasang ke Beranda",
+            desc: "Gunakan tombol ini untuk menginstal aplikasi langsung ke layar beranda HP Anda.",
+            preAction: null
+        },
+        {
+            id: "navAkunBtn", // Sesuaikan dengan ID menu navigasi Akun di HTML Anda
+            title: "Menu Akun",
+            desc: "Masuk ke menu ini untuk mengakses profil jemaat atau melakukan autentikasi.",
+            preAction: () => {
+                // Tutup sidebar jika elemen sebelumnya ada di dalam sidebar
+                if (typeof toggleSidebar === 'function') toggleSidebar(false);
+            }
+        },
+        {
+            id: "tabRegBtn", 
+            title: "Daftar Baru",
+            desc: "Jika Anda belum memiliki akun, pilih form pendaftaran ini untuk mengisi kelengkapan data.",
+            preAction: () => {
+                // Eksekusi fungsi pembuka form login agar elemen tabRegBtn dimuat di layar
+                renderAuthPageForAction(() => {});
+            }
+        }
+    ];
+
+    let currentStep = 0;
+    let activeTarget = null;
+    let originalStyles = {};
+
+    // Buat lapisan overlay gelap
+    const overlay = document.createElement('div');
+    overlay.id = "ftueOverlay";
+    overlay.className = "fixed inset-0 bg-slate-950/85 z-[99990] transition-opacity duration-300";
+    document.body.appendChild(overlay);
+
+    // Buat kotak dialog panduan
+    const tooltip = document.createElement('div');
+    tooltip.id = "ftueTooltip";
+    tooltip.className = "absolute z-[99999] bg-slate-900 border border-purple-500 p-5 rounded-2xl shadow-[0_10px_40px_rgba(168,85,247,0.4)] w-[90%] max-w-[320px] transition-all duration-500 opacity-0 scale-95";
+    document.body.appendChild(tooltip);
+
+    function showStep(index) {
+        if (activeTarget) {
+            activeTarget.style.cssText = originalStyles.cssText;
+            activeTarget.classList.remove("ring-4", "ring-purple-500", "ring-offset-2", "ring-offset-slate-950", "pointer-events-none", "z-[99995]");
+        }
+
+        if (index >= steps.length) {
+            endWalkthrough();
+            return;
+        }
+
+        const step = steps[index];
+        
+        // Eksekusi fungsi pemicu jika ada (misal: pindah tab agar tombolnya muncul)
+        if (step.preAction) step.preAction();
+
+        // Beri sedikit jeda agar DOM sempat me-render elemen baru
+        setTimeout(() => {
+            activeTarget = document.getElementById(step.id);
+            
+            if (!activeTarget) {
+                console.warn("Walkthrough dilewati: Elemen " + step.id + " tidak ditemukan.");
+                showStep(index + 1); // Lewati jika elemen tidak ada di layar
+                return;
+            }
+
+            // Simpan gaya asli dan sorot elemen
+            originalStyles.cssText = activeTarget.style.cssText;
+            activeTarget.style.position = "relative";
+            activeTarget.classList.add("ring-4", "ring-purple-500", "ring-offset-2", "ring-offset-slate-950", "pointer-events-none", "z-[99995]");
+            
+            // Gulir otomatis ke elemen
+            activeTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+
+            // Render isi kotak panduan
+            const isLast = index === steps.length - 1;
+            tooltip.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <span class="bg-purple-900/60 text-purple-300 text-[10px] px-2 py-0.5 rounded font-bold">Langkah ${index + 1} dari ${steps.length}</span>
+                </div>
+                <h3 class="text-sm font-bold text-white mb-1.5">${step.title}</h3>
+                <p class="text-xs text-slate-300 leading-relaxed mb-4">${step.desc}</p>
+                <div class="flex justify-end gap-2">
+                    <button id="ftueSkip" class="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 transition">Lewati</button>
+                    <button id="ftueNext" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-xl text-xs font-bold transition shadow-md">${isLast ? 'Selesai' : 'Lanjut ❯'}</button>
+                </div>
+            `;
+
+            // Hitung posisi kotak dialog agar tidak menutupi elemen target
+            const rect = activeTarget.getBoundingClientRect();
+            let topPos = rect.bottom + window.scrollY + 15;
+            let leftPos = (window.innerWidth - tooltip.offsetWidth) / 2;
+
+            if (topPos + 150 > window.scrollY + window.innerHeight) {
+                topPos = rect.top + window.scrollY - tooltip.offsetHeight - 15;
+            }
+
+            tooltip.style.top = topPos + "px";
+            tooltip.style.left = Math.max(10, leftPos) + "px";
+            
+            tooltip.classList.remove("opacity-0", "scale-95");
+            tooltip.classList.add("opacity-100", "scale-100");
+
+            document.getElementById("ftueNext").onclick = () => showStep(index + 1);
+            document.getElementById("ftueSkip").onclick = endWalkthrough;
+        }, 150); // Jeda 150ms
+    }
+
+    function endWalkthrough() {
+        if (activeTarget) {
+            activeTarget.style.cssText = originalStyles.cssText;
+            activeTarget.classList.remove("ring-4", "ring-purple-500", "ring-offset-2", "ring-offset-slate-950", "pointer-events-none", "z-[99995]");
+        }
+        overlay.remove();
+        tooltip.remove();
+        localStorage.setItem('gmit_ftue_done', 'true'); // Kunci agar tidak muncul lagi
+        
+        // Kembalikan ke beranda setelah tour selesai
+        switchTab('home', false, true);
+    }
+
+    showStep(0);
+}
