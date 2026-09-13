@@ -3576,9 +3576,20 @@ function startGuidedWalkthrough() {
             // Simpan gaya asli
             originalStyles.cssText = activeTarget.style.cssText || "";
             
-            // Sorot elemen di atas overlay
+            // 1. Pastikan posisi relative agar z-index menembus overlay gelap
+            const computedPosition = window.getComputedStyle(activeTarget).position;
+            if (computedPosition === 'static') {
+                activeTarget.style.position = "relative";
+            }
+            
+            // 2. Sorot elemen di atas overlay dengan efek cahaya terang
             activeTarget.style.zIndex = "99995";
-            activeTarget.classList.add("ring-4", "ring-purple-500", "ring-offset-2", "ring-offset-slate-950", "pointer-events-none");
+            activeTarget.classList.add(
+                "ring-4", "ring-purple-400", "ring-offset-4", "ring-offset-slate-900", 
+                "shadow-[0_0_40px_rgba(192,132,252,0.8)]", 
+                "bg-slate-800", 
+                "pointer-events-none"
+            );
             
             // Gulir otomatis agar elemen terlihat di layar
             activeTarget.scrollIntoView({ behavior: "smooth", block: "center" });
