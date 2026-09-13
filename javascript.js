@@ -2891,10 +2891,10 @@ document.addEventListener("DOMContentLoaded", () => {
     checkPushNotification();
     switchTab('home', true, true);
     
-    // Panggil Walkthrough setelah jeda 1 detik untuk jemaat perdana
+    // Panggil Walkthrough setelah jeda 3 detik untuk jemaat perdana
     setTimeout(() => {
         startGuidedWalkthrough();
-    }, 1000);
+    }, 3000);
     
 // ---> 4. SKRIP DRAG UNTUK TOMBOL KEMBALI MELAYANG <---
     const floatBackBtn = document.getElementById('floatingBackBtn');
@@ -3485,38 +3485,47 @@ setInterval(trackOnlineUsers, 120000);
  * Memulai tur panduan interaktif (Guided Walkthrough) untuk pengguna perdana.
  */
 function startGuidedWalkthrough() {
+    // Mengecek apakah user sudah pernah menyelesaikan walkthrough ini
     if (localStorage.getItem('gmit_ftue_done') === 'true') return;
 
-    // Definisikan urutan langkah dan ID elemen target di HTML
     const steps = [
         {
-            id: "btnPengaturan", // Sesuaikan dengan ID tombol Pengaturan di HTML Anda
+            // Menargetkan tombol Pengaturan (Assistive Ball yang sudah memiliki ID)
+            getTarget: () => document.getElementById("assistiveBall"),
             title: "Selamat Datang!",
-            desc: "Silahkan ikuti langkah awal berikut untuk mempermudah mengakses dan menggunakan aplikasi web ini. Ini adalah tombol Pengaturan.",
+            desc: "Selamat datang, silahkan ikuti langkah awal berikut untuk mempermudah mengakses dan menggunakan aplikasi web ini. Ini adalah menu Pengaturan.",
             preAction: null
         },
         {
-            id: "btnInstallApp", // Sesuaikan dengan ID tombol Install PWA di HTML Anda
+            // Menargetkan tombol Pasang ke Beranda menggunakan atribut onclick
+            getTarget: () => document.querySelector('button[onclick="installPWA()"]'),
             title: "Pasang ke Beranda",
-            desc: "Gunakan tombol ini untuk menginstal aplikasi langsung ke layar beranda HP Anda.",
-            preAction: null
+            desc: "Gunakan tombol ini untuk menginstal aplikasi PWA langsung ke layar beranda HP Anda.",
+            preAction: () => {
+                // Buka sidebar otomatis agar tombol ini terlihat
+                if (typeof toggleSidebar === 'function') toggleSidebar(true);
+            }
         },
         {
-            id: "navAkunBtn", // Sesuaikan dengan ID menu navigasi Akun di HTML Anda
+            // Menargetkan Menu Akun di navigasi bawah menggunakan atribut onclick
+            getTarget: () => document.querySelector('button[onclick="switchTab(\'profil\')"]'),
             title: "Menu Akun",
-            desc: "Masuk ke menu ini untuk mengakses profil jemaat atau melakukan autentikasi.",
+            desc: "Masuk ke menu ini untuk mengakses profil jemaat Anda atau melakukan autentikasi (login/daftar).",
             preAction: () => {
-                // Tutup sidebar jika elemen sebelumnya ada di dalam sidebar
+                // Tutup sidebar agar fokus kembali ke layar utama
                 if (typeof toggleSidebar === 'function') toggleSidebar(false);
             }
         },
         {
-            id: "tabRegBtn", 
+            // Menargetkan Tab Daftar Baru (Elemen ini digenerate otomatis oleh fungsi renderAuthPageForAction)
+            getTarget: () => document.getElementById("tabRegBtn"),
             title: "Daftar Baru",
             desc: "Jika Anda belum memiliki akun, pilih form pendaftaran ini untuk mengisi kelengkapan data.",
             preAction: () => {
-                // Eksekusi fungsi pembuka form login agar elemen tabRegBtn dimuat di layar
-                renderAuthPageForAction(() => {});
+                // Buka halaman autentikasi secara otomatis agar tab pendaftaran muncul di layar
+                if (typeof renderAuthPageForAction === 'function') {
+                    renderAuthPageForAction(() => {});
+                }
             }
         }
     ];
@@ -3534,13 +3543,14 @@ function startGuidedWalkthrough() {
     // Buat kotak dialog panduan
     const tooltip = document.createElement('div');
     tooltip.id = "ftueTooltip";
-    tooltip.className = "absolute z-[99999] bg-slate-900 border border-purple-500 p-5 rounded-2xl shadow-[0_10px_40px_rgba(168,85,247,0.4)] w-[90%] max-w-[320px] transition-all duration-500 opacity-0 scale-95";
+    tooltip.className = "fixed z-[99999] bg-slate-900 border border-purple-500 p-5 rounded-2xl shadow-[0_10px_40px_rgba(168,85,247,0.4)] w-[90%] max-w-[320px] transition-all duration-500 opacity-0 scale-95 pointer-events-auto";
     document.body.appendChild(tooltip);
 
     function showStep(index) {
+        // Kembalikan elemen sebelumnya ke kondisi normal
         if (activeTarget) {
             activeTarget.style.cssText = originalStyles.cssText;
-            activeTarget.classList.remove("ring-4", "ring-purple-500", "ring-offset-2", "ring-offset-slate-950", "pointer-events-none", "z-[99995]");
+            activeTarget.classList.remove("ring-4", "ring-purple-500", "ring-offset-2", "ring-offset-slate-950", "pointer-events-none");
         }
 
         if (index >= steps.length) {
@@ -3550,28 +3560,30 @@ function startGuidedWalkthrough() {
 
         const step = steps[index];
         
-        // Eksekusi fungsi pemicu jika ada (misal: pindah tab agar tombolnya muncul)
+        // Jalankan pemicu sebelum menyorot (misal: membuka sidebar atau memuat form)
         if (step.preAction) step.preAction();
 
-        // Beri sedikit jeda agar DOM sempat me-render elemen baru
+        // Beri jeda 400ms agar DOM selesai melakukan animasi atau memuat elemen baru
         setTimeout(() => {
-            activeTarget = document.getElementById(step.id);
+            activeTarget = step.getTarget();
             
             if (!activeTarget) {
-                console.warn("Walkthrough dilewati: Elemen " + step.id + " tidak ditemukan.");
-                showStep(index + 1); // Lewati jika elemen tidak ada di layar
+                console.warn("Lewati langkah: Elemen tidak ditemukan di layar.");
+                showStep(index + 1); 
                 return;
             }
 
-            // Simpan gaya asli dan sorot elemen
-            originalStyles.cssText = activeTarget.style.cssText;
-            activeTarget.style.position = "relative";
-            activeTarget.classList.add("ring-4", "ring-purple-500", "ring-offset-2", "ring-offset-slate-950", "pointer-events-none", "z-[99995]");
+            // Simpan gaya asli
+            originalStyles.cssText = activeTarget.style.cssText || "";
             
-            // Gulir otomatis ke elemen
+            // Sorot elemen di atas overlay
+            activeTarget.style.zIndex = "99995";
+            activeTarget.classList.add("ring-4", "ring-purple-500", "ring-offset-2", "ring-offset-slate-950", "pointer-events-none");
+            
+            // Gulir otomatis agar elemen terlihat di layar
             activeTarget.scrollIntoView({ behavior: "smooth", block: "center" });
 
-            // Render isi kotak panduan
+            // Isi konten kotak dialog
             const isLast = index === steps.length - 1;
             tooltip.innerHTML = `
                 <div class="flex justify-between items-start mb-2">
@@ -3585,13 +3597,13 @@ function startGuidedWalkthrough() {
                 </div>
             `;
 
-            // Hitung posisi kotak dialog agar tidak menutupi elemen target
+            // Hitung posisi dialog agar tidak menutupi target
             const rect = activeTarget.getBoundingClientRect();
-            let topPos = rect.bottom + window.scrollY + 15;
+            let topPos = rect.bottom + 15;
             let leftPos = (window.innerWidth - tooltip.offsetWidth) / 2;
 
-            if (topPos + 150 > window.scrollY + window.innerHeight) {
-                topPos = rect.top + window.scrollY - tooltip.offsetHeight - 15;
+            if (topPos + 180 > window.innerHeight) {
+                topPos = rect.top - tooltip.offsetHeight - 15;
             }
 
             tooltip.style.top = topPos + "px";
@@ -3602,19 +3614,18 @@ function startGuidedWalkthrough() {
 
             document.getElementById("ftueNext").onclick = () => showStep(index + 1);
             document.getElementById("ftueSkip").onclick = endWalkthrough;
-        }, 150); // Jeda 150ms
+        }, 400); 
     }
 
     function endWalkthrough() {
         if (activeTarget) {
             activeTarget.style.cssText = originalStyles.cssText;
-            activeTarget.classList.remove("ring-4", "ring-purple-500", "ring-offset-2", "ring-offset-slate-950", "pointer-events-none", "z-[99995]");
+            activeTarget.classList.remove("ring-4", "ring-purple-500", "ring-offset-2", "ring-offset-slate-950", "pointer-events-none");
         }
         overlay.remove();
         tooltip.remove();
-        localStorage.setItem('gmit_ftue_done', 'true'); // Kunci agar tidak muncul lagi
+        localStorage.setItem('gmit_ftue_done', 'true'); 
         
-        // Kembalikan ke beranda setelah tour selesai
         switchTab('home', false, true);
     }
 
