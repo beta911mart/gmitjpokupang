@@ -2425,25 +2425,30 @@ function logout() {
 async function openLibraryMenu(isBack = false) {
     if (!isBack) pushNavState('openLibraryMenu');
     const main = document.querySelector("main");
-    document.getElementById("headerTitle").innerText = "Alkitab, KJ & PKJ";
+    document.getElementById("headerTitle").innerText = "Pustaka Nyanyian & Alkitab";
     triggerPageTransition();
     main.innerHTML = `
         <div class="space-y-4">
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-2 gap-3">
                 <div onclick="openBibleSearch()" class="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-500 shadow-sm animate-card-hover">
                     <div class="text-2xl mb-1">✝️</div>
-                    <h4 class="font-bold text-[11px] text-white">Alkitab</h4>
-                    <p class="text-[9px] text-slate-400 mt-0.5">66 Kitab</p>
+                    <h4 class="font-bold text-xs text-white">Alkitab</h4>
+                    <p class="text-[10px] text-slate-400 mt-0.5">66 Kitab</p>
                 </div>
                 <div onclick="openHymnsList()" class="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-500 shadow-sm animate-card-hover">
                     <div class="text-2xl mb-1">📖</div>
-                    <h4 class="font-bold text-[11px] text-white">Kidung Jemaat</h4>
-                    <p class="text-[9px] text-slate-400 mt-0.5">KJ Hymns</p>
+                    <h4 class="font-bold text-xs text-white">Kidung Jemaat</h4>
+                    <p class="text-[10px] text-slate-400 mt-0.5">KJ Hymns</p>
                 </div>
                 <div onclick="openPKJList()" class="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-500 shadow-sm animate-card-hover">
                     <div class="text-2xl mb-1">🎶</div>
-                    <h4 class="font-bold text-[11px] text-white">Pelengkap KJ</h4>
-                    <p class="text-[9px] text-slate-400 mt-0.5">PKJ Hymns</p>
+                    <h4 class="font-bold text-xs text-white">Pelengkap KJ</h4>
+                    <p class="text-[10px] text-slate-400 mt-0.5">PKJ Hymns</p>
+                </div>
+                <div onclick="openNKBList()" class="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center cursor-pointer hover:border-purple-500 transition duration-500 shadow-sm animate-card-hover">
+                    <div class="text-2xl mb-1">🎵</div>
+                    <h4 class="font-bold text-xs text-white">Nyanyian Kidung Baru</h4>
+                    <p class="text-[10px] text-slate-400 mt-0.5">NKB Hymns</p>
                 </div>
             </div>
         </div>
@@ -2619,6 +2624,88 @@ function openPKJModal(index, isBack = false) {
     document.getElementById("modalHymnNo").innerText = `PKJ No. ${p.nomor}`;
     document.getElementById("modalHymnTitle").innerText = p.judul;
     document.getElementById("modalHymnContent").innerText = p.lirik;
+    document.getElementById("hymnModal").classList.remove("hidden");
+}
+/**
+ * Menyajikan kumpulan katalog judul Nyanyian Kidung Baru (NKB) dengan sistem caching lokal.
+ */
+async function openNKBList(isBack = false) {
+    if (!isBack) pushNavState('openNKBList');
+    const main = document.querySelector("main");
+    document.getElementById("headerTitle").innerText = "Nyanyian Kidung Baru (NKB)";
+    triggerPageTransition();
+    
+    main.innerHTML = `
+        <div class="flex flex-col h-[calc(100vh-140px)] relative">
+            <div class="sticky top-0 bg-slate-950 pt-1 pb-3 z-30 border-b border-slate-800 space-y-3 shrink-0">
+                 <input type="text" id="nkbSearchInput" oninput="filterNKB()" placeholder="Cari nomor atau judul lagu NKB..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-purple-500 shadow-md">
+            </div>
+            <div id="nkbContainer" class="space-y-2 pt-3 pb-20 overflow-y-auto flex-1">
+                <p class="text-xs text-slate-400 text-center py-6 animate-pulse">Memuat daftar NKB...</p>
+            </div>
+        </div>
+    `;
+
+    if (window.allNKB && window.allNKB.length > 0) {
+        renderNKBList(window.allNKB);
+        return; 
+    }
+
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=getNKB`);
+        const result = await response.json();
+        
+        window.allNKB = result.nkb || [];
+        renderNKBList(window.allNKB);
+    } catch (err) {
+        document.getElementById("nkbContainer").innerHTML = `<p class="text-xs text-rose-400 text-center">Gagal memuat data NKB.</p>`;
+    }
+}
+
+/**
+ * Mencetak daftar nomor dan judul NKB ke layar antarmuka.
+ */
+function renderNKBList(nkbList) {
+    const container = document.getElementById("nkbContainer");
+    if (!container) return;
+    if (nkbList.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Lagu NKB tidak ditemukan.</p>`;
+        return;
+    }
+    
+    container.innerHTML = nkbList.map((n) => {
+        const originalIndex = window.allNKB.findIndex(item => item.nomor === n.nomor);
+        return `
+        <div onclick="openNKBModal(${originalIndex})" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-3.5 rounded-xl cursor-pointer transition duration-500 shadow-sm">
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-bold text-purple-400">NKB No. ${n.nomor}</span>
+            </div>
+            <h5 class="text-xs font-semibold text-white mb-1">${n.judul}</h5>
+        </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Menyaring daftar NKB berdasarkan input pencarian pengguna secara instan.
+ */
+function filterNKB() {
+    const keyword = document.getElementById("nkbSearchInput").value.toLowerCase();
+    const filtered = window.allNKB.filter(n => String(n.nomor).toLowerCase().includes(keyword) || n.judul.toLowerCase().includes(keyword));
+    renderNKBList(filtered);
+}
+
+/**
+ * Menampilkan lirik NKB ke dalam modal bacaan utama yang sama.
+ */
+function openNKBModal(index, isBack = false) {
+    if (!isBack) pushNavState('openNKBModal', [index]);
+    const n = window.allNKB[index];
+    if (!n) return;
+    
+    document.getElementById("modalHymnNo").innerText = `NKB No. ${n.nomor}`;
+    document.getElementById("modalHymnTitle").innerText = n.judul;
+    document.getElementById("modalHymnContent").innerText = n.lirik;
     document.getElementById("hymnModal").classList.remove("hidden");
 }
 /**
