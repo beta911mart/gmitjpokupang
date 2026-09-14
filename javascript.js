@@ -427,6 +427,22 @@ function setTheme(theme, isInitialLoad = false) {
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #0c4a6e !important; }
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #0284c7 !important; }
         `;
+    } else if (theme === 'church-svg') { 
+        // Implementasi menggunakan background.svg yang sudah disimpan di root
+        app.className = `${baseAppClass} text-slate-100`;
+        body.className = "font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+        body.style.backgroundImage = "url('background.svg')";
+        body.style.backgroundSize = "cover";
+        body.style.backgroundPosition = "center";
+        body.style.backgroundRepeat = "no-repeat";
+        
+        if(bannerContainer) bannerContainer.innerHTML = '';
+        cssRules = `
+            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { 
+                background-color: rgba(15, 23, 42, 0.85) !important; 
+                backdrop-filter: blur(6px);
+            }
+        `;
     } else if (theme === 'christmas') {
         app.className = `${baseAppClass} bg-gradient-to-b from-red-950 via-red-900 to-emerald-950 text-red-50`;
         body.className = "bg-red-950 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
