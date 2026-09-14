@@ -624,6 +624,8 @@ function renderAuthPageForAction(callbackOnSuccess, isBack = false) {
                 </div>
                 <button type="submit" id="btnLoginSubmit" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-purple-700 transition duration-500">Masuk</button>
             </form>
+            
+            <!-- FORM PENDAFTARAN DENGAN S&K -->
             <form id="formRegister" onsubmit="handleRegisterForAction(event)" class="space-y-4 hidden">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
@@ -633,6 +635,15 @@ function renderAuthPageForAction(callbackOnSuccess, isBack = false) {
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Nomor WhatsApp</label>
                     <input type="tel" id="regWa" required placeholder="Contoh: 081234567899" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white outline-none">
                 </div>
+                
+                <!-- Kotak Centang Syarat dan Ketentuan -->
+                <div class="flex items-start gap-2 pt-1">
+                    <input type="checkbox" id="regTerms" required class="mt-0.5 w-4 h-4 rounded border-slate-700 bg-slate-900 text-purple-600 focus:ring-purple-500 cursor-pointer">
+                    <label for="regTerms" class="text-[11px] text-slate-300 leading-relaxed cursor-pointer">
+                        Dengan mendaftar sebagai pengguna aplikasi ini, saya setuju dengan seluruh syarat dan ketentuan Majelis JPO yang berlaku.
+                    </label>
+                </div>
+
                 <button type="submit" id="btnRegSubmit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-emerald-700 transition duration-500 mt-2">Daftar Akun Baru</button>
             </form>
         </div>
