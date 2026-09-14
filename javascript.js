@@ -427,6 +427,37 @@ function setTheme(theme, isInitialLoad = false) {
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #0c4a6e !important; }
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #0284c7 !important; }
         `;
+    } else if (theme === 'modern-church') {
+        app.className = `${baseAppClass} text-slate-100`;
+        body.className = "bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+        
+        if(bannerContainer) bannerContainer.innerHTML = '';
+
+        // Lapisan Background dengan Filter Modern & Duotone
+        const ornamen = document.createElement("div");
+        ornamen.id = "ornamenIdCard"; 
+        ornamen.className = "absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-inherit";
+        ornamen.innerHTML = `
+            <!-- Foto dengan efek blur halus & skala dinamis -->
+            <div class="absolute inset-0 bg-cover bg-center filter blur-[2px] scale-105 opacity-40" style="background-image: url('JPO agust 22, 2026.png');"></div>
+            
+            <!-- Gradasi Neon Duotone (Ungu ke Hitam Elegan) -->
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-purple-950/80 to-indigo-950/70 mix-blend-multiply"></div>
+            
+            <!-- Lapisan Gelap Tambahan agar teks super kontras -->
+            <div class="absolute inset-0 bg-slate-950/60"></div>
+        `;
+        app.insertBefore(ornamen, app.firstChild);
+
+        // Styling Menu Card menjadi Glassmorphism yang Modern
+        cssRules = `
+            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { 
+                background-color: rgba(30, 27, 75, 0.55) !important; /* Ungu gelap transparan */
+                backdrop-filter: blur(12px) !important; /* Efek kaca es */
+                border: 1px solid rgba(168, 85, 247, 0.2) !important; /* Garis tepi ungu tipis */
+                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            }
+        `;
     } else if (theme === 'christmas') {
         app.className = `${baseAppClass} bg-gradient-to-b from-red-950 via-red-900 to-emerald-950 text-red-50`;
         body.className = "bg-red-950 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
