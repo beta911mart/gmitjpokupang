@@ -3045,6 +3045,40 @@ function redirectToRolePanel() {
 }
 
 /**
+ * Mengatur urutan kemunculan popup secara terstruktur (Tour Guide -> Update Info -> Push Notif).
+ */
+function runStartupSequence() {
+    switchTab('home', true, true);
+
+    // Cek apakah ada update info yang siap dari service worker
+    // Jika tidak ada update, kita lanjutkan pengecekan berurutan
+    const proceedToPushNotif = () => {
+        // Urutan 3: Push Notification
+        setTimeout(() => {
+            checkPushNotification();
+        }, 500);
+    };
+
+    const proceedToUpdateCheck = () => {
+        // Urutan 2: Update Info (Cek apakah ada update service worker)
+        // Jika variabel newWorker aktif, tampilkan popup update, lalu teruskan ke push notif saat ditutup.
+        if (window.pendingNewWorker) {
+            munculkanPopupUpdate(proceedToPushNotif);
+        } else {
+            proceedToPushNotif();
+        }
+    };
+
+    // Urutan 1: Tour Guide (hanya untuk kunjungan perdana)
+    setTimeout(() => {
+        startGuidedWalkthrough(() => {
+            // Setelah Tour Guide selesai / dilewati, lanjut ke Update Info
+            proceedToUpdateCheck();
+        });
+    }, 1000);
+}
+
+/**
  * Merampungkan penyusunan variabel memori lokal, menghimpun inisialisasi awal, dan menetapkan serangkaian event pengendali pergerakan Assistive Ball.
  */
 document.addEventListener("DOMContentLoaded", () => {
