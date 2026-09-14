@@ -427,60 +427,6 @@ function setTheme(theme, isInitialLoad = false) {
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #0c4a6e !important; }
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #0284c7 !important; }
         `;
-} else if (theme === 'modern-church') {
-        app.className = `${baseAppClass} text-slate-100`;
-        body.className = "bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
-        
-        if(bannerContainer) bannerContainer.innerHTML = '';
-
-        // Lapisan Background SVG Murni yang Artistik & Modern
-        const ornamen = document.createElement("div");
-        ornamen.id = "ornamenIdCard"; 
-        ornamen.className = "absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-inherit";
-        
-        ornamen.innerHTML = `
-            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid slice">
-                <defs>
-                    <!-- Gradasi Utama: Kombinasi Indigo dan Ungu Modern -->
-                    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#020617" />
-                        <stop offset="50%" stop-color="#1e1b4b" />
-                        <stop offset="100%" stop-color="#3b0764" />
-                    </linearGradient>
-                    <!-- Gradasi Cahaya Neon -->
-                    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#c084fc" stop-opacity="0.35" />
-                        <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
-                    </linearGradient>
-                </defs>
-
-                <!-- Latar Belakang Gradasi -->
-                <rect width="100%" height="100%" fill="url(#bgGrad)" />
-                
-                <!-- Gelombang / Lengkungan Arsitektur Modern di Bagian Bawah -->
-                <path d="M-100 800 Q 200 450 400 800 T 900 800 V800 H-100 Z" fill="url(#glowGrad)" />
-                
-                <!-- Lingkaran Geometris Fokus Abstrak (Gaya UI Futuristik) -->
-                <circle cx="400" cy="260" r="190" fill="none" stroke="#a855f7" stroke-width="1.5" opacity="0.3" />
-                <circle cx="400" cy="260" r="300" fill="none" stroke="#38bdf8" stroke-width="1" opacity="0.15" />
-                <circle cx="400" cy="260" r="90" fill="none" stroke="#c084fc" stroke-width="2" opacity="0.2" stroke-dasharray="6 6" />
-
-                <!-- Siluet Minimalis Modern Salib & Cahaya -->
-                <rect x="392" y="150" width="16" height="180" rx="8" fill="#e9d5ff" opacity="0.25" />
-                <rect x="350" y="195" width="100" height="16" rx="8" fill="#e9d5ff" opacity="0.25" />
-            </svg>
-        `;
-        app.insertBefore(ornamen, app.firstChild);
-
-        // Styling Menu Card menjadi Glassmorphism (Kaca Es Transparan)
-        cssRules = `
-            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { 
-                background-color: rgba(15, 23, 42, 0.65) !important; /* Semi-transparan elegan */
-                backdrop-filter: blur(12px) !important; /* Efek kaca buram */
-                border: 1px solid rgba(168, 85, 247, 0.3) !important; /* Garis tepi ungu tipis bercahaya */
-                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-            }
-        `;
     } else if (theme === 'christmas') {
         app.className = `${baseAppClass} bg-gradient-to-b from-red-950 via-red-900 to-emerald-950 text-red-50`;
         body.className = "bg-red-950 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
