@@ -427,23 +427,22 @@ function setTheme(theme, isInitialLoad = false) {
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #0c4a6e !important; }
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #0284c7 !important; }
         `;
-    } else if (theme === 'church-svg') { 
-        // Implementasi menggunakan background.svg
-        app.className = `${baseAppClass} text-slate-100 bg-transparent`; // Pastikan background app transparan agar SVG terlihat
-        body.className = "font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden bg-slate-950";
+} else if (theme === 'church-svg') { 
+        app.className = `${baseAppClass} text-slate-100 bg-transparent`; 
+        body.className = "font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden bg-transparent";
         
-        // Memastikan background SVG terpanggil dengan benar
         body.style.backgroundImage = "url('background.svg')";
         body.style.backgroundSize = "cover";
         body.style.backgroundPosition = "center";
         body.style.backgroundRepeat = "no-repeat";
-        body.style.backgroundAttachment = "fixed"; // Agar background tetap diam saat digulir
+        body.style.backgroundAttachment = "fixed";
         
         if(bannerContainer) bannerContainer.innerHTML = '';
         cssRules = `
+            /* Kotak konten di dalam app dibuat semi-transparan agar SVG di belakangnya tetap kelihatan */
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { 
-                background-color: rgba(15, 23, 42, 0.85) !important; 
-                backdrop-filter: blur(6px);
+                background-color: rgba(15, 23, 42, 0.80) !important; 
+                backdrop-filter: blur(8px);
             }
         `;
     } else if (theme === 'christmas') {
