@@ -537,8 +537,9 @@ function setTheme(theme, isInitialLoad = false) {
             #sidebarMenu .text-purple-400 { color: #2563eb !important; }
         `;
     } else {
-        app.className = `${baseAppClass} bg-slate-950 text-slate-100`;
-        body.className = "bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+        app.className = `${baseAppClass} bg-transparent text-slate-100`;
+        // Ganti bg-slate-900 menjadi bg-transparent agar background.svg tidak tertutup
+        body.className = "bg-transparent text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
     }
 
