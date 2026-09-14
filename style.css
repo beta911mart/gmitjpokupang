@@ -25,6 +25,9 @@ body {
     background-attachment: fixed !important;
     background-color: transparent !important; /* Pastikan tidak ada warna solid yang menutup */
 }
+#app {
+    background-color: transparent !important;
+}
 .animate-church-spin {
     animation: churchSpin3D 9s infinite ease-in-out;
     transform-style: preserve-3d;
