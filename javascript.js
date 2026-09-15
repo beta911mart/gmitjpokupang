@@ -533,6 +533,7 @@ function setTheme(theme, isInitialLoad = false) {
                 backdrop-filter: blur(8px);
             }
         `;
+    } // <--- KURUNG KURAWAL INI SEBELUMNYA KURANG/TERLEWAT
 
     if (cssRules !== "") {
         const style = document.createElement("style");
