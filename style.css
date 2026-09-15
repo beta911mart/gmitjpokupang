@@ -16,17 +16,13 @@
     20% { transform: rotateY(360deg); }
     100% { transform: rotateY(360deg); }
 }
-/* Mengatur Background SVG Utama */
-body {
+/* Hanya aktifkan background SVG jika body memiliki kelas khusus atau secara default diatur via JS */
+body.church-theme-active {
     background-image: url('background.svg') !important;
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
     background-attachment: fixed !important;
-    background-color: transparent !important; /* Pastikan tidak ada warna solid yang menutup */
-}
-#app {
-    background-color: transparent !important;
 }
 .animate-church-spin {
     animation: churchSpin3D 9s infinite ease-in-out;
