@@ -380,6 +380,13 @@ function setTheme(theme, isInitialLoad = false) {
     const existingOverride = document.getElementById("dynamicThemeOverride");
     if (existingOverride) existingOverride.remove();
     
+    // --- RESET STYLE GAMBAR LATAR (PENTING AGAR TIDAK TERBAWA KE TEMA LAIN) ---
+    body.style.backgroundImage = "none";
+    body.style.backgroundSize = "";
+    body.style.backgroundPosition = "";
+    body.style.backgroundRepeat = "";
+    body.style.backgroundAttachment = "";
+    
     const baseAppClass = "w-full max-w-md landscape:max-w-3xl md:max-w-md mx-auto min-h-screen flex flex-col shadow-2xl relative transition-all duration-500";
     
     const menuShapeClass = theme === 'easter' ? 'rounded-[50%_50%_50%_50%_/_60%_60%_40%_40%]' : (theme === 'christmas' ? 'rounded-2xl transform rotate-45' : 'rounded-full');
@@ -427,7 +434,8 @@ function setTheme(theme, isInitialLoad = false) {
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #0c4a6e !important; }
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #0284c7 !important; }
         `;
-} else if (theme === 'church-svg') { 
+    } else if (theme === 'church-svg') { 
+        // HANYA DI TEMA INI LATAR BELAKANG GAMBAR AKTIF
         app.className = `${baseAppClass} text-slate-100 bg-transparent`; 
         body.className = "font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden bg-transparent";
         
@@ -439,7 +447,6 @@ function setTheme(theme, isInitialLoad = false) {
         
         if(bannerContainer) bannerContainer.innerHTML = '';
         cssRules = `
-            /* Kotak konten di dalam app dibuat semi-transparan agar SVG di belakangnya tetap kelihatan */
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { 
                 background-color: rgba(15, 23, 42, 0.80) !important; 
                 backdrop-filter: blur(8px);
@@ -474,37 +481,12 @@ function setTheme(theme, isInitialLoad = false) {
                 background-size: 250px 250px, 300px 300px, 400px 400px;
                 animation: snowFall 12s linear infinite;
             }
-
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { 
                 background-color: rgba(69, 10, 10, 0.7) !important; 
                 backdrop-filter: blur(8px);
                 border-width: 2px !important;
             }
-
-            @keyframes glowRed {
-                0%, 100% { box-shadow: 0 0 5px #ef4444; border-color: #7f1d1d; }
-                50% { box-shadow: 0 0 25px #ef4444; border-color: #ef4444; }
-            }
-            @keyframes glowGreen {
-                0%, 100% { box-shadow: 0 0 5px #22c55e; border-color: #14532d; }
-                50% { box-shadow: 0 0 25px #22c55e; border-color: #22c55e; }
-            }
-            @keyframes glowGold {
-                0%, 100% { box-shadow: 0 0 5px #eab308; border-color: #713f12; }
-                50% { box-shadow: 0 0 25px #eab308; border-color: #eab308; }
-            }
-            
-            #app h3 { text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         `;
-
-        setTimeout(() => {
-            const menuButtons = document.querySelectorAll('.home-menu-icon, main .grid button');
-            menuButtons.forEach((btn, index) => {
-                if (index % 3 === 0) btn.style.setProperty('animation', 'glowRed 1s infinite alternate', 'important');
-                else if (index % 3 === 1) btn.style.setProperty('animation', 'glowGreen 3s infinite alternate', 'important');
-                else btn.style.setProperty('animation', 'glowGold 1.18s infinite alternate', 'important');
-            });
-        }, 200);
     } else if (theme === 'easter') {
         app.className = `${baseAppClass} bg-amber-950 text-amber-100`;
         body.className = "bg-amber-900 text-amber-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
@@ -532,14 +514,11 @@ function setTheme(theme, isInitialLoad = false) {
         cssRules = `
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #ffffff !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1) !important; }
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #e2e8f0 !important; }
-            #app .text-white, #app .text-slate-100, #app .text-slate-200, #app .text-slate-300, #sidebarMenu .text-white, #sidebarMenu .text-slate-400 { color: #0f172a !important; }
-            #app .text-slate-400 { color: #475569 !important; }
-            #sidebarMenu .text-purple-400 { color: #2563eb !important; }
         `;
     } else {
-        app.className = `${baseAppClass} bg-transparent text-slate-100`;
-        // Ganti bg-slate-900 menjadi bg-transparent agar background.svg tidak tertutup
-        body.className = "bg-transparent text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+        // Tema Default (misal: slate / gelap biasa)
+        app.className = `${baseAppClass} bg-slate-900 text-slate-100`;
+        body.className = "bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
     }
 
@@ -564,7 +543,6 @@ function setTheme(theme, isInitialLoad = false) {
         }
     }
 }
-
 /**
  * Menampilkan jendela sistem operasi untuk menginstal aplikasi ini (PWA) di layar beranda.
  */
