@@ -375,10 +375,10 @@ function setTheme(theme, isInitialLoad = false) {
     const body = document.getElementById("appBody");
     const bannerContainer = document.getElementById("seasonalBannerContainer");
     
-    const existingOrnamen = document.getElementById("ornamenIdCard");
-    if (existingOrnamen) existingOrnamen.remove();
-    const existingOverride = document.getElementById("dynamicThemeOverride");
-    if (existingOverride) existingOverride.remove();
+    // BERSIHKAN SEMUA EFEK BACKGROUND SVG SEBELUMNYA
+    body.style.backgroundImage = "none";
+    body.style.backgroundColor = ""; 
+    body.classList.remove("church-theme-active"); // Hapus kelas tema SVG jika pindah tema lain
     
     // --- RESET STYLE GAMBAR LATAR (PENTING AGAR TIDAK TERBAWA KE TEMA LAIN) ---
     body.style.backgroundImage = "none";
@@ -515,12 +515,24 @@ function setTheme(theme, isInitialLoad = false) {
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #ffffff !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1) !important; }
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #e2e8f0 !important; }
         `;
-    } else {
-        // Tema Default (Pastikan latar belakang body & app solid, bukan transparan)
-        app.className = `${baseAppClass} bg-slate-900 text-slate-100`;
-        body.className = "bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
+    } else if (theme === 'church-svg') { 
+        app.className = `${baseAppClass} text-slate-100 bg-transparent`; 
+        body.className = "font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden bg-transparent";
+        
+        // Pasang kembali background SVG khusus di sini
+        body.style.backgroundImage = "url('background.svg')";
+        body.style.backgroundSize = "cover";
+        body.style.backgroundPosition = "center";
+        body.style.backgroundRepeat = "no-repeat";
+        body.style.backgroundAttachment = "fixed";
+        
         if(bannerContainer) bannerContainer.innerHTML = '';
-    }
+        cssRules = `
+            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { 
+                background-color: rgba(15, 23, 42, 0.80) !important; 
+                backdrop-filter: blur(8px);
+            }
+        `;
 
     if (cssRules !== "") {
         const style = document.createElement("style");
