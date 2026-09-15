@@ -516,7 +516,7 @@ function setTheme(theme, isInitialLoad = false) {
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #e2e8f0 !important; }
         `;
     } else {
-        // Tema Default (misal: slate / gelap biasa)
+        // Tema Default (Pastikan latar belakang body & app solid, bukan transparan)
         app.className = `${baseAppClass} bg-slate-900 text-slate-100`;
         body.className = "bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
         if(bannerContainer) bannerContainer.innerHTML = '';
