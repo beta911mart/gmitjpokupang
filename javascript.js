@@ -3867,22 +3867,22 @@ function startGuidedWalkthrough(onComplete) {
     showStep(0);
 }
 /**
- * Mengecek status siaran langsung secara berkala dan menampilkan badge LIVE pada kartu beranda jika aktif.
+ * Mengecek status live streaming langsung dari database/backend
  */
-async function checkLiveStatusIndicator() {
+async function checkLiveStatusFromServer() {
     const borderEl = document.getElementById("livestream-border");
     const badgeEl = document.getElementById("livestream-badge");
     
-    // Jika elemen kartu Livestream belum merender di halaman beranda, hentikan sementara
+    // Pastikan elemennya sedang ada di layar (di tab Beranda)
     if (!borderEl || !badgeEl) return;
 
     try {
-        // Mengambil status dari endpoint backend atau pemeriksaan data live YouTube
-        const response = await fetch(`${SCRIPT_URL}?action=checkLiveStatus`);
+        // Memanggil fungsi dari SCRIPT_URL backend Anda
+        const response = await fetch(`${SCRIPT_URL}?action=getLiveStatus`);
         const result = await response.json();
 
-        // Jika server mengonfirmasi kanal sedang siaran langsung (is_live: true)
-        if (result.status === 'success' && result.is_live) {
+        // Jika admin mengaktifkan status live dari panel backend
+        if (result.status === 'success' && result.is_live === true) {
             borderEl.classList.remove("hidden");
             badgeEl.classList.remove("hidden");
         } else {
@@ -3890,7 +3890,7 @@ async function checkLiveStatusIndicator() {
             badgeEl.classList.add("hidden");
         }
     } catch (err) {
-        // Default sembunyikan jika gagal terhubung
+        // Sembunyikan jika gagal terhubung
         borderEl.classList.add("hidden");
         badgeEl.classList.add("hidden");
     }
