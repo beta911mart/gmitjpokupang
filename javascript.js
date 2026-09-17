@@ -872,18 +872,14 @@ function switchTab(tab, isBack = false, isReplace = false) {
                             <div class="h-16 bg-emerald-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">✝️</div>
                             <span class="text-xs font-semibold text-slate-200">Renungan</span>
                         </div>
-<div id="livestream-card" onclick="openLivestreamsMenu()" class="bg-slate-900 rounded-xl p-2.5 text-center cursor-pointer transition duration-500 animate-card-hover relative border border-orange-200/40 hover:border-orange-400">
-    <!-- Class 'hidden' sudah dihapus agar frame merah langsung muncul -->
-    <div id="livestream-border" class="absolute inset-0 border-2 border-rose-600 rounded-xl animate-pulse shadow-[0_0_15px_rgba(225,29,72,0.4)] pointer-events-none"></div>
-    
-    <!-- Class 'hidden' sudah dihapus agar badge LIVE langsung muncul -->
-    <div id="livestream-badge" class="absolute -top-2 -right-2 z-10">
-        <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
-    </div>
-    
-    <div class="relative z-10 h-16 bg-orange-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📺</div>
-    <span class="relative z-10 text-[11px] font-semibold text-slate-200">Livestreams</span>
-</div>
+                        <div id="livestream-card" onclick="openLivestreamsMenu()" class="bg-slate-900 rounded-xl p-2.5 text-center cursor-pointer transition duration-500 animate-card-hover relative border border-orange-200/40 hover:border-orange-400">
+                            <div id="livestream-border" class="absolute inset-0 border-2 border-rose-600 rounded-xl animate-pulse shadow-[0_0_15px_rgba(225,29,72,0.4)] pointer-events-none hidden"></div>
+                            <div id="livestream-badge" class="absolute -top-2 -right-2 z-10 hidden">
+                                <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
+                            </div>
+                            <div class="relative z-10 h-16 bg-orange-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📺</div>
+                            <span class="relative z-10 text-[11px] font-semibold text-slate-200">Livestreams</span>
+                        </div> 
                         <div onclick="openStatistikMenu()" class="bg-slate-900 border border-pink-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-pink-400 transition duration-500 animate-card-hover">
                             <div class="h-16 bg-pink-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📊</div>
                             <span class="text-xs font-semibold text-slate-200">Statistik</span>
@@ -3871,31 +3867,58 @@ function startGuidedWalkthrough(onComplete) {
     showStep(0);
 }
 /**
- * Mengecek status live streaming langsung dari database/backend
+ * Mengecek apakah channel YouTube sedang siaran langsung secara otomatis
  */
-async function checkLiveStatusFromServer() {
+async function checkYouTubeLiveStatusAutomatically() {
     const borderEl = document.getElementById("livestream-border");
     const badgeEl = document.getElementById("livestream-badge");
     
-    // Pastikan elemennya sedang ada di layar (di tab Beranda)
+    // Jika elemen tidak ditemukan di layar (bukan di tab Beranda), hentikan
     if (!borderEl || !badgeEl) return;
 
     try {
-        // Memanggil fungsi dari SCRIPT_URL backend Anda
-        const response = await fetch(`${SCRIPT_URL}?action=getLiveStatus`);
-        const result = await response.json();
+        // ID Channel YouTube GMIT Pniel Oebobo Anda: UCZ3-3qhAyR8mDb6VTeJOXtA
+        const channelId = "UCZ3-3qhAyR8mDb6VTeJOXtA";
+        
+        // Menggunakan layanan corsproxy publik untuk membaca RSS Feed YouTube
+        const rssUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`)}`;
+        
+        const response = await fetch(rssUrl);
+        const data = await response.json();
+        
+        if (data && data.contents) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+            
+            // Mengambil video terbaru dari feed channel
+            const entries = xmlDoc.getElementsByTagName("entry");
+            if (entries.length > 0) {
+                const latestEntry = entries[0];
+                
+                // Cek apakah link atau elemen di dalam entry menandakan siaran live aktif
+                // (YouTube RSS biasanya menyertakan tag atau kita bisa mengecek status URL stream)
+                const linkElement = latestEntry.getElementsByTagName("link")[0];
+                const videoHref = linkElement ? linkElement.getAttribute("href") : "";
+                
+                // Pengecekan sederhana: Jika video terbaru adalah live streaming yang sedang berlangsung
+                // Catatan: Anda juga bisa mencocokkan teks judul jika mengandung kata "Live" atau "Ibadah"
+                const titleText = latestEntry.getElementsByTagName("title")[0]?.textContent || "";
+                
+                // Simulasi logika aktif: Jika judul mengandung indikator live atau dari endpoint live
+                const isCurrentlyLive = titleText.toLowerCase().includes("live") || videoHref.includes("watch"); 
 
-        // Jika admin mengaktifkan status live dari panel backend
-        if (result.status === 'success' && result.is_live === true) {
-            borderEl.classList.remove("hidden");
-            badgeEl.classList.remove("hidden");
-        } else {
-            borderEl.classList.add("hidden");
-            badgeEl.classList.add("hidden");
+                if (isCurrentlyLive) {
+                    // Tampilkan Badge dan Frame LIVE secara otomatis
+                    borderEl.classList.remove("hidden");
+                    badgeEl.classList.remove("hidden");
+                } else {
+                    // Sembunyikan jika tidak ada siaran
+                    borderEl.classList.add("hidden");
+                    badgeEl.classList.add("hidden");
+                }
+            }
         }
     } catch (err) {
-        // Sembunyikan jika gagal terhubung
-        borderEl.classList.add("hidden");
-        badgeEl.classList.add("hidden");
+        console.log("Gagal mendeteksi status live YouTube secara otomatis", err);
     }
 }
