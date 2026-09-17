@@ -3866,3 +3866,32 @@ function startGuidedWalkthrough(onComplete) {
 
     showStep(0);
 }
+/**
+ * Mengecek status siaran langsung secara berkala dan menampilkan badge LIVE pada kartu beranda jika aktif.
+ */
+async function checkLiveStatusIndicator() {
+    const borderEl = document.getElementById("livestream-border");
+    const badgeEl = document.getElementById("livestream-badge");
+    
+    // Jika elemen kartu Livestream belum merender di halaman beranda, hentikan sementara
+    if (!borderEl || !badgeEl) return;
+
+    try {
+        // Mengambil status dari endpoint backend atau pemeriksaan data live YouTube
+        const response = await fetch(`${SCRIPT_URL}?action=checkLiveStatus`);
+        const result = await response.json();
+
+        // Jika server mengonfirmasi kanal sedang siaran langsung (is_live: true)
+        if (result.status === 'success' && result.is_live) {
+            borderEl.classList.remove("hidden");
+            badgeEl.classList.remove("hidden");
+        } else {
+            borderEl.classList.add("hidden");
+            badgeEl.classList.add("hidden");
+        }
+    } catch (err) {
+        // Default sembunyikan jika gagal terhubung
+        borderEl.classList.add("hidden");
+        badgeEl.classList.add("hidden");
+    }
+}
