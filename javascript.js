@@ -872,14 +872,18 @@ function switchTab(tab, isBack = false, isReplace = false) {
                             <div class="h-16 bg-emerald-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">✝️</div>
                             <span class="text-xs font-semibold text-slate-200">Renungan</span>
                         </div>
-                        <div id="livestream-card" onclick="openLivestreamsMenu()" class="bg-slate-900 rounded-xl p-2.5 text-center cursor-pointer transition duration-500 animate-card-hover relative border border-orange-200/40 hover:border-orange-400">
-                            <div id="livestream-border" class="absolute inset-0 border-2 border-rose-600 rounded-xl animate-pulse shadow-[0_0_15px_rgba(225,29,72,0.4)] pointer-events-none hidden"></div>
-                            <div id="livestream-badge" class="absolute -top-2 -right-2 z-10 hidden">
-                                <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
-                            </div>
-                            <div class="relative z-10 h-16 bg-orange-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📺</div>
-                            <span class="relative z-10 text-[11px] font-semibold text-slate-200">Livestreams</span>
-                        </div>
+<div id="livestream-card" onclick="openLivestreamsMenu()" class="bg-slate-900 rounded-xl p-2.5 text-center cursor-pointer transition duration-500 animate-card-hover relative border border-orange-200/40 hover:border-orange-400">
+    <!-- Class 'hidden' sudah dihapus agar frame merah langsung muncul -->
+    <div id="livestream-border" class="absolute inset-0 border-2 border-rose-600 rounded-xl animate-pulse shadow-[0_0_15px_rgba(225,29,72,0.4)] pointer-events-none"></div>
+    
+    <!-- Class 'hidden' sudah dihapus agar badge LIVE langsung muncul -->
+    <div id="livestream-badge" class="absolute -top-2 -right-2 z-10">
+        <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse shadow-lg shadow-rose-600/50">LIVE</span>
+    </div>
+    
+    <div class="relative z-10 h-16 bg-orange-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📺</div>
+    <span class="relative z-10 text-[11px] font-semibold text-slate-200">Livestreams</span>
+</div>
                         <div onclick="openStatistikMenu()" class="bg-slate-900 border border-pink-200/40 rounded-xl p-2.5 text-center cursor-pointer hover:border-pink-400 transition duration-500 animate-card-hover">
                             <div class="h-16 bg-pink-500/10 rounded-lg flex items-center justify-center text-2xl mb-2">📊</div>
                             <span class="text-xs font-semibold text-slate-200">Statistik</span>
