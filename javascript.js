@@ -501,12 +501,8 @@ function setTheme(theme, isInitialLoad = false) {
         app.className = `${baseAppClass} text-slate-100 bg-transparent`; 
         body.className = "font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden bg-transparent";
         
-        // Pastikan file background.svg ada di folder yang sama dengan file index.html Anda
-        body.style.backgroundImage = "url('background.svg')";
-        body.style.backgroundSize = "cover";
-        body.style.backgroundPosition = "center";
-        body.style.backgroundRepeat = "no-repeat";
-        body.style.backgroundAttachment = "fixed";
+        // MENAMBAHKAN KELAS INI AGAR CSS DI style.css BERFUNGSI AKTIF
+        body.classList.add("church-theme-active");
         
         if(bannerContainer) bannerContainer.innerHTML = '';
         cssRules = `
