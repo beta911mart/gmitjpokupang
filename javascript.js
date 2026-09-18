@@ -378,7 +378,7 @@ function setTheme(theme, isInitialLoad = false) {
     // BERSIHKAN SEMUA EFEK BACKGROUND SVG SEBELUMNYA
     body.style.backgroundImage = "none";
     body.style.backgroundColor = ""; 
-    body.classList.remove("church-theme-active"); // Hapus kelas tema SVG jika pindah tema lain
+    body.classList.remove("church-theme-active");
     
     // --- RESET STYLE GAMBAR LATAR (PENTING AGAR TIDAK TERBAWA KE TEMA LAIN) ---
     body.style.backgroundImage = "none";
