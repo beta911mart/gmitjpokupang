@@ -434,24 +434,6 @@ function setTheme(theme, isInitialLoad = false) {
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { background-color: #0c4a6e !important; }
             #app .border-slate-700, #app .border-slate-800, #sidebarMenu, #sidebarMenu .border-slate-800 { border-color: #0284c7 !important; }
         `;
-    } else if (theme === 'church-svg') { 
-        // HANYA DI TEMA INI LATAR BELAKANG GAMBAR AKTIF
-        app.className = `${baseAppClass} text-slate-100 bg-transparent`; 
-        body.className = "font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden bg-transparent";
-        
-        body.style.backgroundImage = "url('background.svg')";
-        body.style.backgroundSize = "cover";
-        body.style.backgroundPosition = "center";
-        body.style.backgroundRepeat = "no-repeat";
-        body.style.backgroundAttachment = "fixed";
-        
-        if(bannerContainer) bannerContainer.innerHTML = '';
-        cssRules = `
-            #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { 
-                background-color: rgba(15, 23, 42, 0.80) !important; 
-                backdrop-filter: blur(8px);
-            }
-        `;
     } else if (theme === 'christmas') {
         app.className = `${baseAppClass} bg-gradient-to-b from-red-950 via-red-900 to-emerald-950 text-red-50`;
         body.className = "bg-red-950 text-red-50 font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden";
@@ -519,7 +501,7 @@ function setTheme(theme, isInitialLoad = false) {
         app.className = `${baseAppClass} text-slate-100 bg-transparent`; 
         body.className = "font-sans antialiased min-h-screen flex flex-col items-center justify-center m-0 p-0 overflow-x-hidden bg-transparent";
         
-        // Pasang kembali background SVG khusus di sini
+        // Pastikan file background.svg ada di folder yang sama dengan file index.html Anda
         body.style.backgroundImage = "url('background.svg')";
         body.style.backgroundSize = "cover";
         body.style.backgroundPosition = "center";
@@ -528,12 +510,13 @@ function setTheme(theme, isInitialLoad = false) {
         
         if(bannerContainer) bannerContainer.innerHTML = '';
         cssRules = `
+            #app { background-color: transparent !important; }
             #app .bg-slate-900, #app .bg-slate-800, #app .bg-slate-950, #sidebarMenu { 
                 background-color: rgba(15, 23, 42, 0.80) !important; 
                 backdrop-filter: blur(8px);
             }
         `;
-    } // <--- KURUNG KURAWAL INI SEBELUMNYA KURANG/TERLEWAT
+    }
 
     if (cssRules !== "") {
         const style = document.createElement("style");
@@ -787,11 +770,16 @@ function switchTab(tab, isBack = false, isReplace = false) {
     
     if (tab === 'home') {
         document.getElementById("headerTitle").innerText = "GMIT Jemaat PNIEL Oebobo";
+            setTimeout(() => {
+            if (typeof checkYouTubeLiveStatusAutomatically === 'function') {
+                checkYouTubeLiveStatusAutomatically();
+            }
+        }, 300);
     } else if (tab === 'notifikasi') {
         document.getElementById("headerTitle").innerText = "Notifikasi & Kotak Masuk";
     } else if (tab === 'profil') {
         document.getElementById("headerTitle").innerText = "Akun & Profil Jemaat";
-    }
+    } 
     
     triggerPageTransition();
 
