@@ -770,7 +770,7 @@ function switchTab(tab, isBack = false, isReplace = false) {
     
     if (tab === 'home') {
         document.getElementById("headerTitle").innerText = "GMIT Jemaat PNIEL Oebobo";
-            setTimeout(() => {
+        setTimeout(() => {
             if (typeof checkYouTubeLiveStatusAutomatically === 'function') {
                 checkYouTubeLiveStatusAutomatically();
             }
@@ -779,7 +779,7 @@ function switchTab(tab, isBack = false, isReplace = false) {
         document.getElementById("headerTitle").innerText = "Notifikasi & Kotak Masuk";
     } else if (tab === 'profil') {
         document.getElementById("headerTitle").innerText = "Akun & Profil Jemaat";
-    } 
+    }
     
     triggerPageTransition();
 
