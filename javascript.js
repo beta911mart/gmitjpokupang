@@ -2136,6 +2136,7 @@ async function openDownloadCenter(isBack = false) {
             <div class="text-center py-8 text-xs text-slate-400 animate-pulse">Memuat data dokumen terbaru...</div>
         </div>
     `;
+    
     try {
         const res = await fetch(SCRIPT_URL, {
             method: "POST",
@@ -2144,6 +2145,9 @@ async function openDownloadCenter(isBack = false) {
         const result = await res.json();
         const list = (result.status === "success") ? result.data : [];
         
+        // Ambil waktu unik saat ini untuk bypass cache browser pada link PDF
+        const cacheBuster = new Date().getTime();
+
         const wartaDok = list.find(d => (d.judul && d.judul.toLowerCase().includes("warta")) || (d.kategori && d.kategori.toLowerCase().includes("warta")));
         const liturgiDok = list.find(d => (d.judul && d.judul.toLowerCase().includes("liturgi")) || (d.kategori && d.kategori.toLowerCase().includes("liturgi")));
         const dokumenLainnya = list.filter(d => d !== wartaDok && d !== liturgiDok);
@@ -2160,6 +2164,9 @@ async function openDownloadCenter(isBack = false) {
             const dateStr = wartaDok.tanggal || wartaDok.timestamp;
             const tglText = dateStr ? new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Terbaru';
             
+            // Tambahkan parameter ?v=timestamp agar URL selalu segar/tidak nyangkut di cache
+            const wartaUrl = wartaDok.url.includes('?') ? `${wartaDok.url}&v=${cacheBuster}` : `${wartaDok.url}?v=${cacheBuster}`;
+            
             htmlContent += `
                 <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover">
                     <div class="space-y-1">
@@ -2167,7 +2174,7 @@ async function openDownloadCenter(isBack = false) {
                         <h4 class="text-xs font-bold text-white">${wartaDok.judul || 'Warta Jemaat'}</h4>
                         <p class="text-[9px] text-slate-400">Diperbarui: ${tglText}</p>
                     </div>
-                    <a href="${wartaDok.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-500">Lihat / Unduh</a>
+                    <a href="${wartaUrl}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-500">Lihat / Unduh</a>
                 </div>
             `;
         }
@@ -2176,6 +2183,9 @@ async function openDownloadCenter(isBack = false) {
             const dateStr = liturgiDok.tanggal || liturgiDok.timestamp;
             const tglText = dateStr ? new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Terbaru';
             
+            // Tambahkan parameter ?v=timestamp
+            const liturgiUrl = liturgiDok.url.includes('?') ? `${liturgiDok.url}&v=${cacheBuster}` : `${liturgiDok.url}?v=${cacheBuster}`;
+            
             htmlContent += `
                 <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover">
                     <div class="space-y-1">
@@ -2183,7 +2193,7 @@ async function openDownloadCenter(isBack = false) {
                         <h4 class="text-xs font-bold text-white">${liturgiDok.judul || 'Lembar Liturgi'}</h4>
                         <p class="text-[9px] text-slate-400">Diperbarui: ${tglText}</p>
                     </div>
-                    <a href="${liturgiDok.url}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-500">Lihat / Unduh</a>
+                    <a href="${liturgiUrl}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition duration-500">Lihat / Unduh</a>
                 </div>
             `;
         }
@@ -2191,6 +2201,7 @@ async function openDownloadCenter(isBack = false) {
         dokumenLainnya.forEach(doc => {
             const dateStr = doc.tanggal || doc.timestamp;
             const tglText = dateStr ? new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Terbaru';
+            const docUrl = doc.url.includes('?') ? `${doc.url}&v=${cacheBuster}` : `${doc.url}?v=${cacheBuster}`;
             
             htmlContent += `
                 <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex items-center justify-between shadow-sm animate-card-hover">
@@ -2199,7 +2210,7 @@ async function openDownloadCenter(isBack = false) {
                         <h5 class="text-xs font-bold text-white">${doc.judul || 'Tanpa Judul'}</h5>
                         <p class="text-[9px] text-slate-400">Diperbarui: ${tglText}</p>
                     </div>
-                    <a href="${doc.url}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-purple-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition duration-500">Unduh</a>
+                    <a href="${docUrl}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-purple-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition duration-500">Unduh</a>
                 </div>
             `;
         });
