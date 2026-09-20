@@ -2143,13 +2143,19 @@ async function openDownloadCenter(isBack = false) {
             body: JSON.stringify({ action: "getDaftarDokumen" })
         });
         const result = await res.json();
-        const list = (result.status === "success") ? result.data : [];
+        let list = (result.status === "success") ? result.data : [];
         
+        // Urutkan data dari yang paling baru (berdasarkan tanggal/timestamp atau urutan baris terbawah di Sheet)
+        list.reverse();
+
         // Ambil waktu unik saat ini untuk bypass cache browser pada link PDF
         const cacheBuster = new Date().getTime();
 
+        // Cari dokumen Warta dan Liturgi terbaru dari urutan teratas
         const wartaDok = list.find(d => (d.judul && d.judul.toLowerCase().includes("warta")) || (d.kategori && d.kategori.toLowerCase().includes("warta")));
         const liturgiDok = list.find(d => (d.judul && d.judul.toLowerCase().includes("liturgi")) || (d.kategori && d.kategori.toLowerCase().includes("liturgi")));
+        
+        // Dokumen lainnya (kecuali warta dan liturgi utama yang sudah dipetakan di atas)
         const dokumenLainnya = list.filter(d => d !== wartaDok && d !== liturgiDok);
 
         let htmlContent = `
@@ -2221,7 +2227,6 @@ async function openDownloadCenter(isBack = false) {
         main.innerHTML = `<p class="text-xs text-rose-400 text-center py-10">Gagal memuat dokumen.</p>`;
     }
 }
-
 /**
  * Menyiapkan, mengompresi, serta menyisipkan format pratinjau citra wajah yang diunggah dari galeri lokal pengguna.
  */
