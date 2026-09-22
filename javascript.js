@@ -3135,10 +3135,12 @@ document.addEventListener("DOMContentLoaded", () => {
     switchTab('home', true, true);
     
     // Panggil Walkthrough setelah jeda 3 detik untuk jemaat perdana
+    // HAPUS ATAU KOMENTARI BLOK KODE INI DI BAGIAN DOMContentLoaded
+    /*
     setTimeout(() => {
         startGuidedWalkthrough();
     }, 3000);
-    
+    */
 // ---> 4. SKRIP DRAG UNTUK TOMBOL KEMBALI MELAYANG <---
     const floatBackBtn = document.getElementById('floatingBackBtn');
     if (floatBackBtn) {
