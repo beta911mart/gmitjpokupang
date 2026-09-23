@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>⭐ TIMER APP BY MULMED JPO ⭐</title>
+		<link rel="manifest" href="manifest.json" />
+		<!-- <link rel="stylesheet" href="styles.css"> -->
+		<!-- <script src="activation.js" defer></script> -->
+		<link href="https://fonts.googleapis.com/css2?family=Orbitron&amp;display=swap" rel="stylesheet" />
+		<style>
+			* {
+			box-sizing: border-box;
+			}
+			body {
+			font-family: "Inter", sans-serif;
+			margin: 0;
+			padding: 40px;
+			text-align: center;
+			background: none;
+			color: #fff;
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			}
+			h2,
+			h3 {
+			text-align: center;
+			margin-bottom: 20px;
+			}
+			.glass {
+			background: rgba(255, 255, 255, 0.05);
+			backdrop-filter: blur(12px);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			border-radius: 16px;
+			padding: 20px;
+			margin: 20px 0;
+			width: 100%;
+			max-width: 800px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+			}
+			textarea,
+			input {
+			width: auto;
+			padding: 10px;
+			margin: 10px 0;
+			border-radius: 80px;
+			border: 1px solid rgba(255, 255, 255, 0.5);
+			font-size: 1em;
+			background: rgba(255, 255, 255, 0.08);
+			color: #fff;
+			}
+			select {
+			width: auto;
+			padding: 10px;
+			margin: 10px 0;
+			border-radius: 8px;
+			border: 1px solid rgba(0, 255, 255, 0.3);
+			font-size: 1em;
+			background: rgba(0, 0, 0, 0.4); /* darker translucent */
+			color: #0ff;
+			appearance: none; /* hides default dropdown arrow in some browsers */
+			}
+			textarea {
+			height: 200px;
+			resize: vertical;
+			font-family: monospace;
+			}
+			button {
+			padding: 10px 20px;
+			margin: 10px 5px 0 0;
+			background: rgba(0, 212, 255, 0.2);
+			border: 1px solid rgba(0, 212, 255, 0.4);
+			color: #0ff;
+			border-radius: 8px;
+			cursor: pointer;
+			font-weight: bold;
+			transition: 0.2s ease;
+			}
+			button:hover {
+			background: rgba(0, 212, 255, 0.4);
+			}
+			.tabs button {
+			padding: 10px 20px;
+			margin: 5px;
+			background: #222;
+			color: #ccc;
+			border: 1px solid #444;
+			border-radius: 8px;
+			cursor: pointer;
+			transition:
+			background 0.3s,
+			color 0.3s;
+			}
+			.tabs button.active-tab {
+			background: #19d;
+			color: #000;
+			font-weight: bold;
+			border: 1px solid #0f0;
+			}
+			.preset-buttons {
+			margin-top: 15px;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: 10px;
+			}
+			.preset-buttons button {
+			min-width: 80px;
+			font-weight: bold;
+			}
+			.tab-content {
+			display: none;
+			padding: 15px;
+			}
+			.tab-content.active {
+			display: block;
+			}
+			#main-display {
+			font-size: 8em;
+			font-weight: bold;
+			margin: 10px auto 20px;
+			color: #fff;
+			text-align: center;
+			}
+			.multi-item {
+			margin: 5px 0;
+			}
+			.blink {
+			animation: blink 0.1s step-start 0s infinite;
+			}
+			@keyframes blink {
+			50% {
+			opacity: 0;
+			}
+			}
+			.flash-bg {
+			animation: flashbg 3s ease-in-out;
+			}
+			#flash-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: white;
+			opacity: 0;
+			pointer-events: none;
+			z-index: 999999;
+			}
+			#flash-overlay.flash {
+			animation: flashAlarm 3s;
+			}
+			@keyframes flashAlarm {
+			0% {
+			opacity: 0;
+			}
+			10% {
+			opacity: 1;
+			}
+			20% {
+			opacity: 0;
+			}
+			30% {
+			opacity: 1;
+			}
+			40% {
+			opacity: 0;
+			}
+			50% {
+			opacity: 1;
+			}
+			60% {
+			opacity: 0;
+			}
+			100% {
+			opacity: 0;
+			}
+			}
+			@keyframes flashbg {
+			0%,
+			100% {
+			background: black;
+			}
+			10%,
+			70% {
+			background: #ffd700;
+			}
+			20%,
+			80% {
+			background: #ff6347;
+			}
+			30%,
+			90% {
+			background: #40e0d0;
+			}
+			40%,
+			50%,
+			60% {
+			background: #ffd700;
+			}
+			}
+			.shake {
+			animation: shake 0.5s ease-in-out;
+			}
+			@keyframes shake {
+			0%,
+			100% {
+			transform: translateX(0);
+			}
+			20%,
+			60% {
+			transform: translateX(-10px);
+			}
+			40%,
+			80% {
+			transform: translateX(10px);
+			}
+			}
+			@keyframes spin {
+			0% {
+			transform: rotate(0deg);
+			}
+			100% {
+			transform: rotate(360deg);
+			}
+			}
+			.hidden {
+			display: none !important;
+			}
+			.side-by-side {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			}
+			.option-pair {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			}
+			.row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			}
+			.col {
+			flex: 1;
+			min-width: 160px;
+			}
+			.footer {
+			font-size: 0.8em;
+			color: #888;
+			margin-top: auto;
+			text-align: center;
+			padding: 20px 0;
+			}
+			@media (max-width: 768px) {
+			input,
+			select,
+			button {
+			width: 100%;
+			max-width: 300px;
+			margin: 5px auto;
+			display: block;
+			}
+			.tabs {
+			display: flex;
+			flex-direction: column;
+			}
+			.tab-content {
+			display: none;
+			padding: 15px;
+			}
+			.tab-content.active {
+			display: block;
+			}
+			}
+			.menu-panel {
+			position: fixed;
+			top: 0;
+			right: -320px; /* hidden off-screen */
+			width: 300px;
+			height: 100vh;
+			background: rgba(0, 0, 0, 0.9);
+			color: #fff;
+			border-left: 2px solid #0f0;
+			padding: 20px;
+			box-shadow: -10px 0 50px rgba(0, 255, 0, 0.2);
+			z-index: 998;
+			transition: right 0.3s ease;
+			overflow-y: auto;
+			}
+			.menu-panel.open {
+			right: 0;
+			}
+			.menu-content {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			}
+			#menu-toggle {
+			position: fixed;
+			top: 50px;
+			right: 50px;
+			z-index: 0;
+			background: transparent;
+			color: #0f0;
+			border: none;
+			width: 20px;
+			height: 10px;
+			border-radius: 10px;
+			font-size: 2em;
+			cursor: pointer;
+			animation: spin 2s linear infinite;
+			text-align: center;
+			line-height: 0px; /* centers vertically */
+			padding: 0px;
+			}
+			/* === NEON THEME === */
+			.neon-theme {
+			background-color: #000 !important;
+			color: #39ff14;
+			font-family: "Orbitron", sans-serif;
+			}
+			.neon-theme input,
+			.neon-theme select {
+			background: transparent;
+			color: #39ff14;
+			border: 2px solid #39ff14;
+			border-radius: 10px;
+			box-shadow: 0 0 8px #39ff14;
+			padding: 8px;
+			transition: all 0.2s ease-in-out;
+			}
+			.neon-theme button:hover,
+			.neon-theme input:hover,
+			.neon-theme select:hover {
+			background: #aaa;
+			box-shadow: 0 0 16px #39ff14;
+			}
+			.neon-theme .tabs button.active {
+			background: #39ff14;
+			color: black;
+			box-shadow: 0 0 20px #39ff14;
+			}
+			/* === LIGHT THEME === */
+			.light-theme {
+			background-color: #d9d9d9 !important;
+			color: #111;
+			font-family: "Segoe UI", sans-serif;
+			}
+			.light-theme input,
+			.light-theme select {
+			background: #fff;
+			color: #222;
+			border: 2px solid #ccc;
+			border-radius: 8px;
+			padding: 8px;
+			transition: all 0.2s ease;
+			}
+			.light-theme button:hover,
+			.light-theme input:hover,
+			.light-theme select:hover {
+			background: #eee;
+			border-color: #888;
+			}
+			.light-theme .tabs button.active {
+			background: #007bff;
+			color: white;
+			border-color: #007bff;
+			box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+			}
+			/* === DARK THEME === */
+			.dark-theme {
+			background-color: #1e1e1e !important;
+			color: #f0f0f0;
+			font-family: "Segoe UI", sans-serif;
+			}
+			.dark-theme input,
+			.dark-theme select {
+			background: #222;
+			color: #e0e0e0;
+			border: 2px solid #555;
+			border-radius: 8px;
+			padding: 8px;
+			transition: all 0.2s ease;
+			}
+			.dark-theme button:hover,
+			.dark-theme input:hover,
+			.dark-theme select:hover {
+			background: #333;
+			border-color: #888;
+			}
+			.dark-theme .tabs button.active {
+			background: #444;
+			color: white;
+			border-color: #888;
+			box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+			}
+			/* === LEMON THEME === */
+			.lemon-theme {
+			background-color: #f2ff3b !important;
+			color: #222;
+			font-family: "Comic Sans MS", cursive;
+			}
+			.lemon-theme input,
+			.lemon-theme select {
+			background: #ffffcc;
+			color: #444;
+			border: 3px solid #ccff33;
+			border-radius: 10px;
+			box-shadow: 0 0 5px #ccff33;
+			padding: 8px;
+			transition: all 0.2s ease;
+			}
+			.lemon-theme button:hover,
+			.lemon-theme input:hover,
+			.lemon-theme select:hover {
+			background: #f0f0aa;
+			box-shadow: 0 0 10px #bfff00;
+			}
+			.lemon-theme .tabs button.active {
+			background: #ccff33;
+			color: #222;
+			box-shadow: 0 0 15px #ccff33;
+			}
+			/* === RETRO THEME BUTTONS === */
+			.controls button {
+			font-family: "Courier New", monospace;
+			background: repeating-linear-gradient(45deg, #ffcc00, #ffcc00 10px, #ff9900 10px, #ff9900 20px);
+			color: black;
+			border: 3px solid #000;
+			box-shadow: 4px 4px 0 #000;
+			padding: 6px 15px;
+			margin: 6px;
+			font-size: 16px;
+			text-transform: uppercase;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			}
+			.controls button:hover {
+			background: #ff6600;
+			box-shadow: 2px 2px 0 #000;
+			transform: translate(1px, 1px);
+			}
+			#winner-screen {
+			display: none;
+			position: fixed;
+			inset: 0;
+			z-index: 999999;
+			background: linear-gradient(135deg, #ffd700, #ffa500, #ffd700);
+			color: #000;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			text-align: center;
+			font-family: Arial, sans-serif;
+			}
+			.winner-banner {
+			display: none;
+			margin-top: 20px;
+			text-align: center;
+			font-size: 1.5em;
+			padding: 15px;
+			border-radius: 10px;
+			background: linear-gradient(45deg, gold, orange);
+			color: black;
+			animation: pop 0.8s ease;
+			}
+			@keyframes championPop {
+			from {
+			transform: scale(0.5);
+			opacity: 0;
+			}
+			to {
+			transform: scale(1);
+			opacity: 1;
+			}
+			}
+			#winner-screen.show {
+			animation: championPop 0.5s ease;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="flash-overlay"></div>
+		<h2>⭐ TIMER APP PRO: by ℳulℳed™JP◔ ⭐</h2>
+		<div id="main-display">00:00.00</div>
+		<div class="tabs">
+			<button onclick="showTab('countdown')">Countdown</button>
+			<button onclick="showTab('stopwatch')" class="pro-tab">Stopwatch</button>
+			<button onclick="showTab('multi')" class="pro-tab">Multi-Timer</button>
+			<button onclick="showWinner()">🏆 Show Winner</button>
+		</div>
+		<div id="countdown" class="tab-content active">
+			<div class="controls hidden">
+				<input type="number" id="countMin" placeholder="Menit" />
+				<input type="number" id="countSec" placeholder="Detik" />
+				<button class="retro-button" onclick="startCountdown()">Start</button>
+				<button class="retro-button" onclick="pauseCountdown()">Pause</button>
+				<button class="retro-button" onclick="resetCountdown()">Reset</button>
+				<hr />
+				<div class="preset-buttons">
+					<button onclick="startPreset(10)">10s</button>
+					<button onclick="startPreset(20)">20s</button>
+					<button onclick="startPreset(30)">30s</button>
+					<button onclick="startPreset(60)">1m</button>
+					<button onclick="startPreset(120)">2m</button>
+					<button onclick="startPreset(300)">5m</button>
+				</div>
+			</div>
+		</div>
+		<div id="stopwatch" class="tab-content active">
+			<div class="controls hidden">
+				<button class="retro-button" onclick="startStopwatch()">Start</button>
+				<button class="retro-button" onclick="pauseStopwatch()">Pause</button>
+				<button class="retro-button" onclick="resetStopwatch()">Reset</button>
+			</div>
+		</div>
+		<div id="multi" class="tab-content active">
+			<div class="controls hidden">
+				<p id="keyboard-status" style="color: blue; font-weight: bold">🎹 Shortcuts: ON</p>
+				<input type="text" id="multiLabel" placeholder="Label" />
+				<input type="number" id="multiMin" placeholder="Menit" />
+				<input type="number" id="multiSec" placeholder="Detik" />
+				<button class="retro-button" onclick="addMultiTimer()">+ Add</button>
+				<button class="retro-button" onclick="startMultiTimers()">▶ Start</button>
+				<button class="retro-button" id="nextTimerBtn" onclick="nextMultiTimer()" style="display: none">
+				Next Timer
+				</button>
+				<button class="retro-button" onclick="resetMultiTimers()">⏹ Reset</button>
+				<div id="multi-list"></div>
+				<div style="display: flex; justify-content: center; align-items: center; margin-top: 10px; gap: 20px">
+					<label>
+					<input type="radio" name="multi-mode" value="sequence" checked="" />
+					Sequence
+					</label>
+					<label>
+					<input type="radio" name="multi-mode" value="manual" />
+					Manual
+					</label>
+				</div>
+			</div>
+		</div>
+		<p id="locked-message" style="color: orange; margin-top: 20px">
+			🔒 Some features are locked. Activate to unlock Stopwatch, Multi-Timer, Themes, and more.
+		</p>
+		<br />
+		<hr />
+		<footer
+			style="
+			position: fixed;
+			bottom: 0;
+			width: 100%;
+			text-align: center;
+			padding: 0.5em;
+			background: #222;
+			color: #aaa;
+			font-size: 0.9em;
+			"
+			>
+			<div id="activation-status" style="margin: 1px; font-weight: bold"></div>
+			<div>Copyright ©2026MulMedJPO</div>
+			<div>
+				Powered by
+				<a href="https://www.facebook.com/dqnet.warnet/" target="_blank" style="color: #40e0d0">DQnet</a>
+			</div>
+		</footer>
+		<button id="menu-toggle" title="Toggle Menu">🔞</button>
+		<div id="menu-panel" class="menu-panel">
+			<div class="menu-content">
+				<ul style="list-style: none; padding-left: 0; align-items: center; margin: 20px">
+					<li>
+						<div style="display: flex; flex-direction: column; gap: 8px">
+							<button class="option-pair pro-feature" onclick="openPopup()">🖥️ Split Display</button>
+							<button class="option-pair pro-feature" onclick="closePopup()">❌ Close Split Display</button>
+							<button class="option-pair pro-feature" onclick="openScoreboard()">🏆 Open Scoreboard</button>
+							<button class="option-pair pro-feature" onclick="toggleKeyboard()">⌨️ KB Sortcut: ON 💡</button>
+							<button class="option-pair pro-feature" onclick="toggleFlashEnabled()">💡 Flash: ON</button>
+							<label class="option-pair pro-feature">
+								🎨 Theme:
+								<select id="themeSelector" onchange="applyTheme(this.value)">
+									<option value="light">Light</option>
+									<option value="dark">Dark</option>
+									<option value="lemon">Lemon</option>
+									<option value="neon">Neon</option>
+								</select>
+							</label>
+							<label class="option-pair pro-feature">
+							🔉 Volume:
+							<input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" />
+							</label>
+							<label class="option-pair pro-feature">
+								🔊 Beep:
+								<select id="beepType">
+									<option value="1">Sine</option>
+									<option value="2">Square</option>
+									<option value="3">Triangle</option>
+									<option value="4">Siren</option>
+									<option value="5">Bicycle Bell</option>
+									<option value="6">Church Bell</option>
+									<option value="7">Desk Bell</option>
+									<option value="8">Train Bell</option>
+									<option value="9">Fire Alarm Bell</option>
+									<option value="10">Japanese Temple Bell</option>
+									<option value="11">Telolet Rendom</option>
+								</select>
+							</label>
+							<button onclick="openAboutPopup()">❔ About &amp; Help</button>
+							<button id="reset-btn" onclick="resetActivation()" style="display: none">🔁 Reset Activation</button>
+							<button onclick="promptActivationCode()">🔑 Enter Activation Code</button>
+							<button id="admin-btn" onclick="openAdminPanel()" style="display: none">🛡️ Admin Panel</button>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div id="winner-screen">
+			<div id="winner-title">🏆 CHAMPION 🏆</div>
+			<div id="winner-name">TEAM ALFA</div>
+			<div id="winner-score">150 POINTS</div>
+		</div>
+		<script>
+			let countdownInterval,
+			  remainingMilliseconds = 0,
+			  lastTimestamp;
+			let stopwatchInterval,
+			  stopwatchTime = 0,
+			  stopwatchRunning = false,
+			  stopwatchLastTime;
+			let multiTimers = [],
+			  multiIndex = 0,
+			  multiActive = false,
+			  popupWindow;
+			let multiMode = "sequence";
+			let currentManualInterval;
+			let activeTimer = null;
+			let lastDisplayedTime = "";
+			let activated = false;
+			let keyboardEnabled = false;
+			let scoreboardDataStore = JSON.parse(localStorage.getItem("scoreboardDataStore") || "{}");
+			
+			const VALID_CODES = [
+			  {
+			    hash: "171c389dea79023f3b449210f195788a9a90b6355ffe02091aa0ccf5aecd4d47",
+			    expiredIn: 8,
+			  },
+			  {
+			    hash: "a4f4e834f3cc6ec4517d8fb86f20843be7e85454a786521fde9078b18349d475",
+			    expiredIn: 3,
+			  },
+			  {
+			    hash: "d5cb4e05b838e633d5244483b776ee18853dbe9bd7f99fa84d10d9e1f4d0e509",
+			    expiredIn: 3,
+			  },
+			];
+			TRIAL_DURATION_DAYS = 1;
+			
+			function showTab(tabId) {
+			  document.querySelectorAll(".tab-content").forEach((tab) => {
+			    tab.classList.remove("active");
+			    const controls = tab.querySelector(".controls");
+			    if (controls) controls.classList.add("hidden");
+			  });
+			
+			  const selectedTab = document.getElementById(tabId);
+			  selectedTab.classList.add("active");
+			
+			  // Show controls only if activated
+			  const access = JSON.parse(localStorage.getItem("access") || "{}");
+			  if (access.activated) {
+			    const controls = selectedTab.querySelector(".controls");
+			    if (controls) controls.classList.remove("hidden");
+			  }
+			
+			  document.querySelectorAll(".tabs button").forEach((btn) => {
+			    btn.classList.remove("active-tab");
+			  });
+			  const clickedButton = [...document.querySelectorAll(".tabs button")].find((btn) =>
+			    btn.getAttribute("onclick")?.includes(tabId),
+			  );
+			  if (clickedButton) clickedButton.classList.add("active-tab");
+			}
+			
+			function updateDisplay(min, sec, millis = 0) {
+			  const m = String(min).padStart(2, "0");
+			  const s = String(sec).padStart(2, "0");
+			  const ms = String(Math.floor(millis / 10)).padStart(2, "0");
+			  const timeStr = `${m}:${s}.${ms}`;
+			
+			  // Only update if the display actually changed
+			  if (timeStr !== lastDisplayedTime) {
+			    lastDisplayedTime = timeStr;
+			    document.getElementById("main-display").textContent = timeStr;
+			
+			    if (popupWindow && !popupWindow.closed) {
+			      const popupTime = popupWindow.document.getElementById("popup-time");
+			      if (popupTime) popupTime.textContent = timeStr;
+			    }
+			  }
+			}
+			
+			function startCountdown() {
+			  stopAllTimers();
+			  const min = parseInt(document.getElementById("countMin").value) || 0;
+			  const sec = parseInt(document.getElementById("countSec").value) || 0;
+			  let time = (min * 60 + sec) * 1000;
+			  let last = Date.now();
+			  clearInterval(countdownInterval);
+			  countdownInterval = setInterval(() => {
+			    const now = Date.now();
+			    time -= now - last;
+			    last = now;
+			    if (time <= 0) {
+			      clearInterval(countdownInterval);
+			      updateDisplay(0, 0);
+			      playBeep();
+			      flashEffect();
+			    } else {
+			      const t = Math.floor(time / 1000);
+			      updateDisplay(Math.floor(t / 60), t % 60, time % 1000);
+			    }
+			  }, 80);
+			}
+			
+			function pauseCountdown() {
+			  clearInterval(countdownInterval);
+			}
+			function resetCountdown() {
+			  clearInterval(countdownInterval);
+			  updateDisplay(0, 0, 0);
+			}
+			
+			function startStopwatch() {
+			  stopAllTimers();
+			  if (stopwatchRunning) return;
+			  stopwatchRunning = true;
+			  let last = Date.now();
+			  stopwatchInterval = setInterval(() => {
+			    const now = Date.now();
+			    stopwatchTime += now - last;
+			    last = now;
+			    const t = Math.floor(stopwatchTime / 1000);
+			    updateDisplay(Math.floor(t / 60), t % 60, stopwatchTime % 1000);
+			  }, 50);
+			}
+			function pauseStopwatch() {
+			  stopwatchRunning = false;
+			  clearInterval(stopwatchInterval);
+			}
+			function resetStopwatch() {
+			  pauseStopwatch();
+			  stopwatchTime = 0;
+			  updateDisplay(0, 0, 0);
+			}
+			
+			function addMultiTimer() {
+			  const label = document.getElementById("multiLabel").value || `Timer ${multiTimers.length + 1}`;
+			  const min = parseInt(document.getElementById("multiMin").value) || 0;
+			  const sec = parseInt(document.getElementById("multiSec").value) || 0;
+			  multiTimers.push({ label, duration: (min * 60 + sec) * 1000 });
+			  renderMultiList();
+			}
+			
+			function renderMultiList() {
+			  const list = document.getElementById("multi-list");
+			  list.innerHTML = "";
+			  multiTimers.forEach((t, i) => {
+			    list.innerHTML += `<div>${i + 1}. ${t.label} - ${Math.floor(t.duration / 60000)}:${String(((t.duration % 60000) / 1000).toFixed(0)).padStart(2, "0")}</div>`;
+			  });
+			}
+			
+			function startMultiTimers() {
+			  stopAllTimers();
+			  if (multiTimers.length === 0) return;
+			
+			  multiMode = document.querySelector('input[name="multi-mode"]:checked')?.value || "sequence";
+			  multiActive = true;
+			  multiIndex = 0;
+			
+			  document.getElementById("nextTimerBtn").style.display = "none"; // hide Next button at start
+			
+			  if (multiMode === "manual") {
+			    runManualTimer(multiIndex);
+			  } else {
+			    runMultiTimer(multiTimers[multiIndex]);
+			  }
+			}
+			
+			function runManualTimer(index) {
+			  const timer = multiTimers[index];
+			  if (!timer) {
+			    multiActive = false;
+			    multiIndex = 0;
+			    updateDisplay(0, 0, 0);
+			    return;
+			  }
+			
+			  let time = timer.duration;
+			  let last = Date.now();
+			  countdownInterval = setInterval(() => {
+			    const now = Date.now();
+			    time -= now - last;
+			    last = now;
+			    if (time <= 0) {
+			      clearInterval(countdownInterval);
+			      playBeep();
+			      flashEffect();
+			      document.getElementById("nextTimerBtn").style.display = "inline-block"; // wait for user click
+			    } else {
+			      const s = Math.floor(time / 1000);
+			      updateDisplay(Math.floor(s / 60), s % 60, time % 1000);
+			    }
+			  }, 10);
+			}
+			
+			function runMultiTimer(timer) {
+			  let time = timer.duration;
+			  let last = Date.now();
+			  countdownInterval = setInterval(() => {
+			    const now = Date.now();
+			    time -= now - last;
+			    last = now;
+			    if (time <= 0) {
+			      clearInterval(countdownInterval);
+			      playBeep();
+			      flashEffect();
+			      const mode = document.querySelector('input[name="multi-mode"]:checked')?.value || "sequence";
+			      if (mode === "sequence") {
+			        if (++multiIndex < multiTimers.length) {
+			          runMultiTimer(multiTimers[multiIndex]);
+			        } else {
+			          multiIndex = 0;
+			          updateDisplay(0, 0, 0);
+			        }
+			      } else if (mode === "manual") {
+			        if (multiIndex < multiTimers.length - 1) {
+			          document.getElementById("nextTimerBtn").style.display = "inline-block";
+			        } else {
+			          multiIndex = 0;
+			          updateDisplay(0, 0, 0);
+			        }
+			      }
+			    } else {
+			      const s = Math.floor(time / 1000);
+			      updateDisplay(Math.floor(s / 60), s % 60, time % 1000);
+			    }
+			  }, 10);
+			}
+			
+			function startMultiTimers_legacy() {
+			  if (!multiTimers.length) return;
+			  multiIndex = 0;
+			  document.getElementById("nextTimerBtn").style.display = "none"; // hide button before starting
+			  runMultiTimer(multiTimers[multiIndex]);
+			}
+			
+			function nextMultiTimer() {
+			  document.getElementById("nextTimerBtn").style.display = "none";
+			  if (++multiIndex < multiTimers.length) {
+			    runMultiTimer(multiTimers[multiIndex]);
+			  } else {
+			    multiIndex = 0;
+			    updateDisplay(0, 0, 0);
+			  }
+			}
+			
+			function resetMultiTimers() {
+			  multiTimers = [];
+			  multiIndex = 0;
+			  renderMultiList();
+			  updateDisplay(0, 0, 0);
+			}
+			
+			function stopAllTimers() {
+			  clearInterval(countdownInterval);
+			  pauseStopwatch();
+			  multiActive = false;
+			}
+			
+			function playBeep(times = 3) {
+			  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+			  const vol = parseFloat(document.getElementById("volumeSlider")?.value || 1);
+			  const type = parseInt(document.getElementById("beepType")?.value || 1);
+			
+			  const gain = ctx.createGain();
+			  gain.gain.value = vol;
+			  gain.connect(ctx.destination);
+			
+			  if (type === 4) {
+			    // Dramatic looping siren
+			    const osc = ctx.createOscillator();
+			    osc.type = "sine";
+			
+			    const now = ctx.currentTime;
+			    const duration = 4;
+			
+			    osc.frequency.setValueAtTime(500, now);
+			    for (let i = 0; i < duration; i++) {
+			      const t = now + i;
+			      osc.frequency.linearRampToValueAtTime(1200, t + 0.5);
+			      osc.frequency.linearRampToValueAtTime(500, t + 1);
+			    }
+			
+			    osc.connect(gain);
+			    osc.start(now);
+			    osc.stop(now + duration);
+			  } else if (type === 5) {
+			    // Bicycle bell-style "kring"
+			    const now = ctx.currentTime;
+			
+			    for (let i = 0; i < times; i++) {
+			      const t = now + i * 0.7; // Delay between rings
+			      const freqs = [1200, 1500, 1800]; // Layered high freqs for metallic effect
+			
+			      freqs.forEach((freq, j) => {
+			        const osc = ctx.createOscillator();
+			        osc.type = "sine";
+			        osc.frequency.setValueAtTime(freq, t + j * 0.01); // Small delay for shimmer
+			        osc.connect(gain);
+			        osc.start(t + j * 0.01);
+			        osc.stop(t + 0.3); // Short bell sound
+			      });
+			    }
+			  } else if (type === 6) {
+			    // Church Bell
+			    const t = ctx.currentTime;
+			    const osc = ctx.createOscillator();
+			    const bellGain = ctx.createGain();
+			
+			    osc.type = "triangle";
+			    osc.frequency.setValueAtTime(400, t);
+			    bellGain.gain.setValueAtTime(vol, t);
+			    bellGain.gain.exponentialRampToValueAtTime(0.001, t + 2);
+			
+			    osc.connect(bellGain);
+			    bellGain.connect(ctx.destination);
+			
+			    osc.start(t);
+			    osc.stop(t + 2);
+			  } else if (type === 7) {
+			    // Desk Bell
+			    const t = ctx.currentTime;
+			    const freqs = [1000, 1400];
+			    freqs.forEach((freq, i) => {
+			      const osc = ctx.createOscillator();
+			      osc.type = "sine";
+			      osc.frequency.setValueAtTime(freq, t + i * 0.005);
+			      osc.connect(gain);
+			      osc.start(t + i * 0.005);
+			      osc.stop(t + 0.25);
+			    });
+			  } else if (type === 8) {
+			    // Train Bell (slow repeating ding)
+			    const baseTime = ctx.currentTime;
+			    for (let i = 0; i < times; i++) {
+			      const t = baseTime + i * 1.2;
+			      const osc = ctx.createOscillator();
+			      osc.type = "triangle";
+			      osc.frequency.setValueAtTime(700, t);
+			      osc.connect(gain);
+			      osc.start(t);
+			      osc.stop(t + 1);
+			    }
+			  } else if (type === 9) {
+			    // Fire Alarm Bell (fast buzzing ring)
+			    const t = ctx.currentTime;
+			    const duration = 3;
+			    const osc = ctx.createOscillator();
+			    const tremolo = ctx.createOscillator();
+			    const tremoloGain = ctx.createGain();
+			
+			    osc.type = "square";
+			    osc.frequency.setValueAtTime(1200, t);
+			
+			    tremolo.type = "sine";
+			    tremolo.frequency.setValueAtTime(15, t); // 15 Hz tremolo
+			
+			    tremoloGain.gain.value = vol * 0.5;
+			    tremolo.connect(tremoloGain.gain);
+			    tremolo.start(t);
+			    tremolo.stop(t + duration);
+			
+			    osc.connect(tremoloGain);
+			    tremoloGain.connect(ctx.destination);
+			
+			    osc.start(t);
+			    osc.stop(t + duration);
+			  } else if (type === 10) {
+			    // Japanese Temple Bell
+			    const t = ctx.currentTime;
+			    const freqs = [150, 300, 450];
+			    const bellGain = ctx.createGain();
+			    bellGain.gain.setValueAtTime(vol, t);
+			    bellGain.gain.exponentialRampToValueAtTime(0.001, t + 6);
+			
+			    bellGain.connect(ctx.destination);
+			
+			    freqs.forEach((freq) => {
+			      const osc = ctx.createOscillator();
+			      osc.type = "sine";
+			      osc.frequency.setValueAtTime(freq, t);
+			      osc.connect(bellGain);
+			      osc.start(t);
+			      osc.stop(t + 6);
+			    });
+			  } else if (type === 11) {
+			    // Randomized Telolet Horn 🎺
+			    const scale = [523, 587, 659, 698, 784, 880]; // C5, D5, E5, F5, G5, A5
+			    const notes = Math.floor(Math.random() * 5) + 6; // 6 to 10 notes
+			    const now = ctx.currentTime;
+			
+			    let time = now;
+			    for (let i = 0; i < notes; i++) {
+			      const freq = scale[Math.floor(Math.random() * scale.length)];
+			      const dur = Math.random() * 0.1 + 0.15; // 150ms to 250ms
+			      const pause = Math.random() * 0.05 + 0.1; // 100ms to 150ms between notes
+			
+			      const osc = ctx.createOscillator();
+			      osc.type = "square"; // Horn-like buzz
+			      osc.frequency.setValueAtTime(freq, time);
+			      osc.connect(gain);
+			      osc.start(time);
+			      osc.stop(time + dur);
+			
+			      time += dur + pause;
+			    }
+			  } else {
+			    // Normal beeps
+			    const wave = ["sine", "square", "triangle"][type - 1] || "sine";
+			    const freq = [440, 880, 660][type - 1] || 440;
+			    const dur = [0.2, 0.1, 0.3][type - 1];
+			
+			    for (let i = 0; i < times; i++) {
+			      const osc = ctx.createOscillator();
+			      osc.type = wave;
+			      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+			      osc.connect(gain);
+			      const start = ctx.currentTime + i * 0.5;
+			      osc.start(start);
+			      osc.stop(start + dur);
+			    }
+			  }
+			}
+			
+			// flash
+			
+			const menuToggle = document.getElementById("menu-toggle");
+			const menuPanel = document.getElementById("menu-panel");
+			
+			menuToggle.addEventListener("click", () => {
+			  menuPanel.classList.toggle("open");
+			});
+			
+			// Optional: close if user taps outside
+			document.addEventListener("click", (e) => {
+			  if (!menuPanel.contains(e.target) && !menuToggle.contains(e.target)) {
+			    menuPanel.classList.remove("open");
+			  }
+			});
+			
+			window.addEventListener("message", (e) => {
+			  if (e.data?.type === "SAVE_SCOREBOARD") {
+			    saveScoreboardData(e.data.data);
+			  } else if (e.data?.type === "REQUEST_LOAD_SCOREBOARD") {
+			    const data = loadScoreboardData();
+			    e.source.postMessage({ type: "LOAD_SCOREBOARD_RESPONSE", data }, "*");
+			  }
+			});
+			
+			// === SPLIT SCREEN POPUP ===
+			function openPopup() {
+			  if (popupWindow && !popupWindow.closed) {
+			    popupWindow.focus();
+			    return;
+			  }
+			
+			  popupWindow = window.open("", "", "width=800,height=500,left=1920,top=100");
+			
+			  const popupHTML = `
+			<html>
+			<head>
+			<title>Timer + Scoreboard</title>
+			<style>
+			body {
+			 margin: 0;
+			 background: #111;
+			 color: #0f0;
+			 font-family: sans-serif;
+			 padding: 60px;
+			}
+			.view { display: none; }
+			.active { display: block; }
+			#popup-time {
+			 font-size: 23vw;
+			 font-weight: bold;
+			}
+			#view-scoreboard table thead {
+			 background-color: #222;
+			 color: #fff;
+			}
+			
+			#view-scoreboard table thead input {
+			 background-color: #444;
+			 color: #fff;
+			 border: none;
+			 text-align: center;
+			 width: 100%;
+			 padding: 4px;
+			}
+			
+			footer {
+			 margin-top: 5px;
+			 font-size: 2.0em;
+			 color: #888;
+			 opacity: 0.4;
+			 padding: 1px;
+			 text-align: center;
+			}
+			button {
+			 padding: 10px 20px;
+			 font-size: 1em;
+			 cursor: pointer;
+			 margin: 5px 5px 20px 0;
+			 background: #0f0;
+			 color: #000;
+			 font-weight: bold;
+			 border: none;
+			}
+			table { width: 100%; border-collapse: collapse; }
+			th, td { border: 1px solid #0f0; padding: 5px; }
+			input {
+			 width: 100%;
+			 background: #000;
+			 color: #0f0;
+			 border: none;
+			 text-align: center;
+			 font-size: 2.2em;
+			}
+			.blink {
+			 animation: blink 0.1s step-start 0s infinite;
+			}
+			@keyframes blink {
+			 50% { opacity: 0; }
+			}
+			.flash-bg {
+			 animation: flashbg 3s ease-in-out;
+			}
+			@keyframes flashbg {
+			 0%   { background: black; }
+			 10%  { background: #ffd700; }
+			 20%  { background: #ff6347; }
+			 30%  { background: #40e0d0; }
+			 40%  { background: #ffd700; }
+			 50%  { background: #ff6347; }
+			 60%  { background: #40e0d0; }
+			 70%  { background: #ffd700; }
+			 80%  { background: #ff6347; }
+			 90%  { background: #40e0d0; }
+			 100% { background: black; }
+			}
+			</style>
+			</head>
+			<body>
+			
+			<button id="fullscreenBtn" onclick="goFullscreen()">⛶ Fullscreen (F)</button>
+			
+			<div id="view-timer" class="view active">
+			<div id="popup-label" style="font-size:1em; opacity:0.8;"></div>
+			<div id="popup-time">00:00.00</div>
+			<footer>Copyright ©2026 gerejaPNIELoebobo —
+			 Powered by <a href="https://web.whatsapp.com/send/?phone=6282146565818&text=Silahkan+Chat+Jika+Berminat" style="color:#0f0;">MulMedJPO</a>
+			</footer>
+			</div>
+			
+			<div id="view-scoreboard" class="view">
+			<h1 style="text-align: center;">🏆 Scoreboard</h1>
+			<table id="score-table">
+			 <thead>
+			   <tr>
+			     <th><input type="text" value="Tim"></th>
+			     <th><input type="text" value="Babak 1"></th>
+			     <th><input type="text" value="Babak 2"></th>
+			     <th><input type="text" value="Babak 3"></th>
+			     <th><input type="text" value="Babak 4"></th>
+			     <th><input type="text" value="TOTAL"></th>
+			     <th></th> <!-- Extra header for delete button -->
+			   </tr>
+			 </thead>
+			 <tbody></tbody>
+			</table>
+			</div>
+			<script>
+			let showingTimer = true;
+			function toggleView() {
+			 showingTimer = !showingTimer;
+			 document.getElementById('view-timer').classList.toggle('active');
+			 document.getElementById('view-scoreboard').classList.toggle('active');
+			 if (!showingTimer) {
+			   window.opener.postMessage({ type: 'REQUEST_LIVE_SCOREBOARD' }, '*');
+			 }
+			}
+			function showChampion(team='CHAMPION', score=''){
+			
+			const screen =
+			document.getElementById('winner-screen');
+			
+			document.getElementById('winner-name')
+			.textContent = team;
+			
+			document.getElementById('winner-score')
+			.textContent = score;
+			
+			screen.classList.add('show');
+			
+			setTimeout(() => {
+			screen.classList.remove('show');
+			}, 5000);
+			
+			}
+			window.addEventListener('keydown', e => {
+			 if (e.key.toLowerCase() === 't') toggleView();
+			 if (e.key.toLowerCase() === 'f') goFullscreen();
+			});
+			
+			function goFullscreen() {
+			 document.documentElement.requestFullscreen().then(() => {
+			   const btn = document.getElementById("fullscreenBtn");
+			   if (btn) btn.style.display = "none";
+			 }).catch(err => {
+			   alert('Fullscreen failed: ' + err.message);
+			 });
+			}
+			
+			document.addEventListener('fullscreenchange', () => {
+			 const btn = document.getElementById("fullscreenBtn");
+			 if (!document.fullscreenElement && btn) {
+			   btn.style.display = "inline-block";
+			 }
+			});
+			
+			function addRow(data = ["Tim", 0, 0, 0, 0, "0"]) {
+			 const row = document.createElement('tr');
+			 row.innerHTML = data.map((v, i) =>
+			   \`<td><input type="\${i > 0 && i < 5 ? 'number' : 'text'}" value="\${v}"></td>\`
+			 ).join('');
+			 document.querySelector('#score-table tbody').appendChild(row);
+			}
+			
+			function updateTotal(row) {
+			 const inputs = row.querySelectorAll('input');
+			 let sum = 0;
+			 for (let i = 1; i <= 4; i++) {
+			   sum += parseInt(inputs[i].value) || 0;
+			 }
+			 inputs[5].value = sum;
+			}
+			
+			document.addEventListener('input', e => {
+			 if (e.target.closest('#score-table tbody')) {
+			   const row = e.target.closest('tr');
+			   updateTotal(row);
+			 }
+			});
+			
+			function getData() {
+			 const headers = Array.from(document.querySelectorAll('#score-table thead input')).map(i => i.value);
+			 const rows = Array.from(document.querySelectorAll('#score-table tbody tr')).map(row =>
+			   Array.from(row.querySelectorAll('input')).map(input => input.value)
+			 );
+			 return { headers, rows };
+			}
+			
+			function requestSave() {
+			 const roundName = document.getElementById('roundName').value.trim() || 'Round1';
+			 const data = getData();
+			 window.opener.postMessage({ type: 'SAVE_SCOREBOARD', round: roundName, data }, '*');
+			 alert('✅ Saved as "' + roundName + '"');
+			}
+			
+			function requestLoad() {
+			 const roundName = document.getElementById('roundName').value.trim() || 'Round1';
+			 window.opener.postMessage({ type: 'REQUEST_LOAD_SCOREBOARD', round: roundName }, '*');
+			}
+			
+			function listRounds() {
+			 window.opener.postMessage({ type: 'REQUEST_LIST_ROUNDS' }, '*');
+			}
+			
+			function loadData(data) {
+			 const tbody = document.querySelector('#score-table tbody');
+			 tbody.innerHTML = '';
+			 data.rows.forEach(row => addRow(row));
+			 const inputs = document.querySelectorAll('#score-table thead input');
+			 data.headers.forEach((val, i) => {
+			   if (inputs[i]) inputs[i].value = val;
+			 });
+			}
+			
+			function updateScoreboardUI(data) {
+			 const tbody = document.querySelector('#score-table tbody');
+			 tbody.innerHTML = '';
+			 data.rows.forEach(row => addRow(row));
+			 const inputs = document.querySelectorAll('#score-table thead input');
+			 data.headers.forEach((val, i) => {
+			   if (inputs[i]) inputs[i].value = val;
+			 });
+			}
+			
+			window.addEventListener('message', e => {
+			if (e.data?.type === 'TOGGLE_VIEW') {
+			toggleView();
+			return;
+			}
+			if (e.data?.type === 'SHOW_CHAMPION') {
+			
+			showChampion(
+			e.data.team || 'CHAMPION',
+			e.data.score || ''
+			);
+			
+			return;
+			}
+			 const display = document.getElementById('popup-time');
+			 const label = document.getElementById('popup-label');
+			
+			 if (e.data?.type === 'LOAD_SCOREBOARD_RESPONSE') {
+			   loadData(e.data.data);
+			 } else if (e.data?.type === 'LIVE_SCOREBOARD_RESPONSE') {
+			   updateScoreboardUI(e.data.data);
+			 } else if (e.data?.type === 'LIST_ROUNDS_RESPONSE') {
+			   const div = document.getElementById('roundList');
+			   div.innerHTML = 'Saved Rounds: ' + e.data.rounds.join(', ');
+			 } else if (typeof e.data === 'object') {
+			   if (e.data.time) display.textContent = e.data.time;
+			   if (e.data.label) label.textContent = e.data.label;
+			 } else if (typeof e.data === 'string' && e.data.startsWith('__ALERT__')) {
+			   display.classList.add('blink');
+			   document.body.classList.add('flash-bg');
+			   setTimeout(() => {
+			     display.classList.remove('blink');
+			     document.body.classList.remove('flash-bg');
+			   }, 2000);
+			 } else {
+			   display.textContent = e.data;
+			 }
+			});
+			setTimeout(() => {
+			showChampion(
+			'TIM ALFA',
+			'150 POINTS'
+			);
+			}, 3000);
+			addRow();
+			addRow();
+			<\/script>
+			</body>
+			</html>
+			`;
+			
+			  popupWindow.document.open();
+			  popupWindow.document.write(popupHTML);
+			  popupWindow.document.close();
+			
+			  popupWindow.onbeforeunload = () => {
+			    popupWindow = null;
+			  };
+			}
+			
+			function closePopup() {
+			  if (popupWindow && !popupWindow.closed) {
+			    popupWindow.close();
+			    popupWindow = null;
+			  }
+			}
+			
+			function applyTheme(theme) {
+			  const themes = ["neon-theme", "light-theme", "dark-theme", "lemon-theme"];
+			  document.body.classList.remove(...themes); // Remove all possible themes
+			  document.body.classList.add(`${theme}-theme`); // Add selected theme
+			  localStorage.setItem("theme", theme);
+			}
+			
+			async function hashCode(code) {
+			  const enc = new TextEncoder().encode(code);
+			  const buf = await crypto.subtle.digest("SHA-256", enc);
+			  return Array.from(new Uint8Array(buf))
+			    .map((b) => b.toString(16).padStart(2, "0"))
+			    .join("");
+			}
+			
+			function getDeviceKey() {
+			  return btoa(navigator.userAgent + navigator.language + screen.width + screen.height);
+			}
+			
+			async function promptActivationCode() {
+			  const used = JSON.parse(localStorage.getItem("usedCodes") || "[]");
+			  const code = prompt("Enter activation code:");
+			  if (!code) return;
+			
+			  const hash = await hashCode(code);
+			  const match = VALID_CODES.find((c) => c.hash === hash);
+			  if (!match) return alert("❌ Invalid code.");
+			  if (used.includes(hash)) return alert("⚠️ Code already used.");
+			
+			  // Calculate expiration
+			  let expDate = null;
+			  if (match.expiredIn || match.expiredInHours) {
+			    expDate = new Date();
+			    if (match.expiredIn) expDate.setDate(expDate.getDate() + match.expiredIn);
+			    if (match.expiredInHours) expDate.setHours(expDate.getHours() + match.expiredInHours);
+			  }
+			
+			  const activation = {
+			    activated: true,
+			    codeHash: hash,
+			    usedAt: new Date().toISOString(),
+			    expires: expDate ? expDate.toISOString() : null,
+			    fingerprint: getDeviceKey(),
+			  };
+			
+			  used.push(hash);
+			  localStorage.setItem("usedCodes", JSON.stringify(used));
+			  localStorage.setItem("access", JSON.stringify(activation));
+			  activatePro();
+			  alert("✅ Activation successful!");
+			  renderCodeStatusList();
+			}
+			
+			function resetActivation() {
+			  localStorage.removeItem("access");
+			  location.reload();
+			  renderCodeStatusList();
+			}
+			
+			function activatePro() {
+			  activated = true;
+			  keyboardEnabled = true;
+			
+			  document.querySelectorAll(".pro-tab, .pro-feature").forEach((e) => e.classList.remove("hidden"));
+			  document.getElementById("locked-message").style.display = "none";
+			  const status = document.getElementById("activation-status");
+			  status.textContent = "✅ Activated – Pro Unlocked!";
+			  status.style.color = "green";
+			}
+			
+			function checkTrialStatus() {
+			  const data = JSON.parse(localStorage.getItem("access") || "{}");
+			  const proElements = document.querySelectorAll(".pro-tab, .pro-feature");
+			  const status = document.getElementById("activation-status");
+			
+			  // Fingerprint mismatch check (tamper protection)
+			  if (data.fingerprint && data.fingerprint !== getDeviceKey()) {
+			    localStorage.removeItem("access");
+			    status.textContent = "⛔ Activation invalid on this browser.";
+			    status.style.color = "red";
+			    proElements.forEach((e) => e.classList.add("hidden"));
+			    return;
+			  }
+			
+			  if (data.activated) {
+			    activated = true;
+			    keyboardEnabled = true;
+			    if (data.expires) {
+			      const now = new Date();
+			      const expiresAt = new Date(data.expires);
+			      const msLeft = expiresAt - now;
+			
+			      if (msLeft <= 0) {
+			        localStorage.removeItem("access");
+			        status.textContent = "⛔ Activation expired – Please activate again.";
+			        status.style.color = "red";
+			        proElements.forEach((e) => e.classList.add("hidden"));
+			        return;
+			      }
+			
+			      const hours = Math.floor(msLeft / (1000 * 60 * 60));
+			      const minutes = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
+			      activatePro();
+			      status.textContent = `✅ Activated – Berakhir: ${hours} Jam ${minutes} Menit (Paid: ${data.codeHash.slice(0, 8)}…)`;
+			      status.style.color = "green";
+			    } else {
+			      activatePro();
+			      status.textContent = "✅ Activated – Lifetime access!";
+			      status.style.color = "green";
+			    }
+			    return;
+			  }
+			
+			  // Trial logic
+			  proElements.forEach((e) => e.classList.add("hidden"));
+			  const trialStart = localStorage.getItem("trialStart");
+			  const now = new Date();
+			
+			  if (!trialStart) {
+			    localStorage.setItem("trialStart", now.toISOString());
+			    status.textContent = "🎁 Trial started – Activate to unlock Pro features.";
+			    status.style.color = "orange";
+			    return;
+			  }
+			
+			  const hours = TRIAL_DURATION_DAYS * 24 - (now - new Date(trialStart)) / 3600000;
+			  if (hours <= 0) {
+			    status.textContent = "⛔ Trial expired – Activation required.";
+			    status.style.color = "red";
+			  } else {
+			    status.textContent = `🎁 Trial active – ${Math.floor(hours)}h left. Activate for full features!`;
+			    status.style.color = "orange";
+			  }
+			}
+			
+			function renderCodeStatusList() {
+			  const used = JSON.parse(localStorage.getItem("usedCodes") || "[]");
+			  const access = JSON.parse(localStorage.getItem("access") || "{}");
+			  const now = new Date();
+			  const list = document.getElementById("code-status-list");
+			  list.innerHTML = "";
+			
+			  VALID_CODES.forEach((c) => {
+			    const li = document.createElement("li");
+			    let status = "🆕 Unused";
+			    let color = "black";
+			
+			    if (used.includes(c.hash)) {
+			      status = "✅ Used";
+			      color = "green";
+			
+			      if (access.codeHash === c.hash && c.expires) {
+			        const expDate = new Date(access.expires);
+			        if (now > expDate) {
+			          status = "⛔ Expired";
+			          color = "red";
+			        }
+			      } else if (access.codeHash !== c.hash) {
+			        status = "✅ Used (past)";
+			        color = "gray";
+			      }
+			    }
+			
+			    li.textContent = `${c.hash.slice(0, 8)}… – ${status}`;
+			    li.style.color = color;
+			    list.appendChild(li);
+			  });
+			}
+			
+			let resetTimeout;
+			
+			document.addEventListener("keydown", (e) => {
+			  if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "a") {
+			    const adminBtn = document.getElementById("admin-btn");
+			    const resetBtn = document.getElementById("reset-btn");
+			
+			    adminBtn.style.display = "inline-block";
+			    resetBtn.style.display = "inline-block";
+			    alert("🔐 Admin mode unlocked");
+			
+			    // Auto-hide reset button after 5 seconds
+			    clearTimeout(resetTimeout);
+			    resetTimeout = setTimeout(() => {
+			      resetBtn.style.display = "none";
+			    }, 5000);
+			  }
+			});
+			function showWinner() {
+			updateTotals();
+			let maxScore = -1;
+			let winners = [];
+			
+			[...tbody.rows].forEach(row => {
+			  const team = row.cells[0].firstElementChild.value;
+			  const total = parseFloat(row.cells[row.cells.length - 1].firstElementChild.value) || 0;
+			  if (total > maxScore) {
+			    maxScore = total;
+			    winners = [team];
+			  } else if (total === maxScore) {
+			    winners.push(team);
+			  }
+			});
+			
+			const banner = document.getElementById('winner-banner');
+			const modal = document.getElementById('winner-modal');
+			
+			banner.innerHTML = `🏆 Winner: ${winners.join(', ')} – ${maxScore} 🎉<div class="fireworks">✨🎆🎇</div>`;
+			banner.style.display = 'block';
+			
+			modal.innerHTML = `<h3>🏆 Champion</h3><p>${winners.join(', ')} scored ${maxScore}</p>`;
+			modal.classList.add('show');
+			
+			setTimeout(() => {
+			  modal.classList.remove('show');
+			}, 4000);
+			}
+			
+			// === ADMIN PANEL ===
+			function openAdminPanel() {
+			  const pass = prompt("Enter Admin Password:");
+			  if (pass !== "MulMed2026") {
+			    alert("Incorrect password.");
+			    return;
+			  }
+			
+			  document.getElementById("admin-btn").style.display = "none"; // Hide after access
+			
+			  const access = JSON.parse(localStorage.getItem("access") || "{}");
+			  const used = JSON.parse(localStorage.getItem("usedCodes") || "[]");
+			  const now = new Date();
+			
+			  let table = `
+			<table border="1" style="width:100%;text-align:left;font-family:sans-serif;">
+			<tr><th>Code Hash</th><th>Status</th><th>Used At</th><th>Expires</th><th>Fingerprint</th></tr>
+			`;
+			
+			  VALID_CODES.forEach((c) => {
+			    const hash = c.hash;
+			    const isUsed = used.includes(hash);
+			    const isCurrent = access.codeHash === hash;
+			
+			    let status = "🆕 Unused";
+			    let usedAt = "-";
+			    let expires = "-";
+			    let fingerprint = "-";
+			
+			    if (isUsed) {
+			      status = isCurrent ? "✅ Used (Active)" : "✅ Used (Past)";
+			    }
+			
+			    if (isCurrent) {
+			      usedAt = access.usedAt ? new Date(access.usedAt).toLocaleString() : "-";
+			      if (access.expires) {
+			        const exp = new Date(access.expires);
+			        expires = exp.toLocaleString();
+			        if (now > exp) status = "⛔ Expired";
+			      }
+			      fingerprint = access.fingerprint || "-";
+			    }
+			
+			    table += `
+			<tr>
+			 <td style="font-family:monospace;">${hash.slice(0, 12)}...</td>
+			 <td>${status}</td>
+			 <td>${usedAt}</td>
+			 <td>${expires}</td>
+			 <td style="font-size:0.7em;">${fingerprint}</td>
+			</tr>
+			`;
+			  });
+			
+			  table += "</table>";
+			
+			  const win = window.open("", "", "width=800,height=500");
+			  win.document.write(`
+			<html><head><title>🛡️ Admin Panel</title></head><body>
+			<h2>🛡️ Activation Admin Panel</h2>${table}
+			</body></html>
+			`);
+			  win.document.close();
+			}
+			
+			// === SCOREBOARD POPUP ===
+			function openScoreboard() {
+			  const scoreboardWindow = window.open("", "", "width=800,height=500");
+			
+			  const scoreboardHTML = `
+			<html><head><title>Scoreboard</title>
+			<style>
+			body { font-family:sans-serif; background:#111; color:#0f0; padding:10px; }
+			table { width:100%; border-collapse:collapse; }
+			th, td { border:1px solid #0f0; padding:5px; }
+			input { width:100%; background:#000; color:#0f0; border:none; text-align:center; font-size:1.2em; }
+			button { padding:10px 15px; margin:5px; font-size:1em; background:#0f0; color:#000; font-weight:bold; }
+			</style>
+			</head><body>
+			<h2 style="text-align: center;">🏆 Scoreboard</h2>
+			<table id="score-table">
+			<thead>
+			 <tr><th><input type="text" value="Tim"></th><th><input type="text" value="Babak 1"></th><th><input type="text" value="Babak 2"></th><th><input type="text" value="Babak 3"></th><th><input type="text" value="Babak 4"></th><th><input type="text" value="TOTAL"></th></tr>
+			</thead>
+			<tbody></tbody>
+			</table>
+			<button onclick="addRow()">➕ Add Team</button>
+			<button onclick="resetTable()">🔄 Reset Table</button>
+			<input id="roundName" placeholder="Round name" style="font-size:1em; padding:5px;" />
+			<button onclick="requestSave()">💾 Save</button>
+			<button onclick="requestLoad()">📂 Load</button>
+			<button onclick="listRounds()">📄 List</button>
+			<div id="roundList" style="margin-top:10px;"></div>
+			
+			<script>
+			function resetTable() {
+			const confirmReset = confirm('Are you sure you want to reset the table?');
+			if (confirmReset) {
+			 const tbody = document.querySelector('#score-table tbody');
+			 const rows = Array.from(tbody.querySelectorAll('tr'));
+			
+			 rows.forEach(row => {
+			   const cells = row.querySelectorAll('td');
+			   for (let i = 1; i < cells.length - 1; i++) { // skip first (team) and last (total)
+			     const input = cells[i].querySelector('input');
+			     if (input) input.value = '0';
+			   }
+			   // Recalculate total after resetting scores
+			   const totalInput = cells[cells.length - 1].querySelector('input');
+			   if (totalInput) totalInput.value = '0';
+			 });
+			}
+			}
+			
+			function addRow(data = ["Tim", 0, 0, 0, 0, "0"]) {
+			const row = document.createElement('tr');
+			
+			// Build row with inputs
+			data.forEach((v, i) => {
+			 const cell = document.createElement('td');
+			 const input = document.createElement('input');
+			 input.type = (i > 0 && i < 5) ? 'number' : 'text';
+			 input.value = v;
+			 cell.appendChild(input);
+			 row.appendChild(cell);
+			});
+			
+			// Add delete button
+			const deleteCell = document.createElement('td');
+			const deleteBtn = document.createElement('button');
+			deleteBtn.textContent = '❌';
+			deleteBtn.style.cssText = 'background:none;color:red;border:none;font-size:1em;cursor:pointer;line-height:1;height:100%;padding:0;margin:0;';
+			
+			deleteBtn.onclick = () => {
+			 row.remove();
+			};
+			deleteCell.appendChild(deleteBtn);
+			row.appendChild(deleteCell);
+			
+			document.querySelector('#score-table tbody').appendChild(row);
+			}
+			
+			function updateTotal(row) {
+			const inputs = row.querySelectorAll('input');
+			let sum = 0;
+			for (let i = 1; i <= 4; i++) {
+			 sum += parseInt(inputs[i].value) || 0;
+			}
+			inputs[5].value = sum;
+			}
+			
+			document.addEventListener('input', e => {
+			if (e.target.closest('#score-table tbody')) {
+			 const row = e.target.closest('tr');
+			 updateTotal(row);
+			
+			 // Send the latest scoreboard to main window
+			 const liveData = getData();
+			 window.opener.postMessage({ type: 'LIVE_SCOREBOARD_UPDATE', data: liveData }, '*');
+			}
+			});
+			
+			function getData() {
+			 const headers = Array.from(document.querySelectorAll('#score-table thead input')).map(i => i.value);
+			 const rows = Array.from(document.querySelectorAll('#score-table tbody tr')).map(row =>
+			   Array.from(row.querySelectorAll('input')).map(input => input.value)
+			 );
+			 return { headers, rows };
+			}
+			
+			function requestSave() {
+			const roundName = document.getElementById('roundName').value.trim() || 'Round1';
+			const data = getData();
+			window.opener.postMessage({ type: 'SAVE_SCOREBOARD', round: roundName, data }, '*');
+			alert('✅ Saved as "' + roundName + '"');
+			}
+			
+			function requestLoad() {
+			const roundName = document.getElementById('roundName').value.trim() || 'Round1';
+			window.opener.postMessage({ type: 'REQUEST_LOAD_SCOREBOARD', round: roundName }, '*');
+			}
+			
+			function listRounds() {
+			window.opener.postMessage({ type: 'REQUEST_LIST_ROUNDS' }, '*');
+			}
+			
+			window.addEventListener('message', e => {
+			if (e.data?.type === 'LOAD_SCOREBOARD_RESPONSE') {
+			 loadData(e.data.data);
+			} else if (e.data?.type === 'LIST_ROUNDS_RESPONSE') {
+			 const div = document.getElementById('roundList');
+			 div.innerHTML = 'Saved Rounds: ' + e.data.rounds.join(', ');
+			}
+			if (e.data?.type === 'TOGGLE_VIEW') {
+			 toggleView();
+			 return;
+			}
+			});
+			
+			   for (let i = 0; i < 2; i++) addRow();
+			 <\/script>
+			</body></html>
+			`;
+			
+			  scoreboardWindow.document.open();
+			  scoreboardWindow.document.write(scoreboardHTML);
+			  scoreboardWindow.document.close();
+			}
+			
+			let latestScoreboardData = null;
+			
+			window.addEventListener("message", (e) => {
+			  if (e.data?.type === "LIVE_SCOREBOARD_UPDATE") {
+			    latestScoreboardData = e.data.data;
+			  }
+			
+			  if (e.data?.type === "REQUEST_LIVE_SCOREBOARD") {
+			    e.source.postMessage({ type: "LIVE_SCOREBOARD_RESPONSE", data: latestScoreboardData }, "*");
+			  }
+			});
+			
+			function handleKeyboardShortcuts(e) {
+			  if (!activated || !keyboardEnabled) return;
+			
+			  const key = e.key.toLowerCase();
+			
+			  // Shortcut yang harus tetap jalan walaupun cursor berada di input
+			  if (key === "t") {
+			    console.log("T PRESSED");
+			
+			    console.log("popupWindow =", popupWindow);
+			
+			    console.log("popupWindow.closed =", popupWindow?.closed);
+			
+			    if (popupWindow && !popupWindow.closed) {
+			      console.log("MESSAGE SENT");
+			
+			      popupWindow.postMessage({ type: "TOGGLE_VIEW" }, "*");
+			    }
+			
+			    return;
+			  }
+			  // === TEST TEST TEST TEST ===
+			  function testChampion() {
+			    if (popupWindow && !popupWindow.closed) {
+			      popupWindow.postMessage(
+			        {
+			          type: "SHOW_CHAMPION",
+			          team: "TIM ALFA",
+			          score: "150 POINTS",
+			        },
+			        "*",
+			      );
+			    } else {
+			      alert("Popup belum dibuka");
+			    }
+			  }
+			  if (key === "p") {
+			    openPopup();
+			    return;
+			  }
+			
+			  if (key === "x") {
+			    closePopup();
+			    return;
+			  }
+			
+			  const activeTab = document.querySelector(".tab-content.active")?.id;
+			
+			  if (key === "c") showTab("countdown");
+			  if (key === "s") showTab("stopwatch");
+			  if (key === "m") showTab("multi");
+			
+			  if (key === "enter") {
+			    if (activeTab === "countdown") startCountdown();
+			    else if (activeTab === "stopwatch") startStopwatch();
+			    else startMultiTimers();
+			  }
+			
+			  if (key === " ") {
+			    e.preventDefault();
+			
+			    if (activeTab === "countdown") pauseCountdown();
+			    else if (activeTab === "stopwatch") pauseStopwatch();
+			  }
+			
+			  if (key === "r") {
+			    if (activeTab === "countdown") resetCountdown();
+			    else if (activeTab === "stopwatch") resetStopwatch();
+			    else resetMultiTimers();
+			  }
+			}
+			
+			document.addEventListener("keydown", handleKeyboardShortcuts);
+			
+			function toggleKeyboard() {
+			  keyboardEnabled = !keyboardEnabled;
+			  const indicator = document.getElementById("keyboard-status");
+			  indicator.textContent = `⌨️ Shortcuts: ${keyboardEnabled ? "ON" : "OFF"}`;
+			  indicator.style.color = keyboardEnabled ? "blue" : "gray";
+			  const btn = document.querySelector('button[onclick="toggleKeyboard()"]');
+			  btn.textContent = keyboardEnabled ? "⌨️ KB Sortcut: ON 💡" : "⌨️ KB Sortcut: OFF";
+			}
+			
+			let flashEnabled = true;
+			
+			function toggleFlashEnabled() {
+			  flashEnabled = !flashEnabled;
+			  const btn = document.querySelector('button[onclick="toggleFlashEnabled()"]');
+			  btn.textContent = flashEnabled ? "💡 Flash: ON" : "💤 Flash: OFF";
+			}
+			
+			function flashEffect() {
+			  if (!flashEnabled) return;
+			
+			  const overlay = document.getElementById("flash-overlay");
+			
+			  if (overlay) {
+			    overlay.classList.remove("flash");
+			    void overlay.offsetWidth;
+			    overlay.classList.add("flash");
+			  }
+			
+			  if (popupWindow && !popupWindow.closed) {
+			    const popupBody = popupWindow.document.body;
+			
+			    popupBody.classList.add("flash-bg");
+			
+			    setTimeout(() => {
+			      popupBody.classList.remove("flash-bg");
+			    }, 3000);
+			  }
+			}
+			
+			function updateScoreboardUI(data) {
+			  if (!data) return;
+			
+			  const table = document.getElementById("timer-scoreboard-table");
+			  if (!table) return;
+			
+			  table.innerHTML = "";
+			
+			  // Header
+			  const thead = document.createElement("thead");
+			  thead.innerHTML = "<tr>" + data.headers.map((h) => `<th>${h}</th>`).join("") + "</tr>";
+			  table.appendChild(thead);
+			
+			  // Rows
+			  const tbody = document.createElement("tbody");
+			  data.rows.forEach((row) => {
+			    const tr = document.createElement("tr");
+			    tr.innerHTML = row.map((cell) => `<td>${cell}</td>`).join("");
+			    tbody.appendChild(tr);
+			  });
+			  table.appendChild(tbody);
+			}
+			
+			window.addEventListener("DOMContentLoaded", () => {
+			  checkTrialStatus();
+			  const theme = localStorage.getItem("theme") || "light";
+			  document.getElementById("themeSelector").value = theme;
+			  applyTheme(theme);
+			});
+			
+			function startPreset(seconds) {
+			  document.getElementById("countMin").value = Math.floor(seconds / 60);
+			
+			  document.getElementById("countSec").value = seconds % 60;
+			
+			  startCountdown();
+			}
+			
+			// === ABOUT POPUP ===
+			function openAboutPopup() {
+			  let aboutWindow = window.open("", "AboutHelp", "width=500,height=800");
+			
+			  const aboutHTML = `
+			<html>
+			<head>
+			<title>About & Help</title>
+			<style>
+			 body {
+			   font-family: sans-serif;
+			   background: #f4f4f4;
+			   margin: 0;
+			   padding: 20px;
+			   text-align: center;
+			   color: #333;
+			 }
+			 h1 {
+			   font-size: 2em;
+			   margin-bottom: 0.5em;
+			 }
+			 p {
+			   font-size: 1em;
+			   margin-top: 0.5em;
+			 }
+			</style>
+			</head>
+			<body>
+			<h1>About Timer App Pro V3</h1>
+			<p>Built by RungguRangga!</p>
+			<p>🕑 Countdown Timer ✅ </p>
+			<p>🏁 Stopwatch Timer ✅ </p>
+			<p>🔥 Multi-Timer with Manual/Sequence Modes ✅ </p>
+			<p>🖥️ Popup Timer Display ✅ </p>
+			<p>🏆 Popup Scoreboard System ✅ </p>
+			<p>🔐 Admin Panel Access ✅ </p>
+			<p>🛡️ Safety System ✅ </p>
+			<p>🎨 Responsive Layout (works desktop, mobile, fullscreen) ✅ </p>
+			<p>✏️ Editable Inputs, Safe Data Handling ✅ </p>
+			<p>📋 Activate PRO mode to unlock more features. ✅ </p>
+			<p>✔️<b>1 day PRO Rp 50.000,-</b> ✅ </p>
+			<p>✔️<b>1 week PRO Rp 200.000,-</b> ✅ </p>
+			<p>Order & Support :
+			<a aria-label="Chat on WhatsApp" href="https://wa.me/6281239939397?text=Silahkan%20order%20:%0AHarian%2050K%0AMingguan%20200K">
+			<br><svg width="160" height="33" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<rect  x="8" y="5" width="145" height="27" rx="15" fill="#25D366"/><path fill-rule="evenodd" clip-rule="evenodd" d="M21.7885 8.7894c..." fill="#fff"/>
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M21.7885 8.7894c2.4186.0117 4.7528.9614 6.4988 2.6351 1.7881 1.7142 2.8185 4.0127 2.9086 6.488.088 2.4173-.7559 4.7918-2.3566 6.6052-1.7555 1.9889-4.1975 3.1312-6.835 3.2069a9.4172 9.4172 0 0 1-.2709.0039c-1.4211 0-2.8291-.3205-4.1043-.9341l-4.9568 1.1024a.0728.0728 0 0 1-.086-.0811l.8373-5.012c-.7146-1.3057-1.1135-2.7768-1.1565-4.2731-.0724-2.5285.844-4.9337 2.5805-6.7728 1.8005-1.9069 4.2593-2.9684 6.894-2.9684h.0469Zm-.0527 1.6431c-.0757 0-.1513.0011-.2274.0033-4.3138.1237-7.7226 3.7339-7.5988 8.0476.0378 1.3172.4088 2.6102 1.0731 3.7391l.1442.2447-.6204 3.401 3.3656-.7945.2541.1323c1.109.577 2.3515.8794 3.607.8794.0746 0 .1493-.001.2239-.0032 4.3138-.1237 7.7226-3.7338 7.5989-8.0476-.1216-4.2376-3.6078-7.6021-7.8202-7.6021Zm-3.2738 3.2521c.1583.0048.3169.0093.4551.0195.1692.0121.3563.0258.5222.4273.1968.4768.6224 1.6671.6782 1.7878.0557.1207.0911.2608.007.4172-.0841.1562-.1268.2541-.2496.3892-.123.1353-.2593.3023-.3692.4055-.1229.115-.2506.24-.1192.4821.1313.2423.5842 1.0354 1.2712 1.6875.883.838 1.5911 1.1145 1.8724 1.2457.1014.0474.1858.0698.2595.0698.1011 0 .1821-.0423.2593-.1206.148-.15.5933-.6697.7808-.9087.0981-.1251.1869-.1694.2834-.1694.0772 0 .1593.0284.255.0666.2154.086 1.3659.6972 1.5999.8235.234.1261.3905.1905.4469.2914.0564.1013.0416.5772-.1734 1.1264-.2151.5492-1.2016 1.055-1.6385 1.0812-.1279.0077-.2537.0256-.4176.0256-.3958 0-1.0132-.1043-2.4155-.7082-2.3858-1.0274-3.8347-3.552-3.9487-3.7142-.1137-.1625-.9306-1.3193-.8946-2.4894.0359-1.17.6675-1.7265.8927-1.9578.2158-.2218.4631-.2784.6228-.2784l.0199.0004Z" fill="#fff"/><path d="M46.9736 17.312h1.824c-.056-.496-.192-.936-.408-1.32-.216-.384-.492-.704-.828-.96-.328-.264-.704-.464-1.128-.6-.416-.136-.86-.204-1.332-.204-.656 0-1.248.116-1.776.348-.52.232-.96.552-1.32.96-.36.408-.636.888-.828 1.44-.192.544-.288 1.136-.288 1.776 0 .624.096 1.208.288 1.752.192.536.468 1.004.828 1.404.36.4.8.716 1.32.948.528.224 1.12.336 1.776.336.528 0 1.012-.08 1.452-.24.44-.16.824-.392 1.152-.696.328-.304.592-.672.792-1.104.2-.432.324-.916.372-1.452h-1.824c-.072.576-.272 1.04-.6 1.392-.32.352-.768.528-1.344.528-.424 0-.784-.08-1.08-.24-.296-.168-.536-.388-.72-.66-.184-.272-.32-.576-.408-.912-.08-.344-.12-.696-.12-1.056 0-.376.04-.74.12-1.092.088-.352.224-.664.408-.936.184-.28.424-.5.72-.66.296-.168.656-.252 1.08-.252.232 0 .452.04.66.12.216.072.408.176.576.312.168.136.308.296.42.48.112.176.184.372.216.588Zm3.0025-2.88V23h1.704v-3.252c0-.632.104-1.084.312-1.356.208-.28.544-.42 1.008-.42.408 0 .692.128.852.384.16.248.24.628.24 1.14V23h1.704v-3.816c0-.384-.036-.732-.108-1.044-.064-.32-.18-.588-.348-.804-.168-.224-.4-.396-.696-.516-.288-.128-.66-.192-1.116-.192-.32 0-.648.084-.984.252-.336.16-.612.42-.828.78h-.036v-3.228h-1.704Zm7.0413 4.272c.024-.4.124-.732.3-.996s.4-.476.672-.636c.272-.16.576-.272.912-.336.344-.072.688-.108 1.032-.108.312 0 .628.024.948.072.32.04.612.124.876.252s.48.308.648.54c.168.224.252.524.252.9v3.228c0 .28.016.548.048.804s.088.448.168.576h-1.728c-.032-.096-.06-.192-.084-.288a4.1387 4.1387 0 0 1-.036-.312c-.272.28-.592.476-.96.588-.368.112-.744.168-1.128.168-.296 0-.572-.036-.828-.108-.256-.072-.48-.184-.672-.336-.192-.152-.344-.344-.456-.576-.104-.232-.156-.508-.156-.828 0-.352.06-.64.18-.864.128-.232.288-.416.48-.552.2-.136.424-.236.672-.3.256-.072.512-.128.768-.168.256-.04.508-.072.756-.096.248-.024.468-.06.66-.108s.344-.116.456-.204c.112-.096.164-.232.156-.408 0-.184-.032-.328-.096-.432-.056-.112-.136-.196-.24-.252-.096-.064-.212-.104-.348-.12-.128-.024-.268-.036-.42-.036-.336 0-.6.072-.792.216-.192.144-.304.384-.336.72h-1.704Zm3.936 1.26c-.072.064-.164.116-.276.156-.104.032-.22.06-.348.084-.12.024-.248.044-.384.06s-.272.036-.408.06c-.128.024-.256.056-.384.096-.12.04-.228.096-.324.168-.088.064-.16.148-.216.252-.056.104-.084.236-.084.396 0 .152.028.28.084.384a.692.692 0 0 0 .228.252c.096.056.208.096.336.12.128.024.26.036.396.036.336 0 .596-.056.78-.168.184-.112.32-.244.408-.396.088-.16.14-.32.156-.48.024-.16.036-.288.036-.384v-.636Zm5.1866-3.168v-1.86h-1.704v1.86h-1.032v1.14h1.032v3.66c0 .312.052.564.156.756.104.192.244.34.42.444.184.104.392.172.624.204.24.04.492.06.756.06.168 0 .34-.004.516-.012s.336-.024.48-.048v-1.32c-.08.016-.164.028-.252.036-.088.008-.18.012-.276.012-.288 0-.48-.048-.576-.144-.096-.096-.144-.288-.144-.576v-3.072h1.248v-1.14H66.14Zm6.9106 3.108c0-.248.024-.492.072-.732.048-.24.128-.452.24-.636.12-.184.276-.332.468-.444.192-.12.432-.18.72-.18s.528.06.72.18c.2.112.356.26.468.444.12.184.204.396.252.636.048.24.072.484.072.732s-.024.492-.072.732c-.048.232-.132.444-.252.636-.112.184-.268.332-.468.444-.192.112-.432.168-.72.168s-.528-.056-.72-.168c-.192-.112-.348-.26-.468-.444-.112-.192-.192-.404-.24-.636-.048-.24-.072-.484-.072-.732Zm-1.704 0c0 .496.076.944.228 1.344.152.4.368.744.648 1.032.28.28.616.496 1.008.648.392.152.832.228 1.32.228.488 0 .928-.076 1.32-.228.4-.152.74-.368 1.02-.648.28-.288.496-.632.648-1.032.152-.4.228-.848.228-1.344 0-.496-.076-.944-.228-1.344-.152-.408-.368-.752-.648-1.032-.28-.288-.62-.508-1.02-.66-.392-.16-.832-.24-1.32-.24-.488 0-.928.08-1.32.24-.392.152-.728.372-1.008.66-.28.28-.496.624-.648 1.032-.152.4-.228.848-.228 1.344Zm7.528-3.108V23h1.704v-3.252c0-.632.104-1.084.312-1.356.208-.28.544-.42 1.008-.42.408 0 .692.128.852.384.16.248.24.628.24 1.14V23h1.704v-3.816c0-.384-.036-.732-.108-1.044-.064-.32-.18-.588-.348-.804-.168-.224-.4-.396-.696-.516-.288-.128-.66-.192-1.116-.192-.36 0-.712.084-1.056.252-.344.16-.624.42-.84.78h-.036v-.864h-1.62ZM97.6677 23l2.304-8.568h-1.848l-1.404 5.904h-.024l-1.464-5.904h-1.764l-1.488 5.832h-.024l-1.356-5.832h-1.884L90.9837 23h1.908l1.428-5.832h.024L95.7957 23h1.872Zm2.9923-8.568V23h1.704v-3.252c0-.632.104-1.084.312-1.356.208-.28.544-.42 1.008-.42.408 0 .692.128.852.384.16.248.24.628.24 1.14V23h1.704v-3.816c0-.384-.036-.732-.108-1.044-.064-.32-.18-.588-.348-.804-.168-.224-.4-.396-.696-.516-.288-.128-.66-.192-1.116-.192-.32 0-.648.084-.984.252-.336.16-.612.42-.828.78h-.036v-3.228h-1.704Zm7.041 4.272c.024-.4.124-.732.3-.996s.4-.476.672-.636c.272-.16.576-.272.912-.336.344-.072.688-.108 1.032-.108.312 0 .628.024.948.072.32.04.612.124.876.252s.48.308.648.54c.168.224.252.524.252.9v3.228c0 .28.016.548.048.804s.088.448.168.576h-1.728c-.032-.096-.06-.192-.084-.288a4.1387 4.1387 0 0 1-.036-.312c-.272.28-.592.476-.96.588-.368.112-.744.168-1.128.168-.296 0-.572-.036-.828-.108-.256-.072-.48-.184-.672-.336-.192-.152-.344-.344-.456-.576-.104-.232-.156-.508-.156-.828 0-.352.06-.64.18-.864.128-.232.288-.416.48-.552.2-.136.424-.236.672-.3.256-.072.512-.128.768-.168.256-.04.508-.072.756-.096.248-.024.468-.06.66-.108s.344-.116.456-.204c.112-.096.164-.232.156-.408 0-.184-.032-.328-.096-.432-.056-.112-.136-.196-.24-.252-.096-.064-.212-.104-.348-.12-.128-.024-.268-.036-.42-.036-.336 0-.6.072-.792.216-.192.144-.304.384-.336.72h-1.704Zm3.936 1.26c-.072.064-.164.116-.276.156-.104.032-.22.06-.348.084-.12.024-.248.044-.384.06s-.272.036-.408.06c-.128.024-.256.056-.384.096-.12.04-.228.096-.324.168-.088.064-.16.148-.216.252-.056.104-.084.236-.084.396 0 .152.028.28.084.384a.692.692 0 0 0 .228.252c.096.056.208.096.336.12.128.024.26.036.396.036.336 0 .596-.056.78-.168.184-.112.32-.244.408-.396.088-.16.14-.32.156-.48.024-.16.036-.288.036-.384v-.636Zm5.187-3.168v-1.86h-1.704v1.86h-1.032v1.14h1.032v3.66c0 .312.052.564.156.756.104.192.244.34.42.444.184.104.392.172.624.204.24.04.492.06.756.06.168 0 .34-.004.516-.012s.336-.024.48-.048v-1.32c-.08.016-.164.028-.252.036-.088.008-.18.012-.276.012-.288 0-.48-.048-.576-.144-.096-.096-.144-.288-.144-.576v-3.072h1.248v-1.14h-1.248Zm3.378 4.188h-1.62c.016.416.108.764.276 1.044.176.272.396.492.66.66.272.168.58.288.924.36.344.072.696.108 1.056.108.352 0 .696-.036 1.032-.108.344-.064.648-.18.912-.348.264-.168.476-.388.636-.66.168-.28.252-.624.252-1.032 0-.288-.056-.528-.168-.72-.112-.2-.26-.364-.444-.492-.184-.136-.396-.244-.636-.324-.232-.08-.472-.148-.72-.204-.24-.056-.476-.108-.708-.156-.232-.048-.44-.1-.624-.156-.176-.064-.32-.144-.432-.24-.112-.096-.168-.22-.168-.372 0-.128.032-.228.096-.3.064-.08.14-.14.228-.18.096-.04.2-.064.312-.072.112-.016.216-.024.312-.024.304 0 .568.06.792.18.224.112.348.332.372.66h1.62c-.032-.384-.132-.7-.3-.948-.16-.256-.364-.46-.612-.612-.248-.152-.532-.26-.852-.324-.312-.064-.636-.096-.972-.096-.336 0-.664.032-.984.096-.32.056-.608.16-.864.312-.256.144-.464.344-.624.6-.152.256-.228.584-.228.984 0 .272.056.504.168.696.112.184.26.34.444.468.184.12.392.22.624.3.24.072.484.136.732.192.608.128 1.08.256 1.416.384.344.128.516.32.516.576 0 .152-.036.28-.108.384-.072.096-.164.176-.276.24-.104.056-.224.1-.36.132-.128.024-.252.036-.372.036-.168 0-.332-.02-.492-.06-.152-.04-.288-.1-.408-.18-.12-.088-.22-.196-.3-.324-.072-.136-.108-.296-.108-.48Zm7.466-1.296 1.116-3.144h.024l1.08 3.144h-2.22Zm.18-5.256L124.608 23h1.896l.672-1.908h3.204l.648 1.908h1.956l-3.204-8.568h-1.932Zm8.827 7.452c-.272 0-.504-.056-.696-.168-.192-.112-.348-.256-.468-.432-.112-.184-.196-.396-.252-.636-.048-.24-.072-.484-.072-.732 0-.256.024-.504.072-.744.048-.24.128-.452.24-.636.12-.184.272-.332.456-.444.192-.12.428-.18.708-.18.272 0 .5.06.684.18.192.112.348.264.468.456.12.184.204.396.252.636.056.24.084.484.084.732s-.024.492-.072.732c-.048.24-.132.452-.252.636-.112.176-.264.32-.456.432-.184.112-.416.168-.696.168Zm-3.132-5.088v8.376h1.704v-2.94h.024c.208.304.472.536.792.696.328.152.684.228 1.068.228.456 0 .852-.088 1.188-.264.344-.176.628-.412.852-.708.232-.296.404-.636.516-1.02.112-.384.168-.784.168-1.2 0-.44-.056-.86-.168-1.26-.112-.408-.284-.764-.516-1.068-.232-.304-.524-.548-.876-.732-.352-.184-.772-.276-1.26-.276-.384 0-.736.076-1.056.228-.32.152-.584.396-.792.732h-.024v-.792h-1.62Zm10.467 5.088c-.272 0-.504-.056-.696-.168-.192-.112-.348-.256-.468-.432-.112-.184-.196-.396-.252-.636-.048-.24-.072-.484-.072-.732 0-.256.024-.504.072-.744.048-.24.128-.452.24-.636.12-.184.272-.332.456-.444.192-.12.428-.18.708-.18.272 0 .5.06.684.18.192.112.348.264.468.456.12.184.204.396.252.636.056.24.084.484.084.732s-.024.492-.072.732c-.048.24-.132.452-.252.636-.112.176-.264.32-.456.432-.184.112-.416.168-.696.168Zm-3.132-5.088v8.376h1.704v-2.94h.024c.208.304.472.536.792.696.328.152.684.228 1.068.228.456 0 .852-.088 1.188-.264.344-.176.628-.412.852-.708.232-.296.404-.636.516-1.02.112-.384.168-.784.168-1.2 0-.44-.056-.86-.168-1.26-.112-.408-.284-.764-.516-1.068-.232-.304-.524-.548-.876-.732-.352-.184-.772-.276-1.26-.276-.384 0-.736.076-1.056.228-.32.152-.584.396-.792.732h-.024v-.792h-1.62Z" fill="#fff"/>
+			</svg>
+			</a></p>
+			<br><hr>
+			<h1>Keyboard Shortcuts</h1>
+			<i><p> (key = 'P') open Popup </p>
+			<p> (key = 'F') fullscreen Popup </p>
+			<p> (key = 'X') close Popup </p>
+			<p> (key = 'T') switchPopup('score/timer') </p>
+			<p> (key = 'C') switchTab('countdown') </p>
+			<p> (key = 'S') switchTab('stopwatch') </p>
+			<p> (key = 'M') switchTab('multi') </p>
+			<p> (key = 'R') reset </p>
+			<p> (key = 'Enter') start </p>
+			<p> (key = 'Space') pause </p></i>
+			</body>
+			</html>
+			`;
+			
+			  aboutWindow.document.open();
+			  aboutWindow.document.write(aboutHTML);
+			  aboutWindow.document.close();
+			}
+			
+			function toggleMenu() {
+			  const panel = document.getElementById("menu-panel");
+			  panel.style.display = panel.style.display === "none" ? "block" : "none";
+			}
+			
+			document.addEventListener("click", function (event) {
+			  const menuBtn = document.getElementById("menu-btn");
+			  const menuPanel = document.getElementById("menu-panel");
+			
+			  // Only close if click is outside both the menu panel and button
+			  if (!menuPanel.contains(event.target) && !menuBtn.contains(event.target)) {
+			    menuPanel.style.display = "none";
+			  }
+			});
+		</script>
+	</body>
+</html>
