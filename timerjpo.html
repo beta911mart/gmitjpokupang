@@ -646,49 +646,55 @@
 			// === ONLINE GAS ACTIVATION URL ===
 			const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwIAJrOcoBO4HCCwhhiWYIlg2zS93DiBnX5MCl6o8qCY8CWrBcfLJcMnqw1RrM0XW4X/exec";
 
-			async function promptActivationCode() {
-			  const used = JSON.parse(localStorage.getItem("usedCodes") || "[]");
-			  const code = prompt("Enter activation code:");
-			  if (!code) return;
+async function promptActivationCode() {
+  const used = JSON.parse(localStorage.getItem("usedCodes") || "[]");
+  const code = prompt("Enter activation code:");
+  if (!code) return;
 
-			  try {
-			    alert("Memverifikasi kode secara online...");
-			    const response = await fetch(`${GAS_WEB_APP_URL}?code=${encodeURIComponent(code)}`);
-			    const result = await response.json();
+  try {
+    alert("Memverifikasi kode secara online...");
 
-			    if (result.status !== "success") {
-			      return alert("❌ Invalid code.");
-			    }
+    // Menggunakan mode cors dengan header tambahan
+    const response = await fetch(`${GAS_WEB_APP_URL}?code=${encodeURIComponent(code)}`, {
+      method: "GET",
+      mode: "cors"
+    });
+    
+    const result = await response.json();
 
-			    const hash = result.hash;
-			    if (used.includes(hash)) {
-			      return alert("⚠️ Code already used on this browser.");
-			    }
+    if (result.status !== "success") {
+      return alert("❌ Invalid code.");
+    }
 
-			    let expDate = null;
-			    if (result.expiredIn) {
-			      expDate = new Date();
-			      expDate.setDate(expDate.getDate() + parseInt(result.expiredIn));
-			    }
+    const hash = result.hash;
+    if (used.includes(hash)) {
+      return alert("⚠️ Code already used on this browser.");
+    }
 
-			    const activation = {
-			      activated: true,
-			      codeHash: hash,
-			      usedAt: new Date().toISOString(),
-			      expires: expDate ? expDate.toISOString() : null,
-			      fingerprint: getDeviceKey(),
-			    };
+    let expDate = null;
+    if (result.expiredIn) {
+      expDate = new Date();
+      expDate.setDate(expDate.getDate() + parseInt(result.expiredIn));
+    }
 
-			    used.push(hash);
-			    localStorage.setItem("usedCodes", JSON.stringify(used));
-			    localStorage.setItem("access", JSON.stringify(activation));
-			    activatePro();
-			    alert("✅ Activation successful!");
-			  } catch (error) {
-			    console.error(error);
-			    alert("❌ Gagal terhubung ke server aktivasi online.");
-			  }
-			}
+    const activation = {
+      activated: true,
+      codeHash: hash,
+      usedAt: new Date().toISOString(),
+      expires: expDate ? expDate.toISOString() : null,
+      fingerprint: getDeviceKey(),
+    };
+
+    used.push(hash);
+    localStorage.setItem("usedCodes", JSON.stringify(used));
+    localStorage.setItem("access", JSON.stringify(activation));
+    activatePro();
+    alert("✅ Activation successful!");
+  } catch (error) {
+    console.error(error);
+    alert("❌ Gagal terhubung ke server aktivasi online. Pastikan koneksi internet aktif dan Deployment GAS sudah diatur ke 'Anyone'.");
+  }
+}
 
 			TRIAL_DURATION_DAYS = 1;
 			
