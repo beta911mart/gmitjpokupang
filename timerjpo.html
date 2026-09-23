@@ -813,12 +813,59 @@
 			  }
 			});
 			
-			function showWinner() {
-			  const banner = document.getElementById('winner-banner');
-			  const screen = document.getElementById('winner-screen');
-			  screen.classList.add('show');
-			  setTimeout(() => { screen.classList.remove('show'); }, 5000);
-			}
+function showWinner() {
+  // 1. Cek apakah sudah ada data dari popup Scoreboard
+  if (!latestScoreboardData || !latestScoreboardData.rows || latestScoreboardData.rows.length === 0) {
+    alert("⚠️ Belum ada data skor! Buka Scoreboard dan ketikkan nilai terlebih dahulu.");
+    return;
+  }
+
+  let maxScore = -1;
+  let winners = [];
+
+  // 2. Cari tim dengan nilai tertinggi dari data yang dikirim popup
+  latestScoreboardData.rows.forEach(row => {
+    const team = row[0]; // Kolom pertama (Nama Tim)
+    const total = parseFloat(row[row.length - 1]) || 0; // Kolom terakhir (Total Skor)
+
+    if (total > maxScore) {
+      maxScore = total;
+      winners = [team];
+    } else if (total === maxScore) {
+      winners.push(team); // Jika terjadi skor seri
+    }
+  });
+
+  // 3. Tampilkan UI Juara di Jendela Utama
+  const screen = document.getElementById('winner-screen');
+  const title = document.getElementById('winner-name');
+  const scoreDisplay = document.getElementById('winner-score');
+
+  if (title) title.textContent = winners.join(' & ');
+  if (scoreDisplay) scoreDisplay.textContent = maxScore + ' POINTS';
+
+  if (screen) {
+    screen.style.display = 'flex'; // Wajib ditambahkan agar layarnya muncul
+    screen.classList.add('show');  // Memicu animasi pop
+  }
+
+  // 4. Munculkan juga animasi perayaan di layar Split Display (jika terbuka)
+  if (popupWindow && !popupWindow.closed) {
+    popupWindow.postMessage({
+      type: 'SHOW_CHAMPION',
+      team: winners.join(' & '),
+      score: maxScore + ' POINTS'
+    }, '*');
+  }
+
+  // 5. Tutup otomatis setelah 5 detik
+  setTimeout(() => {
+    if (screen) {
+      screen.classList.remove('show');
+      screen.style.display = 'none';
+    }
+  }, 5000);
+}
 			
 			function openAdminPanel() {
 			  const pass = prompt("Enter Admin Password:");
