@@ -654,10 +654,14 @@ async function promptActivationCode() {
   try {
     alert("Memverifikasi kode secara online...");
 
-    // Menggunakan mode cors dengan header tambahan
-    const response = await fetch(`${GAS_WEB_APP_URL}?code=${encodeURIComponent(code)}`, {
-      method: "GET",
-      mode: "cors"
+    // Menggunakan POST dengan text/plain untuk bypass CORS di Google Apps Script
+    const response = await fetch(GAS_WEB_APP_URL, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8",
+      },
+      body: JSON.stringify({ code: code })
     });
     
     const result = await response.json();
@@ -692,7 +696,7 @@ async function promptActivationCode() {
     alert("✅ Activation successful!");
   } catch (error) {
     console.error(error);
-    alert("❌ Gagal terhubung ke server aktivasi online. Pastikan koneksi internet aktif dan Deployment GAS sudah diatur ke 'Anyone'.");
+    alert("❌ Gagal terhubung ke server aktivasi online. Pastikan Deployment GAS sudah di-update ke versi terbaru.");
   }
 }
 
