@@ -5,484 +5,166 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>⭐ TIMER APP BY MULMED JPO ⭐</title>
 		<link rel="manifest" href="manifest.json" />
-		<!-- <link rel="stylesheet" href="styles.css"> -->
-		<!-- <script src="activation.js" defer></script> -->
 		<link href="https://fonts.googleapis.com/css2?family=Orbitron&amp;display=swap" rel="stylesheet" />
 		<style>
-			* {
-			box-sizing: border-box;
-			}
+			* { box-sizing: border-box; }
 			body {
-			font-family: "Inter", sans-serif;
-			margin: 0;
-			padding: 40px;
-			text-align: center;
-			background: none;
-			color: #fff;
-			min-height: 100vh;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
+				font-family: "Inter", sans-serif; margin: 0; padding: 40px; text-align: center;
+				background: none; color: #fff; min-height: 100vh; display: flex;
+				flex-direction: column; align-items: center;
 			}
-			h2,
-			h3 {
-			text-align: center;
-			margin-bottom: 20px;
-			}
+			h2, h3 { text-align: center; margin-bottom: 20px; }
 			.glass {
-			background: rgba(255, 255, 255, 0.05);
-			backdrop-filter: blur(12px);
-			border: 1px solid rgba(255, 255, 255, 0.1);
-			border-radius: 16px;
-			padding: 20px;
-			margin: 20px 0;
-			width: 100%;
-			max-width: 800px;
-			box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+				background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px);
+				border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
+				padding: 20px; margin: 20px 0; width: 100%; max-width: 800px;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
 			}
-			textarea,
-			input {
-			width: auto;
-			padding: 10px;
-			margin: 10px 0;
-			border-radius: 80px;
-			border: 1px solid rgba(255, 255, 255, 0.5);
-			font-size: 1em;
-			background: rgba(255, 255, 255, 0.08);
-			color: #fff;
+			textarea, input {
+				width: auto; padding: 10px; margin: 10px 0; border-radius: 80px;
+				border: 1px solid rgba(255, 255, 255, 0.5); font-size: 1em;
+				background: rgba(255, 255, 255, 0.08); color: #fff;
 			}
 			select {
-			width: auto;
-			padding: 10px;
-			margin: 10px 0;
-			border-radius: 8px;
-			border: 1px solid rgba(0, 255, 255, 0.3);
-			font-size: 1em;
-			background: rgba(0, 0, 0, 0.4); /* darker translucent */
-			color: #0ff;
-			appearance: none; /* hides default dropdown arrow in some browsers */
+				width: auto; padding: 10px; margin: 10px 0; border-radius: 8px;
+				border: 1px solid rgba(0, 255, 255, 0.3); font-size: 1em;
+				background: rgba(0, 0, 0, 0.4); color: #0ff; appearance: none;
 			}
-			textarea {
-			height: 200px;
-			resize: vertical;
-			font-family: monospace;
-			}
+			textarea { height: 200px; resize: vertical; font-family: monospace; }
 			button {
-			padding: 10px 20px;
-			margin: 10px 5px 0 0;
-			background: rgba(0, 212, 255, 0.2);
-			border: 1px solid rgba(0, 212, 255, 0.4);
-			color: #0ff;
-			border-radius: 8px;
-			cursor: pointer;
-			font-weight: bold;
-			transition: 0.2s ease;
+				padding: 10px 20px; margin: 10px 5px 0 0; background: rgba(0, 212, 255, 0.2);
+				border: 1px solid rgba(0, 212, 255, 0.4); color: #0ff; border-radius: 8px;
+				cursor: pointer; font-weight: bold; transition: 0.2s ease;
 			}
-			button:hover {
-			background: rgba(0, 212, 255, 0.4);
-			}
+			button:hover { background: rgba(0, 212, 255, 0.4); }
 			.tabs button {
-			padding: 10px 20px;
-			margin: 5px;
-			background: #222;
-			color: #ccc;
-			border: 1px solid #444;
-			border-radius: 8px;
-			cursor: pointer;
-			transition:
-			background 0.3s,
-			color 0.3s;
+				padding: 10px 20px; margin: 5px; background: #222; color: #ccc;
+				border: 1px solid #444; border-radius: 8px; cursor: pointer;
+				transition: background 0.3s, color 0.3s;
 			}
-			.tabs button.active-tab {
-			background: #19d;
-			color: #000;
-			font-weight: bold;
-			border: 1px solid #0f0;
-			}
-			.preset-buttons {
-			margin-top: 15px;
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: center;
-			gap: 10px;
-			}
-			.preset-buttons button {
-			min-width: 80px;
-			font-weight: bold;
-			}
-			.tab-content {
-			display: none;
-			padding: 15px;
-			}
-			.tab-content.active {
-			display: block;
-			}
-			#main-display {
-			font-size: 8em;
-			font-weight: bold;
-			margin: 10px auto 20px;
-			color: #fff;
-			text-align: center;
-			}
-			.multi-item {
-			margin: 5px 0;
-			}
-			.blink {
-			animation: blink 0.1s step-start 0s infinite;
-			}
-			@keyframes blink {
-			50% {
-			opacity: 0;
-			}
-			}
-			.flash-bg {
-			animation: flashbg 3s ease-in-out;
-			}
+			.tabs button.active-tab { background: #19d; color: #000; font-weight: bold; border: 1px solid #0f0; }
+			.preset-buttons { margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+			.preset-buttons button { min-width: 80px; font-weight: bold; }
+			.tab-content { display: none; padding: 15px; }
+			.tab-content.active { display: block; }
+			#main-display { font-size: 8em; font-weight: bold; margin: 10px auto 20px; color: #fff; text-align: center; }
+			.multi-item { margin: 5px 0; }
+			.blink { animation: blink 0.1s step-start 0s infinite; }
+			@keyframes blink { 50% { opacity: 0; } }
+			.flash-bg { animation: flashbg 3s ease-in-out; }
 			#flash-overlay {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			background: white;
-			opacity: 0;
-			pointer-events: none;
-			z-index: 999999;
+				position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+				background: white; opacity: 0; pointer-events: none; z-index: 999999;
 			}
-			#flash-overlay.flash {
-			animation: flashAlarm 3s;
-			}
+			#flash-overlay.flash { animation: flashAlarm 3s; }
 			@keyframes flashAlarm {
-			0% {
-			opacity: 0;
-			}
-			10% {
-			opacity: 1;
-			}
-			20% {
-			opacity: 0;
-			}
-			30% {
-			opacity: 1;
-			}
-			40% {
-			opacity: 0;
-			}
-			50% {
-			opacity: 1;
-			}
-			60% {
-			opacity: 0;
-			}
-			100% {
-			opacity: 0;
-			}
+				0% { opacity: 0; } 10% { opacity: 1; } 20% { opacity: 0; }
+				30% { opacity: 1; } 40% { opacity: 0; } 50% { opacity: 1; }
+				60% { opacity: 0; } 100% { opacity: 0; }
 			}
 			@keyframes flashbg {
-			0%,
-			100% {
-			background: black;
+				0%, 100% { background: black; } 10%, 70% { background: #ffd700; }
+				20%, 80% { background: #ff6347; } 30%, 90% { background: #40e0d0; }
+				40%, 50%, 60% { background: #ffd700; }
 			}
-			10%,
-			70% {
-			background: #ffd700;
-			}
-			20%,
-			80% {
-			background: #ff6347;
-			}
-			30%,
-			90% {
-			background: #40e0d0;
-			}
-			40%,
-			50%,
-			60% {
-			background: #ffd700;
-			}
-			}
-			.shake {
-			animation: shake 0.5s ease-in-out;
-			}
+			.shake { animation: shake 0.5s ease-in-out; }
 			@keyframes shake {
-			0%,
-			100% {
-			transform: translateX(0);
+				0%, 100% { transform: translateX(0); }
+				20%, 60% { transform: translateX(-10px); }
+				40%, 80% { transform: translateX(10px); }
 			}
-			20%,
-			60% {
-			transform: translateX(-10px);
-			}
-			40%,
-			80% {
-			transform: translateX(10px);
-			}
-			}
-			@keyframes spin {
-			0% {
-			transform: rotate(0deg);
-			}
-			100% {
-			transform: rotate(360deg);
-			}
-			}
-			.hidden {
-			display: none !important;
-			}
-			.side-by-side {
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: center;
-			align-items: center;
-			gap: 10px;
-			}
-			.option-pair {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			}
-			.row {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 10px;
-			}
-			.col {
-			flex: 1;
-			min-width: 160px;
-			}
-			.footer {
-			font-size: 0.8em;
-			color: #888;
-			margin-top: auto;
-			text-align: center;
-			padding: 20px 0;
-			}
+			@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+			.hidden { display: none !important; }
+			.side-by-side { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; }
+			.option-pair { display: flex; align-items: center; gap: 10px; }
+			.row { display: flex; flex-wrap: wrap; gap: 10px; }
+			.col { flex: 1; min-width: 160px; }
+			.footer { font-size: 0.8em; color: #888; margin-top: auto; text-align: center; padding: 20px 0; }
 			@media (max-width: 768px) {
-			input,
-			select,
-			button {
-			width: 100%;
-			max-width: 300px;
-			margin: 5px auto;
-			display: block;
-			}
-			.tabs {
-			display: flex;
-			flex-direction: column;
-			}
-			.tab-content {
-			display: none;
-			padding: 15px;
-			}
-			.tab-content.active {
-			display: block;
-			}
+				input, select, button { width: 100%; max-width: 300px; margin: 5px auto; display: block; }
+				.tabs { display: flex; flex-direction: column; }
+				.tab-content { display: none; padding: 15px; }
+				.tab-content.active { display: block; }
 			}
 			.menu-panel {
-			position: fixed;
-			top: 0;
-			right: -320px; /* hidden off-screen */
-			width: 300px;
-			height: 100vh;
-			background: rgba(0, 0, 0, 0.9);
-			color: #fff;
-			border-left: 2px solid #0f0;
-			padding: 20px;
-			box-shadow: -10px 0 50px rgba(0, 255, 0, 0.2);
-			z-index: 998;
-			transition: right 0.3s ease;
-			overflow-y: auto;
+				position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
+				background: rgba(0, 0, 0, 0.9); color: #fff; border-left: 2px solid #0f0;
+				padding: 20px; box-shadow: -10px 0 50px rgba(0, 255, 0, 0.2);
+				z-index: 998; transition: right 0.3s ease; overflow-y: auto;
 			}
-			.menu-panel.open {
-			right: 0;
-			}
-			.menu-content {
-			display: flex;
-			flex-direction: column;
-			gap: 12px;
-			}
+			.menu-panel.open { right: 0; }
+			.menu-content { display: flex; flex-direction: column; gap: 12px; }
 			#menu-toggle {
-			position: fixed;
-			top: 50px;
-			right: 50px;
-			z-index: 0;
-			background: transparent;
-			color: #0f0;
-			border: none;
-			width: 20px;
-			height: 10px;
-			border-radius: 10px;
-			font-size: 2em;
-			cursor: pointer;
-			animation: spin 2s linear infinite;
-			text-align: center;
-			line-height: 0px; /* centers vertically */
-			padding: 0px;
+				position: fixed; top: 50px; right: 50px; z-index: 0;
+				background: transparent; color: #0f0; border: none; width: 20px;
+				height: 10px; border-radius: 10px; font-size: 2em; cursor: pointer;
+				animation: spin 2s linear infinite; text-align: center; line-height: 0px; padding: 0px;
 			}
 			/* === NEON THEME === */
-			.neon-theme {
-			background-color: #000 !important;
-			color: #39ff14;
-			font-family: "Orbitron", sans-serif;
+			.neon-theme { background-color: #000 !important; color: #39ff14; font-family: "Orbitron", sans-serif; }
+			.neon-theme input, .neon-theme select {
+				background: transparent; color: #39ff14; border: 2px solid #39ff14;
+				border-radius: 10px; box-shadow: 0 0 8px #39ff14; padding: 8px; transition: all 0.2s ease-in-out;
 			}
-			.neon-theme input,
-			.neon-theme select {
-			background: transparent;
-			color: #39ff14;
-			border: 2px solid #39ff14;
-			border-radius: 10px;
-			box-shadow: 0 0 8px #39ff14;
-			padding: 8px;
-			transition: all 0.2s ease-in-out;
+			.neon-theme button:hover, .neon-theme input:hover, .neon-theme select:hover {
+				background: #aaa; box-shadow: 0 0 16px #39ff14;
 			}
-			.neon-theme button:hover,
-			.neon-theme input:hover,
-			.neon-theme select:hover {
-			background: #aaa;
-			box-shadow: 0 0 16px #39ff14;
-			}
-			.neon-theme .tabs button.active {
-			background: #39ff14;
-			color: black;
-			box-shadow: 0 0 20px #39ff14;
-			}
+			.neon-theme .tabs button.active { background: #39ff14; color: black; box-shadow: 0 0 20px #39ff14; }
 			/* === LIGHT THEME === */
-			.light-theme {
-			background-color: #d9d9d9 !important;
-			color: #111;
-			font-family: "Segoe UI", sans-serif;
+			.light-theme { background-color: #d9d9d9 !important; color: #111; font-family: "Segoe UI", sans-serif; }
+			.light-theme input, .light-theme select {
+				background: #fff; color: #222; border: 2px solid #ccc; border-radius: 8px;
+				padding: 8px; transition: all 0.2s ease;
 			}
-			.light-theme input,
-			.light-theme select {
-			background: #fff;
-			color: #222;
-			border: 2px solid #ccc;
-			border-radius: 8px;
-			padding: 8px;
-			transition: all 0.2s ease;
-			}
-			.light-theme button:hover,
-			.light-theme input:hover,
-			.light-theme select:hover {
-			background: #eee;
-			border-color: #888;
+			.light-theme button:hover, .light-theme input:hover, .light-theme select:hover {
+				background: #eee; border-color: #888;
 			}
 			.light-theme .tabs button.active {
-			background: #007bff;
-			color: white;
-			border-color: #007bff;
-			box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+				background: #007bff; color: white; border-color: #007bff; box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
 			}
 			/* === DARK THEME === */
-			.dark-theme {
-			background-color: #1e1e1e !important;
-			color: #f0f0f0;
-			font-family: "Segoe UI", sans-serif;
+			.dark-theme { background-color: #1e1e1e !important; color: #f0f0f0; font-family: "Segoe UI", sans-serif; }
+			.dark-theme input, .dark-theme select {
+				background: #222; color: #e0e0e0; border: 2px solid #555; border-radius: 8px;
+				padding: 8px; transition: all 0.2s ease;
 			}
-			.dark-theme input,
-			.dark-theme select {
-			background: #222;
-			color: #e0e0e0;
-			border: 2px solid #555;
-			border-radius: 8px;
-			padding: 8px;
-			transition: all 0.2s ease;
-			}
-			.dark-theme button:hover,
-			.dark-theme input:hover,
-			.dark-theme select:hover {
-			background: #333;
-			border-color: #888;
+			.dark-theme button:hover, .dark-theme input:hover, .dark-theme select:hover {
+				background: #333; border-color: #888;
 			}
 			.dark-theme .tabs button.active {
-			background: #444;
-			color: white;
-			border-color: #888;
-			box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+				background: #444; color: white; border-color: #888; box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 			}
 			/* === LEMON THEME === */
-			.lemon-theme {
-			background-color: #f2ff3b !important;
-			color: #222;
-			font-family: "Comic Sans MS", cursive;
+			.lemon-theme { background-color: #f2ff3b !important; color: #222; font-family: "Comic Sans MS", cursive; }
+			.lemon-theme input, .lemon-theme select {
+				background: #ffffcc; color: #444; border: 3px solid #ccff33; border-radius: 10px;
+				box-shadow: 0 0 5px #ccff33; padding: 8px; transition: all 0.2s ease;
 			}
-			.lemon-theme input,
-			.lemon-theme select {
-			background: #ffffcc;
-			color: #444;
-			border: 3px solid #ccff33;
-			border-radius: 10px;
-			box-shadow: 0 0 5px #ccff33;
-			padding: 8px;
-			transition: all 0.2s ease;
+			.lemon-theme button:hover, .lemon-theme input:hover, .lemon-theme select:hover {
+				background: #f0f0aa; box-shadow: 0 0 10px #bfff00;
 			}
-			.lemon-theme button:hover,
-			.lemon-theme input:hover,
-			.lemon-theme select:hover {
-			background: #f0f0aa;
-			box-shadow: 0 0 10px #bfff00;
-			}
-			.lemon-theme .tabs button.active {
-			background: #ccff33;
-			color: #222;
-			box-shadow: 0 0 15px #ccff33;
-			}
+			.lemon-theme .tabs button.active { background: #ccff33; color: #222; box-shadow: 0 0 15px #ccff33; }
 			/* === RETRO THEME BUTTONS === */
 			.controls button {
-			font-family: "Courier New", monospace;
-			background: repeating-linear-gradient(45deg, #ffcc00, #ffcc00 10px, #ff9900 10px, #ff9900 20px);
-			color: black;
-			border: 3px solid #000;
-			box-shadow: 4px 4px 0 #000;
-			padding: 6px 15px;
-			margin: 6px;
-			font-size: 16px;
-			text-transform: uppercase;
-			cursor: pointer;
-			transition: all 0.2s ease;
+				font-family: "Courier New", monospace;
+				background: repeating-linear-gradient(45deg, #ffcc00, #ffcc00 10px, #ff9900 10px, #ff9900 20px);
+				color: black; border: 3px solid #000; box-shadow: 4px 4px 0 #000;
+				padding: 6px 15px; margin: 6px; font-size: 16px; text-transform: uppercase;
+				cursor: pointer; transition: all 0.2s ease;
 			}
-			.controls button:hover {
-			background: #ff6600;
-			box-shadow: 2px 2px 0 #000;
-			transform: translate(1px, 1px);
-			}
+			.controls button:hover { background: #ff6600; box-shadow: 2px 2px 0 #000; transform: translate(1px, 1px); }
 			#winner-screen {
-			display: none;
-			position: fixed;
-			inset: 0;
-			z-index: 999999;
-			background: linear-gradient(135deg, #ffd700, #ffa500, #ffd700);
-			color: #000;
-			justify-content: center;
-			align-items: center;
-			flex-direction: column;
-			text-align: center;
-			font-family: Arial, sans-serif;
+				display: none; position: fixed; inset: 0; z-index: 999999;
+				background: linear-gradient(135deg, #ffd700, #ffa500, #ffd700);
+				color: #000; justify-content: center; align-items: center; flex-direction: column;
+				text-align: center; font-family: Arial, sans-serif;
 			}
 			.winner-banner {
-			display: none;
-			margin-top: 20px;
-			text-align: center;
-			font-size: 1.5em;
-			padding: 15px;
-			border-radius: 10px;
-			background: linear-gradient(45deg, gold, orange);
-			color: black;
-			animation: pop 0.8s ease;
+				display: none; margin-top: 20px; text-align: center; font-size: 1.5em; padding: 15px;
+				border-radius: 10px; background: linear-gradient(45deg, gold, orange); color: black; animation: pop 0.8s ease;
 			}
-			@keyframes championPop {
-			from {
-			transform: scale(0.5);
-			opacity: 0;
-			}
-			to {
-			transform: scale(1);
-			opacity: 1;
-			}
-			}
-			#winner-screen.show {
-			animation: championPop 0.5s ease;
-			}
+			@keyframes championPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+			#winner-screen.show { animation: championPop 0.5s ease; }
 		</style>
 	</head>
 	<body>
@@ -528,20 +210,12 @@
 				<input type="number" id="multiSec" placeholder="Detik" />
 				<button class="retro-button" onclick="addMultiTimer()">+ Add</button>
 				<button class="retro-button" onclick="startMultiTimers()">▶ Start</button>
-				<button class="retro-button" id="nextTimerBtn" onclick="nextMultiTimer()" style="display: none">
-				Next Timer
-				</button>
+				<button class="retro-button" id="nextTimerBtn" onclick="nextMultiTimer()" style="display: none">Next Timer</button>
 				<button class="retro-button" onclick="resetMultiTimers()">⏹ Reset</button>
 				<div id="multi-list"></div>
 				<div style="display: flex; justify-content: center; align-items: center; margin-top: 10px; gap: 20px">
-					<label>
-					<input type="radio" name="multi-mode" value="sequence" checked="" />
-					Sequence
-					</label>
-					<label>
-					<input type="radio" name="multi-mode" value="manual" />
-					Manual
-					</label>
+					<label><input type="radio" name="multi-mode" value="sequence" checked="" /> Sequence</label>
+					<label><input type="radio" name="multi-mode" value="manual" /> Manual</label>
 				</div>
 			</div>
 		</div>
@@ -550,24 +224,10 @@
 		</p>
 		<br />
 		<hr />
-		<footer
-			style="
-			position: fixed;
-			bottom: 0;
-			width: 100%;
-			text-align: center;
-			padding: 0.5em;
-			background: #222;
-			color: #aaa;
-			font-size: 0.9em;
-			"
-			>
+		<footer style="position: fixed; bottom: 0; width: 100%; text-align: center; padding: 0.5em; background: #222; color: #aaa; font-size: 0.9em;">
 			<div id="activation-status" style="margin: 1px; font-weight: bold"></div>
 			<div>Copyright ©2026MulMedJPO</div>
-			<div>
-				Powered by
-				<a href="https://www.facebook.com/dqnet.warnet/" target="_blank" style="color: #40e0d0">DQnet</a>
-			</div>
+			<div>Powered by <a href="https://www.facebook.com/dqnet.warnet/" target="_blank" style="color: #40e0d0">DQnet</a></div>
 		</footer>
 		<button id="menu-toggle" title="Toggle Menu">🔞</button>
 		<div id="menu-panel" class="menu-panel">
@@ -624,84 +284,69 @@
 			<div id="winner-score">150 POINTS</div>
 		</div>
 		<script>
-			let countdownInterval,
-			  remainingMilliseconds = 0,
-			  lastTimestamp;
-			let stopwatchInterval,
-			  stopwatchTime = 0,
-			  stopwatchRunning = false,
-			  stopwatchLastTime;
-			let multiTimers = [],
-			  multiIndex = 0,
-			  multiActive = false,
-			  popupWindow;
-			let multiMode = "sequence";
-			let currentManualInterval;
-			let activeTimer = null;
-			let lastDisplayedTime = "";
-			let activated = false;
-			let keyboardEnabled = false;
+			let countdownInterval, remainingMilliseconds = 0, lastTimestamp;
+			let stopwatchInterval, stopwatchTime = 0, stopwatchRunning = false, stopwatchLastTime;
+			let multiTimers = [], multiIndex = 0, multiActive = false, popupWindow;
+			let multiMode = "sequence", currentManualInterval, activeTimer = null;
+			let lastDisplayedTime = "", activated = false, keyboardEnabled = false;
 			let scoreboardDataStore = JSON.parse(localStorage.getItem("scoreboardDataStore") || "{}");
+			TRIAL_DURATION_DAYS = 1;
 			
 			// === ONLINE GAS ACTIVATION URL ===
 			const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwIAJrOcoBO4HCCwhhiWYIlg2zS93DiBnX5MCl6o8qCY8CWrBcfLJcMnqw1RrM0XW4X/exec";
 
-async function promptActivationCode() {
-  const used = JSON.parse(localStorage.getItem("usedCodes") || "[]");
-  const code = prompt("Enter activation code:");
-  if (!code) return;
+			async function promptActivationCode() {
+			  const used = JSON.parse(localStorage.getItem("usedCodes") || "[]");
+			  const code = prompt("Enter activation code:");
+			  if (!code) return;
 
-  try {
-    alert("Memverifikasi kode secara online...");
+			  try {
+			    alert("Memverifikasi kode secara online...");
 
-    // Menggunakan POST dengan text/plain untuk bypass CORS di Google Apps Script
-    const response = await fetch(GAS_WEB_APP_URL, {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8",
-      },
-      body: JSON.stringify({ code: code })
-    });
-    
-    const result = await response.json();
+			    const response = await fetch(GAS_WEB_APP_URL, {
+			      method: "POST",
+			      mode: "cors",
+			      headers: { "Content-Type": "text/plain;charset=utf-8" },
+			      body: JSON.stringify({ code: code })
+			    });
+			    
+			    const result = await response.json();
 
-    if (result.status !== "success") {
-      return alert("❌ Invalid code.");
-    }
+			    if (result.status !== "success") {
+			      return alert("❌ Invalid code.");
+			    }
 
-    const hash = result.hash;
-    if (used.includes(hash)) {
-      return alert("⚠️ Code already used on this browser.");
-    }
+			    // Using the plaintext code as the hash identifier in the client app
+			    const hash = result.hash;
+			    if (used.includes(hash)) {
+			      return alert("⚠️ Code already used on this browser.");
+			    }
 
-    let expDate = null;
-    if (result.expiredIn) {
-      expDate = new Date();
-      expDate.setDate(expDate.getDate() + parseInt(result.expiredIn));
-    }
+			    let expDate = null;
+			    if (result.expiredIn) {
+			      expDate = new Date();
+			      expDate.setDate(expDate.getDate() + parseInt(result.expiredIn));
+			    }
 
-    const activation = {
-      activated: true,
-      codeHash: hash,
-      usedAt: new Date().toISOString(),
-      expires: expDate ? expDate.toISOString() : null,
-      fingerprint: getDeviceKey(),
-    };
+			    const activation = {
+			      activated: true,
+			      codeHash: hash,
+			      usedAt: new Date().toISOString(),
+			      expires: expDate ? expDate.toISOString() : null,
+			      fingerprint: getDeviceKey(),
+			    };
 
-    used.push(hash);
-    localStorage.setItem("usedCodes", JSON.stringify(used));
-    localStorage.setItem("access", JSON.stringify(activation));
-    activatePro();
-    alert("✅ Activation successful!");
-  } catch (error) {
-    console.error(error);
-    alert("❌ Gagal terhubung ke server aktivasi online. Pastikan Deployment GAS sudah di-update ke versi terbaru.");
-  }
-}
+			    used.push(hash);
+			    localStorage.setItem("usedCodes", JSON.stringify(used));
+			    localStorage.setItem("access", JSON.stringify(activation));
+			    activatePro();
+			    alert("✅ Activation successful!");
+			  } catch (error) {
+			    console.error(error);
+			    alert("❌ Gagal terhubung ke server aktivasi online. Pastikan Deployment GAS sudah di-update ke versi terbaru.");
+			  }
+			}
 
-			TRIAL_DURATION_DAYS = 1;
-			
 			function showTab(tabId) {
 			  document.querySelectorAll(".tab-content").forEach((tab) => {
 			    tab.classList.remove("active");
@@ -767,13 +412,8 @@ async function promptActivationCode() {
 			  }, 80);
 			}
 			
-			function pauseCountdown() {
-			  clearInterval(countdownInterval);
-			}
-			function resetCountdown() {
-			  clearInterval(countdownInterval);
-			  updateDisplay(0, 0, 0);
-			}
+			function pauseCountdown() { clearInterval(countdownInterval); }
+			function resetCountdown() { clearInterval(countdownInterval); updateDisplay(0, 0, 0); }
 			
 			function startStopwatch() {
 			  stopAllTimers();
@@ -788,15 +428,8 @@ async function promptActivationCode() {
 			    updateDisplay(Math.floor(t / 60), t % 60, stopwatchTime % 1000);
 			  }, 50);
 			}
-			function pauseStopwatch() {
-			  stopwatchRunning = false;
-			  clearInterval(stopwatchInterval);
-			}
-			function resetStopwatch() {
-			  pauseStopwatch();
-			  stopwatchTime = 0;
-			  updateDisplay(0, 0, 0);
-			}
+			function pauseStopwatch() { stopwatchRunning = false; clearInterval(stopwatchInterval); }
+			function resetStopwatch() { pauseStopwatch(); stopwatchTime = 0; updateDisplay(0, 0, 0); }
 			
 			function addMultiTimer() {
 			  const label = document.getElementById("multiLabel").value || `Timer ${multiTimers.length + 1}`;
@@ -817,29 +450,19 @@ async function promptActivationCode() {
 			function startMultiTimers() {
 			  stopAllTimers();
 			  if (multiTimers.length === 0) return;
-			
 			  multiMode = document.querySelector('input[name="multi-mode"]:checked')?.value || "sequence";
 			  multiActive = true;
 			  multiIndex = 0;
-			
 			  document.getElementById("nextTimerBtn").style.display = "none";
-			
-			  if (multiMode === "manual") {
-			    runManualTimer(multiIndex);
-			  } else {
-			    runMultiTimer(multiTimers[multiIndex]);
-			  }
+			  if (multiMode === "manual") runManualTimer(multiIndex);
+			  else runMultiTimer(multiTimers[multiIndex]);
 			}
 			
 			function runManualTimer(index) {
 			  const timer = multiTimers[index];
 			  if (!timer) {
-			    multiActive = false;
-			    multiIndex = 0;
-			    updateDisplay(0, 0, 0);
-			    return;
+			    multiActive = false; multiIndex = 0; updateDisplay(0, 0, 0); return;
 			  }
-			
 			  let time = timer.duration;
 			  let last = Date.now();
 			  countdownInterval = setInterval(() => {
@@ -871,19 +494,11 @@ async function promptActivationCode() {
 			      flashEffect();
 			      const mode = document.querySelector('input[name="multi-mode"]:checked')?.value || "sequence";
 			      if (mode === "sequence") {
-			        if (++multiIndex < multiTimers.length) {
-			          runMultiTimer(multiTimers[multiIndex]);
-			        } else {
-			          multiIndex = 0;
-			          updateDisplay(0, 0, 0);
-			        }
+			        if (++multiIndex < multiTimers.length) runMultiTimer(multiTimers[multiIndex]);
+			        else { multiIndex = 0; updateDisplay(0, 0, 0); }
 			      } else if (mode === "manual") {
-			        if (multiIndex < multiTimers.length - 1) {
-			          document.getElementById("nextTimerBtn").style.display = "inline-block";
-			        } else {
-			          multiIndex = 0;
-			          updateDisplay(0, 0, 0);
-			        }
+			        if (multiIndex < multiTimers.length - 1) document.getElementById("nextTimerBtn").style.display = "inline-block";
+			        else { multiIndex = 0; updateDisplay(0, 0, 0); }
 			      }
 			    } else {
 			      const s = Math.floor(time / 1000);
@@ -894,160 +509,97 @@ async function promptActivationCode() {
 			
 			function nextMultiTimer() {
 			  document.getElementById("nextTimerBtn").style.display = "none";
-			  if (++multiIndex < multiTimers.length) {
-			    runMultiTimer(multiTimers[multiIndex]);
-			  } else {
-			    multiIndex = 0;
-			    updateDisplay(0, 0, 0);
-			  }
+			  if (++multiIndex < multiTimers.length) runMultiTimer(multiTimers[multiIndex]);
+			  else { multiIndex = 0; updateDisplay(0, 0, 0); }
 			}
 			
-			function resetMultiTimers() {
-			  multiTimers = [];
-			  multiIndex = 0;
-			  renderMultiList();
-			  updateDisplay(0, 0, 0);
-			}
-			
-			function stopAllTimers() {
-			  clearInterval(countdownInterval);
-			  pauseStopwatch();
-			  multiActive = false;
-			}
+			function resetMultiTimers() { multiTimers = []; multiIndex = 0; renderMultiList(); updateDisplay(0, 0, 0); }
+			function stopAllTimers() { clearInterval(countdownInterval); pauseStopwatch(); multiActive = false; }
 			
 			function playBeep(times = 3) {
 			  const ctx = new (window.AudioContext || window.webkitAudioContext)();
 			  const vol = parseFloat(document.getElementById("volumeSlider")?.value || 1);
 			  const type = parseInt(document.getElementById("beepType")?.value || 1);
-			
-			  const gain = ctx.createGain();
-			  gain.gain.value = vol;
-			  gain.connect(ctx.destination);
+			  const gain = ctx.createGain(); gain.gain.value = vol; gain.connect(ctx.destination);
 			
 			  if (type === 4) {
-			    const osc = ctx.createOscillator();
-			    osc.type = "sine";
-			    const now = ctx.currentTime;
-			    const duration = 4;
+			    const osc = ctx.createOscillator(); osc.type = "sine";
+			    const now = ctx.currentTime; const duration = 4;
 			    osc.frequency.setValueAtTime(500, now);
 			    for (let i = 0; i < duration; i++) {
 			      const t = now + i;
 			      osc.frequency.linearRampToValueAtTime(1200, t + 0.5);
 			      osc.frequency.linearRampToValueAtTime(500, t + 1);
 			    }
-			    osc.connect(gain);
-			    osc.start(now);
-			    osc.stop(now + duration);
+			    osc.connect(gain); osc.start(now); osc.stop(now + duration);
 			  } else if (type === 5) {
 			    const now = ctx.currentTime;
 			    for (let i = 0; i < times; i++) {
 			      const t = now + i * 0.7;
 			      const freqs = [1200, 1500, 1800];
 			      freqs.forEach((freq, j) => {
-			        const osc = ctx.createOscillator();
-			        osc.type = "sine";
+			        const osc = ctx.createOscillator(); osc.type = "sine";
 			        osc.frequency.setValueAtTime(freq, t + j * 0.01);
-			        osc.connect(gain);
-			        osc.start(t + j * 0.01);
-			        osc.stop(t + 0.3);
+			        osc.connect(gain); osc.start(t + j * 0.01); osc.stop(t + 0.3);
 			      });
 			    }
 			  } else if (type === 6) {
-			    const t = ctx.currentTime;
-			    const osc = ctx.createOscillator();
-			    const bellGain = ctx.createGain();
-			    osc.type = "triangle";
-			    osc.frequency.setValueAtTime(400, t);
-			    bellGain.gain.setValueAtTime(vol, t);
-			    bellGain.gain.exponentialRampToValueAtTime(0.001, t + 2);
-			    osc.connect(bellGain);
-			    bellGain.connect(ctx.destination);
-			    osc.start(t);
-			    osc.stop(t + 2);
+			    const t = ctx.currentTime; const osc = ctx.createOscillator(); const bellGain = ctx.createGain();
+			    osc.type = "triangle"; osc.frequency.setValueAtTime(400, t);
+			    bellGain.gain.setValueAtTime(vol, t); bellGain.gain.exponentialRampToValueAtTime(0.001, t + 2);
+			    osc.connect(bellGain); bellGain.connect(ctx.destination);
+			    osc.start(t); osc.stop(t + 2);
 			  } else if (type === 7) {
-			    const t = ctx.currentTime;
-			    const freqs = [1000, 1400];
+			    const t = ctx.currentTime; const freqs = [1000, 1400];
 			    freqs.forEach((freq, i) => {
-			      const osc = ctx.createOscillator();
-			      osc.type = "sine";
+			      const osc = ctx.createOscillator(); osc.type = "sine";
 			      osc.frequency.setValueAtTime(freq, t + i * 0.005);
-			      osc.connect(gain);
-			      osc.start(t + i * 0.005);
-			      osc.stop(t + 0.25);
+			      osc.connect(gain); osc.start(t + i * 0.005); osc.stop(t + 0.25);
 			    });
 			  } else if (type === 8) {
 			    const baseTime = ctx.currentTime;
 			    for (let i = 0; i < times; i++) {
-			      const t = baseTime + i * 1.2;
-			      const osc = ctx.createOscillator();
-			      osc.type = "triangle";
-			      osc.frequency.setValueAtTime(700, t);
-			      osc.connect(gain);
-			      osc.start(t);
-			      osc.stop(t + 1);
+			      const t = baseTime + i * 1.2; const osc = ctx.createOscillator();
+			      osc.type = "triangle"; osc.frequency.setValueAtTime(700, t);
+			      osc.connect(gain); osc.start(t); osc.stop(t + 1);
 			    }
 			  } else if (type === 9) {
-			    const t = ctx.currentTime;
-			    const duration = 3;
-			    const osc = ctx.createOscillator();
-			    const tremolo = ctx.createOscillator();
-			    const tremoloGain = ctx.createGain();
-			    osc.type = "square";
-			    osc.frequency.setValueAtTime(1200, t);
-			    tremolo.type = "sine";
-			    tremolo.frequency.setValueAtTime(15, t);
-			    tremoloGain.gain.value = vol * 0.5;
-			    tremolo.connect(tremoloGain.gain);
-			    tremolo.start(t);
-			    tremolo.stop(t + duration);
-			    osc.connect(tremoloGain);
-			    tremoloGain.connect(ctx.destination);
-			    osc.start(t);
-			    osc.stop(t + duration);
+			    const t = ctx.currentTime; const duration = 3;
+			    const osc = ctx.createOscillator(); const tremolo = ctx.createOscillator(); const tremoloGain = ctx.createGain();
+			    osc.type = "square"; osc.frequency.setValueAtTime(1200, t);
+			    tremolo.type = "sine"; tremolo.frequency.setValueAtTime(15, t);
+			    tremoloGain.gain.value = vol * 0.5; tremolo.connect(tremoloGain.gain);
+			    tremolo.start(t); tremolo.stop(t + duration);
+			    osc.connect(tremoloGain); tremoloGain.connect(ctx.destination);
+			    osc.start(t); osc.stop(t + duration);
 			  } else if (type === 10) {
-			    const t = ctx.currentTime;
-			    const freqs = [150, 300, 450];
-			    const bellGain = ctx.createGain();
-			    bellGain.gain.setValueAtTime(vol, t);
-			    bellGain.gain.exponentialRampToValueAtTime(0.001, t + 6);
+			    const t = ctx.currentTime; const freqs = [150, 300, 450]; const bellGain = ctx.createGain();
+			    bellGain.gain.setValueAtTime(vol, t); bellGain.gain.exponentialRampToValueAtTime(0.001, t + 6);
 			    bellGain.connect(ctx.destination);
 			    freqs.forEach((freq) => {
-			      const osc = ctx.createOscillator();
-			      osc.type = "sine";
-			      osc.frequency.setValueAtTime(freq, t);
-			      osc.connect(bellGain);
-			      osc.start(t);
-			      osc.stop(t + 6);
+			      const osc = ctx.createOscillator(); osc.type = "sine";
+			      osc.frequency.setValueAtTime(freq, t); osc.connect(bellGain);
+			      osc.start(t); osc.stop(t + 6);
 			    });
 			  } else if (type === 11) {
-			    const scale = [523, 587, 659, 698, 784, 880];
-			    const notes = Math.floor(Math.random() * 5) + 6;
-			    const now = ctx.currentTime;
-			    let time = now;
+			    const scale = [523, 587, 659, 698, 784, 880]; const notes = Math.floor(Math.random() * 5) + 6;
+			    const now = ctx.currentTime; let time = now;
 			    for (let i = 0; i < notes; i++) {
 			      const freq = scale[Math.floor(Math.random() * scale.length)];
-			      const dur = Math.random() * 0.1 + 0.15;
-			      const pause = Math.random() * 0.05 + 0.1;
-			      const osc = ctx.createOscillator();
-			      osc.type = "square";
-			      osc.frequency.setValueAtTime(freq, time);
-			      osc.connect(gain);
-			      osc.start(time);
-			      osc.stop(time + dur);
-			      time += dur + pause;
+			      const dur = Math.random() * 0.1 + 0.15; const pause = Math.random() * 0.05 + 0.1;
+			      const osc = ctx.createOscillator(); osc.type = "square";
+			      osc.frequency.setValueAtTime(freq, time); osc.connect(gain);
+			      osc.start(time); osc.stop(time + dur); time += dur + pause;
 			    }
 			  } else {
 			    const wave = ["sine", "square", "triangle"][type - 1] || "sine";
 			    const freq = [440, 880, 660][type - 1] || 440;
 			    const dur = [0.2, 0.1, 0.3][type - 1];
 			    for (let i = 0; i < times; i++) {
-			      const osc = ctx.createOscillator();
-			      osc.type = wave;
+			      const osc = ctx.createOscillator(); osc.type = wave;
 			      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-			      osc.connect(gain);
-			      const start = ctx.currentTime + i * 0.5;
-			      osc.start(start);
-			      osc.stop(start + dur);
+			      osc.connect(gain); const start = ctx.currentTime + i * 0.5;
+			      osc.start(start); osc.stop(start + dur);
 			    }
 			  }
 			}
@@ -1055,45 +607,150 @@ async function promptActivationCode() {
 			const menuToggle = document.getElementById("menu-toggle");
 			const menuPanel = document.getElementById("menu-panel");
 			
-			if (menuToggle && menuPanel) {
-			  menuToggle.addEventListener("click", () => {
-			    menuPanel.classList.toggle("open");
-			  });
-			  document.addEventListener("click", (e) => {
-			    if (!menuPanel.contains(e.target) && !menuToggle.contains(e.target)) {
-			      menuPanel.classList.remove("open");
-			    }
-			  });
-			}
+			menuToggle.addEventListener("click", () => { menuPanel.classList.toggle("open"); });
+			document.addEventListener("click", (e) => {
+			  if (!menuPanel.contains(e.target) && !menuToggle.contains(e.target)) {
+			    menuPanel.classList.remove("open");
+			  }
+			});
 			
 			window.addEventListener("message", (e) => {
-			  if (e.data?.type === "SAVE_SCOREBOARD") {
-			    saveScoreboardData(e.data.data);
-			  } else if (e.data?.type === "REQUEST_LOAD_SCOREBOARD") {
+			  if (e.data?.type === "SAVE_SCOREBOARD") saveScoreboardData(e.data.data);
+			  else if (e.data?.type === "REQUEST_LOAD_SCOREBOARD") {
 			    const data = loadScoreboardData();
 			    e.source.postMessage({ type: "LOAD_SCOREBOARD_RESPONSE", data }, "*");
 			  }
 			});
 			
+			// === SPLIT SCREEN POPUP ===
 			function openPopup() {
-			  if (popupWindow && !popupWindow.closed) {
-			    popupWindow.focus();
-			    return;
-			  }
+			  if (popupWindow && !popupWindow.closed) { popupWindow.focus(); return; }
 			  popupWindow = window.open("", "", "width=800,height=500,left=1920,top=100");
-			  const popupHTML = `<html><head><title>Timer + Scoreboard</title></head><body><div id="popup-time">00:00.00</div></body></html>`;
-			  popupWindow.document.open();
-			  popupWindow.document.write(popupHTML);
-			  popupWindow.document.close();
+			  const popupHTML = `
+			<html>
+			<head>
+			<title>Timer + Scoreboard</title>
+			<style>
+			body { margin: 0; background: #111; color: #0f0; font-family: sans-serif; padding: 60px; }
+			.view { display: none; } .active { display: block; }
+			#popup-time { font-size: 23vw; font-weight: bold; }
+			#view-scoreboard table thead { background-color: #222; color: #fff; }
+			#view-scoreboard table thead input { background-color: #444; color: #fff; border: none; text-align: center; width: 100%; padding: 4px; }
+			footer { margin-top: 5px; font-size: 2.0em; color: #888; opacity: 0.4; padding: 1px; text-align: center; }
+			button { padding: 10px 20px; font-size: 1em; cursor: pointer; margin: 5px 5px 20px 0; background: #0f0; color: #000; font-weight: bold; border: none; }
+			table { width: 100%; border-collapse: collapse; }
+			th, td { border: 1px solid #0f0; padding: 5px; }
+			input { width: 100%; background: #000; color: #0f0; border: none; text-align: center; font-size: 2.2em; }
+			.blink { animation: blink 0.1s step-start 0s infinite; }
+			@keyframes blink { 50% { opacity: 0; } }
+			.flash-bg { animation: flashbg 3s ease-in-out; }
+			@keyframes flashbg {
+			 0%, 100% { background: black; } 10%, 40%, 70% { background: #ffd700; }
+			 20%, 50%, 80% { background: #ff6347; } 30%, 60%, 90% { background: #40e0d0; }
+			}
+			</style>
+			</head>
+			<body>
+			<button id="fullscreenBtn" onclick="goFullscreen()">⛶ Fullscreen (F)</button>
+			<div id="view-timer" class="view active">
+			<div id="popup-label" style="font-size:1em; opacity:0.8;"></div>
+			<div id="popup-time">00:00.00</div>
+			<footer>Copyright ©2026 gerejaPNIELoebobo — Powered by <a href="https://web.whatsapp.com/send/?phone=6282146565818&text=Silahkan+Chat+Jika+Berminat" style="color:#0f0;">MulMedJPO</a></footer>
+			</div>
+			<div id="view-scoreboard" class="view">
+			<h1 style="text-align: center;">🏆 Scoreboard</h1>
+			<table id="score-table">
+			 <thead>
+			   <tr>
+			     <th><input type="text" value="Tim"></th><th><input type="text" value="Babak 1"></th>
+			     <th><input type="text" value="Babak 2"></th><th><input type="text" value="Babak 3"></th>
+			     <th><input type="text" value="Babak 4"></th><th><input type="text" value="TOTAL"></th><th></th>
+			   </tr>
+			 </thead>
+			 <tbody></tbody>
+			</table>
+			</div>
+			<script>
+			let showingTimer = true;
+			function toggleView() {
+			 showingTimer = !showingTimer;
+			 document.getElementById('view-timer').classList.toggle('active');
+			 document.getElementById('view-scoreboard').classList.toggle('active');
+			 if (!showingTimer) window.opener.postMessage({ type: 'REQUEST_LIVE_SCOREBOARD' }, '*');
+			}
+			function showChampion(team='CHAMPION', score=''){
+			 window.opener.postMessage({ type: 'SHOW_CHAMPION', team, score }, '*');
+			}
+			window.addEventListener('keydown', e => {
+			 if (e.key.toLowerCase() === 't') toggleView();
+			 if (e.key.toLowerCase() === 'f') goFullscreen();
+			});
+			function goFullscreen() {
+			 document.documentElement.requestFullscreen().then(() => {
+			   const btn = document.getElementById("fullscreenBtn"); if (btn) btn.style.display = "none";
+			 }).catch(err => alert('Fullscreen failed: ' + err.message));
+			}
+			document.addEventListener('fullscreenchange', () => {
+			 const btn = document.getElementById("fullscreenBtn");
+			 if (!document.fullscreenElement && btn) btn.style.display = "inline-block";
+			});
+			function addRow(data = ["Tim", 0, 0, 0, 0, "0"]) {
+			 const row = document.createElement('tr');
+			 row.innerHTML = data.map((v, i) => \`<td><input type="\${i > 0 && i < 5 ? 'number' : 'text'}" value="\${v}"></td>\`).join('');
+			 document.querySelector('#score-table tbody').appendChild(row);
+			}
+			function updateTotal(row) {
+			 const inputs = row.querySelectorAll('input'); let sum = 0;
+			 for (let i = 1; i <= 4; i++) sum += parseInt(inputs[i].value) || 0;
+			 inputs[5].value = sum;
+			}
+			document.addEventListener('input', e => {
+			 if (e.target.closest('#score-table tbody')) updateTotal(e.target.closest('tr'));
+			});
+			function getData() {
+			 const headers = Array.from(document.querySelectorAll('#score-table thead input')).map(i => i.value);
+			 const rows = Array.from(document.querySelectorAll('#score-table tbody tr')).map(row =>
+			   Array.from(row.querySelectorAll('input')).map(input => input.value)
+			 );
+			 return { headers, rows };
+			}
+			function requestSave() {
+			 const roundName = 'Round1';
+			 window.opener.postMessage({ type: 'SAVE_SCOREBOARD', round: roundName, data: getData() }, '*');
+			}
+			function requestLoad() { window.opener.postMessage({ type: 'REQUEST_LOAD_SCOREBOARD', round: 'Round1' }, '*'); }
+			function listRounds() { window.opener.postMessage({ type: 'REQUEST_LIST_ROUNDS' }, '*'); }
+			function loadData(data) {
+			 const tbody = document.querySelector('#score-table tbody'); tbody.innerHTML = '';
+			 data.rows.forEach(row => addRow(row));
+			 const inputs = document.querySelectorAll('#score-table thead input');
+			 data.headers.forEach((val, i) => { if (inputs[i]) inputs[i].value = val; });
+			}
+			function updateScoreboardUI(data) { loadData(data); }
+			window.addEventListener('message', e => {
+			 if (e.data?.type === 'TOGGLE_VIEW') { toggleView(); return; }
+			 if (e.data?.type === 'SHOW_CHAMPION') return;
+			 const display = document.getElementById('popup-time');
+			 const label = document.getElementById('popup-label');
+			 if (e.data?.type === 'LOAD_SCOREBOARD_RESPONSE') loadData(e.data.data);
+			 else if (e.data?.type === 'LIVE_SCOREBOARD_RESPONSE') updateScoreboardUI(e.data.data);
+			 else if (typeof e.data === 'object') {
+			   if (e.data.time) display.textContent = e.data.time;
+			   if (e.data.label) label.textContent = e.data.label;
+			 } else if (typeof e.data === 'string' && e.data.startsWith('__ALERT__')) {
+			   display.classList.add('blink'); document.body.classList.add('flash-bg');
+			   setTimeout(() => { display.classList.remove('blink'); document.body.classList.remove('flash-bg'); }, 2000);
+			 } else { display.textContent = e.data; }
+			});
+			addRow(); addRow();
+			<\/script>
+			</body>
+			</html>
+			`;
+			  popupWindow.document.open(); popupWindow.document.write(popupHTML); popupWindow.document.close();
 			  popupWindow.onbeforeunload = () => { popupWindow = null; };
 			}
-			
-			function closePopup() {
-			  if (popupWindow && !popupWindow.closed) {
-			    popupWindow.close();
-			    popupWindow = null;
-			  }
-			}
+			function closePopup() { if (popupWindow && !popupWindow.closed) { popupWindow.close(); popupWindow = null; } }
 			
 			function applyTheme(theme) {
 			  const themes = ["neon-theme", "light-theme", "dark-theme", "lemon-theme"];
@@ -1101,183 +758,175 @@ async function promptActivationCode() {
 			  document.body.classList.add(`${theme}-theme`);
 			  localStorage.setItem("theme", theme);
 			}
+			function getDeviceKey() { return btoa(navigator.userAgent + navigator.language + screen.width + screen.height); }
 			
-			function getDeviceKey() {
-			  return btoa(navigator.userAgent + navigator.language + screen.width + screen.height);
-			}
-			
-			function resetActivation() {
-			  localStorage.removeItem("access");
-			  location.reload();
-			}
+			function resetActivation() { localStorage.removeItem("access"); location.reload(); }
 			
 			function activatePro() {
-			  activated = true;
-			  keyboardEnabled = true;
+			  activated = true; keyboardEnabled = true;
 			  document.querySelectorAll(".pro-tab, .pro-feature").forEach((e) => e.classList.remove("hidden"));
-			  const lockedMsg = document.getElementById("locked-message");
-			  if (lockedMsg) lockedMsg.style.display = "none";
+			  document.getElementById("locked-message").style.display = "none";
 			  const status = document.getElementById("activation-status");
-			  if (status) {
-			    status.textContent = "✅ Activated – Pro Unlocked!";
-			    status.style.color = "green";
-			  }
+			  status.textContent = "✅ Activated – Pro Unlocked!"; status.style.color = "green";
 			}
 			
 			function checkTrialStatus() {
 			  const data = JSON.parse(localStorage.getItem("access") || "{}");
 			  const proElements = document.querySelectorAll(".pro-tab, .pro-feature");
 			  const status = document.getElementById("activation-status");
-			  if (!status) return;
-			
 			  if (data.fingerprint && data.fingerprint !== getDeviceKey()) {
-			    localStorage.removeItem("access");
-			    status.textContent = "⛔ Activation invalid on this browser.";
-			    status.style.color = "red";
-			    proElements.forEach((e) => e.classList.add("hidden"));
-			    return;
+			    localStorage.removeItem("access"); status.textContent = "⛔ Activation invalid on this browser.";
+			    status.style.color = "red"; proElements.forEach((e) => e.classList.add("hidden")); return;
 			  }
-			
 			  if (data.activated) {
-			    activated = true;
-			    keyboardEnabled = true;
+			    activated = true; keyboardEnabled = true;
 			    if (data.expires) {
-			      const now = new Date();
-			      const expiresAt = new Date(data.expires);
-			      const msLeft = expiresAt - now;
-			
+			      const msLeft = new Date(data.expires) - new Date();
 			      if (msLeft <= 0) {
-			        localStorage.removeItem("access");
-			        status.textContent = "⛔ Activation expired – Please activate again.";
-			        status.style.color = "red";
-			        proElements.forEach((e) => e.classList.add("hidden"));
-			        return;
+			        localStorage.removeItem("access"); status.textContent = "⛔ Activation expired.";
+			        status.style.color = "red"; proElements.forEach((e) => e.classList.add("hidden")); return;
 			      }
-			
-			      const hours = Math.floor(msLeft / (1000 * 60 * 60));
-			      const minutes = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
-			      activatePro();
-			      status.textContent = `✅ Activated – Berakhir: ${hours} Jam ${minutes} Menit`;
+			      const hours = Math.floor(msLeft / 3600000); const minutes = Math.floor((msLeft % 3600000) / 60000);
+			      activatePro(); status.textContent = `✅ Activated – Berakhir: ${hours} Jam ${minutes} Menit`;
 			      status.style.color = "green";
-			    } else {
-			      activatePro();
-			      status.textContent = "✅ Activated – Lifetime access!";
-			      status.style.color = "green";
-			    }
+			    } else { activatePro(); status.textContent = "✅ Activated – Lifetime access!"; status.style.color = "green"; }
 			    return;
 			  }
-			
 			  proElements.forEach((e) => e.classList.add("hidden"));
-			  const trialStart = localStorage.getItem("trialStart");
-			  const now = new Date();
-			
+			  const trialStart = localStorage.getItem("trialStart"); const now = new Date();
 			  if (!trialStart) {
 			    localStorage.setItem("trialStart", now.toISOString());
-			    status.textContent = "🎁 Trial started – Activate to unlock Pro features.";
-			    status.style.color = "orange";
-			    return;
+			    status.textContent = "🎁 Trial started – Activate to unlock Pro features."; status.style.color = "orange"; return;
 			  }
-			
 			  const hours = TRIAL_DURATION_DAYS * 24 - (now - new Date(trialStart)) / 3600000;
-			  if (hours <= 0) {
-			    status.textContent = "⛔ Trial expired – Activation required.";
-			    status.style.color = "red";
-			  } else {
-			    status.textContent = `🎁 Trial active – ${Math.floor(hours)}h left. Activate for full features!`;
-			    status.style.color = "orange";
-			  }
-			}
-			
-			function renderCodeStatusList() {
-			  // Dinonaktifkan karena menggunakan verifikasi online via GAS
+			  if (hours <= 0) { status.textContent = "⛔ Trial expired – Activation required."; status.style.color = "red"; }
+			  else { status.textContent = `🎁 Trial active – ${Math.floor(hours)}h left.`; status.style.color = "orange"; }
 			}
 			
 			let resetTimeout;
 			document.addEventListener("keydown", (e) => {
 			  if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "a") {
-			    const adminBtn = document.getElementById("admin-btn");
-			    const resetBtn = document.getElementById("reset-btn");
-			    if (adminBtn) adminBtn.style.display = "inline-block";
-			    if (resetBtn) resetBtn.style.display = "inline-block";
+			    const adminBtn = document.getElementById("admin-btn"); const resetBtn = document.getElementById("reset-btn");
+			    adminBtn.style.display = "inline-block"; resetBtn.style.display = "inline-block";
 			    alert("🔐 Admin mode unlocked");
-			
-			    clearTimeout(resetTimeout);
-			    resetTimeout = setTimeout(() => {
-			      if (resetBtn) resetBtn.style.display = "none";
-			    }, 5000);
+			    clearTimeout(resetTimeout); resetTimeout = setTimeout(() => { resetBtn.style.display = "none"; }, 5000);
 			  }
 			});
 			
 			function showWinner() {
 			  const banner = document.getElementById('winner-banner');
-			  if (banner) banner.style.display = 'block';
+			  const screen = document.getElementById('winner-screen');
+			  screen.classList.add('show');
+			  setTimeout(() => { screen.classList.remove('show'); }, 5000);
 			}
 			
 			function openAdminPanel() {
 			  const pass = prompt("Enter Admin Password:");
-			  if (pass !== "MulMed2026") {
-			    alert("Incorrect password.");
-			    return;
-			  }
-			  alert("Admin panel diakses. Verifikasi online aktif via Google Sheets.");
+			  if (pass !== "MulMed2026") { alert("Incorrect password."); return; }
+			  document.getElementById("admin-btn").style.display = "none";
+			  window.open("https://docs.google.com/spreadsheets/d/1N7q70ErhunKZcim52mSQyPhXe-wLY0lGcOQGP7ILrAM/edit?usp=sharing", "_blank");
 			}
 			
 			function openScoreboard() {
-			  window.open("", "", "width=800,height=500");
+			  const scoreboardWindow = window.open("", "", "width=800,height=500");
+			  const scoreboardHTML = `
+			<html><head><title>Scoreboard</title>
+			<style> body { font-family:sans-serif; background:#111; color:#0f0; padding:10px; } table { width:100%; border-collapse:collapse; } th, td { border:1px solid #0f0; padding:5px; } input { width:100%; background:#000; color:#0f0; border:none; text-align:center; font-size:1.2em; } button { padding:10px 15px; margin:5px; font-size:1em; background:#0f0; color:#000; font-weight:bold; } </style>
+			</head><body><h2 style="text-align: center;">🏆 Scoreboard</h2>
+			<table id="score-table"><thead><tr><th><input type="text" value="Tim"></th><th><input type="text" value="Babak 1"></th><th><input type="text" value="Babak 2"></th><th><input type="text" value="Babak 3"></th><th><input type="text" value="Babak 4"></th><th><input type="text" value="TOTAL"></th></tr></thead><tbody></tbody></table>
+			<button onclick="addRow()">➕ Add Team</button><button onclick="resetTable()">🔄 Reset Table</button>
+			<input id="roundName" placeholder="Round name" style="font-size:1em; padding:5px; width:auto;" />
+			<button onclick="requestSave()">💾 Save</button><button onclick="requestLoad()">📂 Load</button>
+			<script>
+			function resetTable() {
+			 if (confirm('Are you sure you want to reset the table?')) {
+			   document.querySelectorAll('#score-table tbody tr').forEach(row => {
+			     const inputs = row.querySelectorAll('input');
+			     for (let i = 1; i < inputs.length; i++) inputs[i].value = '0';
+			   });
+			 }
+			}
+			function addRow(data = ["Tim", 0, 0, 0, 0, "0"]) {
+			 const row = document.createElement('tr');
+			 data.forEach((v, i) => { const cell = document.createElement('td'); const input = document.createElement('input'); input.type = (i > 0 && i < 5) ? 'number' : 'text'; input.value = v; cell.appendChild(input); row.appendChild(cell); });
+			 const deleteCell = document.createElement('td'); const deleteBtn = document.createElement('button'); deleteBtn.textContent = '❌'; deleteBtn.style.cssText = 'background:none;color:red;border:none;font-size:1em;cursor:pointer;'; deleteBtn.onclick = () => row.remove();
+			 deleteCell.appendChild(deleteBtn); row.appendChild(deleteCell); document.querySelector('#score-table tbody').appendChild(row);
+			}
+			function updateTotal(row) { const inputs = row.querySelectorAll('input'); let sum = 0; for (let i = 1; i <= 4; i++) sum += parseInt(inputs[i].value) || 0; inputs[5].value = sum; }
+			document.addEventListener('input', e => {
+			 if (e.target.closest('#score-table tbody')) { updateTotal(e.target.closest('tr')); window.opener.postMessage({ type: 'LIVE_SCOREBOARD_UPDATE', data: getData() }, '*'); }
+			});
+			function getData() {
+			 const headers = Array.from(document.querySelectorAll('#score-table thead input')).map(i => i.value);
+			 const rows = Array.from(document.querySelectorAll('#score-table tbody tr')).map(row => Array.from(row.querySelectorAll('input')).map(input => input.value));
+			 return { headers, rows };
+			}
+			function requestSave() { alert('Data passed to parent.'); } function requestLoad() { alert('Data requested.'); }
+			for (let i = 0; i < 2; i++) addRow();
+			<\/script>
+			</body></html>`;
+			  scoreboardWindow.document.open(); scoreboardWindow.document.write(scoreboardHTML); scoreboardWindow.document.close();
 			}
 			
 			let latestScoreboardData = null;
 			window.addEventListener("message", (e) => {
-			  if (e.data?.type === "LIVE_SCOREBOARD_UPDATE") {
-			    latestScoreboardData = e.data.data;
-			  }
-			  if (e.data?.type === "REQUEST_LIVE_SCOREBOARD") {
-			    e.source.postMessage({ type: "LIVE_SCOREBOARD_RESPONSE", data: latestScoreboardData }, "*");
-			  }
+			  if (e.data?.type === "LIVE_SCOREBOARD_UPDATE") latestScoreboardData = e.data.data;
+			  if (e.data?.type === "REQUEST_LIVE_SCOREBOARD") e.source.postMessage({ type: "LIVE_SCOREBOARD_RESPONSE", data: latestScoreboardData }, "*");
 			});
 			
 			function handleKeyboardShortcuts(e) {
 			  if (!activated || !keyboardEnabled) return;
 			  const key = e.key.toLowerCase();
+			  if (key === "t") { if (popupWindow && !popupWindow.closed) popupWindow.postMessage({ type: "TOGGLE_VIEW" }, "*"); return; }
 			  if (key === "p") { openPopup(); return; }
 			  if (key === "x") { closePopup(); return; }
 			  const activeTab = document.querySelector(".tab-content.active")?.id;
 			  if (key === "c") showTab("countdown");
 			  if (key === "s") showTab("stopwatch");
 			  if (key === "m") showTab("multi");
+			  if (key === "enter") {
+			    if (activeTab === "countdown") startCountdown(); else if (activeTab === "stopwatch") startStopwatch(); else startMultiTimers();
+			  }
+			  if (key === " ") {
+			    e.preventDefault();
+			    if (activeTab === "countdown") pauseCountdown(); else if (activeTab === "stopwatch") pauseStopwatch();
+			  }
+			  if (key === "r") {
+			    if (activeTab === "countdown") resetCountdown(); else if (activeTab === "stopwatch") resetStopwatch(); else resetMultiTimers();
+			  }
 			}
-			
 			document.addEventListener("keydown", handleKeyboardShortcuts);
 			
 			function toggleKeyboard() {
 			  keyboardEnabled = !keyboardEnabled;
 			  const indicator = document.getElementById("keyboard-status");
-			  if (indicator) {
-			    indicator.textContent = `⌨️ Shortcuts: ${keyboardEnabled ? "ON" : "OFF"}`;
-			    indicator.style.color = keyboardEnabled ? "blue" : "gray";
-			  }
+			  indicator.textContent = `⌨️ Shortcuts: ${keyboardEnabled ? "ON" : "OFF"}`;
+			  indicator.style.color = keyboardEnabled ? "blue" : "gray";
+			  const btn = document.querySelector('button[onclick="toggleKeyboard()"]');
+			  btn.textContent = keyboardEnabled ? "⌨️ KB Sortcut: ON 💡" : "⌨️ KB Sortcut: OFF";
 			}
 			
 			let flashEnabled = true;
 			function toggleFlashEnabled() {
 			  flashEnabled = !flashEnabled;
+			  const btn = document.querySelector('button[onclick="toggleFlashEnabled()"]');
+			  btn.textContent = flashEnabled ? "💡 Flash: ON" : "💤 Flash: OFF";
 			}
 			
 			function flashEffect() {
 			  if (!flashEnabled) return;
 			  const overlay = document.getElementById("flash-overlay");
-			  if (overlay) {
-			    overlay.classList.remove("flash");
-			    void overlay.offsetWidth;
-			    overlay.classList.add("flash");
+			  if (overlay) { overlay.classList.remove("flash"); void overlay.offsetWidth; overlay.classList.add("flash"); }
+			  if (popupWindow && !popupWindow.closed) {
+			    const popupBody = popupWindow.document.body; popupBody.classList.add("flash-bg");
+			    setTimeout(() => { popupBody.classList.remove("flash-bg"); }, 3000);
 			  }
 			}
 			
 			window.addEventListener("DOMContentLoaded", () => {
 			  checkTrialStatus();
 			  const theme = localStorage.getItem("theme") || "light";
-			  const themeSelector = document.getElementById("themeSelector");
-			  if (themeSelector) themeSelector.value = theme;
+			  document.getElementById("themeSelector").value = theme;
 			  applyTheme(theme);
 			});
 			
@@ -1288,7 +937,22 @@ async function promptActivationCode() {
 			}
 			
 			function openAboutPopup() {
-			  window.open("", "AboutHelp", "width=500,height=800");
+			  let aboutWindow = window.open("", "AboutHelp", "width=500,height=800");
+			  const aboutHTML = `
+			<html>
+			<head><title>About & Help</title>
+			<style> body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding: 20px; text-align: center; color: #333; } h1 { font-size: 2em; margin-bottom: 0.5em; } p { font-size: 1em; margin-top: 0.5em; } </style>
+			</head>
+			<body><h1>About Timer App Pro V3</h1><p>Built by RungguRangga!</p>
+			<p>📋 Activate PRO mode to unlock more features. ✅ </p>
+			<p>✔️<b>1 day PRO Rp 50.000,-</b> ✅ </p><p>✔️<b>1 week PRO Rp 200.000,-</b> ✅ </p>
+			<h1>Keyboard Shortcuts</h1><i>
+			<p>(key = 'P') open Popup </p><p>(key = 'F') fullscreen Popup </p><p>(key = 'X') close Popup </p>
+			<p>(key = 'T') switchPopup('score/timer') </p><p>(key = 'C') switchTab('countdown') </p>
+			<p>(key = 'S') switchTab('stopwatch') </p><p>(key = 'M') switchTab('multi') </p>
+			<p>(key = 'R') reset </p><p>(key = 'Enter') start </p><p>(key = 'Space') pause </p></i>
+			</body></html>`;
+			  aboutWindow.document.open(); aboutWindow.document.write(aboutHTML); aboutWindow.document.close();
 			}
 		</script>
 	</body>
