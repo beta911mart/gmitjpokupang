@@ -1548,37 +1548,6 @@ async function promptActivationCode() {
 			}
 			
 			function renderCodeStatusList() {
-			  const used = JSON.parse(localStorage.getItem("usedCodes") || "[]");
-			  const access = JSON.parse(localStorage.getItem("access") || "{}");
-			  const now = new Date();
-			  const list = document.getElementById("code-status-list");
-			  list.innerHTML = "";
-			
-			  VALID_CODES.forEach((c) => {
-			    const li = document.createElement("li");
-			    let status = "🆕 Unused";
-			    let color = "black";
-			
-			    if (used.includes(c.hash)) {
-			      status = "✅ Used";
-			      color = "green";
-			
-			      if (access.codeHash === c.hash && c.expires) {
-			        const expDate = new Date(access.expires);
-			        if (now > expDate) {
-			          status = "⛔ Expired";
-			          color = "red";
-			        }
-			      } else if (access.codeHash !== c.hash) {
-			        status = "✅ Used (past)";
-			        color = "gray";
-			      }
-			    }
-			
-			    li.textContent = `${c.hash.slice(0, 8)}… – ${status}`;
-			    li.style.color = color;
-			    list.appendChild(li);
-			  });
 			}
 			
 			let resetTimeout;
