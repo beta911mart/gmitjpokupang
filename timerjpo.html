@@ -622,134 +622,167 @@
 			  }
 			});
 			
-			// === SPLIT SCREEN POPUP ===
-			function openPopup() {
-			  if (popupWindow && !popupWindow.closed) { popupWindow.focus(); return; }
-			  popupWindow = window.open("", "", "width=800,height=500,left=1920,top=100");
-			  const popupHTML = `
-			<html>
-			<head>
-			<title>Timer + Scoreboard</title>
-			<style>
-			body { margin: 0; background: #111; color: #0f0; font-family: sans-serif; padding: 60px; }
-			.view { display: none; } .active { display: block; }
-			#popup-time { font-size: 23vw; font-weight: bold; }
-			#view-scoreboard table thead { background-color: #222; color: #fff; }
-			#view-scoreboard table thead input { background-color: #444; color: #fff; border: none; text-align: center; width: 100%; padding: 4px; }
-			footer { margin-top: 5px; font-size: 2.0em; color: #888; opacity: 0.4; padding: 1px; text-align: center; }
-			button { padding: 10px 20px; font-size: 1em; cursor: pointer; margin: 5px 5px 20px 0; background: #0f0; color: #000; font-weight: bold; border: none; }
-			table { width: 100%; border-collapse: collapse; }
-			th, td { border: 1px solid #0f0; padding: 5px; }
-			input { width: 100%; background: #000; color: #0f0; border: none; text-align: center; font-size: 2.2em; }
-			.blink { animation: blink 0.1s step-start 0s infinite; }
-			@keyframes blink { 50% { opacity: 0; } }
-			.flash-bg { animation: flashbg 3s ease-in-out; }
-			@keyframes flashbg {
-			 0%, 100% { background: black; } 10%, 40%, 70% { background: #ffd700; }
-			 20%, 50%, 80% { background: #ff6347; } 30%, 60%, 90% { background: #40e0d0; }
-			}
-			</style>
-			</head>
-			<body>
-			<button id="fullscreenBtn" onclick="goFullscreen()">⛶ Fullscreen (F)</button>
-			<div id="view-timer" class="view active">
-			<div id="popup-label" style="font-size:1em; opacity:0.8;"></div>
-			<div id="popup-time">00:00.00</div>
-			<footer>Copyright ©2026 gerejaPNIELoebobo — Powered by <a href="https://web.whatsapp.com/send/?phone=6282146565818&text=Silahkan+Chat+Jika+Berminat" style="color:#0f0;">MulMedJPO</a></footer>
-			</div>
-			<div id="view-scoreboard" class="view">
-			<h1 style="text-align: center;">🏆 Scoreboard</h1>
-			<table id="score-table">
-			 <thead>
-			   <tr>
-			     <th><input type="text" value="Tim"></th><th><input type="text" value="Babak 1"></th>
-			     <th><input type="text" value="Babak 2"></th><th><input type="text" value="Babak 3"></th>
-			     <th><input type="text" value="Babak 4"></th><th><input type="text" value="TOTAL"></th><th></th>
-			   </tr>
-			 </thead>
-			 <tbody></tbody>
-			</table>
-			</div>
-			<script>
-			let showingTimer = true;
-			function toggleView() {
-			 showingTimer = !showingTimer;
-			 document.getElementById('view-timer').classList.toggle('active');
-			 document.getElementById('view-scoreboard').classList.toggle('active');
-			 if (!showingTimer) window.opener.postMessage({ type: 'REQUEST_LIVE_SCOREBOARD' }, '*');
-			}
-			function showChampion(team='CHAMPION', score=''){
-			 window.opener.postMessage({ type: 'SHOW_CHAMPION', team, score }, '*');
-			}
-			window.addEventListener('keydown', e => {
-			 if (e.key.toLowerCase() === 't') toggleView();
-			 if (e.key.toLowerCase() === 'f') goFullscreen();
-			});
-			function goFullscreen() {
-			 document.documentElement.requestFullscreen().then(() => {
-			   const btn = document.getElementById("fullscreenBtn"); if (btn) btn.style.display = "none";
-			 }).catch(err => alert('Fullscreen failed: ' + err.message));
-			}
-			document.addEventListener('fullscreenchange', () => {
-			 const btn = document.getElementById("fullscreenBtn");
-			 if (!document.fullscreenElement && btn) btn.style.display = "inline-block";
-			});
-			function addRow(data = ["Tim", 0, 0, 0, 0, "0"]) {
-			 const row = document.createElement('tr');
-			 row.innerHTML = data.map((v, i) => \`<td><input type="\${i > 0 && i < 5 ? 'number' : 'text'}" value="\${v}"></td>\`).join('');
-			 document.querySelector('#score-table tbody').appendChild(row);
-			}
-			function updateTotal(row) {
-			 const inputs = row.querySelectorAll('input'); let sum = 0;
-			 for (let i = 1; i <= 4; i++) sum += parseInt(inputs[i].value) || 0;
-			 inputs[5].value = sum;
-			}
-			document.addEventListener('input', e => {
-			 if (e.target.closest('#score-table tbody')) updateTotal(e.target.closest('tr'));
-			});
-			function getData() {
-			 const headers = Array.from(document.querySelectorAll('#score-table thead input')).map(i => i.value);
-			 const rows = Array.from(document.querySelectorAll('#score-table tbody tr')).map(row =>
-			   Array.from(row.querySelectorAll('input')).map(input => input.value)
-			 );
-			 return { headers, rows };
-			}
-			function requestSave() {
-			 const roundName = 'Round1';
-			 window.opener.postMessage({ type: 'SAVE_SCOREBOARD', round: roundName, data: getData() }, '*');
-			}
-			function requestLoad() { window.opener.postMessage({ type: 'REQUEST_LOAD_SCOREBOARD', round: 'Round1' }, '*'); }
-			function listRounds() { window.opener.postMessage({ type: 'REQUEST_LIST_ROUNDS' }, '*'); }
-			function loadData(data) {
-			 const tbody = document.querySelector('#score-table tbody'); tbody.innerHTML = '';
-			 data.rows.forEach(row => addRow(row));
-			 const inputs = document.querySelectorAll('#score-table thead input');
-			 data.headers.forEach((val, i) => { if (inputs[i]) inputs[i].value = val; });
-			}
-			function updateScoreboardUI(data) { loadData(data); }
-			window.addEventListener('message', e => {
-			 if (e.data?.type === 'TOGGLE_VIEW') { toggleView(); return; }
-			 if (e.data?.type === 'SHOW_CHAMPION') return;
-			 const display = document.getElementById('popup-time');
-			 const label = document.getElementById('popup-label');
-			 if (e.data?.type === 'LOAD_SCOREBOARD_RESPONSE') loadData(e.data.data);
-			 else if (e.data?.type === 'LIVE_SCOREBOARD_RESPONSE') updateScoreboardUI(e.data.data);
-			 else if (typeof e.data === 'object') {
-			   if (e.data.time) display.textContent = e.data.time;
-			   if (e.data.label) label.textContent = e.data.label;
-			 } else if (typeof e.data === 'string' && e.data.startsWith('__ALERT__')) {
-			   display.classList.add('blink'); document.body.classList.add('flash-bg');
-			   setTimeout(() => { display.classList.remove('blink'); document.body.classList.remove('flash-bg'); }, 2000);
-			 } else { display.textContent = e.data; }
-			});
-			addRow(); addRow();
-			<\/script>
-			</body>
-			</html>
-			`;
-			  popupWindow.document.open(); popupWindow.document.write(popupHTML); popupWindow.document.close();
-			  popupWindow.onbeforeunload = () => { popupWindow = null; };
-			}
+// === SPLIT SCREEN POPUP ===
+function openPopup() {
+  if (popupWindow && !popupWindow.closed) { popupWindow.focus(); return; }
+  popupWindow = window.open("", "", "width=800,height=500,left=1920,top=100");
+  const popupHTML = `
+<html>
+<head>
+<title>Timer + Scoreboard</title>
+<style>
+body { margin: 0; background: #111; color: #0f0; font-family: sans-serif; padding: 60px; }
+.view { display: none; } .active { display: block; }
+#popup-time { font-size: 23vw; font-weight: bold; text-align: center; }
+#view-scoreboard table thead { background-color: #222; color: #fff; }
+#view-scoreboard table thead input { background-color: #444; color: #fff; border: none; text-align: center; width: 100%; padding: 4px; }
+footer { margin-top: 5px; font-size: 2.0em; color: #888; opacity: 0.4; padding: 1px; text-align: center; }
+button { padding: 10px 20px; font-size: 1em; cursor: pointer; margin: 5px 5px 20px 0; background: #0f0; color: #000; font-weight: bold; border: none; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border: 1px solid #0f0; padding: 5px; }
+input { width: 100%; background: #000; color: #0f0; border: none; text-align: center; font-size: 2.2em; }
+.blink { animation: blink 0.1s step-start 0s infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.flash-bg { animation: flashbg 3s ease-in-out; }
+@keyframes flashbg {
+ 0%, 100% { background: black; } 10%, 40%, 70% { background: #ffd700; }
+ 20%, 50%, 80% { background: #ff6347; } 30%, 60%, 90% { background: #40e0d0; }
+}
+
+/* --- TAMBAHAN CSS JUARA UNTUK LAYAR POPUP --- */
+#winner-screen {
+  display: none; position: fixed; inset: 0; z-index: 999999;
+  background: linear-gradient(135deg, #ffd700, #ffa500, #ffd700);
+  color: #000; justify-content: center; align-items: center; flex-direction: column;
+  text-align: center; font-family: Arial, sans-serif;
+}
+#winner-title { font-size: 6vw; font-weight: bold; margin-bottom: 20px; }
+#winner-name { font-size: 10vw; font-weight: bold; }
+#winner-score { font-size: 5vw; margin-top: 20px; }
+#winner-screen.show { animation: championPop 0.5s ease; }
+@keyframes championPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+<button id="fullscreenBtn" onclick="goFullscreen()">⛶ Fullscreen (F)</button>
+<div id="view-timer" class="view active">
+<div id="popup-label" style="font-size:1em; opacity:0.8;"></div>
+<div id="popup-time">00:00.00</div>
+<footer>Copyright ©2026 gerejaPNIELoebobo — Powered by <a href="https://web.whatsapp.com/send/?phone=6282146565818&text=Silahkan+Chat+Jika+Berminat" style="color:#0f0;">MulMedJPO</a></footer>
+</div>
+<div id="view-scoreboard" class="view">
+<h1 style="text-align: center;">🏆 Scoreboard</h1>
+<table id="score-table">
+ <thead>
+   <tr>
+     <th><input type="text" value="Tim"></th><th><input type="text" value="Babak 1"></th>
+     <th><input type="text" value="Babak 2"></th><th><input type="text" value="Babak 3"></th>
+     <th><input type="text" value="Babak 4"></th><th><input type="text" value="TOTAL"></th><th></th>
+   </tr>
+ </thead>
+ <tbody></tbody>
+</table>
+</div>
+
+<!-- --- TAMBAHAN ELEMEN JUARA UNTUK LAYAR POPUP --- -->
+<div id="winner-screen">
+  <div id="winner-title">🏆 CHAMPION 🏆</div>
+  <div id="winner-name">TEAM ALFA</div>
+  <div id="winner-score">150 POINTS</div>
+</div>
+
+<script>
+let showingTimer = true;
+function toggleView() {
+ showingTimer = !showingTimer;
+ document.getElementById('view-timer').classList.toggle('active');
+ document.getElementById('view-scoreboard').classList.toggle('active');
+ if (!showingTimer) window.opener.postMessage({ type: 'REQUEST_LIVE_SCOREBOARD' }, '*');
+}
+
+window.addEventListener('keydown', e => {
+ if (e.key.toLowerCase() === 't') toggleView();
+ if (e.key.toLowerCase() === 'f') goFullscreen();
+});
+function goFullscreen() {
+ document.documentElement.requestFullscreen().then(() => {
+   const btn = document.getElementById("fullscreenBtn"); if (btn) btn.style.display = "none";
+ }).catch(err => alert('Fullscreen failed: ' + err.message));
+}
+document.addEventListener('fullscreenchange', () => {
+ const btn = document.getElementById("fullscreenBtn");
+ if (!document.fullscreenElement && btn) btn.style.display = "inline-block";
+});
+function addRow(data = ["Tim", 0, 0, 0, 0, "0"]) {
+ const row = document.createElement('tr');
+ row.innerHTML = data.map((v, i) => \`<td><input type="\${i > 0 && i < 5 ? 'number' : 'text'}" value="\${v}"></td>\`).join('');
+ document.querySelector('#score-table tbody').appendChild(row);
+}
+function updateTotal(row) {
+ const inputs = row.querySelectorAll('input'); let sum = 0;
+ for (let i = 1; i <= 4; i++) sum += parseInt(inputs[i].value) || 0;
+ inputs[5].value = sum;
+}
+document.addEventListener('input', e => {
+ if (e.target.closest('#score-table tbody')) updateTotal(e.target.closest('tr'));
+});
+function getData() {
+ const headers = Array.from(document.querySelectorAll('#score-table thead input')).map(i => i.value);
+ const rows = Array.from(document.querySelectorAll('#score-table tbody tr')).map(row =>
+   Array.from(row.querySelectorAll('input')).map(input => input.value)
+ );
+ return { headers, rows };
+}
+function loadData(data) {
+ const tbody = document.querySelector('#score-table tbody'); tbody.innerHTML = '';
+ data.rows.forEach(row => addRow(row));
+ const inputs = document.querySelectorAll('#score-table thead input');
+ data.headers.forEach((val, i) => { if (inputs[i]) inputs[i].value = val; });
+}
+function updateScoreboardUI(data) { loadData(data); }
+window.addEventListener('message', e => {
+ if (e.data?.type === 'TOGGLE_VIEW') { toggleView(); return; }
+ 
+ // --- BAGIAN INI DIPERBAIKI UNTUK MERESPON & MENAMPILKAN ANIMASI JUARA ---
+ if (e.data?.type === 'SHOW_CHAMPION') {
+    const screen = document.getElementById('winner-screen');
+    const title = document.getElementById('winner-name');
+    const scoreDisplay = document.getElementById('winner-score');
+
+    if (title) title.textContent = e.data.team;
+    if (scoreDisplay) scoreDisplay.textContent = e.data.score;
+
+    if (screen) {
+      screen.style.display = 'flex';
+      screen.classList.add('show');
+      setTimeout(() => {
+        screen.classList.remove('show');
+        screen.style.display = 'none';
+      }, 5000);
+    }
+    return;
+ }
+ 
+ const display = document.getElementById('popup-time');
+ const label = document.getElementById('popup-label');
+ if (e.data?.type === 'LOAD_SCOREBOARD_RESPONSE') loadData(e.data.data);
+ else if (e.data?.type === 'LIVE_SCOREBOARD_RESPONSE') updateScoreboardUI(e.data.data);
+ else if (typeof e.data === 'object') {
+   if (e.data.time) display.textContent = e.data.time;
+   if (e.data.label) label.textContent = e.data.label;
+ } else if (typeof e.data === 'string' && e.data.startsWith('__ALERT__')) {
+   display.classList.add('blink'); document.body.classList.add('flash-bg');
+   setTimeout(() => { display.classList.remove('blink'); document.body.classList.remove('flash-bg'); }, 2000);
+ } else { display.textContent = e.data; }
+});
+addRow(); addRow();
+<\/script>
+</body>
+</html>
+`;
+  popupWindow.document.open(); popupWindow.document.write(popupHTML); popupWindow.document.close();
+  popupWindow.onbeforeunload = () => { popupWindow = null; };
+}
 			function closePopup() { if (popupWindow && !popupWindow.closed) { popupWindow.close(); popupWindow = null; } }
 			
 			function applyTheme(theme) {
