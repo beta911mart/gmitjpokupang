@@ -643,20 +643,55 @@
 			let keyboardEnabled = false;
 			let scoreboardDataStore = JSON.parse(localStorage.getItem("scoreboardDataStore") || "{}");
 			
-			const VALID_CODES = [
-			  {
-			    hash: "171c389dea79023f3b449210f195788a9a90b6355ffe02091aa0ccf5aecd4d47",
-			    expiredIn: 8,
-			  },
-			  {
-			    hash: "a4f4e834f3cc6ec4517d8fb86f20843be7e85454a786521fde9078b18349d475",
-			    expiredIn: 3,
-			  },
-			  {
-			    hash: "d5cb4e05b838e633d5244483b776ee18853dbe9bd7f99fa84d10d9e1f4d0e509",
-			    expiredIn: 3,
-			  },
-			];
+// Ganti URL berikut dengan Web App URL dari Google Apps Script Anda
+const GAS_WEB_APP_URL = "MASUKKAN_URL_WEB_APP_GAS_ANDA_DI_SINI";
+
+async function promptActivationCode() {
+  const used = JSON.parse(localStorage.getItem("usedCodes") || "[]");
+  const code = prompt("Enter activation code:");
+  if (!code) return;
+
+  try {
+    // Tampilkan indikator loading jika perlu
+    alert("Memverifikasi kode secara online...");
+
+    const response = await fetch(`${GAS_WEB_APP_URL}?code=${encodeURIComponent(code)}`);
+    const result = await response.json();
+
+    if (result.status !== "success") {
+      return alert("❌ Invalid code.");
+    }
+
+    const hash = result.hash;
+    if (used.includes(hash)) {
+      return alert("⚠️ Code already used on this browser.");
+    }
+
+    // Hitung tanggal kedaluwarsa berdasarkan data dari GAS
+    let expDate = null;
+    if (result.expiredIn) {
+      expDate = new Date();
+      expDate.setDate(expDate.getDate() + parseInt(result.expiredIn));
+    }
+
+    const activation = {
+      activated: true,
+      codeHash: hash,
+      usedAt: new Date().toISOString(),
+      expires: expDate ? expDate.toISOString() : null,
+      fingerprint: getDeviceKey(),
+    };
+
+    used.push(hash);
+    localStorage.setItem("usedCodes", JSON.stringify(used));
+    localStorage.setItem("access", JSON.stringify(activation));
+    activatePro();
+    alert("✅ Activation successful!");
+  } catch (error) {
+    console.error(error);
+    alert("❌ Gagal terhubung ke server aktivasi online.");
+  }
+}
 			TRIAL_DURATION_DAYS = 1;
 			
 			function showTab(tabId) {
