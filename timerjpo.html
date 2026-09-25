@@ -313,8 +313,8 @@
 			    const result = await response.json();
 
 			    if (result.status !== "success") {
-			      return alert("❌ Invalid code.");
-			    }
+			    return alert(result.message || "❌ Invalid code.");
+    			}
 
 			    // Using the plaintext code as the hash identifier in the client app
 			    const hash = result.hash;
@@ -793,7 +793,11 @@ addRow(); addRow();
 			}
 			function getDeviceKey() { return btoa(navigator.userAgent + navigator.language + screen.width + screen.height); }
 			
-			function resetActivation() { localStorage.removeItem("access"); location.reload(); }
+			function resetActivation() { 
+  			localStorage.removeItem("access"); 
+  			localStorage.removeItem("usedCodes"); // Tambahkan baris ini agar reset bersih total
+  			location.reload(); 
+			}
 			
 			function activatePro() {
 			  activated = true; keyboardEnabled = true;
