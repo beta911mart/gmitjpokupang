@@ -791,7 +791,7 @@ addRow(); addRow();
 			  document.body.classList.add(`${theme}-theme`);
 			  localStorage.setItem("theme", theme);
 			}
-			function getDeviceKey() { return btoa(navigator.userAgent + navigator.language + screen.width + screen.height); }
+			function getDeviceKey() { return btoa(navigator.userAgent + navigator.language); }
 			
 			function resetActivation() { 
   			localStorage.removeItem("access"); 
