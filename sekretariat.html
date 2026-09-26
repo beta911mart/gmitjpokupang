@@ -1844,6 +1844,7 @@ Baris Terakhir: Ketik Quote penutup"></textarea>
 
         async function handleSaveRoster(e) {
             e.preventDefault();
+			const user = JSON.parse(sessionStorage.getItem("user_gereja") || "{}");
             const admin = JSON.parse(sessionStorage.getItem("admin_gereja") || "{}");
             const btn = document.getElementById("btnSubmitRoster");
             const editId = document.getElementById("editRosterId").value;
